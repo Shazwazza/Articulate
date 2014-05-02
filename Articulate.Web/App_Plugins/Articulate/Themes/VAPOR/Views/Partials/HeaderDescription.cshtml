@@ -1,0 +1,5 @@
+@model Articulate.Models.Post
+
+<h2 class="blog-description">
+    @(Model.Content.GetPropertyValue<string>("blogDescription", true))
+</h2>

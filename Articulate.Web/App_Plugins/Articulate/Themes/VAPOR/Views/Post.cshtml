@@ -1,0 +1,69 @@
+@using Umbraco.Core
+@model Articulate.Models.Post
+@{
+    Layout = "Master.cshtml";
+}
+
+<main class="content" role="main">
+
+    <article class="{{post_class}}">
+
+        @*{{#post}}*@
+
+        <header>
+            
+        @*{{#if tags}}<div class="post-meta tags">Posted in {{tags}}</div>{{/if}}*@
+            
+        <h1 class="post-title">@Model.Content.Name</h1>
+            <div class="post-meta">
+                <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">
+                    @Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                </time>
+            </div>
+        </header>
+
+        <section class="post-content">
+            
+            @RenderBody()
+
+        </section>
+
+        <section class="share">
+            <p class="info prompt">Share this post</p>
+            <a href="http://twitter.com/share?text=@Model.Content.Name&url=@Model.Content.NiceUrlWithDomain()"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=@Model.Content.NiceUrlWithDomain()"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=@Model.Content.NiceUrlWithDomain()"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+
+        <footer class="post-footer">
+            
+            @if (!Model.Author.IsNullOrWhiteSpace())
+            {
+                <section class="author">
+                    @*<div class="authorimage" style="background: url({{author.image}})"></div>*@
+                    <p class="attr">Author</p>
+                    <h4><a href="{{author.website}}">@Model.Author</a></h4>
+                    <p class="bio">{{author.bio}}</p>
+                </section>    
+            }
+
+        </footer>
+
+        @*{{/post}}*@
+
+        @*{{!> comments-disqus}}
+        {{!> comments-facebook}}
+        {{!> comments-google-plus}}*@
+
+    </article>
+
+</main>

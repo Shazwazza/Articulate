@@ -1,0 +1,8 @@
+@using Umbraco.Core
+@model Articulate.Models.Post
+@{
+    Layout = "Post.cshtml";
+}
+
+@(Model.Content.GetPropertyValue<IHtmlString>("richText"))
+@*{{content}}*@

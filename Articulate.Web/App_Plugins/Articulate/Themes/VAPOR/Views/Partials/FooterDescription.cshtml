@@ -1,0 +1,5 @@
+@model Umbraco.Web.Models.RenderModel
+
+<section class="footer-description">
+    @(Model.Content.GetPropertyValue<string>("blogDescription", true))
+</section>
