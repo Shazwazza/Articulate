@@ -191,7 +191,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\ArticulateBlogPostControllerBase.cs" />
+    <Compile Include="Controllers\BlogPostControllerBase.cs" />
+    <Compile Include="Controllers\ArticulateListController.cs" />
+    <Compile Include="Controllers\ArticulateMarkdownController.cs" />
+    <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\BlogModel.cs" />
