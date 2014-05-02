@@ -1,0 +1,17 @@
+@model IEnumerable<string>
+
+@if (Model.Any())
+{
+    <div class="post-meta tags">
+        Posted in
+
+        @foreach (var tag in Model)
+        {
+            <a href="#">@tag</a>
+            if (tag != Model.Last())
+            {
+                <span>, </span>
+            }            
+        }
+    </div>
+}

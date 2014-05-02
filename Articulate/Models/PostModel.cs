@@ -22,6 +22,15 @@ namespace Articulate.Models
         {
         }
 
+        public IEnumerable<string> Tags
+        {
+            get
+            {
+                var tags = this.GetPropertyValue<string>("tags");
+                return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            }
+        } 
+
         public AuthorModel Author
         {
             get

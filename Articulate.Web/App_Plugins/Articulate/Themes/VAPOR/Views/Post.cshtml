@@ -1,3 +1,4 @@
+@using Articulate
 @using Umbraco.Core
 @model Articulate.Models.PostModel
 @{
@@ -8,12 +9,12 @@
 <main class="content" role="main">
 
     <article class="post">
-        
+
         <header>
-            
-        @*{{#if tags}}<div class="post-meta tags">Posted in {{tags}}</div>{{/if}}*@
-            
-        <h1 class="post-title">@Model.Name</h1>
+
+            @Html.ThemedPartial(Model, "PostTags", Model.Tags)
+
+            <h1 class="post-title">@Model.Name</h1>
             <div class="post-meta">
                 <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">
                     @Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")
@@ -22,7 +23,7 @@
         </header>
 
         <section class="post-content">
-            
+
             @RenderBody()
 
         </section>
@@ -30,11 +31,11 @@
         <section class="share">
             <p class="info prompt">Share this post</p>
             <a href="http://twitter.com/share?text=@Model.Name&url=@Model.NiceUrlWithDomain()"
-                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+               onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                 <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
             </a>
             <a href="https://www.facebook.com/sharer/sharer.php?u=@Model.NiceUrlWithDomain()"
-                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+               onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
                 <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
             </a>
             <a href="https://plus.google.com/share?url=@Model.NiceUrlWithDomain()"
@@ -44,7 +45,7 @@
         </section>
 
         <footer class="post-footer">
-            
+
             @if (!Model.Author.Name.IsNullOrWhiteSpace())
             {
                 <section class="author">
@@ -64,14 +65,14 @@
                     {
                         <p class="bio">@Model.Author.Bio</p>
                     }
-                </section>    
+                </section>
             }
 
         </footer>
-        
+
         @*{{!> comments-disqus}}
-        {{!> comments-facebook}}
-        {{!> comments-google-plus}}*@
+            {{!> comments-facebook}}
+            {{!> comments-google-plus}}*@
 
     </article>
 

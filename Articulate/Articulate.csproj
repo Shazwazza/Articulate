@@ -191,6 +191,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ArticulateController.cs" />
     <Compile Include="Controllers\BlogPostControllerBase.cs" />
     <Compile Include="Controllers\ArticulateListController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
