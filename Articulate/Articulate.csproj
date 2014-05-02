@@ -193,7 +193,11 @@
   <ItemGroup>
     <Compile Include="Controllers\ArticulateBlogPostControllerBase.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
-    <Compile Include="Models\Post.cs" />
+    <Compile Include="Models\AuthorModel.cs" />
+    <Compile Include="Models\BlogModel.cs" />
+    <Compile Include="Models\ListModel.cs" />
+    <Compile Include="Models\PostModel.cs" />
+    <Compile Include="Models\ThemedModel.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
     <Compile Include="UmbracoEventHandler.cs" />

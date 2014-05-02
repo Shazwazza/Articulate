@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Articulate.Models;
+using Umbraco.Core;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -15,12 +16,21 @@ namespace Articulate.Controllers
     {
 
         public override ActionResult Index(RenderModel model)
-        {
-            var post = new Post(model);
+        {   
+            var post = new PostModel(model.Content);
             return View(PathHelper.GetThemeViewPath(post, ViewName), post);
         }
 
         protected abstract string ViewName { get; }
+    }
+
+    public class ArticulateListController : RenderMvcController
+    {
+        public override ActionResult Index(RenderModel model)
+        {
+            var post = new ListModel(model.Content);
+            return View(PathHelper.GetThemeViewPath(post, "List"), post);
+        }
     }
 
     public class ArticulateMarkdownController : BlogPostControllerBase

@@ -1,25 +1,36 @@
+@using Articulate
+@using Articulate.Models
 @using Umbraco.Core
-@model Umbraco.Web.Models.RenderModel
+@using Umbraco.Web
+@model Articulate.Models.ListModel
 @{
     Layout = "Master.cshtml";
 }
 
 <main class="content" role="main">
     
-    @foreach (var post in Model.Children)
+    @foreach (var post in Model.Children<PostModel>())
     {
         <article class="preview">
             <header>
-                <h1 class="post-title"><a href="{{url}}">{{{title}}}</a></h1>
-                <div class="post-meta"><time datetime="{{date format='YYYY-MM-DD'}}">{{date format="dddd, MMMM DD, YYYY"}}</time></div>
+                <h1 class="post-title"><a href="@post.Url">@post.Name</a></h1>
+                <div class="post-meta">
+                    <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
+                        @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                    </time>
+                </div>
             </header>
             <section class="post-excerpt">
-                <p>{{excerpt}}&hellip;</p>
-                <p class="readmore"><a href="{{url}}">Read this article <i class="fa fa-chevron-circle-right"></i></a></p>
+                <p>
+                    @Html.Raw(post.Excerpt)&hellip;
+                </p>
+                <p class="readmore">
+                    <a href="@post.Url">Read this article <i class="fa fa-chevron-circle-right"></i></a>
+                </p>
             </section>
         </article>
     }
-
-    {{pagination}}
-
+    
+    @Html.ThemedPartial(Model, "Pager", Model.Pages)
+    
 </main>

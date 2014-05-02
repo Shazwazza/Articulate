@@ -1,5 +1,5 @@
-@model Umbraco.Web.Models.RenderModel
+@model Articulate.Models.BlogModel
 
 <section class="footer-description">
-    @(Model.Content.GetPropertyValue<string>("blogDescription", true))
+    @Model.BlogDescription
 </section>

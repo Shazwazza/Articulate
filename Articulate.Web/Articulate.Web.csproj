@@ -23,6 +23,7 @@
     <IISExpressUseClassicPipelineMode />
     <NuGetPackageImportStamp>32a9d10f</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -265,6 +266,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="App_Plugins\Articulate\Themes\VAPOR\Views\Shared\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>
@@ -304,7 +306,7 @@
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\FooterDescription.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\HeaderDescription.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Menu.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\pagination.hbs" />
+    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Pager.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Post.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Master.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\List.cshtml" />
@@ -358,8 +360,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\UmbracoCms.7.1.1\build\UmbracoCms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.1.1\build\UmbracoCms.props'))" />
     <Error Condition="!Exists('..\packages\UmbracoCms.7.1.1\build\UmbracoCms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.1.1\build\UmbracoCms.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="..\packages\UmbracoCms.7.1.1\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.7.1.1\build\UmbracoCms.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
