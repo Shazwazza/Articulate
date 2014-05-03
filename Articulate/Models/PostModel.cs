@@ -71,9 +71,15 @@ namespace Articulate.Models
                 //TODO: Create a property for this, for now we'll just reduce
                 if (this.HasProperty("RichText"))
                 {
-                    return string.Join("", this.GetPropertyValue<string>("richText").Take(200));
+                    var val = this.GetPropertyValue<string>("richText");
+                    return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
                 }
-                return string.Join("", this.GetPropertyValue<string>("markDown").Take(200));
+                else
+                {
+                    var val = this.GetPropertyValue<string>("markDown");
+                    return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
+                }
+                
             }
         }
 

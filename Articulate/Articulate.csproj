@@ -194,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ArticulateController.cs" />
+    <Compile Include="Controllers\ArticulateTagsController.cs" />
     <Compile Include="Controllers\BlogPostControllerBase.cs" />
     <Compile Include="Controllers\ArticulateListController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
@@ -203,9 +204,11 @@
     <Compile Include="Models\BlogModel.cs" />
     <Compile Include="Models\ListModel.cs" />
     <Compile Include="Models\PostModel.cs" />
+    <Compile Include="Models\TagPage.cs" />
     <Compile Include="Models\ThemedModel.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
+    <Compile Include="TagContentFinder.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

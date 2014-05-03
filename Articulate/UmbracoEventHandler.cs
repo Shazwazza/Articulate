@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Routing;
-using Articulate.Models;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Services;
@@ -14,41 +13,6 @@ using Umbraco.Web.Routing;
 
 namespace Articulate
 {
-    public class TagContentFinder : ContentFinderByNiceUrl
-    {
-        public override bool TryFindContent(PublishedContentRequest contentRequest)
-        {
-            var route = !contentRequest.HasDomain ? contentRequest.Uri.GetAbsolutePathDecoded() : contentRequest.Domain.RootNodeId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
-
-            var parts = route.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length > 0)
-            {   
-                //if it ends with '/tags'
-                if (parts[parts.Length - 1].InvariantEquals("tags"))
-                {
-                    route = route.Substring(0, route.LastIndexOf("/tags", StringComparison.InvariantCultureIgnoreCase) + 1);
-                    var parent = FindContent(contentRequest, route);
-                    if (parent != null && parent.DocumentTypeAlias.InvariantEquals("Articulate"))
-                    {
-                        //ok, so we want to render a tag page
-                        contentRequest.PublishedContent = new TagPage();
-                        return true;
-                    }
-                }    
-                //if the 2nd last item is /tags
-                if (parts.Length > 1 && parts[parts.Length - 2].InvariantEquals("tags"))
-                {
-                    
-                }
-            }
-            
-            
-            var byNiceUrl = new ContentFinderByNiceUrl();
-
-            return false;
-        }
-    }
-
     public class UmbracoEventHandler : ApplicationEventHandler
     {
         protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
