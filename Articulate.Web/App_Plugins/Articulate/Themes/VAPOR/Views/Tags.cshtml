@@ -14,10 +14,14 @@
             @foreach (var tag in Model.Tags)
             {
                 <li>
-                    <a href="@tag.TagUrl">@tag.TagName</a> - (@tag.Posts.Count())
+                    <a href="@tag.TagUrl">@tag.TagName</a> - (@tag.PostCount)
                 </li>
             }
         </ul>
+    </article>
+    
+    <article>
+        @Html.TagCloud(Model)
     </article>
 
 </main>

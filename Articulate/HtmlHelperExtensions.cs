@@ -8,7 +8,9 @@ using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using Articulate.Models;
 using ClientDependency.Core.Mvc;
+using Umbraco.Core.Models;
 using Umbraco.Web.Models;
+using TagModel = Articulate.Models.TagModel;
 
 namespace Articulate
 {
@@ -34,6 +36,23 @@ namespace Articulate
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path);
+        }
+
+        public static IHtmlString TagCloud(this HtmlHelper html, TagListModel model)
+        {
+            var ul = new TagBuilder("ul");
+            ul.AddCssClass("tag-cloud");
+            foreach (var tag in model.Tags)
+            {
+                var li = new TagBuilder("li");
+                li.AddCssClass("tag-cloud-" + model.GetTagWeight(tag));
+                var a = new TagBuilder("a");
+                a.MergeAttribute("href", tag.TagUrl);
+                a.SetInnerText(tag.TagName);
+                li.InnerHtml = a.ToString();
+                ul.InnerHtml += li.ToString();
+            }
+            return MvcHtmlString.Create(ul.ToString());
         }
 
     }

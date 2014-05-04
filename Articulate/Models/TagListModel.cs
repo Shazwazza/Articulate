@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Umbraco.Core.Models;
 
 namespace Articulate.Models
@@ -25,6 +27,23 @@ namespace Articulate.Models
         public string BlogDescription { get; private set; }
         public string RootUrl { get; private set; }
         public string ArchiveUrl { get; private set; }
-        public IEnumerable<TagModel> Tags { get; private set; } 
+        public IEnumerable<TagModel> Tags { get; private set; }
+
+        private int? _maxCount;
+
+        /// <summary>
+        /// Returns a tag weight based on the current tag collection out of 10
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public int GetTagWeight(TagModel tag)
+        {
+            if (_maxCount.HasValue == false)
+            {
+                _maxCount = Tags.Max(x => x.PostCount);    
+            }
+
+            return Convert.ToInt32(Math.Ceiling(tag.PostCount * 10.0 / _maxCount.Value));
+        }
     }
 }

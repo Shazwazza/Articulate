@@ -297,7 +297,6 @@
     <Content Include="config\BaseRestExtensions.config" />
     <Content Include="config\applications.config" />
     <Content Include="config\404handlers.config" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.less" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.eot" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.ttf" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.woff" />

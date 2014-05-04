@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Articulate.Models
 {
@@ -13,10 +14,21 @@ namespace Articulate.Models
         }
 
         public IEnumerable<PostModel> Posts { get; private set; }
-
         public string TagName { get; private set; }
-        //public int PageCount { get; private set; }
         public string TagUrl { get; private set; }
+
+        private int? _count;
+        public int PostCount
+        {
+            get
+            {
+                if (_count.HasValue == false)
+                {
+                    _count = Posts.Count();
+                }
+                return _count.Value;
+            }
+        }
     }
 
 }
