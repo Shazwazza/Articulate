@@ -17,8 +17,7 @@ namespace Articulate
     {
         protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            ContentFinderResolver.Current
-                .InsertType<TagContentFinder>();
+            ContentFinderResolver.Current.InsertType<TagContentFinder>();
         }
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)

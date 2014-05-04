@@ -14,23 +14,23 @@ namespace Articulate
 {
     public static class HtmlHelperExtensions
     {
-        public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, ThemedModel model)
+        public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
         {
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
         }
 
-        public static HtmlHelper RequiresThemedJsFolder(this HtmlHelper html, ThemedModel model)
+        public static HtmlHelper RequiresThemedJsFolder(this HtmlHelper html, IMasterModel model)
         {
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/js");
         }
 
-        public static IHtmlString ThemedPartial(this HtmlHelper html, ThemedModel model, string partialName, object viewModel)
+        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, object viewModel)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path, viewModel);
         }
 
-        public static IHtmlString ThemedPartial(this HtmlHelper html, ThemedModel model, string partialName)
+        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path);

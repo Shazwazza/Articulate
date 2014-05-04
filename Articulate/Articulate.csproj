@@ -202,13 +202,18 @@
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\BlogModel.cs" />
+    <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ListModel.cs" />
+    <Compile Include="Models\PageModel.cs" />
     <Compile Include="Models\PostModel.cs" />
+    <Compile Include="Models\TagListModel.cs" />
+    <Compile Include="Models\TagModel.cs" />
     <Compile Include="Models\TagPage.cs" />
-    <Compile Include="Models\ThemedModel.cs" />
+    <Compile Include="Models\MasterModel.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
     <Compile Include="TagContentFinder.cs" />
+    <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

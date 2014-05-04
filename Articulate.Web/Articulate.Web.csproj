@@ -304,6 +304,7 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-disqus.hbs" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-facebook.hbs" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-google-plus.hbs" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Tags.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\FooterDescription.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\HeaderDescription.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Menu.cshtml" />

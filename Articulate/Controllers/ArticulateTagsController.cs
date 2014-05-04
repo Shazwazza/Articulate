@@ -1,16 +1,31 @@
-﻿using System.Web.Mvc;
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Web.Mvc;
 using Articulate.Models;
+using Umbraco.Core.Persistence;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
+using TagModel = Articulate.Models.TagModel;
 
 namespace Articulate.Controllers
 {
     public class ArticulateTagsController : RenderMvcController
     {
+        
+
         public override ActionResult Index(RenderModel model)
         {
-            var post = new ListModel(model.Content);
-            return View(PathHelper.GetThemeViewPath(post, "List"), post);
+            var contentByTags = Umbraco.GetContentByTags(new BlogModel(model.Content.Parent));
+
+            //create a blog model of the main page
+            var blogModel = new BlogModel(model.Content.Parent);
+            var tagListModel = new TagListModel(
+                blogModel,
+                "Tags",
+                contentByTags);
+
+
+            return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 
         public ActionResult Tag(RenderModel model)

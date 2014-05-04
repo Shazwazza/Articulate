@@ -1,0 +1,23 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Core
+@using Umbraco.Web
+@model Articulate.Models.TagListModel
+@{
+    Layout = "Master.cshtml";
+}
+
+<main class="content" role="main">
+
+    <article>
+        <ul>
+            @foreach (var tag in Model.Tags)
+            {
+                <li>
+                    <a href="@tag.TagUrl">@tag.TagName</a> - (@tag.Posts.Count())
+                </li>
+            }
+        </ul>
+    </article>
+
+</main>

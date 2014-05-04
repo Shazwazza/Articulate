@@ -6,23 +6,7 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class PageModel
-    {
-        public int TotalPages { get; set; }
-        public int CurrentPageIndex { get; set; }
-
-        public bool HasNext
-        {
-            get { return true; }
-        }
-
-        public bool HasPrevious
-        {
-            get { return true; }
-        }
-    }
-
-    public class BlogModel : ThemedModel
+    public class BlogModel : MasterModel
     {
         public BlogModel(IPublishedContent content)
             : base(content)
@@ -34,12 +18,12 @@ namespace Articulate.Models
             get { return new PageModel(); }
         }
 
-        public string BlogTitle
+        public override string BlogTitle
         {
             get { return Content.GetPropertyValue<string>("blogTitle", true); }
         }
 
-        public string BlogDescription
+        public override string BlogDescription
         {
             get { return Content.GetPropertyValue<string>("blogDescription", true); }
         }
@@ -47,7 +31,7 @@ namespace Articulate.Models
         /// <summary>
         /// Returns the default archive/list URL for blog posts
         /// </summary>
-        public string ArchiveUrl
+        public override string ArchiveUrl
         {
             get { return BlogListNode == null ? null : BlogListNode.Url; }
         }
@@ -55,7 +39,7 @@ namespace Articulate.Models
         /// <summary>
         /// The Home Blog Url
         /// </summary>
-        public string RootUrl
+        public override string RootUrl
         {
             get { return RootBlogNode == null ? null : RootBlogNode.Url; }
         }

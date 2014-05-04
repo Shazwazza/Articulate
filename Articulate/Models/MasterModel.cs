@@ -8,10 +8,9 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class ThemedModel : PublishedContentWrapped
+    public abstract class MasterModel : PublishedContentWrapped, IMasterModel
     {
-
-        public ThemedModel(IPublishedContent content)
+        protected MasterModel(IPublishedContent content)
             : base(content)
         {
         }
@@ -25,11 +24,12 @@ namespace Articulate.Models
         }
 
         private IPublishedContent _rootBlogNode;
-        protected IPublishedContent RootBlogNode
+
+        public IPublishedContent RootBlogNode
         {
             get
             {
-                var root = Content.Ancestor("Articulate");
+                var root = Content.AncestorOrSelf("Articulate");
                 if (root == null)
                 {
                     throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
@@ -40,7 +40,8 @@ namespace Articulate.Models
         }
 
         private IPublishedContent _blogListNode;
-        protected IPublishedContent BlogListNode
+
+        public IPublishedContent BlogListNode
         {
             get
             {
@@ -53,5 +54,10 @@ namespace Articulate.Models
                 return _blogListNode;
             }
         }
+
+        public abstract string BlogTitle { get; }
+        public abstract string BlogDescription { get; }
+        public abstract string RootUrl { get; }
+        public abstract string ArchiveUrl { get; }
     }
 }
