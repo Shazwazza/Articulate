@@ -18,9 +18,8 @@ namespace Articulate.Controllers
         public override ActionResult Index(RenderModel model)
         {   
             var post = new PostModel(model.Content);
-            return View(PathHelper.GetThemeViewPath(post, ViewName), post);
+            return View(PathHelper.GetThemeViewPath(post, "Post"), post);
         }
 
-        protected abstract string ViewName { get; }
     }
 }

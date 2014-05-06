@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -69,23 +71,32 @@ namespace Articulate.Models
             get
             {
                 //TODO: Create a property for this, for now we'll just reduce
-                if (this.HasProperty("RichText"))
-                {
-                    var val = this.GetPropertyValue<string>("richText");
-                    return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
-                }
-                else
-                {
-                    var val = this.GetPropertyValue<string>("markDown");
-                    return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
-                }
-                
+                var val = Body.ToString();
+                return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
             }
         }
 
         public DateTime PublishedDate
         {
             get { return Content.GetPropertyValue<DateTime>("publishedDate"); }
+        }
+
+        public IHtmlString Body
+        {
+            get
+            {
+                if (this.HasProperty("RichText"))
+                {
+                    return this.GetPropertyValue<IHtmlString>("richText");                    
+                }
+                else
+                {
+                    var val = this.GetPropertyValue<string>("markDown");
+                    var md = new MarkdownDeep.Markdown();
+                    return new MvcHtmlString(md.Transform(val));                    
+                }
+                
+            }
         }
     }
 }

@@ -1,14 +1,15 @@
-@model IEnumerable<string>
+@using Articulate
+@model Articulate.Models.PostModel
 
-@if (Model.Any())
+@if (Model.Tags.Any())
 {
     <div class="post-meta tags">
         Posted in
 
-        @foreach (var tag in Model)
+        @foreach (var tag in Model.Tags)
         {
-            <a href="#">@tag</a>
-            if (tag != Model.Last())
+            <a href="@Url.ArticulateTagUrl(Model, tag)">@tag</a>
+            if (tag != Model.Tags.Last())
             {
                 <span>, </span>
             }            

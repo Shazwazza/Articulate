@@ -311,7 +311,7 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Post.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Master.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\List.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\RichText.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\PostTags.cshtml" />
     <Content Include="App_Plugins\Articulate\Views\Web.config" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Web.config" />
     <None Include="Web.Debug.config">

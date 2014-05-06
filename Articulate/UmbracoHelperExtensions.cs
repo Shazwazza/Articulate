@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Persistence;
@@ -13,7 +14,6 @@ namespace Articulate
 {
     public static class UmbracoHelperExtensions
     {
-
         public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup)
         {
             var tags = helper.TagQuery.GetAllContentTags(tagGroup);
@@ -34,7 +34,8 @@ namespace Articulate
             return taggedContent.GroupBy(x => x.TagId)
                 .Select(x => new PostsByTagModel(
                     helper.TypedContent(
-                        x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
+                        x.Select(t => t.NodeId).Distinct())
+                        .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
                     masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
                 .OrderBy(x => x.TagName);
@@ -58,7 +59,8 @@ namespace Articulate
             return taggedContent.GroupBy(x => x.TagId)
                 .Select(x => new PostsByTagModel(
                     helper.TypedContent(
-                        x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
+                        x.Select(t => t.NodeId).Distinct())
+                        .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
                     masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
                 .FirstOrDefault();
