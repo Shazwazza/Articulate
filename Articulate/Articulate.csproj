@@ -207,7 +207,7 @@
     <Compile Include="Models\PageModel.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\TagListModel.cs" />
-    <Compile Include="Models\TagModel.cs" />
+    <Compile Include="Models\PostsByTagModel.cs" />
     <Compile Include="Models\TagPage.cs" />
     <Compile Include="Models\MasterModel.cs" />
     <Compile Include="PathHelper.cs" />

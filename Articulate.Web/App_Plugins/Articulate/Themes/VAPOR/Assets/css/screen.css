@@ -80,6 +80,11 @@ h1 {
   margin: 0;
   padding: 0;
 }
+hr {
+    border: none;
+    background-color: #ecf0f1;
+    height: 1px;
+}
 #site-head,
 article,
 article.preview,
@@ -486,14 +491,12 @@ table thead {
   font-weight: 600;
   border-bottom: 1px solid #ecf0f1;
 }
-table tbody tr:nth-child(even) {
-  background-color: #ecf0f1;
-  border-top: 1px solid #e3e9eb;
+table tbody tr {    
   border-bottom: 1px solid #e3e9eb;
 }
-table tfoot {
-  border-top: 1px solid #ecf0f1;
+table tfoot {  
 }
+
 /* === Media Queries === */
 @media only screen and (min-width: 320px) and (max-width: 500px) {
   footer section span.copyright {
@@ -555,4 +558,13 @@ ul.tag-cloud .tag-cloud-9 {
 }
 ul.tag-cloud .tag-cloud-10 {
     font-size: 140%;
+}
+/* === Tag list === */
+ul.tag-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;    
+}
+.tag-list table td:nth-child(1) {
+    width: 100px;
 }

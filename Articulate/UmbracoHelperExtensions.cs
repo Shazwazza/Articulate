@@ -14,9 +14,9 @@ namespace Articulate
     public static class UmbracoHelperExtensions
     {
 
-        public static IEnumerable<TagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup)
+        public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup)
         {
-            var tags = helper.TagQuery.GetAllContentTags("ArticulateTags");
+            var tags = helper.TagQuery.GetAllContentTags(tagGroup);
 
             //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
             // need to run a query
@@ -32,17 +32,15 @@ namespace Articulate
 
             var taggedContent = ApplicationContext.Current.DatabaseContext.Database.Fetch<TagDto>(sql);
             return taggedContent.GroupBy(x => x.TagId)
-                .Select(x => new TagModel(
+                .Select(x => new PostsByTagModel(
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
                     x.First().Tag,
                     masterModel.RootUrl.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()));
         }
 
-        public static TagModel GetContentForTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup)
+        public static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup)
         {
-            var tags = helper.TagQuery.GetAllContentTags("ArticulateTags");
-
             //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
             // need to run a query
             var sql = new Sql().Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
@@ -57,7 +55,7 @@ namespace Articulate
 
             var taggedContent = ApplicationContext.Current.DatabaseContext.Database.Fetch<TagDto>(sql);
             return taggedContent.GroupBy(x => x.TagId)
-                .Select(x => new TagModel(
+                .Select(x => new PostsByTagModel(
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
                     x.First().Tag,

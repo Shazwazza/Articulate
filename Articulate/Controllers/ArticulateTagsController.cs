@@ -6,14 +6,11 @@ using Articulate.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
-using TagModel = Articulate.Models.TagModel;
 
 namespace Articulate.Controllers
 {
     public class ArticulateTagsController : RenderMvcController
     {
-        
-
         public override ActionResult Index(RenderModel model)
         {
             var contentByTags = Umbraco.GetContentByTags(new BlogModel(model.Content.Parent), "ArticulateTags");
@@ -25,6 +22,7 @@ namespace Articulate.Controllers
                 "Tags",
                 contentByTags);
 
+            ViewBag.PageTitle = "Tags";
 
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
@@ -36,7 +34,7 @@ namespace Articulate.Controllers
             {
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(TagPage));
             }
-            var contentForTag = Umbraco.GetContentForTag(
+            var contentForTag = Umbraco.GetContentByTag(
                 new BlogModel(model.Content.Parent), 
                 tagPage.Name,
                 "ArticulateTags");

@@ -7,7 +7,7 @@ namespace Articulate.Models
 {
     public class TagListModel : IMasterModel
     {
-        public TagListModel(IMasterModel masterModel, string name, IEnumerable<TagModel> tags)
+        public TagListModel(IMasterModel masterModel, string name, IEnumerable<PostsByTagModel> tags)
         {
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
@@ -27,23 +27,23 @@ namespace Articulate.Models
         public string BlogDescription { get; private set; }
         public string RootUrl { get; private set; }
         public string ArchiveUrl { get; private set; }
-        public IEnumerable<TagModel> Tags { get; private set; }
+        public IEnumerable<PostsByTagModel> Tags { get; private set; }
 
         private int? _maxCount;
 
         /// <summary>
         /// Returns a tag weight based on the current tag collection out of 10
         /// </summary>
-        /// <param name="tag"></param>
+        /// <param name="postsByTag"></param>
         /// <returns></returns>
-        public int GetTagWeight(TagModel tag)
+        public int GetTagWeight(PostsByTagModel postsByTag)
         {
             if (_maxCount.HasValue == false)
             {
                 _maxCount = Tags.Max(x => x.PostCount);    
             }
 
-            return Convert.ToInt32(Math.Ceiling(tag.PostCount * 10.0 / _maxCount.Value));
+            return Convert.ToInt32(Math.Ceiling(postsByTag.PostCount * 10.0 / _maxCount.Value));
         }
     }
 }

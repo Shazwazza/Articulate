@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Articulate.Models
 {
-    public class TagModel
+    public class PostsByTagModel
     {
-        public TagModel(IEnumerable<PostModel> posts, string tagName, string tagUrl)
+        public PostsByTagModel(IEnumerable<PostModel> posts, string tagName, string tagUrl)
         {
             Posts = posts;
             TagName = tagName;
