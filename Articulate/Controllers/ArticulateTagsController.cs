@@ -21,9 +21,7 @@ namespace Articulate.Controllers
                 blogModel,
                 "Tags",
                 contentByTags);
-
-            ViewBag.PageTitle = "Tags";
-
+            
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 

@@ -27,23 +27,7 @@ namespace Articulate.Models
         {
             get { return Content.GetPropertyValue<string>("blogDescription", true); }
         }
-
-        /// <summary>
-        /// Returns the default archive/list URL for blog posts
-        /// </summary>
-        public override string ArchiveUrl
-        {
-            get { return BlogListNode == null ? null : BlogListNode.Url; }
-        }
-
-        /// <summary>
-        /// The Home Blog Url
-        /// </summary>
-        public override string RootUrl
-        {
-            get { return RootBlogNode == null ? null : RootBlogNode.Url; }
-        }
-
+        
         ///// <summary>
         ///// Returns the archive/list URL for blog posts by category
         ///// </summary>

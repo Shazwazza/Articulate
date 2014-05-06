@@ -22,7 +22,11 @@ namespace Articulate.Models
 
         public override IEnumerable<IPublishedContent> Children
         {
-            get { return _listItems.Select(x => new PostModel(x)); }
+            get
+            {
+                return _listItems.Select(x => new PostModel(x))
+                    .OrderByDescending(x => x.PublishedDate);
+            }
         }
     }
 }

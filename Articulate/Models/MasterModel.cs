@@ -57,7 +57,6 @@ namespace Articulate.Models
 
         public abstract string BlogTitle { get; }
         public abstract string BlogDescription { get; }
-        public abstract string RootUrl { get; }
-        public abstract string ArchiveUrl { get; }
+        
     }
 }

@@ -1,9 +1,9 @@
+@using Articulate
 @model Articulate.Models.IMasterModel
 
 <nav class="menu" role="nav">
     <ul>
-      <li><a href="@Model.ArchiveUrl">Archive</a></li>
-      <li><a href="">Item Two</a></li>
-      <li><a href="">Item Three</a></li>
+        <li><a href="@Url.ArticulateArchiveUrl(Model)">Archive</a></li>
+        <li><a href="@Url.ArticulateTagsUrl(Model)">Tags</a></li>
     </ul>
 </nav>

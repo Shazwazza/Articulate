@@ -36,7 +36,8 @@ namespace Articulate
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
                     x.First().Tag,
-                    masterModel.RootUrl.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()));
+                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
+                .OrderBy(x => x.TagName);
         }
 
         public static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup)
@@ -59,7 +60,7 @@ namespace Articulate
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct()).Select(c => new PostModel(c)).OrderBy(c => c.PublishedDate),
                     x.First().Tag,
-                    masterModel.RootUrl.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
+                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
                 .FirstOrDefault();
         }
 

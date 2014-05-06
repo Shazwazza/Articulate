@@ -14,8 +14,7 @@ namespace Articulate.Models
             BlogListNode = masterModel.BlogListNode;
             Name = name;
             BlogTitle = masterModel.BlogTitle;
-            BlogDescription = masterModel.BlogDescription;
-            RootUrl = masterModel.RootUrl;
+            BlogDescription = masterModel.BlogDescription;        
             Tags = tags;
         }
 
@@ -25,8 +24,7 @@ namespace Articulate.Models
         public string Name { get; private set; }
         public string BlogTitle { get; private set; }
         public string BlogDescription { get; private set; }
-        public string RootUrl { get; private set; }
-        public string ArchiveUrl { get; private set; }
+        
         public IEnumerable<PostsByTagModel> Tags { get; private set; }
 
         private int? _maxCount;
