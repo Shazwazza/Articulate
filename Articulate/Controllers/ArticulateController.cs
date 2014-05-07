@@ -49,6 +49,11 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
+            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
+            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
+            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
+            // just for the sake of performance. Hrm....
+
             var totalPosts = listNode.Children.Count();
             var pageSize = 1;
             var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
