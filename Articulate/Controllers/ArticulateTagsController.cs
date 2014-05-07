@@ -13,13 +13,20 @@ namespace Articulate.Controllers
     {
         public override ActionResult Index(RenderModel model)
         {
-            var contentByTags = Umbraco.GetContentByTags(new BlogModel(model.Content.Parent), "ArticulateTags");
+            var tagPage = model.Content as TagPage;
+            if (tagPage == null)
+            {
+                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(TagPage));
+            }
 
             //create a blog model of the main page
-            var blogModel = new BlogModel(model.Content.Parent);
+            var rootPageModel = new ListModel(model.Content.Parent);
+
+            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateTags");
+
             var tagListModel = new TagListModel(
-                blogModel,
-                "Tags",
+                rootPageModel,
+                tagPage.Name,
                 contentByTags);
             
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
@@ -32,17 +39,23 @@ namespace Articulate.Controllers
             {
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(TagPage));
             }
-            var contentForTag = Umbraco.GetContentByTag(
-                new BlogModel(model.Content.Parent), 
+
+            //create a blog model of the main page
+            var rootPageModel = new ListModel(model.Content.Parent);
+
+            var contentByTag = Umbraco.GetContentByTag(
+                rootPageModel, 
                 tagPage.Name,
                 "ArticulateTags");
 
-            if (contentForTag == null)
+            if (contentByTag == null)
             {
                 return new HttpNotFoundResult();
             }
+            var pageSize = 1;
+            var pager = new PagerModel(pageSize, 0, contentByTag.PostCount);
 
-            var listModel = new ListModel(tagPage, contentForTag.Posts);
+            var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
 
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }

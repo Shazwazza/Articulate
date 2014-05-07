@@ -12,12 +12,13 @@ namespace Articulate.Controllers
     {
         public override ActionResult Index(RenderModel model)
         {
-            var contentByTags = Umbraco.GetContentByTags(new BlogModel(model.Content.Parent), "ArticulateCategories");
-
             //create a blog model of the main page
-            var blogModel = new BlogModel(model.Content.Parent);
+            var rootPageModel = new ListModel(model.Content.Parent);
+
+            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateCategories");
+
             var tagListModel = new TagListModel(
-                blogModel,
+                rootPageModel,
                 "Categories",
                 contentByTags);
 

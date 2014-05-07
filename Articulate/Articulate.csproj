@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -204,10 +205,9 @@
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Models\AuthorModel.cs" />
-    <Compile Include="Models\BlogModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ListModel.cs" />
-    <Compile Include="Models\PageModel.cs" />
+    <Compile Include="Models\PagerModel.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\TagListModel.cs" />
     <Compile Include="Models\PostsByTagModel.cs" />

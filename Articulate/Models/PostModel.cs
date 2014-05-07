@@ -14,7 +14,7 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class PostModel : BlogModel
+    public class PostModel : MasterModel
     {
 
         private AuthorModel _author;

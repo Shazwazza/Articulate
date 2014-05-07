@@ -13,16 +13,60 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateController : RenderMvcController
     {
+        /// <summary>
+        /// Declare new Index action with optional page number
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public ActionResult Index(RenderModel model, int? p)
+        {
+            return RenderView(model, p);
+        }
+
+        /// <summary>
+        /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [NonAction]
         public override ActionResult Index(RenderModel model)
         {
+            return RenderView(model);
+        }
+
+        private ActionResult RenderView(IRenderModel model, int? p = null)
+        {
             var listNode = model.Content.Children
-                .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateList"));
+               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateList"));
             if (listNode == null)
             {
                 throw new InvalidOperationException("An ArticulateList document must exist under the root Articulate document");
             }
 
-            var listModel = new ListModel(listNode);
+            if (p == null || p.Value <= 0)
+            {
+                p = 1;
+            }
+
+            var totalPosts = listNode.Children.Count();
+            var pageSize = 1;
+            var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
+
+            //Invalid page, redirect without pages
+            if (totalPages < p)
+            {
+                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+            }
+
+            var pager = new PagerModel(
+                pageSize,
+                p.Value - 1,
+                totalPages,
+                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
+                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
+
+            var listModel = new ListModel(listNode, pager);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }

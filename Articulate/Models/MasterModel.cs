@@ -55,8 +55,18 @@ namespace Articulate.Models
             }
         }
 
-        public abstract string BlogTitle { get; }
-        public abstract string BlogDescription { get; }
-        
+        //public abstract string BlogTitle { get; }
+        //public abstract string BlogDescription { get; }
+
+
+        public string BlogTitle
+        {
+            get { return Content.GetPropertyValue<string>("blogTitle", true); }
+        }
+
+        public string BlogDescription
+        {
+            get { return Content.GetPropertyValue<string>("blogDescription", true); }
+        }
     }
 }
