@@ -300,9 +300,9 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.eot" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.ttf" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.woff" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-disqus.hbs" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-facebook.hbs" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\comments-google-plus.hbs" />
+    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
+    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
+    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Tags.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\FooterDescription.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\HeaderDescription.cshtml" />

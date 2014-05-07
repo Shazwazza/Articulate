@@ -12,7 +12,7 @@
 
         <header>
 
-            @Html.ThemedPartial(Model, "PostTags", Model)
+            @Html.ThemedPartial(Model, "PostTags")
 
             <h1 class="post-title">@Model.Name</h1>
             <div class="post-meta">
@@ -69,10 +69,11 @@
             }
 
         </footer>
+        
 
-        @*{{!> comments-disqus}}
-            {{!> comments-facebook}}
-            {{!> comments-google-plus}}*@
+        @Html.ThemedPartial(Model, "CommentsDisqus")
+        @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
+        @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
 
     </article>
 

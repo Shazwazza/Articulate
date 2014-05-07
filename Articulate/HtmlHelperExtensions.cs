@@ -28,12 +28,27 @@ namespace Articulate
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/js");
         }
 
+        /// <summary>
+        /// Renders a partial view in the current theme based on the current IMasterModel
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="model"></param>
+        /// <param name="partialName"></param>
+        /// <param name="viewModel"></param>
+        /// <returns></returns>
         public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, object viewModel)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path, viewModel);
         }
 
+        /// <summary>
+        /// Renders a partial view in the current theme based on the current IMasterModel
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="model"></param>
+        /// <param name="partialName"></param>
+        /// <returns></returns>
         public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);

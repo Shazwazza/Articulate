@@ -28,28 +28,5 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<string>("blogDescription", true); }
         }
         
-        ///// <summary>
-        ///// Returns the archive/list URL for blog posts by category
-        ///// </summary>
-        //public string ArchiveUrlByCategory
-        //{
-        //    get
-        //    {
-        //        var current = Content;
-        //        while (current.ContentType != null
-        //               && current.ContentType.Id > 0
-        //               && !current.ContentType.Alias.InvariantEquals("ArticulateList"))
-        //        {
-        //            current = current.Parent;
-        //        }
-        //        if (current == null || current.ContentType == null || !current.ContentType.Alias.InvariantEquals("ArticulateList"))
-        //        {
-        //            throw new InvalidOperationException("Could not find the ArticulateList document for the current rendered Articulate document");
-        //        }
-
-        //        return current.Url;
-        //    }
-        //}
-
     }
 }

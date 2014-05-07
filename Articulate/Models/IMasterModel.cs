@@ -14,6 +14,6 @@ namespace Articulate.Models
 
         string Name { get; }
         string BlogTitle { get; }
-        string BlogDescription { get; }
+        string BlogDescription { get; }        
     }
 }
