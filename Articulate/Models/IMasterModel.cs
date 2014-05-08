@@ -10,7 +10,7 @@ namespace Articulate.Models
         string Theme { get; }
 
         IPublishedContent RootBlogNode { get; }
-        IPublishedContent BlogListNode { get; }
+        IPublishedContent BlogArchiveNode { get; }
 
         string Name { get; }
         string BlogTitle { get; }

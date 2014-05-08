@@ -5,14 +5,14 @@ using Umbraco.Core.Models.PublishedContent;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Used to create a fake dynamic umbraco page for rendering posts by tag
+    /// Used to create a fake dynamic umbraco page for rendering tag lists, tag pages and search results (any virtual route)
     /// </summary>
-    internal class TagPage : PublishedContentWrapped
+    internal class ArticulateVirtualPage : PublishedContentWrapped
     {
         private readonly string _pageName;
         private readonly string _pageTypeAlias;
 
-        public TagPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias)
+        public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias)
             : base(rootBlogPage)
         {
             _pageName = pageName;

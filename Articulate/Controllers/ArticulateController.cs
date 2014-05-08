@@ -38,10 +38,10 @@ namespace Articulate.Controllers
         private ActionResult RenderView(IRenderModel model, int? p = null)
         {
             var listNode = model.Content.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateList"));
+               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
             if (listNode == null)
             {
-                throw new InvalidOperationException("An ArticulateList document must exist under the root Articulate document");
+                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
             if (p == null || p.Value <= 0)
@@ -52,7 +52,7 @@ namespace Articulate.Controllers
             //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
             // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
             // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm....
+            // just for the sake of performance. Hrm.... Examine possibly too.
 
             var totalPosts = listNode.Children.Count();
             var pageSize = 1;

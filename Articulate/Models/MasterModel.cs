@@ -41,24 +41,20 @@ namespace Articulate.Models
 
         private IPublishedContent _blogListNode;
 
-        public IPublishedContent BlogListNode
+        public IPublishedContent BlogArchiveNode
         {
             get
             {
-                var list = RootBlogNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateList")).FirstOrDefault();
+                var list = RootBlogNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
                 if (list == null)
                 {
-                    throw new InvalidOperationException("Could not find the ArticulateList document for the current rendered page");
+                    throw new InvalidOperationException("Could not find the ArticulateArchive document for the current rendered page");
                 }
                 _blogListNode = list;
                 return _blogListNode;
             }
         }
-
-        //public abstract string BlogTitle { get; }
-        //public abstract string BlogDescription { get; }
-
-
+        
         public string BlogTitle
         {
             get { return Content.GetPropertyValue<string>("blogTitle", true); }

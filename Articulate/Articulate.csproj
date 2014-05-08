@@ -113,6 +113,7 @@
       <HintPath>..\packages\UmbracoCms.Core.7.1.1\lib\SQLCE4Umbraco.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -198,9 +199,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ArticulateController.cs" />
-    <Compile Include="Controllers\ArticulateTagsController.cs" />
-    <Compile Include="Controllers\BlogPostControllerBase.cs" />
     <Compile Include="Controllers\ArticulateListController.cs" />
+    <Compile Include="Controllers\BlogPostControllerBase.cs" />
+    <Compile Include="Controllers\ArticulateArchiveController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
@@ -211,11 +212,11 @@
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\TagListModel.cs" />
     <Compile Include="Models\PostsByTagModel.cs" />
-    <Compile Include="Models\TagPage.cs" />
+    <Compile Include="Models\ArticulateVirtualPage.cs" />
     <Compile Include="Models\MasterModel.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
-    <Compile Include="TagContentFinder.cs" />
+    <Compile Include="ArticulateContentFinder.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

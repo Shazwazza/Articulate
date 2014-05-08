@@ -11,7 +11,7 @@ namespace Articulate.Models
         {
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
-            BlogListNode = masterModel.BlogListNode;
+            BlogArchiveNode = masterModel.BlogArchiveNode;
             Name = name;
             BlogTitle = masterModel.BlogTitle;
             BlogDescription = masterModel.BlogDescription;        
@@ -20,7 +20,7 @@ namespace Articulate.Models
 
         public string Theme { get; private set; }
         public IPublishedContent RootBlogNode { get; private set; }
-        public IPublishedContent BlogListNode { get; private set; }
+        public IPublishedContent BlogArchiveNode { get; private set; }
         public string Name { get; private set; }
         public string BlogTitle { get; private set; }
         public string BlogDescription { get; private set; }

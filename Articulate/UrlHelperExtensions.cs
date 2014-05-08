@@ -19,7 +19,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateArchiveUrl(this UrlHelper url, IMasterModel model)
         {
-            return model.BlogListNode == null ? null : model.BlogListNode.Url;
+            return model.BlogArchiveNode == null ? null : model.BlogArchiveNode.Url;
         }
 
         /// <summary>
