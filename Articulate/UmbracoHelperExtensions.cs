@@ -12,11 +12,14 @@ using Umbraco.Web;
 
 namespace Articulate
 {
-    public static class UmbracoHelperExtensions
+    internal static class UmbracoHelperExtensions
     {
-        public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup)
+     
+        public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
         {
             var tags = helper.TagQuery.GetAllContentTags(tagGroup);
+
+            //TODO: Use the new 7.1.2 tags API to do this
 
             //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
             // need to run a query
@@ -37,12 +40,15 @@ namespace Articulate
                         x.Select(t => t.NodeId).Distinct())
                         .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
-                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
+                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
                 .OrderBy(x => x.TagName);
         }
 
-        public static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup)
+        
+        public static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
         {
+            //TODO: Use the new 7.1.2 tags API to do this
+
             //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
             // need to run a query
             var sql = new Sql().Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
@@ -62,7 +68,7 @@ namespace Articulate
                         x.Select(t => t.NodeId).Distinct())
                         .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
-                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + x.First().Tag.ToLowerInvariant()))
+                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
                 .FirstOrDefault();
         }
 

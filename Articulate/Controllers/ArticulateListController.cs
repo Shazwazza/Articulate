@@ -28,6 +28,7 @@ namespace Articulate.Controllers
         /// <param name="provider">
         /// The search provider name (optional)
         /// </param>
+        /// <param name="p"></param>
         /// <returns></returns>
         public ActionResult Search(RenderModel model, string term = null, string provider = null, int? p = null)
         {
@@ -114,8 +115,8 @@ namespace Articulate.Controllers
                 pageSize,
                 p.Value - 1,
                 totalPosts,
-                totalPosts > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
+                totalPosts > p ? model.Content.Url.EnsureEndsWith('?') + "term=" + term + "&p=" + (p + 1) : null,
+                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "term=" + term + "&p=" + (p - 1) : null);
 
             var listModel = new ListModel(tagPage, searchResult, pager);
 
@@ -142,7 +143,8 @@ namespace Articulate.Controllers
             var contentByTag = Umbraco.GetContentByTag(
                 rootPageModel, 
                 tagPage.Name,
-                "ArticulateTags");
+                "ArticulateTags",
+                "tags");
 
             if (contentByTag == null)
             {

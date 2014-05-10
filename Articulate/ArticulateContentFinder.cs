@@ -59,7 +59,7 @@ namespace Articulate
                     {
                         //ok, so we want to render a tag page
                         var tagName = parts[parts.Length - 1];                        
-                        contentRequest.PublishedContent = new ArticulateVirtualPage(parent, tagName, "ArticulateList");
+                        contentRequest.PublishedContent = new ArticulateVirtualPage(parent, tagName, "ArticulateList", "tags/" + tagName);
                         //set the template name to specify which MVC Action to execute on the tags controller
                         contentRequest.SetTemplate(new Template("", "Tag", "Tag"));
                         return true;

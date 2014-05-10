@@ -21,7 +21,7 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
-            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateCategories");
+            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateCategories", "categories");
 
             var tagListModel = new TagListModel(
                 rootPageModel,
@@ -47,7 +47,7 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
-            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateTags");
+            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateTags", "tags");
 
             var tagListModel = new TagListModel(
                 rootPageModel,
