@@ -143,6 +143,7 @@ namespace Articulate.Controllers
             var contentByTag = Umbraco.GetContentByTag(
                 rootPageModel, 
                 tagPage.Name,
+                //TODO: This changes when rendering categories
                 "ArticulateTags",
                 "tags");
 

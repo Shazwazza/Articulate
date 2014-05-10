@@ -13,21 +13,14 @@ namespace Articulate.Models
         private readonly string _pageTypeAlias;
         private readonly string _urlPath;
 
-        public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias)
-            : base(rootBlogPage)
-        {
-            _pageName = pageName;
-            _pageTypeAlias = pageTypeAlias;
-        }
-
-        public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias, string urlPath)
+        public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias, string urlPath = null)
             : base(rootBlogPage)
         {
             _pageName = pageName;
             _pageTypeAlias = pageTypeAlias;
             _urlPath = urlPath;
         }
-
+        
         public override string Url
         {
             get { return base.Url.EnsureEndsWith('/') + (_urlPath ?? UrlName); }
