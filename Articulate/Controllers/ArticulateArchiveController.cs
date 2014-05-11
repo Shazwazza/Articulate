@@ -7,28 +7,18 @@ using Umbraco.Web.Mvc;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders the blog post by tags/categories
+    /// Renders the blog post archive by tags/categories
     /// </summary>
     public class ArticulateArchiveController : RenderMvcController
     {
         /// <summary>
-        /// Hijack for the ArticulateList property type (built in to umbraco)
+        /// Used to render the category listing (virtual node)
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public override ActionResult Index(RenderModel model)
+        public ActionResult Categories(RenderModel model)
         {
-            //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
-
-            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateCategories", "categories");
-
-            var tagListModel = new TagListModel(
-                rootPageModel,
-                "Categories",
-                contentByTags);
-
-            return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
+            return RenderTagsOrCategories(model, "ArticulateCategories", "categories");
         }
 
         /// <summary>
@@ -37,6 +27,11 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         public ActionResult Tags(RenderModel model)
+        {
+            return RenderTagsOrCategories(model, "ArticulateTags", "tags");
+        }
+
+        public ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -47,7 +42,7 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
-            var contentByTags = Umbraco.GetContentByTags(rootPageModel, "ArticulateTags", "tags");
+            var contentByTags = Umbraco.GetContentByTags(rootPageModel, tagGroup, baseUrl);
 
             var tagListModel = new TagListModel(
                 rootPageModel,

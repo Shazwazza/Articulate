@@ -300,7 +300,7 @@ nav {
   border-top: 1px solid #ecf0f1;
   margin-bottom: 2em;
   text-align: center;
-  margin: 20px auto 2em auto;
+  margin: 20px auto 0px auto;
   max-width: 600px;
 }
 nav ul {
@@ -326,7 +326,7 @@ nav ul li a {
   padding: .5em 0;
 }
 nav.menu {
-  margin-bottom: 2.5em;
+  /*margin-bottom: 2.5em;*/
 }
 nav.menu li {
   margin: 0 .5em;

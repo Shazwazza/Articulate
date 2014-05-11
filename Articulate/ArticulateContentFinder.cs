@@ -28,14 +28,14 @@ namespace Articulate
                     || FindContent(() => parts[parts.Length - 1].InvariantEquals("tags"),
                         route, contentRequest, "tags", () => "Tags", "Tags", "ArticulateArchive")
                         //if it ends with '/categories'
-                    || FindContent(() => parts[parts.Length - 1].InvariantEquals("tags"),
-                        route, contentRequest, "categories", () => "Categories", "Tags", "ArticulateArchive")
+                    || FindContent(() => parts[parts.Length - 1].InvariantEquals("categories"),
+                        route, contentRequest, "categories", () => "Categories", "Categories", "ArticulateArchive")
                         //if the 2nd last item is /tags
                     || FindContent(() => parts.Length > 1 && parts[parts.Length - 2].InvariantEquals("tags"),
                         route, contentRequest, "tags", () => parts[parts.Length - 1], "Tag", "ArticulateList", () => "tags/" + parts[parts.Length - 1])
                     //if the 2nd last item is /categories
                     || FindContent(() => parts.Length > 1 && parts[parts.Length - 2].InvariantEquals("categories"),
-                        route, contentRequest, "categories", () => parts[parts.Length - 1], "Tag", "ArticulateList", () => "categories/" + parts[parts.Length - 1]);                
+                        route, contentRequest, "categories", () => parts[parts.Length - 1], "Category", "ArticulateList", () => "categories/" + parts[parts.Length - 1]);                
             }
             
             return false;

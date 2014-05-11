@@ -7,6 +7,17 @@ namespace Articulate
     public static class UrlHelperExtensions
     {
         /// <summary>
+        /// Get the search url without the 'term' query string
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string ArticulateSearchUrl(this UrlHelper url, IMasterModel model)
+        {
+            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "search";
+        }
+
+        /// <summary>
         /// The Home Blog Url
         /// </summary>
         public static string ArticulateRootUrl(this UrlHelper url, IMasterModel model)
@@ -15,11 +26,11 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Returns the default archive/list URL for blog posts
+        /// Returns the default categories list URL for blog posts
         /// </summary>
-        public static string ArticulateArchiveUrl(this UrlHelper url, IMasterModel model)
+        public static string ArticulateCategoriesUrl(this UrlHelper url, IMasterModel model)
         {
-            return model.BlogArchiveNode == null ? null : model.BlogArchiveNode.Url;
+            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories";
         }
 
         /// <summary>
@@ -45,6 +56,20 @@ namespace Articulate
             return model.RootBlogNode == null 
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + tag;
+        }
+
+        /// <summary>
+        /// Returns the url for a single category
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public static string ArticulateCategoryUrl(this UrlHelper url, IMasterModel model, string category)
+        {
+            return model.RootBlogNode == null
+                ? null
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + category;
         }
     }
 }

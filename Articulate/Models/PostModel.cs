@@ -31,6 +31,15 @@ namespace Articulate.Models
                 var tags = this.GetPropertyValue<string>("tags");
                 return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
             }
+        }
+
+        public IEnumerable<string> Categories
+        {
+            get
+            {
+                var tags = this.GetPropertyValue<string>("categories");
+                return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            }
         } 
 
         public AuthorModel Author

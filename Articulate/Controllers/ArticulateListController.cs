@@ -16,6 +16,9 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
+    /// <summary>
+    /// Renders list of blog posts (by tag, category or search result)
+    /// </summary>
     public class ArticulateListController : RenderMvcController
     {
         /// <summary>
@@ -103,12 +106,13 @@ namespace Articulate.Controllers
 
             var totalPosts = searchResult.Count();
             var pageSize = 1;
-            var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
+            
+            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages
             if (totalPages < p)
             {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
             }
 
             var pager = new PagerModel(
@@ -131,6 +135,22 @@ namespace Articulate.Controllers
         /// <returns></returns>
         public ActionResult Tag(RenderModel model, int? p)
         {
+            return RenderByTagOrCategory(model, p, "ArticulateTags", "tags");
+        }
+
+        /// <summary>
+        /// Used to render post by category (virtual node)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public ActionResult Category(RenderModel model, int? p)
+        {
+            return RenderByTagOrCategory(model, p, "ArticulateCategories", "categories");
+        }
+
+        private ActionResult RenderByTagOrCategory(RenderModel model, int? p, string tagGroup, string baseUrl)
+        {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
             {
@@ -141,11 +161,10 @@ namespace Articulate.Controllers
             var rootPageModel = new ListModel(model.Content.Parent);
 
             var contentByTag = Umbraco.GetContentByTag(
-                rootPageModel, 
+                rootPageModel,
                 tagPage.Name,
-                //TODO: This changes when rendering categories
-                "ArticulateTags",
-                "tags");
+                tagGroup,
+                baseUrl);
 
             if (contentByTag == null)
             {
@@ -164,12 +183,12 @@ namespace Articulate.Controllers
 
             var totalPosts = contentByTag.PostCount;
             var pageSize = 1;
-            var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
+            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages
             if (totalPages < p)
             {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
             }
 
             var pager = new PagerModel(
