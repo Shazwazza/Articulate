@@ -34,6 +34,9 @@ namespace Articulate
                 {
                     e.Entity.SetValue("author", UmbracoContext.Current.UmbracoUser.Name);
                     e.Entity.SetValue("publishedDate", DateTime.Now);
+                    e.Entity.SetValue("pageSize", 10);
+                    e.Entity.SetValue("categoriesUrlName", "categories");
+                    e.Entity.SetValue("tagsUrlName", "tags");
                 }    
             }
         }

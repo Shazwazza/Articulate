@@ -321,10 +321,14 @@ nav ul li {
   text-align: center;
   text-transform: uppercase;
 }
-nav ul li a {
+nav ul li a, nav ul li .articulate-search {
   display: block;
   padding: .5em 0;
 }
+nav ul li .articulate-search input,nav ul li .articulate-search button {
+    font-size: smaller;
+}
+
 nav.menu {
   /*margin-bottom: 2.5em;*/
 }

@@ -47,6 +47,7 @@ namespace Articulate.Controllers
             var tagListModel = new TagListModel(
                 rootPageModel,
                 tagPage.Name,
+                rootPageModel.PageSize,
                 contentByTags);
 
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);

@@ -7,12 +7,13 @@ namespace Articulate.Models
 {
     public class TagListModel : IMasterModel
     {
-        public TagListModel(IMasterModel masterModel, string name, IEnumerable<PostsByTagModel> tags)
+        public TagListModel(IMasterModel masterModel, string name, int pageSize, IEnumerable<PostsByTagModel> tags)
         {
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
             BlogArchiveNode = masterModel.BlogArchiveNode;
             Name = name;
+            PageSize = pageSize;
             BlogTitle = masterModel.BlogTitle;
             BlogDescription = masterModel.BlogDescription;        
             Tags = tags;
@@ -24,7 +25,8 @@ namespace Articulate.Models
         public string Name { get; private set; }
         public string BlogTitle { get; private set; }
         public string BlogDescription { get; private set; }
-        
+        public int PageSize { get; private set; }
+
         public IEnumerable<PostsByTagModel> Tags { get; private set; }
 
         private int? _maxCount;

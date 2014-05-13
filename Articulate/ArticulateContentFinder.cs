@@ -1,5 +1,6 @@
 using System;
 using Articulate.Models;
+using umbraco;
 using umbraco.cms.helpers;
 using Umbraco.Core;
 using Umbraco.Core.Models;
@@ -15,10 +16,13 @@ namespace Articulate
         public override bool TryFindContent(PublishedContentRequest contentRequest)
         {
             var route = !contentRequest.HasDomain ? contentRequest.Uri.GetAbsolutePathDecoded() : contentRequest.Domain.RootNodeId + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
-
+            
             var parts = route.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length > 0)
             {
+
+                //TODO: Need to figure out how to get these URL names from the master Articulate node
+                
 
                 return
                     //if it ends with '/search'
@@ -43,7 +47,12 @@ namespace Articulate
 
         private bool FindContent(
             Func<bool> urlCheck, 
-            string currRoute, PublishedContentRequest contentRequest, string urlName, Func<string> pageName, string templateName, string docTypeAlias,
+            string currRoute, 
+            PublishedContentRequest contentRequest, 
+            string urlName, 
+            Func<string> pageName, 
+            string templateName, 
+            string docTypeAlias,
             Func<string> urlPath = null)
         {
             if (urlCheck())

@@ -64,5 +64,10 @@ namespace Articulate.Models
         {
             get { return Content.GetPropertyValue<string>("blogDescription", true); }
         }
+
+        public int PageSize
+        {
+            get { return Content.GetPropertyValue<int>("pageSize", 10); }
+        }
     }
 }

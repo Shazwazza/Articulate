@@ -105,7 +105,7 @@ namespace Articulate.Controllers
             // just for the sake of performance. Hrm.... Examine possibly too.
 
             var totalPosts = searchResult.Count();
-            var pageSize = 1;
+            var pageSize = rootPageModel.PageSize;
             
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
@@ -182,7 +182,7 @@ namespace Articulate.Controllers
             // just for the sake of performance. Hrm.... Examine possibly too.
 
             var totalPosts = contentByTag.PostCount;
-            var pageSize = 1;
+            var pageSize = rootPageModel.PageSize;
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages
