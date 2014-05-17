@@ -226,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlogMlImporter.cs" />
+    <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateController.cs" />
     <Compile Include="Controllers\ArticulateListController.cs" />
     <Compile Include="Controllers\BlogPostControllerBase.cs" />

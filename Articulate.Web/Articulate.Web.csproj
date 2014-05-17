@@ -252,11 +252,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Plugins\Articulate\Dashboards\BlogImporter.html" />
+    <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\js\index.js" />
     <Content Include="App_Plugins\Articulate\PropertyEditors\ThemePicker.html" />
+    <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="css\dummy.txt" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />

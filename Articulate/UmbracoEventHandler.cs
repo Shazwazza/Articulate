@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 using System.Web.Routing;
+using Articulate.Controllers;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
+using Umbraco.Web.UI.JavaScript;
 
 namespace Articulate
 {
@@ -29,6 +33,17 @@ namespace Articulate
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
             ContentService.Created += ContentService_Created;
+            ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
+        }
+
+        static void ServerVariablesParser_Parsing(object sender, Dictionary<string, object> e)
+        {
+            if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
+            var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));            
+            e.Add("articulate", new Dictionary<string, object>
+            {
+                {"articulateImportBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.ImportBlogMl(null))},
+            });
         }
 
         static void ContentService_Created(IContentService sender, Umbraco.Core.Events.NewEventArgs<Umbraco.Core.Models.IContent> e)

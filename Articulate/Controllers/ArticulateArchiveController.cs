@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Linq;
+using System.Web;
+using System.Web.Http.Controllers;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
+using Umbraco.Web.Security;
+using HttpRequestMessageExtensions = Umbraco.Web.WebApi.HttpRequestMessageExtensions;
 
 namespace Articulate.Controllers
 {

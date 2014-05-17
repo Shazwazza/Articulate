@@ -1,0 +1,6 @@
+{
+	propertyEditors: [],       
+    javascript: [
+        '~/App_Plugins/Articulate/Dashboards/blogimporter.controller.js'
+    ]
+}
