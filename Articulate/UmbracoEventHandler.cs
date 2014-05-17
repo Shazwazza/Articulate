@@ -13,6 +13,12 @@ using Umbraco.Web.Routing;
 
 namespace Articulate
 {
+    //TODO: Create these themes:
+    // * https://github.com/Bartinger/phantom
+    // * https://github.com/thyu/minighost
+    // * http://ivanbarcia.eu/edictum.php
+    // * 
+
     public class UmbracoEventHandler : ApplicationEventHandler
     {
         protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
@@ -32,11 +38,15 @@ namespace Articulate
                 if (e.Entity.ContentType.Alias.InvariantEquals("ArticulateRichText")
                     || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
-                    e.Entity.SetValue("author", UmbracoContext.Current.UmbracoUser.Name);
+                    e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);
                     e.Entity.SetValue("publishedDate", DateTime.Now);
                     e.Entity.SetValue("pageSize", 10);
                     e.Entity.SetValue("categoriesUrlName", "categories");
                     e.Entity.SetValue("tagsUrlName", "tags");
+                    e.Entity.SetValue("searchUrlName", "tags");
+                    e.Entity.SetValue("categoriesPageName", "Categories");
+                    e.Entity.SetValue("tagsPageName", "Tags");
+                    e.Entity.SetValue("searchPageName", "Search results");
                 }    
             }
         }
