@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Web;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
@@ -16,9 +19,16 @@ namespace Articulate.Models
         public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias, string urlPath = null)
             : base(rootBlogPage)
         {
+            if (pageName == null) throw new ArgumentNullException("pageName");
+            if (pageTypeAlias == null) throw new ArgumentNullException("pageTypeAlias");
             _pageName = pageName;
             _pageTypeAlias = pageTypeAlias;
-            _urlPath = urlPath;
+
+            if (urlPath != null)
+            {
+                _urlPath = urlPath.SafeEncodeUrlSegments();
+            }
+            
         }
         
         public override string Url

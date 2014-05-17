@@ -55,7 +55,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null 
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + tag;
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + url.Encode(tag);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + category;
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + url.Encode(category);
         }
     }
 }

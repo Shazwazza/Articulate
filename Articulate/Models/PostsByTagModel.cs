@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 
 namespace Articulate.Models
 {
@@ -8,9 +10,14 @@ namespace Articulate.Models
     {
         public PostsByTagModel(IEnumerable<PostModel> posts, string tagName, string tagUrl)
         {
+            if (posts == null) throw new ArgumentNullException("posts");
+            if (tagName == null) throw new ArgumentNullException("tagName");
+            if (tagUrl == null) throw new ArgumentNullException("tagUrl");
+
             Posts = posts;
             TagName = tagName;
-            TagUrl = tagUrl;
+
+            TagUrl = tagUrl.SafeEncodeUrlSegments();
         }
 
         public IEnumerable<PostModel> Posts { get; private set; }
