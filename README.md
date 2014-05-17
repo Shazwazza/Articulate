@@ -1,4 +1,4 @@
-![Articulate](https://github.com/Shandem/Articulate/blob/master/Logo.png)
+![Articulate](Logo.png?raw=true)
 
 ==========
 
