@@ -1,9 +1,12 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.UI.WebControls;
+using umbraco.BusinessLogic;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Web.WebApi;
@@ -22,16 +25,22 @@ namespace Articulate.Controllers
             var provider = new MultipartFormDataStreamProvider(dir);
             var result = await request.Content.ReadAsMultipartAsync(provider);
 
+            var importIdAttempt = result.FormData["articulateNode"].TryConvertTo<int>();
+            if (!importIdAttempt)
+            {
+                throw new InvalidOperationException("An invalid articulate root node id was specified");
+            }
+
             if (result.FileData.Any())
             {
-                if (!Path.GetExtension(result.FileData[0].LocalFileName).InvariantEquals(".xml"))
+                if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
                 {
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);    
                 }
 
                 //there should only be one file so we'll just use the first one
-                var importer = new BlogMlImporter();
-                importer.Import(result.FileData[0].LocalFileName);
+                var importer = new BlogMlImporter(ApplicationContext);
+                importer.Import(result.FileData[0].LocalFileName, importIdAttempt.Result);
 
                 //cleanup
                 File.Delete(result.FileData[0].LocalFileName);

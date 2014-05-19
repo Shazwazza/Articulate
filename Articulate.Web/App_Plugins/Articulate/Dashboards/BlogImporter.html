@@ -1,7 +1,19 @@
 ﻿<div ng-controller="Articulate.Dashboard.BlogImporter">
     <h3>Articulate BlogMl importer</h3>
     <form ng-submit="submit()">
-        <input type="file" umb-file-upload />
-        <input type="submit" />
-    </form>
+        <umb-control-group alias="articulateNodeId" description="Enter the Articulate blog node Id to import to"
+                           label="Articulate blog node Id">
+            <input type="number" ng-model="$parent.articulateNodeId" name="articulateNodeId" />
+        </umb-control-group>
+        
+        <umb-control-group alias="blogMlXmlFile" description="Select BlogMl xml file to import"
+                           label="BlogMl import file">
+            <input type="file" class="" umb-file-upload name="blogMlXmlFile" />
+        </umb-control-group>
+        
+        <umb-control-group>
+            <input type="submit" />
+        </umb-control-group>
+            
+</form>
 </div>

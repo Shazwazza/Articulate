@@ -54,7 +54,10 @@ namespace Articulate
                     || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
                     e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);
-                    e.Entity.SetValue("publishedDate", DateTime.Now);
+                    e.Entity.SetValue("publishedDate", DateTime.Now);                    
+                }
+                else if (e.Entity.ContentType.Alias.InvariantEquals("Articulate"))
+                {
                     e.Entity.SetValue("pageSize", 10);
                     e.Entity.SetValue("categoriesUrlName", "categories");
                     e.Entity.SetValue("tagsUrlName", "tags");
@@ -62,7 +65,7 @@ namespace Articulate
                     e.Entity.SetValue("categoriesPageName", "Categories");
                     e.Entity.SetValue("tagsPageName", "Tags");
                     e.Entity.SetValue("searchPageName", "Search results");
-                }    
+                }
             }
         }
     }
