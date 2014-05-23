@@ -234,10 +234,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArticulateRouteHandler.cs" />
+    <Compile Include="ArticulateRoutes.cs" />
+    <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateController.cs" />
-    <Compile Include="Controllers\ArticulateListController.cs" />
+    <Compile Include="Controllers\ArticulateSearchController.cs" />
     <Compile Include="Controllers\BlogPostControllerBase.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
@@ -252,13 +255,16 @@
     <Compile Include="Models\PostsByTagModel.cs" />
     <Compile Include="Models\ArticulateVirtualPage.cs" />
     <Compile Include="Models\MasterModel.cs" />
+    <Compile Include="NotFoundHandler.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
-    <Compile Include="ArticulateContentFinder.cs" />
+    <Compile Include="RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UmbracoVirtualNodeByIdRouteHandler.cs" />
+    <Compile Include="UmbracoVirtualNodeRouteHandler.cs" />
     <Compile Include="UrlHelperExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

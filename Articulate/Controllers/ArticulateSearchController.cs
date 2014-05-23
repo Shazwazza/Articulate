@@ -17,9 +17,9 @@ using Umbraco.Web.Mvc;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders list of blog posts (by tag, category or search result)
+    /// Renders search results
     /// </summary>
-    public class ArticulateListController : RenderMvcController
+    public class ArticulateSearchController : RenderMvcController
     {
         /// <summary>
         /// Used to render the search result listing (virtual node)
@@ -33,7 +33,7 @@ namespace Articulate.Controllers
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Search(RenderModel model, string term = null, string provider = null, int? p = null)
+        public ActionResult Search(RenderModel model, string term, string provider = null, int? p = null)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -127,92 +127,5 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
 
-        /// <summary>
-        /// Used to render post by tag (virtual node)
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        public ActionResult Tag(RenderModel model, int? p)
-        {
-            return RenderByTagOrCategory(model, p, "ArticulateTags", "tags");
-        }
-
-        /// <summary>
-        /// Used to render post by category (virtual node)
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        public ActionResult Category(RenderModel model, int? p)
-        {
-            return RenderByTagOrCategory(model, p, "ArticulateCategories", "categories");
-        }
-
-        private ActionResult RenderByTagOrCategory(RenderModel model, int? p, string tagGroup, string baseUrl)
-        {
-            var tagPage = model.Content as ArticulateVirtualPage;
-            if (tagPage == null)
-            {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
-            //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
-
-            var contentByTag = Umbraco.GetContentByTag(
-                rootPageModel,
-                tagPage.Name,
-                tagGroup,
-                baseUrl);
-
-            //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-' 
-            // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
-            // will replace them with '.' and do the lookup again
-            if (contentByTag == null && tagPage.Name.Contains("-"))
-            {
-                contentByTag = Umbraco.GetContentByTag(
-                    rootPageModel,
-                    tagPage.Name.Replace('-','.'),
-                    tagGroup,
-                    baseUrl);
-            }
-
-            if (contentByTag == null)
-            {
-                return new HttpNotFoundResult();
-            }
-
-            if (p == null || p.Value <= 0)
-            {
-                p = 1;
-            }
-
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var totalPosts = contentByTag.PostCount;
-            var pageSize = rootPageModel.PageSize;
-            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
-
-            //Invalid page, redirect without pages
-            if (totalPages < p)
-            {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
-            }
-
-            var pager = new PagerModel(
-                pageSize,
-                p.Value - 1,
-                totalPosts,
-                totalPosts > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
-
-            var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
-
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
-        }
     }
 }
