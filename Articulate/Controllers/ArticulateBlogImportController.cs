@@ -31,6 +31,12 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An invalid articulate root node id was specified");
             }
 
+            var overwriteAttempt = result.FormData["overwrite"].TryConvertTo<bool>();
+            if (!overwriteAttempt)
+            {
+                throw new InvalidOperationException("An invalid overwrite value was specified");
+            }
+
             if (result.FileData.Any())
             {
                 if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
@@ -40,7 +46,7 @@ namespace Articulate.Controllers
 
                 //there should only be one file so we'll just use the first one
                 var importer = new BlogMlImporter(ApplicationContext);
-                importer.Import(result.FileData[0].LocalFileName, importIdAttempt.Result);
+                importer.Import(result.FileData[0].LocalFileName, importIdAttempt.Result, overwriteAttempt.Result);
 
                 //cleanup
                 File.Delete(result.FileData[0].LocalFileName);

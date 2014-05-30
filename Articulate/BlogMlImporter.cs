@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.XPath;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
@@ -18,14 +19,14 @@ namespace Articulate
     public class BlogMlImporter
     {
         private readonly ApplicationContext _applicationContext;
-        
+
         public BlogMlImporter(ApplicationContext applicationContext)
         {
             _applicationContext = applicationContext;
-            
+
         }
 
-        public void Import(string fileName, int blogRootNode)
+        public void Import(string fileName, int blogRootNode, bool overwrite)
         {
             if (!File.Exists(fileName))
             {
@@ -42,21 +43,24 @@ namespace Articulate
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
             }
 
-            using (var xmlReader = XmlReader.Create(File.OpenRead(fileName)))
+            using (var stream = File.OpenRead(fileName))            
             {
-                var xpathReader = new XPathDocument(xmlReader);
                 var document = new BlogMLDocument();
-                document.Load(xpathReader);
+                document.Load(stream);
 
-                //var result = BlogMLSerializer.Deserialize(s);
-                //ImportAuthors(root, result.Authors);
-                //ImportCategories(root, result.Categories);
-                ImportPosts(xpathReader, root, document.Posts, document.Authors.ToArray());
+                stream.Position = 0;
+                var xdoc = XDocument.Load(stream);
+
+                var authorIdsToName = ImportAuthors(root, document.Authors);
+
+                ImportPosts(xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite);
             }
         }
 
-        private string ImportAuthor(IContent rootNode, BlogMLAuthor author)
+        private IDictionary<string, string> ImportAuthors(IContent rootNode, IEnumerable<BlogMLAuthor> authors)
         {
+            var result = new Dictionary<string, string>();
+
             var authorType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateAuthor");
             if (authorType == null)
             {
@@ -69,7 +73,7 @@ namespace Articulate
             var authorsNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             if (authorsNode == null)
             {
-                //create teh authors node
+                //create the authors node
                 authorsNode = _applicationContext.Services.ContentService.CreateContent(
                     "Authors", rootNode, "ArticulateAuthors");
                 _applicationContext.Services.ContentService.Save(authorsNode);
@@ -77,39 +81,53 @@ namespace Articulate
 
             var allAuthorNodes = _applicationContext.Services.ContentService.GetContentOfContentType(authorType.Id).ToArray();
 
-            //first check by email
-            var found = _applicationContext.Services.UserService.GetByEmail(author.EmailAddress);
-            if (found != null)
+            foreach (var author in authors)
             {
-                var authorNode = allAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(found.Name));
-                //check if an author node exists for this user
-                if (authorNode == null)
+                //first check if a user exists by email
+                var found = _applicationContext.Services.UserService.GetByEmail(author.EmailAddress);
+                if (found != null)
                 {
-                    //create an author with the same name as the user - we'll need to wire up that 
-                    // name to posts later on
-                    authorNode = _applicationContext.Services.ContentService.CreateContent(
-                        found.Name, authorsNode, "ArticulateAuthor");
-                    _applicationContext.Services.ContentService.Save(authorNode);
+                    //check if an author node exists for this user
+                    var authorNode = allAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(found.Name));
+                    
+                    //nope not found so create a node for this user name
+                    if (authorNode == null)
+                    {
+                        //create an author with the same name as the user - we'll need to wire up that 
+                        // name to posts later on
+                        authorNode = _applicationContext.Services.ContentService.CreateContent(
+                            found.Name, authorsNode, "ArticulateAuthor");
+                        _applicationContext.Services.ContentService.Save(authorNode);
+                    }
+
+                    result.Add(author.Id, authorNode.Name);
+
                 }
-                return authorNode.Name;
-            }
-            else
-            {
-                var authorNode = allAuthorNodes.First(x => x.Name.InvariantEquals(author.Title.Content));
-                //no user found with this email, so we'll check if it already exists by title
-                if (authorNode == null)
+                else
                 {
-                    //create a new author node with this title
-                    authorNode = _applicationContext.Services.ContentService.CreateContent(
-                        author.Title.Content, authorsNode, "ArticulateAuthor");
-                    _applicationContext.Services.ContentService.Save(authorNode);                    
+                    //no user existsw with this email, so check if a node exists with the current author's title
+                    var authorNode = allAuthorNodes.First(x => x.Name.InvariantEquals(author.Title.Content));
+                    
+                    //nope, not found so create one
+                    if (authorNode == null)
+                    {
+                        //create a new author node with this title
+                        authorNode = _applicationContext.Services.ContentService.CreateContent(
+                            author.Title.Content, authorsNode, "ArticulateAuthor");
+                        _applicationContext.Services.ContentService.Save(authorNode);
+                    }
+
+                    result.Add(author.Id, authorNode.Name);
                 }
-                return authorNode.Name;
             }
+
+            return result;
+
         }
 
-        private void ImportPosts(XPathDocument xpath, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors)
+        private void ImportPosts(XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite)
         {
+            
             var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
             if (postType == null)
             {
@@ -119,7 +137,9 @@ namespace Articulate
             //TODO: Check for existence of ArticulateArchive
 
             var children = rootNode.Children().ToArray();
+
             var archiveNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
+
             if (archiveNode == null)
             {
                 //create teh authors node
@@ -128,40 +148,71 @@ namespace Articulate
                 _applicationContext.Services.ContentService.Save(archiveNode);
             }
 
+            var allPostNodes = archiveNode.Children().ToArray();
+
             foreach (var post in posts)
             {
-                var postNode = _applicationContext.Services.ContentService.CreateContent(
-                    post.Title.Content, archiveNode, "ArticulateRichText");
-
-                postNode.SetValue("richText", post.Content.Content);
+                //check if one exists
+                var postNode = allPostNodes.FirstOrDefault(x => x.GetValue<string>("importId") == post.Id);
                 
+                //it exists and we don't wanna overwrite, skip it
+                if (!overwrite && postNode != null) continue;
+
+                //create it if it doesn't exist
+                if (postNode == null)
+                {
+                    postNode = _applicationContext.Services.ContentService.CreateContent(
+                        post.Title.Content, archiveNode, "ArticulateRichText");        
+                }
+                
+                postNode.CreateDate = post.CreatedOn;
+                postNode.UpdateDate = post.LastModifiedOn;
+
+                //TODO: Do Excerpt
+
+                postNode.SetValue("importId", post.Id);
+                postNode.SetValue("richText", post.Content.Content);
+
                 //we're only going to use the last url segment
-                var slug = post.Url.OriginalString.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries);
-                postNode.SetValue("umbracoUrlName", slug[slug.Length - 1].Split(new[] {'?'}, StringSplitOptions.RemoveEmptyEntries)[0]);
+                var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                postNode.SetValue("umbracoUrlName", slug[slug.Length - 1].Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries)[0]);
 
                 if (post.Authors.Count > 0)
                 {
                     var author = authors.FirstOrDefault(x => x.Id.InvariantEquals(post.Authors[0]));
-                    //var name = ImportAuthor(rootNode, author);
-                    //postNode.SetValue("author", name);
-                }              
-  
-                //since this blobml serializer doesn't support tags (can't find one that does) we need to manually take care of that
+                    
+                    if (author != null)
+                    {
+                        var name = authorIdsToName[author.Id];
+                        postNode.SetValue("author", name);   
+                    }                    
+                }
 
+                ImportTags(xdoc, postNode, post);
+                ImportCategories(postNode, post, categories);
+
+                _applicationContext.Services.ContentService.Save(postNode);
             }
         }
 
+        private void ImportCategories(IContent postNode, BlogMLPost post, IEnumerable<BlogMLCategory> allCategories)
+        {
+            var postCats = allCategories.Where(x => post.Categories.Contains(x.Id))
+                .Select(x => x.Title.Content)
+                .ToArray();
 
-        //private void ImportCategories(IContent rootNode, IEnumerable<BlogMLCategory> categories)
-        //{
-        //    var currentCategories = _applicationContext.Services.TagService.GetAllContentTags("ArticulateCategories").ToArray();
-        //    foreach (var category in categories)
-        //    {
-        //        if (!currentCategories.Any(x => x.Text.InvariantEquals(category.Title)))
-        //        {
-                    
-        //        }
-        //    }
-        //}
+            postNode.SetTags("categories", postCats, true, "ArticulateCategories");
+        }
+
+        private void ImportTags(XDocument xdoc, IContent postNode, BlogMLPost post)
+        {
+            //since this blobml serializer doesn't support tags (can't find one that does) we need to manually take care of that
+            var xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
+                .SingleOrDefault(x => ((string)x.Attribute("id")) == post.Id);
+
+            var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
+            postNode.SetTags("tags", tags, true, "ArticulateTags");
+        }
+
     }
 }

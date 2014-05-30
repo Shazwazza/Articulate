@@ -11,6 +11,11 @@
             <input type="file" class="" umb-file-upload name="blogMlXmlFile" />
         </umb-control-group>
         
+        <umb-control-group alias="overwrite" description="Check if you want to overwrite posts already imported"
+                           label="Overwrite imported posts?">
+            <input type="checkbox" class="" name="overwrite" ng-model="$parent.overwrite" />
+        </umb-control-group>
+        
         <umb-control-group>
             <input type="submit" />
         </umb-control-group>

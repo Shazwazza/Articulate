@@ -30,6 +30,8 @@ namespace Articulate
         
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
+            //TODO: Listen to events when we need to re-map the routes when data changes!
+
             //map routes
             ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
 
