@@ -77,12 +77,7 @@ namespace Articulate.Models
 
         public string Excerpt
         {
-            get
-            {
-                //TODO: Create a property for this, for now we'll just reduce
-                var val = Body.ToString();
-                return val.IsNullOrWhiteSpace() ? string.Empty : string.Join("", val.Take(200));
-            }
+            get { return this.GetPropertyValue<string>("excerpt"); }
         }
 
         public DateTime PublishedDate
@@ -94,7 +89,7 @@ namespace Articulate.Models
         {
             get
             {
-                if (this.HasProperty("RichText"))
+                if (this.HasProperty("richText"))
                 {
                     return this.GetPropertyValue<IHtmlString>("richText");                    
                 }

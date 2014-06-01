@@ -164,11 +164,13 @@ namespace Articulate
                     postNode = _applicationContext.Services.ContentService.CreateContent(
                         post.Title.Content, archiveNode, "ArticulateRichText");        
                 }
-                
-                postNode.CreateDate = post.CreatedOn;
-                postNode.UpdateDate = post.LastModifiedOn;
 
-                //TODO: Do Excerpt
+                postNode.SetValue("publishedDate", post.CreatedOn);
+
+                if (post.Excerpt != null && post.Excerpt.Content.IsNullOrWhiteSpace() == false)
+                {
+                    postNode.SetValue("excerpt", post.Excerpt.Content);
+                }
 
                 postNode.SetValue("importId", post.Id);
                 postNode.SetValue("richText", post.Content.Content);
