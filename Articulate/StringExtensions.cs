@@ -11,7 +11,7 @@ namespace Articulate
         {
             return string.Join("/",
                 urlPath.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => HttpUtility.UrlEncode((string) x))
+                    .Select(x => HttpUtility.UrlEncode(x).Replace("+", "%20"))
                     .WhereNotNull()
                     //we are not supporting dots in our URLs it's just too difficult to
                     // support across the board with all the different config options

@@ -53,9 +53,9 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateTagUrl(this UrlHelper url, IMasterModel model, string tag)
         {
-            return model.RootBlogNode == null 
+            return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + url.Encode(tag);
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + tag.SafeEncodeUrlSegments();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + url.Encode(category);
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + category.SafeEncodeUrlSegments();
         }
     }
 }
