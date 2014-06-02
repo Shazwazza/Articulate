@@ -1,0 +1,30 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<div class="sidebar" role="aside">
+    <header class="header">
+
+        @*{{#if @blog.logo}}
+            <a href="/">
+                <img id="blog" class="logo" src="{{@blog.logo}}">
+            </a>*@
+
+        <h1 class="title"><a href="/">@Model.BlogTitle</a></h1>
+
+        <div class="separator"></div>
+
+        <p class="description">@Model.BlogDescription</p>
+        <div class="social-icons">
+            <a href="https://github.com/Bartinger" class="icon icon-github"></a>
+            <a href="https://plus.google.com/+DominicBartl?rel=author" class="icon icon-gplus"></a>
+            <a href="https://twitter.com/DevBartinger" class="icon icon-twitter"></a>
+            
+            <a href="/rss" class="icon-rss"></a>
+        </div>
+        
+        <div class="separator"></div>
+        
+        @Html.ThemedPartial(Model, "SearchBox")
+
+    </header>
+</div>

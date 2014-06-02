@@ -1,3 +1,4 @@
-﻿<select name="themePicker" ng-model="model.value">
-    <option value="VAPOR">VAPOR</option>
+﻿<select name="themePicker" ng-model="model.value"
+        ng-controller="Articulate.PropertyEditors.ThemePicker"
+        ng-options="theme for theme in themes">    
 </select>

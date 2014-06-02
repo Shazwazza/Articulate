@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,7 +16,7 @@ namespace Articulate.Controllers
 {
     public class ArticulateBlogImportController : UmbracoApiController
     {
-        public async Task<bool> ImportBlogMl(HttpRequestMessage request)
+        public async Task<bool> PostImportBlogMl(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);

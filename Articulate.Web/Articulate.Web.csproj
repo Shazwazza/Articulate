@@ -61,7 +61,7 @@
     </Reference>
     <Reference Include="ClientDependency.Core, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ClientDependency.1.8.0-beta\lib\net45\ClientDependency.Core.dll</HintPath>
+      <HintPath>..\packages\ClientDependency.1.8.0-beta2\lib\net45\ClientDependency.Core.dll</HintPath>
     </Reference>
     <Reference Include="ClientDependency.Core.Mvc, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -252,13 +252,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Plugins\Articulate\Dashboards\BlogImporter.html" />
+    <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.html" />
     <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.controller.js" />
+    <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.controller.js" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\main.css" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\js\index.js" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\js\index.js" />
-    <Content Include="App_Plugins\Articulate\PropertyEditors\ThemePicker.html" />
+    <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.html" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="css\dummy.txt" />
     <Content Include="default.aspx" />
@@ -271,7 +276,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="App_Plugins\Articulate\Themes\VAPOR\Views\Shared\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>
@@ -289,6 +293,23 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.eot" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.ttf" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.woff" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\List.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Master.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsDisqus.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Menu.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Pager.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\PostTags.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\SearchBox.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Post.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Tags.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Web.config" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsFacebook.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsGooglePlus.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\config.json" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.eot" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.ttf" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.woff" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Sidebar.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />

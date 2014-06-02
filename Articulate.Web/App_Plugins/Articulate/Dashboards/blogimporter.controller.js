@@ -17,7 +17,7 @@
 
                 $scope.submitting = true;
 
-                var url = Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "ImportBlogMl";
+                var url = Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostImportBlogMl";
 
                 umbRequestHelper.postMultiPartRequest(
                     url,

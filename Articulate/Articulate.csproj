@@ -57,7 +57,7 @@
     </Reference>
     <Reference Include="ClientDependency.Core, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ClientDependency.1.8.0-beta\lib\net45\ClientDependency.Core.dll</HintPath>
+      <HintPath>..\packages\ClientDependency.1.8.0-beta2\lib\net45\ClientDependency.Core.dll</HintPath>
     </Reference>
     <Reference Include="ClientDependency.Core.Mvc, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -240,6 +240,7 @@
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateController.cs" />
+    <Compile Include="Controllers\ArticulatePropertyEditorsController.cs" />
     <Compile Include="Controllers\ArticulateSearchController.cs" />
     <Compile Include="Controllers\BlogPostControllerBase.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
