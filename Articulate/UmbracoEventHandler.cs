@@ -22,7 +22,7 @@ using Umbraco.Web.UI.JavaScript;
 namespace Articulate
 {
     //TODO: Create these themes:
-    // * https://github.com/Bartinger/phantom
+    // * https://github.com/Bartinger/phantom = DONE
     // * https://github.com/thyu/minighost
     // * http://ivanbarcia.eu/edictum.php
     // * 
