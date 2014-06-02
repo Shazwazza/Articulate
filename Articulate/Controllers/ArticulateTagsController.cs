@@ -122,8 +122,8 @@ namespace Articulate.Controllers
             var pager = new PagerModel(
                 pageSize,
                 p.Value - 1,
-                totalPosts,
-                totalPosts > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
+                totalPages,
+                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
                 p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
 
             var listModel = new ListModel(tagPage, contentByTag.Posts, pager);

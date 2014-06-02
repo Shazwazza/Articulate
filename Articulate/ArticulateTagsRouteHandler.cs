@@ -32,15 +32,15 @@ namespace Articulate
         protected override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {
             var tag = requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString();
-            var controllerName = requestContext.RouteData.GetRequiredString("controller");
+            var actionName = requestContext.RouteData.GetRequiredString("action");
             var rootUrl = baseContent.Url;
-            var urlName = controllerName.InvariantEquals("tags") ? _tagsUrlName : _categoriesUrlName;
-            var pageName = controllerName.InvariantEquals("tags") ? _tagsPageName : _categoriesPageName;
+            var urlName = actionName.InvariantEquals("tags") ? _tagsUrlName : _categoriesUrlName;
+            var pageName = actionName.InvariantEquals("tags") ? _tagsPageName : _categoriesPageName;
 
             return new ArticulateVirtualPage(
                 baseContent,
                 tag.IsNullOrWhiteSpace() ? pageName : tag,
-                controllerName,
+                requestContext.RouteData.GetRequiredString("controller"),
                 tag.IsNullOrWhiteSpace()
                     ? rootUrl.EnsureEndsWith('/') + urlName
                     : rootUrl.EnsureEndsWith('/') + urlName.EnsureEndsWith('/') + tag);
