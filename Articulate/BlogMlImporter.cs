@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -26,7 +27,7 @@ namespace Articulate
 
         }
 
-        public void Import(string fileName, int blogRootNode, bool overwrite)
+        public void Import(int userId, string fileName, int blogRootNode, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
         {
             if (!File.Exists(fileName))
             {
@@ -51,13 +52,13 @@ namespace Articulate
                 stream.Position = 0;
                 var xdoc = XDocument.Load(stream);
 
-                var authorIdsToName = ImportAuthors(root, document.Authors);
+                var authorIdsToName = ImportAuthors(userId, root, document.Authors);
 
-                ImportPosts(xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite);
+                ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll);
             }
         }
 
-        private IDictionary<string, string> ImportAuthors(IContent rootNode, IEnumerable<BlogMLAuthor> authors)
+        private IDictionary<string, string> ImportAuthors(int userId, IContent rootNode, IEnumerable<BlogMLAuthor> authors)
         {
             var result = new Dictionary<string, string>();
 
@@ -76,7 +77,7 @@ namespace Articulate
                 //create the authors node
                 authorsNode = _applicationContext.Services.ContentService.CreateContent(
                     "Authors", rootNode, "ArticulateAuthors");
-                _applicationContext.Services.ContentService.Save(authorsNode);
+                _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorsNode, userId);
             }
 
             var allAuthorNodes = _applicationContext.Services.ContentService.GetContentOfContentType(authorType.Id).ToArray();
@@ -97,7 +98,7 @@ namespace Articulate
                         // name to posts later on
                         authorNode = _applicationContext.Services.ContentService.CreateContent(
                             found.Name, authorsNode, "ArticulateAuthor");
-                        _applicationContext.Services.ContentService.Save(authorNode);
+                        _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorNode, userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -114,7 +115,7 @@ namespace Articulate
                         //create a new author node with this title
                         authorNode = _applicationContext.Services.ContentService.CreateContent(
                             author.Title.Content, authorsNode, "ArticulateAuthor");
-                        _applicationContext.Services.ContentService.Save(authorNode);
+                        _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorNode, userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -125,7 +126,7 @@ namespace Articulate
 
         }
 
-        private void ImportPosts(XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite)
+        private void ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
         {
             
             var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
@@ -173,7 +174,17 @@ namespace Articulate
                 }
 
                 postNode.SetValue("importId", post.Id);
-                postNode.SetValue("richText", post.Content.Content);
+
+                var content = post.Content.Content;
+                if (!regexMatch.IsNullOrWhiteSpace() && !regexReplace.IsNullOrWhiteSpace())
+                {
+                    //run the replacement
+                    content = Regex.Replace(content, regexMatch, regexReplace, 
+                        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);    
+                }
+
+                postNode.SetValue("richText", content);
+                postNode.SetValue("enableComments", true);
 
                 //we're only going to use the last url segment
                 var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -193,7 +204,15 @@ namespace Articulate
                 ImportTags(xdoc, postNode, post);
                 ImportCategories(postNode, post, categories);
 
-                _applicationContext.Services.ContentService.Save(postNode);
+                if (publishAll)
+                {
+                    _applicationContext.Services.ContentService.SaveAndPublishWithStatus(postNode, userId);
+                }
+                else
+                {
+                    _applicationContext.Services.ContentService.Save(postNode, userId);    
+                }
+                
             }
         }
 

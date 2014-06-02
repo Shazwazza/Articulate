@@ -37,6 +37,14 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An invalid overwrite value was specified");
             }
 
+            var regexMatch = result.FormData["regexMatch"];
+            var regexReplace = result.FormData["regexReplace"];
+            var publishAttempt = result.FormData["publish"].TryConvertTo<bool>();
+            if (!publishAttempt)
+            {
+                throw new InvalidOperationException("An invalid publish value was specified");
+            }
+
             if (result.FileData.Any())
             {
                 if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
@@ -46,7 +54,7 @@ namespace Articulate.Controllers
 
                 //there should only be one file so we'll just use the first one
                 var importer = new BlogMlImporter(ApplicationContext);
-                importer.Import(result.FileData[0].LocalFileName, importIdAttempt.Result, overwriteAttempt.Result);
+                importer.Import(Security.CurrentUser.Id, result.FileData[0].LocalFileName, importIdAttempt.Result, overwriteAttempt.Result, regexMatch, regexReplace, publishAttempt.Result);
 
                 //cleanup
                 File.Delete(result.FileData[0].LocalFileName);

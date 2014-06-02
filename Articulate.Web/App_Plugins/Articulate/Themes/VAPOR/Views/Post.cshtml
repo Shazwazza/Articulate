@@ -68,10 +68,12 @@
 
         </footer>
         
-
-        @Html.ThemedPartial(Model, "CommentsDisqus")
-        @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
-        @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
+        @if (Model.EnableComments)
+        {
+            @Html.ThemedPartial(Model, "CommentsDisqus")
+            @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
+            @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
+        }
 
     </article>
 

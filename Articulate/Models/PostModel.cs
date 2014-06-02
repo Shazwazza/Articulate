@@ -40,7 +40,12 @@ namespace Articulate.Models
                 var tags = this.GetPropertyValue<string>("categories");
                 return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             }
-        } 
+        }
+
+        public bool EnableComments
+        {
+            get { return Content.GetPropertyValue<bool>("enableComments", true); }
+        }
 
         public AuthorModel Author
         {
