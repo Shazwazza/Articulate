@@ -32,19 +32,12 @@ namespace Articulate.Controllers
                     new XElement(ns + "supportsMultipleCategories", "Yes"),
                     new XElement(ns + "supportsNewCategoriesInline", "Yes"),
                     new XElement(ns + "supportsKeywords", "Yes"),
+                    //NOTE: This setting is undocumented for whatever reason!
                     new XElement(ns + "supportsGetTags", "Yes"),
                     new XElement(ns + "supportsCommentPolicy", "Yes"),
                     new XElement(ns + "supportsSlug", "Yes"),
                     new XElement(ns + "supportsExcerpt", "Yes"),
                     new XElement(ns + "requiresHtmlTitles", "No")));
-
-            //TODO: If we want to suport look-ahead tags box we need to manually allow it! wtf.
-
-                //new XElement("buttons",
-                //    new XElement("button",
-                //        new XElement("id", "2"),
-                //        new XElement("text", "Tags"),
-                //        new XElement("contentUrl", new XCData("{blog-homepage-url}api/tagminiview.aspx")))));
 
             return new XmlResult(new XDocument(rsd));
         }

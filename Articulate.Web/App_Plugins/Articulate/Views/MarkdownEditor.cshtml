@@ -1,0 +1,41 @@
+﻿@using ClientDependency.Core.Mvc
+@model dynamic
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html ng-app="articulateEditorApp">
+<head>
+    <title>Articulate - Create New Post</title>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+
+    @{
+        Html
+            .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css")
+            .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js");
+    }
+    @Html.RenderCssHere()
+    @Html.RenderJsHere()
+
+</head>
+<body ng-controller="EditorController">
+    <h1>{{title}}</h1>
+    
+    <div ng-if="phase==0">
+        <textarea ng-model="md"></textarea>
+    </div>
+    <div ng-if="phase==1">
+        <label>Tags</label>
+        <input type="text" ng-model="tags" />        
+        <br/>
+        <label>Categories</label>
+        <input type="text" ng-model="categories" />
+        <br />
+    </div>
+    
+    <button ng-click="next()">Next &raquo;</button>
+</body>
+</html>

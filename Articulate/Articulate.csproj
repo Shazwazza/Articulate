@@ -240,6 +240,7 @@
     <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
+    <Compile Include="Controllers\MarkdownEditorController.cs" />
     <Compile Include="Controllers\RsdController.cs" />
     <Compile Include="Controllers\ArticulateController.cs" />
     <Compile Include="Controllers\ArticulatePropertyEditorsController.cs" />

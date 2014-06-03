@@ -29,32 +29,65 @@ namespace Articulate
                         "articulate_search_" + node.Id,
                         "articulate_metaweblog_" + node.Id,
                         "articulate_rsd_" + node.Id,
-                        "articulate_wlwmanifest_" + node.Id);
+                        "articulate_wlwmanifest_" + node.Id,
+                        "articulate_markdown_" + node.Id);
 
-                    //Create the route for the /search/{term} results
-                    routes.MapUmbracoRoute(
-                        "articulate_search_" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + node.GetPropertyValue<string>("searchUrlName") + "/{term}").TrimStart('/'),
+                    
+                    MapSearchRoute(routes, node);
+                    MapManifestRoute(routes, node);
+                    MapRsdRoute(routes, node);
+                    MapMetaWeblogRoute(routes, node);
+                    MapTagsAndCategoriesRoute(routes, node);
+                    MapMarkdownEditorRoute(routes, node);
+                }
+            }
+        }
+
+        private static void MapMarkdownEditorRoute(RouteCollection routes, IPublishedContent node)
+        {
+            routes.MapRoute("articulate_markdown_new" + node.Id,
+                        (node.Url.EnsureEndsWith('/') + "a-new/{id}").TrimStart('/'),
                         new
                         {
-                            controller = "ArticulateSearch",
-                            action = "Search",
-                            term = UrlParameter.Optional
-                        },
-                        new ArticulateSearchRouteHandler(node.Id,
-                            node.GetPropertyValue<string>("searchUrlName"),
-                            node.GetPropertyValue<string>("searchPageName")));
-
-                    routes.MapRoute("articulate_wlwmanifest_" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + "wlwmanifest/{id}").TrimStart('/'),
-                        new
-                        {
-                            controller = "WlwManifest",
-                            action = "Index",
+                            controller = "MarkdownEditor",
+                            action = "NewPost",
                             id = node.Id
                         });
+        }
 
-                    routes.MapRoute("articulate_rsd_" + node.Id,
+        private static void MapTagsAndCategoriesRoute(RouteCollection routes, IPublishedContent node)
+        {
+            //Create the routes for /tags/{tag} and /categories/{category}
+            routes.MapUmbracoRoute(
+                "articulate_tags_" + node.Id,
+                (node.Url.EnsureEndsWith('/') + "{action}/{tag}").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateTags",
+                    tag = UrlParameter.Optional
+                },
+                new ArticulateTagsRouteHandler(node.Id,
+                    node.GetPropertyValue<string>("tagsUrlName"),
+                    node.GetPropertyValue<string>("tagsPageName"),
+                    node.GetPropertyValue<string>("categoriesUrlName"),
+                    node.GetPropertyValue<string>("categoriesPageName")),
+                //Constraings: only match either the tags or categories url names
+                new { action = node.GetPropertyValue<string>("tagsUrlName") + "|" + node.GetPropertyValue<string>("categoriesUrlName") });
+        }
+
+        private static void MapMetaWeblogRoute(RouteCollection routes, IPublishedContent node)
+        {
+            routes.Add("articulate_metaweblog_" + node.Id,
+                        new Route
+                            (
+                            (node.Url.EnsureEndsWith('/') + "metaweblog").TrimStart('/'),
+                            new MetaWeblogHandler()
+                            ));
+        }
+
+        private static void MapRsdRoute(RouteCollection routes, IPublishedContent node)
+        {
+            routes.MapRoute("articulate_rsd_" + node.Id,
                         (node.Url.EnsureEndsWith('/') + "rsd/{id}").TrimStart('/'),
                         new
                         {
@@ -62,34 +95,35 @@ namespace Articulate
                             action = "Index",
                             id = node.Id
                         });
+        }
 
-                    routes.Add("articulate_metaweblog_" + node.Id,
-                        new Route
-                            (
-                            (node.Url.EnsureEndsWith('/') + "metaweblog").TrimStart('/'),
-                            new MetaWeblogHandler()
-                            ));
+        private static void MapManifestRoute(RouteCollection routes, IPublishedContent node)
+        {
+            routes.MapRoute("articulate_wlwmanifest_" + node.Id,
+                       (node.Url.EnsureEndsWith('/') + "wlwmanifest/{id}").TrimStart('/'),
+                       new
+                       {
+                           controller = "WlwManifest",
+                           action = "Index",
+                           id = node.Id
+                       });
+        }
 
-                    //Create the routes for /tags/{tag} and /categories/{category}
-                    routes.MapUmbracoRoute(
-                        "articulate_tags_" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + "{action}/{tag}").TrimStart('/'),
-                        new
-                        {
-                            controller = "ArticulateTags",
-                            tag = UrlParameter.Optional
-                        },
-                        new ArticulateTagsRouteHandler(node.Id,
-                            node.GetPropertyValue<string>("tagsUrlName"),
-                            node.GetPropertyValue<string>("tagsPageName"),
-                            node.GetPropertyValue<string>("categoriesUrlName"),
-                            node.GetPropertyValue<string>("categoriesPageName")),
-                        //Constraings: only match either the tags or categories url names
-                        new { action = node.GetPropertyValue<string>("tagsUrlName") + "|" + node.GetPropertyValue<string>("categoriesUrlName") });
-
-                    
-                }
-            }
+        private static void MapSearchRoute(RouteCollection routes, IPublishedContent node)
+        {
+            //Create the route for the /search/{term} results
+            routes.MapUmbracoRoute(
+                "articulate_search_" + node.Id,
+                (node.Url.EnsureEndsWith('/') + node.GetPropertyValue<string>("searchUrlName") + "/{term}").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateSearch",
+                    action = "Search",
+                    term = UrlParameter.Optional
+                },
+                new ArticulateSearchRouteHandler(node.Id,
+                    node.GetPropertyValue<string>("searchUrlName"),
+                    node.GetPropertyValue<string>("searchPageName")));
         }
 
         private static void RemoveExisting(RouteCollection routes, params string[] names)

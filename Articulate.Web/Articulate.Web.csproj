@@ -252,6 +252,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Plugins\Articulate\Assets\md-editor.js" />
+    <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
     <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.html" />
     <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.controller.js" />
@@ -340,6 +342,7 @@
     <Content Include="config\BaseRestExtensions.config" />
     <Content Include="config\applications.config" />
     <Content Include="config\404handlers.config" />
+    <Content Include="App_Plugins\Articulate\Views\MarkdownEditor.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
