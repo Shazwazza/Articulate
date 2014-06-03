@@ -152,6 +152,7 @@
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
@@ -239,6 +240,7 @@
     <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
+    <Compile Include="Controllers\RsdController.cs" />
     <Compile Include="Controllers\ArticulateController.cs" />
     <Compile Include="Controllers\ArticulatePropertyEditorsController.cs" />
     <Compile Include="Controllers\ArticulateSearchController.cs" />
@@ -246,10 +248,15 @@
     <Compile Include="Controllers\ArticulateTagsController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
+    <Compile Include="Controllers\WlwManifestController.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ListModel.cs" />
+    <Compile Include="Models\MetaWeblog\IMetaWeblog.cs" />
+    <Compile Include="Models\MetaWeblog\MediaObject.cs" />
+    <Compile Include="Models\MetaWeblog\MetaWeblogPost.cs" />
     <Compile Include="Models\PagerModel.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\TagListModel.cs" />

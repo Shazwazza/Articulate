@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using CookComputing.XmlRpc;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -16,7 +17,6 @@ namespace Articulate.Models
 {
     public class PostModel : MasterModel
     {
-
         private AuthorModel _author;
 
         public PostModel(IPublishedContent content)
@@ -108,4 +108,5 @@ namespace Articulate.Models
             }
         }
     }
+
 }

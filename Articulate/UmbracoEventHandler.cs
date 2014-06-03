@@ -91,7 +91,10 @@ namespace Articulate
                 if (e.Entity.ContentType.Alias.InvariantEquals("ArticulateRichText")
                     || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
-                    e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);
+                    if (UmbracoContext.Current.Security.CurrentUser != null)
+                    {
+                        e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);    
+                    }
                     e.Entity.SetValue("publishedDate", DateTime.Now);
                 }
                 else if (e.Entity.ContentType.Alias.InvariantEquals("Articulate"))

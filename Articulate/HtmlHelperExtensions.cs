@@ -20,6 +20,18 @@ namespace Articulate
 {
     public static class HtmlHelperExtensions
     {
+        public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
+        {
+            var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd";
+            var manifestUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "wlwmanifest";
+
+            return new HtmlString(
+                string.Concat(
+                    string.Format(@"<link type=""application/rsd+xml"" rel=""edituri"" title=""RSD"" href=""{0}"" />", rsdUrl),
+                    Environment.NewLine,
+                    string.Format(@"<link rel=""wlwmanifest"" type=""application/wlwmanifest+xml"" href=""{0}"" />", manifestUrl)));
+        }
+
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
         {
             if (model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false

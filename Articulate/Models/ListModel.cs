@@ -11,6 +11,7 @@ namespace Articulate.Models
     public class ListModel : MasterModel
     {
         private readonly IEnumerable<IPublishedContent> _listItems;
+        private IEnumerable<PostModel> _resolvedList;
         private readonly PagerModel _pager;
 
         public ListModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager)
@@ -20,8 +21,7 @@ namespace Articulate.Models
             if (pager == null) throw new ArgumentNullException("pager");            
             _pager = pager;
 
-            //Create the list items based on the pager details
-            _listItems = listItems.Skip(_pager.CurrentPageIndex * _pager.PageSize).Take(_pager.PageSize).ToArray();
+            _listItems = listItems;
         }
 
         public ListModel(IPublishedContent content, PagerModel pager)
@@ -29,9 +29,6 @@ namespace Articulate.Models
         {
             if (pager == null) throw new ArgumentNullException("pager");
             _pager = pager;
-
-            //Create the list items based on the pager details
-            _listItems = base.Children.Skip(_pager.CurrentPageIndex*_pager.PageSize).Take(_pager.PageSize).ToArray();
         }
 
         public ListModel(IPublishedContent content)
@@ -62,8 +59,28 @@ namespace Articulate.Models
         {
             get
             {
-                return _listItems.Select(x => new PostModel(x))
-                    .OrderByDescending(x => x.PublishedDate);
+                if (_resolvedList != null)
+                {
+                    return _resolvedList;
+                }
+
+                if (_listItems == null)
+                {
+                    //we'll get the result from the base children
+                    _resolvedList = base.Children
+                        .Select(x => new PostModel(x))
+                        .OrderByDescending(x => x.PublishedDate)
+                        .Skip(_pager.CurrentPageIndex*_pager.PageSize).Take(_pager.PageSize).ToArray();
+                }
+                else
+                {
+                    _resolvedList = _listItems
+                        .Select(x => new PostModel(x))
+                        .OrderByDescending(x => x.PublishedDate)
+                        .Skip(_pager.CurrentPageIndex * _pager.PageSize).Take(_pager.PageSize).ToArray();
+                }
+
+                return _resolvedList;
             }
         }
     }

@@ -24,17 +24,51 @@ namespace Articulate
                 //for each one of them we need to create some virtual routes/nodes
                 foreach (var node in articulateNodes)
                 {
-                    //first remove them - since we might need to run this at runtime
-                    var tagRoute = routes["articulate_tags_" + node.Id];
-                    var searchRoute = routes["articulate_search_" + node.Id];
-                    if (tagRoute != null)
-                    {
-                        routes.Remove(tagRoute);
-                    }
-                    if (searchRoute != null)
-                    {
-                        routes.Remove(searchRoute);
-                    }
+                    RemoveExisting(routes,
+                        "articulate_tags_" + node.Id,
+                        "articulate_search_" + node.Id,
+                        "articulate_metaweblog_" + node.Id,
+                        "articulate_rsd_" + node.Id,
+                        "articulate_wlwmanifest_" + node.Id);
+
+                    //Create the route for the /search/{term} results
+                    routes.MapUmbracoRoute(
+                        "articulate_search_" + node.Id,
+                        (node.Url.EnsureEndsWith('/') + node.GetPropertyValue<string>("searchUrlName") + "/{term}").TrimStart('/'),
+                        new
+                        {
+                            controller = "ArticulateSearch",
+                            action = "Search",
+                            term = UrlParameter.Optional
+                        },
+                        new ArticulateSearchRouteHandler(node.Id,
+                            node.GetPropertyValue<string>("searchUrlName"),
+                            node.GetPropertyValue<string>("searchPageName")));
+
+                    routes.MapRoute("articulate_wlwmanifest_" + node.Id,
+                        (node.Url.EnsureEndsWith('/') + "wlwmanifest/{id}").TrimStart('/'),
+                        new
+                        {
+                            controller = "WlwManifest",
+                            action = "Index",
+                            id = node.Id
+                        });
+
+                    routes.MapRoute("articulate_rsd_" + node.Id,
+                        (node.Url.EnsureEndsWith('/') + "rsd/{id}").TrimStart('/'),
+                        new
+                        {
+                            controller = "Rsd",
+                            action = "Index",
+                            id = node.Id
+                        });
+
+                    routes.Add("articulate_metaweblog_" + node.Id,
+                        new Route
+                            (
+                            (node.Url.EnsureEndsWith('/') + "metaweblog").TrimStart('/'),
+                            new MetaWeblogHandler()
+                            ));
 
                     //Create the routes for /tags/{tag} and /categories/{category}
                     routes.MapUmbracoRoute(
@@ -53,19 +87,19 @@ namespace Articulate
                         //Constraings: only match either the tags or categories url names
                         new { action = node.GetPropertyValue<string>("tagsUrlName") + "|" + node.GetPropertyValue<string>("categoriesUrlName") });
 
-                    //Create the route for the /search/{term} results
-                    routes.MapUmbracoRoute(
-                        "articulate_search_" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + node.GetPropertyValue<string>("searchUrlName") + "/{term}").TrimStart('/'),
-                        new
-                        {
-                            controller = "ArticulateSearch",
-                            action = "Search",
-                            term = UrlParameter.Optional
-                        },
-                        new ArticulateSearchRouteHandler(node.Id,
-                            node.GetPropertyValue<string>("searchUrlName"),
-                            node.GetPropertyValue<string>("searchPageName")));
+                    
+                }
+            }
+        }
+
+        private static void RemoveExisting(RouteCollection routes, params string[] names)
+        {
+            foreach (var name in names)
+            {
+                var r = routes[name];
+                if (r != null)
+                {
+                    routes.Remove(r);
                 }
             }
         }
