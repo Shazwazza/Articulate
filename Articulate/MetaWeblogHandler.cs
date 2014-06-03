@@ -15,6 +15,7 @@ using System.Web.Security;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Web;
@@ -155,15 +156,16 @@ namespace Articulate
                 }).ToArray();
         }
 
-        object IMetaWeblog.NewMediaObject(string blogid, string username, string password, MediaObject media)
+        object IMetaWeblog.NewMediaObject(string blogid, string username, string password, MetaWeblogMediaObject media)
         {
             ValidateUser(username, password);
 
-            //string path = Blog.SaveFileToDisk(media.bits, Path.GetExtension(media.name));
-
-            //return new { url = path };
-
-            return null;
+            // Save File
+            using (var ms = new MemoryStream(media.Bits))
+            {
+                var file = UmbracoMediaFile.Save(ms, "articulate/" + media.Name.ToSafeFileName());
+                return new { url = file.Url };
+            }
         }
 
         object[] IMetaWeblog.GetUsersBlogs(string key, string username, string password)

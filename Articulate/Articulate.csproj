@@ -254,8 +254,10 @@
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ListModel.cs" />
+    <Compile Include="Models\MetaWeblog\IBloggerMetaWeblog.cs" />
     <Compile Include="Models\MetaWeblog\IMetaWeblog.cs" />
-    <Compile Include="Models\MetaWeblog\MediaObject.cs" />
+    <Compile Include="Models\MetaWeblog\IWordPressMetaWeblog.cs" />
+    <Compile Include="Models\MetaWeblog\MetaWeblogMediaObject.cs" />
     <Compile Include="Models\MetaWeblog\MetaWeblogPost.cs" />
     <Compile Include="Models\PagerModel.cs" />
     <Compile Include="Models\PostModel.cs" />

@@ -27,29 +27,15 @@ namespace Articulate.Models.MetaWeblog
         object[] GetRecentPosts(string blogid, string username, string password, int numberOfPosts);
 
         [XmlRpcMethod("metaWeblog.newMediaObject")]
-        object NewMediaObject(string blogid, string username, string password, MediaObject mediaObject);
+        object NewMediaObject(string blogid, string username, string password, MetaWeblogMediaObject mediaObject);
 
         [XmlRpcMethod("metaWeblog.getUsersBlogs")]
         object[] GetUsersBlogs(string key, string username, string password);
     }
 
     //NOTE: We are not implementing all of this, we are not supporting pages or other blogger specifics
-    public interface IBloggerMetaWeblog
-    {
-        [XmlRpcMethod("blogger.deletePost")]
-        [return: XmlRpcReturnValue(Description = "Returns true.")]
-        bool DeletePost(string key, string postid, string username, string password, bool publish);
-
-        [XmlRpcMethod("blogger.getUsersBlogs")]
-        object[] GetUsersBlogs(string key, string username, string password);
-    }
 
     //http://codex.wordpress.org/XML-RPC_wp
     //http://codex.wordpress.org/XML-RPC_MetaWeblog_API
     //NOTE: We are not implementing all of this, we are not supporting pages or other wp specifics
-    public interface IWordPressMetaWeblog
-    {
-        [XmlRpcMethod("wp.getTags")]
-        object[] GetTags(string blogid, string username, string password);
-    }
 }

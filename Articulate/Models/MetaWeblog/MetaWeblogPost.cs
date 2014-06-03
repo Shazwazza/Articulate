@@ -13,13 +13,9 @@ namespace Articulate.Models.MetaWeblog
             Title = "";
             Author = "";
             Content = "";
-            //PublishDate = DateTime.MinValue;
-            //UpdateDate = DateTime.MinValue;
             CreateDate = DateTime.MinValue;
             Categories = new string[0];
-            //Tags = new string[0];
             Tags = "";
-            //Publish = "";
         }
 
         [XmlRpcMember("postid")]
@@ -42,23 +38,15 @@ namespace Articulate.Models.MetaWeblog
 
         [XmlRpcMember("dateCreated")]
         public DateTime CreateDate { get; set; }
-
-        //[XmlRpcMember("dateModified")]
-        //public DateTime UpdateDate { get; set; }
-
+        
         [XmlRpcMember("categories")]
         public string[] Categories { get; set; }
 
         [XmlRpcMember("mt_keywords")]
         public string Tags { get; set; }
 
-        //[XmlRpcMember("publish")]
-        //public string Publish { get; set; }
-
         [XmlRpcMember("mt_allow_comments")]
         public int AllowComments;
 
-        //[XmlRpcMember("postDate")]
-        //public DateTime PublishDate;
     }
 }
