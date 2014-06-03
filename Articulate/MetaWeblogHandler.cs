@@ -111,20 +111,18 @@ namespace Articulate
 
             //first see if it's published
             var post = UmbracoContext.Current.ContentCache.GetById(asInt.Result);
-            if (post == null)
+            if (post != null)
+            {
+                return FromPost(new PostModel(post));
+            }
+
+            var content = _applicationContext.Services.ContentService.GetById(asInt.Result);
+            if (content == null)
             {
                 throw new XmlRpcFaultException(0, "No post found with id " + postid);
             }
 
-            return FromPost(new PostModel(post));
-
-            ////TODO: Enable non-published
-            //var content = _applicationContext.Services.ContentService.GetById(asInt.Result);
-            //if (content == null)
-            //{
-            //    throw new XmlRpcFaultException(0, "No post found with id " + postid);
-            //}
-
+            return FromContent(content);
         }
 
         object[] IMetaWeblog.GetRecentPosts(string blogid, string username, string password, int numberOfPosts)
@@ -137,12 +135,10 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            var posts = node.Children
-                .Select(x => new PostModel(x))
-                .OrderByDescending(x => x.PublishedDate)
-                .Take(numberOfPosts);
-
-            return posts.Select(FromPost).ToArray();
+            return _applicationContext.Services.ContentService.GetChildren(node.Id)
+                .OrderByDescending(x => x.UpdateDate)
+                .Take(numberOfPosts)
+                .Select(FromContent).ToArray();
         }
 
         object[] IMetaWeblog.GetCategories(string blogid, string username, string password)
@@ -246,7 +242,6 @@ namespace Articulate
             {
                 _applicationContext.Services.ContentService.Save(content, user.Id);
             }
-
         }
 
         /// <summary>
@@ -277,29 +272,27 @@ namespace Articulate
                 Title = post.Name
             };
         }
-
-        //TODO: Enable non-published
-        //private object FromContent(IContent post)
-        //{
-        //    return new
-        //    {
-        //        description = post.Body.ToString(),
-        //        title = post.Name,
-        //        pubDate = post.PublishedDate,
-        //        dateCreated = post.CreateDate,
-        //        date_modified = post.UpdateDate,
-        //        wp_slug = post.UrlName,
-        //        slug = post.UrlName,
-        //        link = post.UrlWithDomain(),
-        //        permaLink = post.UrlWithDomain(),
-        //        postid = post.Id,
-        //        excerpt = post.Excerpt,
-        //        commentPolicy = post.EnableComments ? string.Empty : "0",
-        //        publish = true,
-        //        categories = post.Categories.ToList(),
-        //        tags = post.Tags.ToList()
-        //    };
-        //}
+        
+        private object FromContent(IContent post)
+        {
+            return new MetaWeblogPost
+            {
+                AllowComments = post.GetValue<bool>("enableComments") ? 1 : 2,
+                Author = post.GetValue<string>("author"),
+                Categories = post.GetValue<string>("categories").Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries),
+                Content = post.ContentType.Alias == "ArticulateRichText"
+                    ? post.GetValue<string>("richText")
+                    : new MarkdownDeep.Markdown().Transform(post.GetValue<string>("markdown")),
+                CreateDate = post.UpdateDate,
+                Id = post.Id.ToString(CultureInfo.InvariantCulture),
+                Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace() 
+                    ? post.Name.ToUrlSegment() 
+                    : post.GetValue<string>("umbracoUrlName").ToUrlSegment(),
+                Excerpt = post.GetValue<string>("excerpt"),
+                Tags = string.Join(",",post.GetValue<string>("tags").Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)),
+                Title = post.Name
+            };
+        }
 
         private IPublishedContent BlogRoot()
         {
@@ -332,22 +325,8 @@ namespace Articulate
         {
             if (Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider] == null)
                 throw new InvalidOperationException("No membership provider found with name " + UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider);
-            else
-                return Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider];
-        }
-
-        private string GetDocumentContents(HttpRequestBase request)
-        {
-            string documentContents;
-            request.InputStream.Position = 0;
-            using (var receiveStream = request.InputStream)
-            {
-                using (var readStream = new StreamReader(receiveStream, Encoding.UTF8))
-                {
-                    documentContents = readStream.ReadToEnd();
-                }
-            }
-            return documentContents;
+            
+            return Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider];
         }
 
         public IHttpHandler GetHttpHandler(RequestContext requestContext)
@@ -356,7 +335,6 @@ namespace Articulate
         }
         
     }
-
 
 }
 
