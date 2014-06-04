@@ -25,6 +25,7 @@ namespace Articulate.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [HttpGet]
         public ActionResult Index(int id)
         {
             var node = Umbraco.TypedContent(id);

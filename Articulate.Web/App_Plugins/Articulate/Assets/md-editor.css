@@ -5,14 +5,23 @@
     font-family: Tahoma;
 }
 
-body > div {
+div.container {
     position: fixed;
     left: 25px;
-    top: 55px;
+    top: 115px;
     right: 25px;
     bottom: 25px;
     background-color: white;
     padding: 10px;
+}
+
+div.md-input {
+    position: absolute;
+    top: 60px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    margin: 10px;
 }
 
 textarea, input, label {
@@ -20,11 +29,23 @@ textarea, input, label {
     line-height: 1.6em;
 }
 
+textarea, input {
+    font-family: Courier;
+    border: 1px solid #A9A9A9;
+    margin: 0;
+    padding: 5px;    
+    display: block;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-box-shadow: 1px 1px 5px #CCC;
+    -ms-box-shadow: 1px 1px 5px #CCC;
+    box-shadow: 1px 1px 5px #CCC;
+}
+
 textarea {
     width: 100%;
     height: 100%;
-    margin: 0; 
-    border: 0; 
     
 }
 
@@ -37,9 +58,46 @@ h1 {
     color: #DDD;
 }
 
+h3 {
+    font-size: 2em;
+}
+
+a {
+    font-size: 1.5em;
+    text-decoration: none;
+    color: #c85b5b;
+}
+
 button {
     position: fixed;
-    top: 10px;
-    right: 20px;
+    top: 60px;
     font-size: 1.5em;
+    width: 100px;
+    padding: 5px;
+    color: #c85b5b;
+}
+button.next {    
+    right: 25px;
+}
+button.prev {    
+    left: 25px;    
+}
+
+.form-element {
+    margin-bottom: 10px;
+}
+.form-element label {
+    display: block;
+    color: #c85b5b;
+}
+.form-element input {    
+    width: 100%;
+}
+
+.ng-dirty .ng-invalid  {
+    border-color: #e08f8f;
+    outline-color: #e08f8f;
+    -webkit-box-shadow: 1px 1px 5px #e08f8f;
+    -ms-box-shadow: 1px 1px 5px #e08f8f;
+    box-shadow: 1px 1px 5px #e08f8f;
 }

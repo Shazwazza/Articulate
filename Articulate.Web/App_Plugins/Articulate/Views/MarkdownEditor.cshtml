@@ -1,4 +1,6 @@
-﻿@using ClientDependency.Core.Mvc
+﻿@using Articulate.Controllers
+@using ClientDependency.Core.Mvc
+@using Umbraco.Web.Editors
 @model dynamic
 
 @{
@@ -7,35 +9,102 @@
 
 <!DOCTYPE html>
 
-<html ng-app="articulateEditorApp">
+<html ng-app="articulateapp">
 <head>
     <title>Articulate - Create New Post</title>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+
 
     @{
         Html
-            .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css")
-            .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js");
+            .RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js")
+            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js")
+            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-sanitize.min.js")
+            .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js")
+            .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css");
     }
     @Html.RenderCssHere()
     @Html.RenderJsHere()
 
+    <script type="text/ng-template" id="md.html">
+        <div class="container">
+            <div class="form-element">
+                <input type="text" ng-model="$parent.title" placeholder="Title..." required />
+            </div>
+            <div class="md-input">
+                <textarea ng-model="$parent.md" placeholder="Start writing blog post here..." required></textarea>
+            </div>            
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="optional.html">
+        <div class="container">
+            <div class="form-element">
+                <label>Tags</label>
+                <input type="text" ng-model="$parent.tags" placeholder="Tags..." />
+            </div>
+            <div class="form-element">
+                <label>Categories</label>
+                <input type="text" ng-model="$parent.categories" placeholder="Categories..." />
+            </div>
+            <div class="form-element">
+                <label>Excerpt</label>
+                <textarea ng-model="$parent.excerpt" placeholder="Excerpt..." rows="4"></textarea>
+            </div>
+            <div class="form-element">
+                <label>Slug</label>
+                <input type="text" ng-model="$parent.slug" placeholder="Slug..." />
+            </div>
+        </div>
+    </script>
+    
+    <script type="text/ng-template" id="login.html">
+        <div class="container">
+            <div class="form-element">
+                <label>Username</label>
+                <input type="text" ng-model="username" placeholder="Username..." required />
+            </div>
+            <div class="form-element">
+                <label>Password</label>
+                <input type="password" ng-model="password" placeholder="Password..." required/>
+            </div>
+            <div class="form-element">
+                <button type="submit" ng-click="login()" class="next">Login</button>
+            </div>
+            <div class="form-element" ng-if="failed === true">
+                Invalid username or password, try again
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="submit.html">
+        <div class="container">
+            <p ng-if="!result">
+                Sending data...
+            </p>
+            <h3 ng-if="result">
+                Success!
+            </h3>
+            <p ng-if="result">
+                <a href="{{result}}">Click here to view your post</a>
+            </p>
+        </div>
+    </script>
+
 </head>
-<body ng-controller="EditorController">
-    <h1>{{title}}</h1>
-    
-    <div ng-if="phase==0">
-        <textarea ng-model="md"></textarea>
-    </div>
-    <div ng-if="phase==1">
-        <label>Tags</label>
-        <input type="text" ng-model="tags" />        
-        <br/>
-        <label>Categories</label>
-        <input type="text" ng-model="categories" />
-        <br />
-    </div>
-    
-    <button ng-click="next()">Next &raquo;</button>
+
+<body ng-controller="EditorController"
+      data-articulate-nodeid="@ViewBag.articulateNodeId"
+      data-articulate-post-url="@(Url.GetUmbracoApiService<MardownEditorApiController>(controller => controller.PostNew(null)))"
+      data-umbraco-isauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.IsAuthenticated()))"
+      data-umbraco-doauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.PostLogin(null)))">
+    <h1>{{caption}}</h1>
+
+    <form name="articulateForm" novalidate>
+        <div ng-view></div>
+
+        <button class="prev" ng-click="go(prevPath)" ng-show="prevPath"><span ng-bind-html="prevText"></span></button>
+        <button class="next" ng-click="go(nextPath)" ng-show="nextPath"><span ng-bind-html="nextText"></span></button>
+    </form>
+
 </body>
 </html>

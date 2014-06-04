@@ -100,7 +100,7 @@ namespace Articulate.Models
                 }
                 else
                 {
-                    var val = this.GetPropertyValue<string>("markDown");
+                    var val = this.GetPropertyValue<string>("markdown");
                     var md = new MarkdownDeep.Markdown();
                     return new MvcHtmlString(md.Transform(val));                    
                 }

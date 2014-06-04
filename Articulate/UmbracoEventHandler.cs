@@ -61,7 +61,7 @@ namespace Articulate
                         }
                         else
                         {
-                            var val = c.GetValue<string>("markDown");
+                            var val = c.GetValue<string>("markdown");
                             var md = new MarkdownDeep.Markdown();
                             val = md.Transform(val);
                             c.SetValue("excerpt", val == null

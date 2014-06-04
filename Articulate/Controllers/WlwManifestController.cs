@@ -10,7 +10,7 @@ namespace Articulate.Controllers
         //http://msdn.microsoft.com/en-us/library/bb463260.aspx
         //http://msdn.microsoft.com/en-us/library/bb463263.aspx
         //http://msdn.microsoft.com/en-us/library/bb463265.aspx
-
+        [HttpGet]
         public ActionResult Index(int id)
         {
             var node = Umbraco.TypedContent(id);
