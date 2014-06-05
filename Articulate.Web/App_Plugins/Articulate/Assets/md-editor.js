@@ -46,6 +46,10 @@ articulateapp.config([
                     // if it has we need to remove the file from the uploads as well - we also need to deal
                     // with that on the server side too.
 
+                    $scope.addFile = function () {
+                        $("#insertFile").click();
+                    }
+
                     $scope.storeCaret = function () {                        
                         var elem = $("#mdInput").get(0);
                         $scope.caret = getCaret(elem);
@@ -229,13 +233,13 @@ articulateapp.directive('oneTimeFileUpload', function ($compile) {
             rebuild: "="
         },
         replace: true,
-        template: "<div><input type='file' accept='image/*' files-selected /></div>",
+        template: "<div><input id='insertFile' type='file' accept='image/*' files-selected /></div>",
         link: function(scope, el, attrs) {
 
             scope.$watch("rebuild", function(newVal, oldVal) {
                 if (newVal && newVal !== oldVal) {
                     //recompile it!
-                    el.html("<input type='file' accept='image/*' files-selected />");
+                    el.html("<input id='insertFile' type='file' accept='image/*' files-selected />");
                     $compile(el.contents())(scope);
                 }
             });

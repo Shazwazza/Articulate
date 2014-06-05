@@ -32,20 +32,21 @@
     @Html.RenderJsHere()
 
     <script type="text/ng-template" id="md.html">
+        <button class="prev btn-insert-file" ng-click="addFile()" >Add image</button>
         <div class="container">
             <div class="form-element">
                 <input type="text" ng-model="$parent.title" placeholder="Title..." required />
-            </div>
-            <div class="form-element">
-                <one-time-file-upload rebuild="lastFile" />
-            </div>
+            </div>            
             <div class="md-input">
                 <textarea id="mdInput"
                           ng-model="$parent.md" placeholder="Start writing blog post here..." required
                           ng-keyup="storeCaret()"
                           ng-click="storeCaret()"></textarea>
-            </div>
-        </div>
+            </div>                 
+        </div>       
+        <div class="hidden-insert-file">
+            <one-time-file-upload rebuild="lastFile" />
+        </div>       
     </script>
 
     <script type="text/ng-template" id="optional.html">

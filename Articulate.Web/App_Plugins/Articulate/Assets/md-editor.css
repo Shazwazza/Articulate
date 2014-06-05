@@ -18,11 +18,16 @@ div.container {
 
 div.md-input {
     position: absolute;
-    top: 120px;
+    top: 60px;
     bottom: 0px;
     left: 0px;
     right: 0px;
     margin: 10px;
+}
+
+.btn-insert-file {
+    font-size: 12px;
+    height: 32px;
 }
 
 textarea, input, label {
@@ -104,6 +109,12 @@ button.prev {
     -webkit-box-shadow: 1px 1px 5px #e08f8f;
     -ms-box-shadow: 1px 1px 5px #e08f8f;
     box-shadow: 1px 1px 5px #e08f8f;
+}
+
+.hidden-insert-file {
+    position: absolute;
+    top: -1000px;
+    /*visibility: hidden;*/
 }
 
 /* Smartphones (portrait and landscape) ----------- */
