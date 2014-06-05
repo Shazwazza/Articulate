@@ -1,6 +1,8 @@
 ﻿'use strict';
 
-var articulateapp = angular.module('articulateapp', ['ngRoute', 'ngSanitize']);
+var articulateapp = angular.module('articulateapp', [
+    //'ngRoute',
+    'ngSanitize']);
 
 articulateapp.config([
     '$routeProvider',
@@ -9,6 +11,70 @@ articulateapp.config([
             when('/md', {
                 templateUrl: 'md.html',
                 controller: function ($scope) {
+                    
+                    function insertAtCaretPos($el, text, pos) {
+                        var content = $el.val();
+                        var newContent = content.substr(0, pos) + text + content.substr(pos);
+                        $el.val(newContent);
+                    }
+
+                    function getCaret(el) {
+                        if (el.selectionStart) {
+                            return el.selectionStart;
+                        } else if (document.selection) {
+                            el.focus();
+
+                            var r = document.selection.createRange();
+                            if (r == null) {
+                                return 0;
+                            }
+
+                            var re = el.createTextRange(),
+                                rc = re.duplicate();
+                            re.moveToBookmark(r.getBookmark());
+                            rc.setEndPoint('EndToStart', re);
+
+                            return rc.text.length;
+                        }
+                        return 0;
+                    }
+
+                    $scope.caret = 0;
+                    $scope.lastFile = "sdf";
+
+                    //TODO: when the content has changed check if a file has been removed from the markup
+                    // if it has we need to remove the file from the uploads as well - we also need to deal
+                    // with that on the server side too.
+
+                    $scope.storeCaret = function () {                        
+                        var elem = $("#mdInput").get(0);
+                        $scope.caret = getCaret(elem);
+                    }
+
+                    $scope.$on("filesSelected", function(e, o) {
+                        if (o.files && o.files.length && o.files.length === 1) {
+                            var file = o.files[0];
+
+                            //TODO: validate that the file cannot contain a [ or ] char
+
+                            //![Alt text](/path/to/img.jpg)
+
+                            //NOTE: for some reason angular is not in a current apply when using events
+                            // so we need to manually apply a digest here
+                            $scope.$apply(function() {
+                                //add to main file collection to upload
+                                $scope.$parent.files.push(file);
+
+                                var token = "[i:" + ($scope.$parent.files.length - 1) + ":" + file.name + "]";
+
+                                insertAtCaretPos($("#mdInput"), token, $scope.caret);
+                                $scope.lastFile = file.name;
+                                
+                            });
+                            
+                        }
+                    });
+
                     $scope.$parent.caption = "New Blog Post";
                     $scope.$parent.nextPath = "/optional";
                     $scope.$parent.nextText = "&raquo;";
@@ -50,7 +116,7 @@ articulateapp.config([
             }).
             when('/submit', {
                 templateUrl: 'submit.html',
-                controller: function ($scope, $location, $http) {
+                controller: function ($scope, $location, $http, httpHelper) {
 
                     if ($scope.md.length === 0) {
                         $location.path("/md");
@@ -67,26 +133,38 @@ articulateapp.config([
                         .success(function (data, status, headers, config) {
 
                             if (data === "true") {
-                                $http.post($scope.$parent.postUrl, {
-                                        articulateNodeId: $scope.$parent.articulateNodeId,
-                                        title: $scope.$parent.title,
-                                        body: $scope.$parent.md,
-                                        tags: $scope.$parent.tags,
-                                        categories: $scope.$parent.categories,
-                                        excerpt: $scope.$parent.excerpt,
-                                        slug: $scope.$parent.slug
-                                    })
-                                    .success(function(data, status, headers, config) {
-                                        $scope.result = data;
 
-                                    }).error(function(data, status, headers, config) {
-                                        if (data.Message) {
-                                            alert(data.Message);
+                                httpHelper.postMultiPartRequest($scope.$parent.postUrl,
+                                [
+                                    {
+                                        key: "model",
+                                        value: {
+                                            articulateNodeId: $scope.$parent.articulateNodeId,
+                                            title: $scope.$parent.title,
+                                            body: $scope.$parent.md,
+                                            tags: $scope.$parent.tags,
+                                            categories: $scope.$parent.categories,
+                                            excerpt: $scope.$parent.excerpt,
+                                            slug: $scope.$parent.slug
                                         }
-                                        else {
-                                            alert("Failed! " + angular.toJson(data));
-                                        }
-                                    });
+                                    }
+                                ], function (d, formData) {
+                                    //now add all of the assigned files
+                                    for (var f in $scope.$parent.files) {                                        
+                                        formData.append($scope.$parent.files[f].name, $scope.$parent.files[f]);
+                                    }
+                                },
+                                   function (d, status, headers, config) {
+                                    $scope.result = d;
+                                }, function (d, status, headers, config) {
+                                    if (d.Message) {
+                                        alert(d.Message);
+                                    }
+                                    else {
+                                        alert("Failed! " + angular.toJson(d));
+                                    }
+                                });
+
                             }
                             else {
                                 //need to login
@@ -108,6 +186,7 @@ articulateapp.controller('EditorController', function ($scope, $location, $eleme
     $scope.doAuthUrl = $element.attr("data-umbraco-doauth-url");
     $scope.articulateNodeId = $element.attr("data-articulate-nodeId");
 
+    $scope.files = [];
     $scope.nextPath = null;
     $scope.prevPath = null;
     $scope.nextText = "&raquo;";
@@ -128,3 +207,104 @@ articulateapp.controller('EditorController', function ($scope, $location, $eleme
     }
 
 });
+
+articulateapp.directive('filesSelected', function () {
+    return {
+        restrict: "A",
+        scope: true, //create a new scope
+        link: function(scope, el, attrs) {
+            el.bind('change', function(event) {
+                var files = event.target.files;
+                //emit event upward
+                scope.$emit("filesSelected", { files: files });
+            });
+        }
+    };
+});
+
+articulateapp.directive('oneTimeFileUpload', function ($compile) {
+    return {
+        restrict: "E",
+        scope: {
+            rebuild: "="
+        },
+        replace: true,
+        template: "<div><input type='file' accept='image/*' files-selected /></div>",
+        link: function(scope, el, attrs) {
+
+            scope.$watch("rebuild", function(newVal, oldVal) {
+                if (newVal && newVal !== oldVal) {
+                    //recompile it!
+                    el.html("<input type='file' accept='image/*' files-selected />");
+                    $compile(el.contents())(scope);
+                }
+            });
+
+        }
+    };
+});
+
+articulateapp.factory("httpHelper", function ($http) {
+    return {
+        postMultiPartRequest: function(url, jsonData, transformCallback, successCallback, failureCallback) {
+
+            //validate input, jsonData can be an array of key/value pairs or just one key/value pair.
+            if (!jsonData) {
+                throw "jsonData cannot be null";
+            }
+
+            if (angular.isArray(jsonData)) {
+                angular.forEach(jsonData, function(item) {
+                    if (!item.key || !item.value) {
+                        throw "jsonData array item must have both a key and a value property";
+                    }
+                });
+            }
+            else if (!jsonData.key || !jsonData.value) {
+                throw "jsonData object must have both a key and a value property";
+            }
+
+
+            $http({
+                    method: 'POST',
+                    url: url,
+                    //IMPORTANT!!! You might think this should be set to 'multipart/form-data' but this is not true because when we are sending up files
+                    // the request needs to include a 'boundary' parameter which identifies the boundary name between parts in this multi-part request
+                    // and setting the Content-type manually will not set this boundary parameter. For whatever reason, setting the Content-type to 'false'
+                    // will force the request to automatically populate the headers properly including the boundary parameter.
+                    headers: { 'Content-Type': false },
+                    transformRequest: function(data) {
+                        var formData = new FormData();
+                        //add the json data
+                        if (angular.isArray(data)) {
+                            angular.forEach(data, function(item) {
+                                formData.append(item.key, !angular.isString(item.value) ? angular.toJson(item.value) : item.value);
+                            });
+                        }
+                        else {
+                            formData.append(data.key, !angular.isString(data.value) ? angular.toJson(data.value) : data.value);
+                        }
+
+                        //call the callback
+                        if (transformCallback) {
+                            transformCallback.apply(this, [data, formData]);
+                        }
+
+                        return formData;
+                    },
+                    data: jsonData
+                }).
+                success(function(data, status, headers, config) {
+                    if (successCallback) {
+                        successCallback.apply(this, [data, status, headers, config]);
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    if (failureCallback) {
+                        failureCallback.apply(this, [data, status, headers, config]);
+                    }
+                });
+        }
+    }
+});
+

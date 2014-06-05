@@ -10,34 +10,45 @@
 <!DOCTYPE html>
 
 <html ng-app="articulateapp">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-        <title>Articulate - Create New Post</title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>Articulate - Create New Post</title>
 
 
-        @{
-            Html
-                .RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js")
-                .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js")
-                .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-sanitize.min.js")
-                .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js")
-                .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css");
-        }
-        @Html.RenderCssHere()
-        @Html.RenderJsHere()
+    @{
+        Html
+            .RequiresJs("~/umbraco/lib/jquery/jquery-2.0.3.min.js")
+            .RequiresJs("~/umbraco/lib/angular/1.1.5/angular.min.js")
+            .RequiresJs("~/umbraco/lib/angular/1.1.5/angular-sanitize.min.js")
+            .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js")
+            .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css");
+    //.RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
+    //.RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js")
+    //.RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js")
+    //.RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-sanitize.min.js")
+    //.RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js")
+    }
+    @Html.RenderCssHere()
+    @Html.RenderJsHere()
 
-        <script type="text/ng-template" id="md.html">
+    <script type="text/ng-template" id="md.html">
         <div class="container">
             <div class="form-element">
                 <input type="text" ng-model="$parent.title" placeholder="Title..." required />
             </div>
+            <div class="form-element">
+                <one-time-file-upload rebuild="lastFile" />
+            </div>
             <div class="md-input">
-                <textarea ng-model="$parent.md" placeholder="Start writing blog post here..." required></textarea>
-            </div>            
+                <textarea id="mdInput"
+                          ng-model="$parent.md" placeholder="Start writing blog post here..." required
+                          ng-keyup="storeCaret()"
+                          ng-click="storeCaret()"></textarea>
+            </div>
         </div>
     </script>
 
-        <script type="text/ng-template" id="optional.html">
+    <script type="text/ng-template" id="optional.html">
         <div class="container">
             <div class="form-element">
                 <label>Tags</label>
@@ -57,8 +68,8 @@
             </div>
         </div>
     </script>
-    
-        <script type="text/ng-template" id="login.html">
+
+    <script type="text/ng-template" id="login.html">
         <div class="container">
             <div class="form-element">
                 <label>Username</label>
@@ -66,7 +77,7 @@
             </div>
             <div class="form-element">
                 <label>Password</label>
-                <input type="password" ng-model="password" placeholder="Password..." required/>
+                <input type="password" ng-model="password" placeholder="Password..." required />
             </div>
             <div class="form-element">
                 <button type="submit" ng-click="login()" class="next">Login</button>
@@ -77,7 +88,7 @@
         </div>
     </script>
 
-        <script type="text/ng-template" id="submit.html">
+    <script type="text/ng-template" id="submit.html">
         <div class="container">
             <p ng-if="!result">
                 Sending data...
@@ -91,11 +102,11 @@
         </div>
     </script>
 
-    </head>
+</head>
 
 <body ng-controller="EditorController"
       data-articulate-nodeid="@ViewBag.articulateNodeId"
-      data-articulate-post-url="@(Url.GetUmbracoApiService<MardownEditorApiController>(controller => controller.PostNew(null)))"
+      data-articulate-post-url="@(Url.GetUmbracoApiService<MardownEditorApiController>(controller => controller.PostNew()))"
       data-umbraco-isauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.IsAuthenticated()))"
       data-umbraco-doauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.PostLogin(null)))">
     <h1>{{caption}}</h1>
@@ -103,7 +114,7 @@
     <form name="articulateForm" novalidate>
         <button class="prev" ng-click="go(prevPath)" ng-show="prevPath"><span ng-bind-html="prevText"></span></button>
         <button class="next" ng-click="go(nextPath)" ng-show="nextPath"><span ng-bind-html="nextText"></span></button>
-        <div ng-view></div>        
+        <div ng-view></div>
     </form>
 
 </body>
