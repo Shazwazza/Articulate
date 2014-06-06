@@ -2,7 +2,7 @@
 
 ==========
 
-Blogging built on Umbraco
+> Blogging built on Umbraco
 
 ## Features
 
