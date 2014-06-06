@@ -21,6 +21,7 @@
             .RequiresJs("~/umbraco/lib/angular/1.1.5/angular.min.js")
             .RequiresJs("~/umbraco/lib/angular/1.1.5/angular-sanitize.min.js")
             .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js")
+            .RequiresCss("//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css")
             .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css");
     //.RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
     //.RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js")
@@ -32,7 +33,12 @@
     @Html.RenderJsHere()
 
     <script type="text/ng-template" id="md.html">
-        <button class="prev btn-insert-file" ng-click="addFile()" >Add image</button>
+        <div class="btn-top prev">
+            <button class="btn-insert-file" ng-click="addFile()"><i class="fa fa-picture-o"></i></button>
+            <button class="btn-insert-file" ng-click="addCamera()"><i class="fa fa-camera"></i></button>
+        </div>
+        
+
         <div class="container">
             <div class="form-element">
                 <input type="text" ng-model="$parent.title" placeholder="Title..." required />
@@ -45,8 +51,13 @@
             </div>                 
         </div>       
         <div class="hidden-insert-file">
-            <one-time-file-upload rebuild="lastFile" />
+
+            <input id='insertFile' type='file' accept='image/*' files-selected />
+            <input id='insertCamera' type='file' accept='image/*' files-selected capture="camera" />
+
+            @*<one-time-file-upload rebuild="lastFile"  />*@
         </div>       
+    
     </script>
 
     <script type="text/ng-template" id="optional.html">
@@ -81,7 +92,7 @@
                 <input type="password" ng-model="password" placeholder="Password..." required />
             </div>
             <div class="form-element">
-                <button type="submit" ng-click="login()" class="next">Login</button>
+                <button class="btn-top" type="submit" ng-click="login()" class="next">Login</button>
             </div>
             <div class="form-element" ng-if="failed === true">
                 Invalid username or password, try again
@@ -113,8 +124,8 @@
     <h1>{{caption}}</h1>
 
     <form name="articulateForm" novalidate>
-        <button class="prev" ng-click="go(prevPath)" ng-show="prevPath"><span ng-bind-html="prevText"></span></button>
-        <button class="next" ng-click="go(nextPath)" ng-show="nextPath"><span ng-bind-html="nextText"></span></button>
+        <button class="btn-top prev" ng-click="go(prevPath)" ng-show="prevPath"><span ng-bind-html="prevText"></span></button>
+        <button class="btn-top next" ng-click="go(nextPath)" ng-show="nextPath"><span ng-bind-html="nextText"></span></button>
         <div ng-view></div>
     </form>
 

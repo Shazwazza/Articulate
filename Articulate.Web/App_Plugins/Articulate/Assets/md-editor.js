@@ -40,7 +40,7 @@ articulateapp.config([
                     }
 
                     $scope.caret = 0;
-                    $scope.lastFile = "sdf";
+                    //$scope.lastFile = "sdf";
 
                     //TODO: when the content has changed check if a file has been removed from the markup
                     // if it has we need to remove the file from the uploads as well - we also need to deal
@@ -48,6 +48,10 @@ articulateapp.config([
 
                     $scope.addFile = function () {
                         $("#insertFile").click();
+                    }
+
+                    $scope.addCamera = function() {
+                        $("#insertCamera").click();
                     }
 
                     $scope.storeCaret = function () {                        
@@ -72,7 +76,7 @@ articulateapp.config([
                                 var token = "[i:" + ($scope.$parent.files.length - 1) + ":" + file.name + "]";
 
                                 insertAtCaretPos($("#mdInput"), token, $scope.caret);
-                                $scope.lastFile = file.name;
+                                //$scope.lastFile = file.name;
                                 
                             });
                             
@@ -226,27 +230,27 @@ articulateapp.directive('filesSelected', function () {
     };
 });
 
-articulateapp.directive('oneTimeFileUpload', function ($compile) {
-    return {
-        restrict: "E",
-        scope: {
-            rebuild: "="
-        },
-        replace: true,
-        template: "<div><input id='insertFile' type='file' accept='image/*' files-selected /></div>",
-        link: function(scope, el, attrs) {
+//articulateapp.directive('oneTimeFileUpload', function ($compile) {
+//    return {
+//        restrict: "E",
+//        scope: {
+//            rebuild: "="
+//        },
+//        replace: true,
+//        template: "<div><input id='insertFile' type='file' accept='image/*' files-selected /></div>",
+//        link: function(scope, el, attrs) {
 
-            scope.$watch("rebuild", function(newVal, oldVal) {
-                if (newVal && newVal !== oldVal) {
-                    //recompile it!
-                    el.html("<input id='insertFile' type='file' accept='image/*' files-selected />");
-                    $compile(el.contents())(scope);
-                }
-            });
+//            scope.$watch("rebuild", function(newVal, oldVal) {
+//                if (newVal && newVal !== oldVal) {
+//                    //recompile it!
+//                    el.html("<input id='insertFile' type='file' accept='image/*' files-selected />");
+//                    $compile(el.contents())(scope);
+//                }
+//            });
 
-        }
-    };
-});
+//        }
+//    };
+//});
 
 articulateapp.factory("httpHelper", function ($http) {
     return {
