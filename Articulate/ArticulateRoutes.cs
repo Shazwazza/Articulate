@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
@@ -14,13 +15,15 @@ namespace Articulate
     {
         public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache)
         {
+            //StackExchange.Profiling.UI.MiniProfilerHandler.RegisterRoutes();
+
+            //find all articulate root nodes
+            var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
+
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
             using (routes.GetWriteLock())
-            {
-                //find all articulate root nodes
-                var articulateNodes = umbracoCache.GetByXPath("//Articulate");
-                
+            {   
                 //for each one of them we need to create some virtual routes/nodes
                 foreach (var node in articulateNodes)
                 {

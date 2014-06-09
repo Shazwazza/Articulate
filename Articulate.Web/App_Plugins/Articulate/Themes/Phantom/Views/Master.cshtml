@@ -19,27 +19,18 @@
         <title>@Model.Name - @Model.BlogTitle</title>
     }
 
-    @*{{#if post}}
-    <meta name="keywords" content="{{#each post.tags}}{{name}},{{/each}}">
-    {{else}}
-    <meta name="keywords" content="android, javascript, sublime, freelance">
-    {{/if}}*@
-
     <meta name="description" content="@Model.BlogDescription" />
     @Html.AdvertiseWeblogApi(Model)
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    @{ Html
+    @{ Html           
            .RequiresThemedCssFolder(Model)
            .RequiresThemedJsFolder(Model);
     }
 
     @Html.RenderCssHere()
-
-    @*<link rel="stylesheet" type="text/css" href="/assets/css/normalize.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/css/main.css" />*@
     
 </head>
 <body class="@ViewBag.CssBodyClass">
