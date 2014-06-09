@@ -1,0 +1,40 @@
+@using Articulate
+@model Articulate.Models.PostModel
+
+@if (Model.Tags.Any() || Model.Categories.Any())
+{
+    <div class="post-meta tags">
+
+        @if (Model.Categories.Any())
+        {
+            <div>
+                Categories
+
+                @foreach (var category in Model.Categories)
+                {
+                    <a href="@Url.ArticulateCategoryUrl(Model, category)">@category</a>
+                    if (category != Model.Categories.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
+            </div>
+        }
+
+        @if (Model.Tags.Any())
+        {
+            <div>
+                Posted in
+
+                @foreach (var tag in Model.Tags)
+                {
+                    <a href="@Url.ArticulateTagUrl(Model, tag)">@tag</a>
+                    if (tag != Model.Tags.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
+            </div>
+        }
+    </div>
+}

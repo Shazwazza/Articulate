@@ -1,0 +1,66 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.PostModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template";
+}
+
+<!--- TEMPLATE FOR BLOG POST --->
+
+<div class="container">
+
+    <!-- HEADER COLUMN --->
+    <div class="header-col">
+        <header>
+            @Html.ThemedPartial(Model, "Header")
+        </header>
+    </div>
+
+
+    <!--- MAIN COLUMN --->
+    <div class="main-col">
+        <main>
+            <div class="post-entry">
+                <!--- POST CONTENT --->
+
+                <article role="article" itemscope itemtype="http://schema.org/Article" class="postlistArticle">
+                    <h1 class="post-title">@Model.Name</h1>
+
+                    <time datetime="@Model.PublishedDate.ToString("yyyy MMMM dd")" itemprop="datePublished">
+                        <span class="datetime-full">@Model.PublishedDate.ToString("dd.MM.yyyy")</span>
+                    </time>
+
+                    <div class="post-info">
+                        @if (Model.Tags.Any())
+                        {
+                            <div class="tags">
+                                <i class="fa fa-tags fa-lg"></i>
+                                @Html.ThemedPartial(Model, "PostTags", Model)
+                            </div>
+                        }
+                    </div>
+                    <div class="hrule"></div>
+                    <div class="postContent">
+                        @Model.Body
+                    </div>
+                </article>
+
+                <!--- Sharing Section --->
+                @Html.ThemedPartial(Model, "Share", Model)
+
+                <!--- Comment sections - using DISQUS as default --->
+                @if (Model.EnableComments)
+                {
+                    @Html.ThemedPartial(Model, "CommentsDisqus")
+                    @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
+                    @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
+                }
+
+            </div>
+        </main>
+        <footer>
+            @Html.ThemedPartial(Model, "Footer")
+        </footer>
+    </div>
+</div>

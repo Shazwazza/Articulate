@@ -1,0 +1,28 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<!--- HEADER TEMPLATE FILE --->
+<!--- HEADER PLACE HOLDER - to occupy width for fixed left column  --->
+<div class="header-placeholder">&nbsp;</div>
+
+<!--- CONTNET OF HEADER --->
+<div class="header-content" @*{{#if @blog.cover }}style="background-image: url('{{@blog.cover}}')" {{ />if}}*@>
+
+    @*{{#if @blog.logo}}
+        <a class="logo" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="Blog Logo" class="blog-logo" /></a>
+        {{/if}}*@
+
+    <!--- Title --->
+    <div class="header-title">
+
+        <a href="@Model.RootBlogNode.Url">
+            <h1 class="blog-title">@Model.BlogTitle</h1>
+        </a>
+        <h2 class="blog-description">@Model.BlogDescription</h2>
+    </div>
+
+    <!--- Header Menu --->
+    @Html.ThemedPartial(Model, "Menu")
+
+</div>
+

@@ -1,0 +1,145 @@
+code {
+  display: block;
+  text-align: left;
+  background-color: #444444;
+  font-size: 0.9rem;
+  cursor: text;
+  padding: 4px 4px 4px 8px;
+  line-height: 1rem;
+}
+/* desert scheme ported from vim to google codettify */
+
+code.codettyprint {
+  display: block;
+  background-color: #444444;
+}
+code .nocode {
+  background-color: none;
+  color: black;
+}
+code .str {
+  color: #ffa0a0;
+}
+/* string  - pink */
+
+code .kwd {
+  color: khaki;
+  font-weight: bold;
+}
+code .com {
+  color: #cccccc;
+}
+/* comment - skyblue */
+
+code .typ {
+  color: palegreen;
+}
+/* type    - lightgreen */
+
+code .lit {
+  color: indianred;
+}
+/* literal - darkred */
+
+code .pun {
+  color: white;
+}
+/* punctuation */
+
+code .pln {
+  color: white;
+}
+/* plaintext */
+
+code .tag {
+  color: khaki;
+  font-weight: 500;
+}
+/* html/xml tag    - lightyellow */
+
+code .atn {
+  color: darkkhaki;
+  font-weight: bold;
+}
+/* attribute name  - khaki */
+
+code .atv {
+  color: #ffa0a0;
+}
+/* attribute value - pink */
+
+code .dec {
+  color: palegreen;
+}
+/* decimal         - lightgreen */
+
+/* Specify class=linenums on a code to get line numbering */
+
+ol.linenums {
+  margin-top: 0;
+  margin-bottom: 0;
+  color: #aeaeae;
+}
+/* IE indents via margin-left */
+
+li.L0,
+li.L1,
+li.L2,
+li.L3,
+li.L5,
+li.L6,
+li.L7,
+li.L8 {
+  list-style-type: none;
+}
+/* Alternate shading for lines */
+
+@media print {
+  code.codettyprint {
+    background-color: none;
+  }
+  code .str,
+  code .str {
+    color: #006600;
+  }
+  code .kwd,
+  code .kwd {
+    color: #000066;
+    font-weight: bold;
+  }
+  code .com,
+  code .com {
+    color: #660000;
+    font-style: italic;
+  }
+  code .typ,
+  code .typ {
+    color: #440044;
+    font-weight: bold;
+  }
+  code .lit,
+  code .lit {
+    color: #004444;
+  }
+  code .pun,
+  code .pun {
+    color: #444400;
+  }
+  code .pln,
+  code .pln {
+    color: black;
+  }
+  code .tag,
+  code .tag {
+    color: #000066;
+    font-weight: bold;
+  }
+  code .atn,
+  code .atn {
+    color: #440044;
+  }
+  code .atv,
+  code .atv {
+    color: #006600;
+  }
+}

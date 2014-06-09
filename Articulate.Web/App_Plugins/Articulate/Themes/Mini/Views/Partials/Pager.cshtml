@@ -1,0 +1,20 @@
+@model Articulate.Models.PagerModel
+
+@if (Model.HasNext || Model.HasPrevious)
+{
+    <nav class="pagination" role="pagination">
+        @if (Model.HasPrevious)
+        {
+            <a class="newer-posts" href="@Model.PreviousUrl">
+                <i class='fa fa-caret-square-o-left fa-lg'></i> Newer Posts
+            </a>
+        }
+        <span class="page-number">Page @(Model.CurrentPageIndex + 1) of @Model.TotalPages</span>
+        @if (Model.HasNext)
+        {
+            <a class="older-posts" href="@Model.NextUrl">
+                Older Posts <i class="fa fa-caret-square-o-right fa-lg"></i>
+            </a>
+        }
+    </nav>
+}

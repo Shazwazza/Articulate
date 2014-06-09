@@ -49,6 +49,16 @@ namespace Articulate
             return new HtmlString(string.Empty);
         }
 
+        public static HtmlHelper RequiresThemedCss(this HtmlHelper html, IMasterModel model, string filePath)
+        {
+            return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/css" + filePath.EnsureStartsWith('/'));
+        }
+
+        public static HtmlHelper RequiresThemedJs(this HtmlHelper html, IMasterModel model, string filePath)
+        {
+            return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
+        }
+
         public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
         {
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");

@@ -1,0 +1,16 @@
+@using Articulate
+@model Articulate.Models.PostModel
+
+<!--- SHARING SECTION --->
+<div class="post-share">
+    <i class="share-button fa fa-share fa-2x"></i>
+    <a title="Share on Facebook" target="_blank" href="http://www.facebook.com/sharer.php?u=@Model.UrlWithDomain()">
+        <div class="share-button"><i class="fa fa-facebook-square fa-2x"></i></div>
+    </a>
+    <a title="Share on Twitter" target="_blank" href="http://twitter.com/share?text={{title}}&amp;url=@Model.UrlWithDomain()">
+        <div class="share-button"><i class="fa fa-twitter-square fa-2x"></i></div>
+    </a>
+    <a title="Share on Google Plus" target="_blank" href="https://plus.google.com/share?url=@Model.UrlWithDomain()">
+        <div class="share-button"><i class="fa fa-google-plus-square fa-2x"></i></div>
+    </a>
+</div>

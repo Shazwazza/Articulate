@@ -1,0 +1,57 @@
+@using ClientDependency.Core.Mvc
+@using Articulate;
+@model Articulate.Models.IMasterModel
+
+<!DOCTYPE html>
+<!--
+INFO
+    Diseñador web: Iván Barcia
+    Sitio web del diseñador: www.ivanbarcia.eu
+    Contacto: contacto[at]ivanbarcia.eu
+    Hecho en: Galicia, España
+     .
+    Versión: 1.0
+    Plataforma: GHOST
+
+    "Less is more." -Ludwig Mies van der Rohe
+ -->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    @if (IsSectionDefined("title"))
+    {
+        @RenderSection("title")
+    }
+    else
+    {
+        <title>@Model.Name - @Model.BlogTitle</title>
+    }
+    <meta name="description" content="@Model.BlogDescription" />
+    @Html.AdvertiseWeblogApi(Model)
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow">
+    
+    @{ Html
+           .RequiresThemedCss(Model, "style.css")
+           .RequiresThemedCss(Model, "style-cms.css")
+           .RequiresThemedCss(Model, "custom.css")
+           .RequiresThemedJsFolder(Model);
+    }
+
+    @Html.RenderCssHere()
+    
+</head>
+<body>
+    @RenderBody()
+
+    <footer>
+        <p>Contacto | About</p><br/>
+        <p class="footer2">Diseñado por <a href="http://ivanbarcia.eu">Iván Barcia</a></p>
+    </footer>
+    
+    @Html.RenderJsHere()
+    @Html.GoogleAnalyticsTracking(Model)
+</body>
+</html>

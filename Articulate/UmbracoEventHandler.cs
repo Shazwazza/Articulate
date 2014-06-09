@@ -23,8 +23,8 @@ namespace Articulate
 {
     //TODO: Create these themes:
     // * https://github.com/Bartinger/phantom = DONE
-    // * https://github.com/thyu/minighost
-    // * http://ivanbarcia.eu/edictum.php
+    // * https://github.com/thyu/minighost = DONE
+    // * http://ivanbarcia.eu/edictum.php = DONE?
     // * 
 
     public class UmbracoEventHandler : ApplicationEventHandler
