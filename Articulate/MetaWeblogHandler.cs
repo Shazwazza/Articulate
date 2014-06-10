@@ -313,6 +313,8 @@ namespace Articulate
 
         private IUser ValidateUser(string username, string password)
         {
+            //TODO: Check security/access to the current node
+
             var provider = GetUsersMembershipProvider();
 
             if (!provider.ValidateUser(username, password))

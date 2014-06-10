@@ -323,8 +323,18 @@ nav ul li a, nav ul li .articulate-search {
   display: block;
   padding: .5em 0;
 }
-nav ul li .articulate-search input,nav ul li .articulate-search button {
+nav ul li .articulate-search input {
     font-size: smaller;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid #ecf0f1;
+}
+
+ul li .articulate-search button {
+    font-size: 14px;
+    border: none;
+    background: none;
+    color: #3498db;
 }
 
 nav.menu {

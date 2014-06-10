@@ -16,6 +16,7 @@ articulateapp.config([
                         var content = $el.val();
                         var newContent = content.substr(0, pos) + text + content.substr(pos);
                         $el.val(newContent);
+                        $scope.$parent.md = newContent;
                     }
 
                     function getCaret(el) {

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web.Compilation;
 using System.Web.Http;
 using Articulate.Models;
 using Newtonsoft.Json;
@@ -20,6 +21,8 @@ namespace Articulate.Controllers
     {
         public async Task<HttpResponseMessage> PostNew()
         {
+            //TODO: Check security
+
             //TODO: Delete unused files!
 
             if (!Request.Content.IsMimeMultipartContent())
