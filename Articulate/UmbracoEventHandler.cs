@@ -96,6 +96,7 @@ namespace Articulate
                         e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);    
                     }
                     e.Entity.SetValue("publishedDate", DateTime.Now);
+                    e.Entity.SetValue("enableComments", 1);
                 }
                 else if (e.Entity.ContentType.Alias.InvariantEquals("Articulate"))
                 {

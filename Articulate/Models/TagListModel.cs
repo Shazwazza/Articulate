@@ -24,8 +24,10 @@ namespace Articulate.Models
             Tags = tags;
             BlogBanner = masterModel.BlogBanner;
             BlogLogo = masterModel.BlogLogo;
+            DisqusShortName = masterModel.DisqusShortName;
         }
 
+        public string DisqusShortName { get; private set; }
         public string Theme { get; private set; }
         public IPublishedContent RootBlogNode { get; private set; }
         public IPublishedContent BlogArchiveNode { get; private set; }

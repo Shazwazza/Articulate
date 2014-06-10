@@ -6,6 +6,6 @@
          @if (!Model.BlogLogo.IsNullOrWhiteSpace()) { <text> style="background-image: url(@Model.BlogLogo)" </text>   }>
     </div>
 
-    <a class="title" href="@Model.RootBlogNode.Url"><h5>@Model.BlogTitle</h5></a>
+    <a class="title" href="@Url.ArticulateRootUrl(Model)"><h5>@Model.BlogTitle</h5></a>
     <h6>@Model.BlogDescription</h6>
 </header>

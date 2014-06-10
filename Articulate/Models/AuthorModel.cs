@@ -7,5 +7,7 @@
         public string Bio { get; set; }
 
         public string Url { get; set; }
+
+        public string Image { get; set; }
     }
 }

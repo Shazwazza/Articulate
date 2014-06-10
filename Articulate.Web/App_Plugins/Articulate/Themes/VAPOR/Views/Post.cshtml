@@ -47,7 +47,10 @@
             @if (!Model.Author.Name.IsNullOrWhiteSpace())
             {
                 <section class="author">
-                    @*<div class="authorimage" style="background: url({{author.image}})"></div>*@
+                    @if (!Model.Author.Image.IsNullOrWhiteSpace())
+                    {
+                        <div class="authorimage" style="background: url(@Model.Author.Image)"></div>    
+                    }
                     <p class="attr">Author</p>
                     <h4>
                         @if (!Model.Author.Url.IsNullOrWhiteSpace())

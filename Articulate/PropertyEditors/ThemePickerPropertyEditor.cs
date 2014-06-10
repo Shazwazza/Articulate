@@ -15,5 +15,4 @@ namespace Articulate.PropertyEditors
     public class ThemePickerPropertyEditor : PropertyEditor
     {
     }
-
 }

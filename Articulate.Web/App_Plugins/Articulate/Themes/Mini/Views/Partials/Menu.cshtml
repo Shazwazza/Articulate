@@ -4,7 +4,7 @@
 <!--- MENU SECTION --->
 <div class="header-menu">
     <!--- HOME BUTTON --->
-    <a href="@Model.RootBlogNode.Url" title="Home">
+    <a href="@Url.ArticulateRootUrl(Model)" title="Home">
         <div class="header-menu-button">
             <span class="header-menu-button-label">
                 HOME
@@ -31,7 +31,7 @@
     </a>*@
 
     <!--- RSS BUTTON --->
-    <a href="@Model.RootBlogNode.Url/rss" title="Subscribe">
+    <a href="@Url.ArticulateRootUrl(Model)/rss" title="Subscribe">
         <div class="header-menu-button">
             <span class="header-menu-button-label">
                 RSS

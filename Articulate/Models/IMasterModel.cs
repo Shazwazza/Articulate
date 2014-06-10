@@ -21,5 +21,7 @@ namespace Articulate.Models
         //additional global props
         int PageSize { get; }
 
+        string DisqusShortName { get; }
+
     }
 }

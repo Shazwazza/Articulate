@@ -55,6 +55,11 @@ namespace Articulate.Models
             }
         }
 
+        public string DisqusShortName
+        {
+            get { return Content.GetPropertyValue<string>("disqusShortname", true); }
+        }
+
         public string BlogLogo
         {
             get { return RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max); }
