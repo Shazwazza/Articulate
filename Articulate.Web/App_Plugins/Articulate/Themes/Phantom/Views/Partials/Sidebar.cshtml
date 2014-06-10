@@ -1,13 +1,17 @@
 @using Articulate
 @model Articulate.Models.IMasterModel
 
-<div class="sidebar" role="aside">
+<div class="sidebar" role="aside"
+    @if (!Model.BlogBanner.IsNullOrWhiteSpace()) { <text> style="background-image: url(@Model.BlogBanner)" </text>     }>
+    
     <header class="header">
 
-        @*{{#if @blog.logo}}
+        @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+        {
             <a href="/">
-                <img id="blog" class="logo" src="{{@blog.logo}}">
-            </a>*@
+                <img id="blog" class="logo" src="@Model.BlogLogo">
+            </a>
+        }
 
         <h1 class="title"><a href="/">@Model.BlogTitle</a></h1>
 
@@ -18,12 +22,12 @@
             <a href="https://github.com/Bartinger" class="icon icon-github"></a>
             <a href="https://plus.google.com/+DominicBartl?rel=author" class="icon icon-gplus"></a>
             <a href="https://twitter.com/DevBartinger" class="icon icon-twitter"></a>
-            
+
             <a href="/rss" class="icon-rss"></a>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         @Html.ThemedPartial(Model, "SearchBox")
 
     </header>
