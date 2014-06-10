@@ -114,7 +114,7 @@ header .imagen-autor {
   background-position: top center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-image: url(../img/perfil.jpg);
+  /*background-image: url(../img/perfil.jpg);*/
 }
 /**************************************
              CONTIDO
@@ -290,4 +290,9 @@ footer .footer2 {
   .texto img {
     width: 100%;
   }
+}
+
+a.title * {
+    
+    cursor: pointer;
 }

@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core.Models;
+using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
     public class TagListModel : IMasterModel
     {
-        public TagListModel(IMasterModel masterModel, string name, int pageSize, IEnumerable<PostsByTagModel> tags)
+        public TagListModel(
+            IMasterModel masterModel, 
+            string name, 
+            int pageSize, 
+            IEnumerable<PostsByTagModel> tags)
         {
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
@@ -17,6 +22,8 @@ namespace Articulate.Models
             BlogTitle = masterModel.BlogTitle;
             BlogDescription = masterModel.BlogDescription;        
             Tags = tags;
+            BlogBanner = masterModel.BlogBanner;
+            BlogLogo = masterModel.BlogLogo;
         }
 
         public string Theme { get; private set; }
@@ -27,6 +34,9 @@ namespace Articulate.Models
         public string BlogDescription { get; private set; }
         public int PageSize { get; private set; }
 
+        public string BlogLogo { get; private set; }
+        public string BlogBanner { get; private set; }
+        
         public IEnumerable<PostsByTagModel> Tags { get; private set; }
 
         private int? _maxCount;

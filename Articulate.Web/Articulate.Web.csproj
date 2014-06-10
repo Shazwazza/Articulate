@@ -318,14 +318,9 @@
     <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Web.config" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\List.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Master.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\CommentsDisqus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\CommentsFacebook.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Menu.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Header.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Pager.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\PostTags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\SearchBox.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Sidebar.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Post.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Web.config" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />

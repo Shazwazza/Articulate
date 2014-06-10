@@ -6,12 +6,15 @@
 <div class="header-placeholder">&nbsp;</div>
 
 <!--- CONTNET OF HEADER --->
-<div class="header-content" @*{{#if @blog.cover }}style="background-image: url('{{@blog.cover}}')" {{ />if}}*@>
+<div class="header-content"
+    @if (!Model.BlogBanner.IsNullOrWhiteSpace()) { <text> style="background-image: url(@Model.BlogBanner)" </text>    }>
+    
 
-    @*{{#if @blog.logo}}
-        <a class="logo" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="Blog Logo" class="blog-logo" /></a>
-        {{/if}}*@
-
+    @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+    {
+        <a class="logo" href="@Model.RootBlogNode.Url"><img src="@Model.BlogLogo" alt="Blog Logo" class="blog-logo" /></a>
+    }
+        
     <!--- Title --->
     <div class="header-title">
 

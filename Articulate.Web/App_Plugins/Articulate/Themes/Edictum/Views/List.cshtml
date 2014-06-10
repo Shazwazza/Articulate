@@ -7,11 +7,7 @@
     Layout = "Master.cshtml";
 }
 
-<header>
-    <div class="imagen-autor" @*style="background-image: url({{@blog.logo}})"*@></div>
-    <h5>@Model.BlogTitle</h5>
-    <h6>@Model.BlogDescription</h6>
-</header>
+@Html.ThemedPartial(Model, "Header")
 <main>
 
     @if (!Model.Children.Any())
@@ -26,7 +22,7 @@
                 <small class="fecha">
                     @post.PublishedDate.ToString("dddd, dd MMMM, yyyy")
                 </small>
-                <a href="@post.Url">
+                <a class="title" href="@post.Url">
                     <h1 class="titulo-articulo">@post.Name</h1>    
                 </a>
                 

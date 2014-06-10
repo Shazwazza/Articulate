@@ -24,3 +24,4 @@ Articulate.Web/images/*
 packages/*
 Articulate.Web/xslt/*
 Articulate.Web/media/*
+Articulate.Web/App_Data/cache/*

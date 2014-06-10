@@ -54,7 +54,17 @@ namespace Articulate.Models
                 return _blogListNode;
             }
         }
-        
+
+        public string BlogLogo
+        {
+            get { return RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max); }
+        }
+
+        public string BlogBanner
+        {
+            get { return RootBlogNode.GetCropUrl(propertyAlias: "blogBanner", imageCropMode: ImageCropMode.Max); }
+        }
+
         public string BlogTitle
         {
             get { return Content.GetPropertyValue<string>("blogTitle", true); }
