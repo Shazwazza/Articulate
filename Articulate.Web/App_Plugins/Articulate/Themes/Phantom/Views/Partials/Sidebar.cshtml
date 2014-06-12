@@ -8,7 +8,7 @@
 
         @if (!Model.BlogLogo.IsNullOrWhiteSpace())
         {
-            <a href="/">
+            <a href="@Url.ArticulateRootUrl(Model)">
                 <img id="blog" class="logo" src="@Model.BlogLogo">
             </a>
         }

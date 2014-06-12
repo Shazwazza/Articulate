@@ -1,8 +1,11 @@
+using System;
 using System.Net.Mime;
+using System.Web.UI;
 using System.Xml;
 using umbraco.BusinessLogic;
 using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
+using Umbraco.Core.Models;
 using umbraco.interfaces;
 
 namespace Articulate
@@ -14,25 +17,35 @@ namespace Articulate
             var root = ApplicationContext.Current.Services.ContentTypeService
                 .GetContentType("Articulate");
 
+            var toPublish = ApplicationContext.Current.Services.ContentService
+                .GetContentOfContentType(root.Id);
+
+            //first publish everything
+            foreach (var content in toPublish)
+            {
+                ApplicationContext.Current.Services.ContentService.PublishWithChildrenWithStatus(
+                    content, 0, true);
+            }
+
             var post = ApplicationContext.Current.Services.ContentTypeService
                 .GetContentType("ArticulateMarkdown");
 
             var toSave = ApplicationContext.Current.Services.ContentService
                 .GetContentOfContentType(post.Id);
 
+            //re-save with tags
             foreach (var content in toSave)
             {
-                ApplicationContext.Current.Services.ContentService.Save(content);
+                var cats = content.Properties["categories"].Value.ToString().Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                content.SetTags("categories", cats, true, "ArticulateCategories");
+
+                var tags = content.Properties["tags"].Value.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                content.SetTags("tags", tags, true, "ArticulateTags");
+
+                ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(content);
             }
 
-            var toPublish = ApplicationContext.Current.Services.ContentService
-                .GetContentOfContentType(root.Id);
-
-            foreach (var content in toPublish)
-            {
-                ApplicationContext.Current.Services.ContentService.PublishWithChildrenWithStatus(
-                    content, 0, true);    
-            }
+            
             
             return true;
         }
