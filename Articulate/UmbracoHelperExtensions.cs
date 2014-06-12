@@ -15,7 +15,11 @@ namespace Articulate
      
         public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
         {
-            var tags = helper.TagQuery.GetAllContentTags(tagGroup);
+            var tags = helper.TagQuery.GetAllContentTags(tagGroup).ToArray();
+            if (!tags.Any())
+            {
+                return Enumerable.Empty<PostsByTagModel>();
+            }
 
             //TODO: Use the new 7.1.2 tags API to do this
 

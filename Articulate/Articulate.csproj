@@ -233,6 +233,7 @@
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="Installer.cs" />
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />

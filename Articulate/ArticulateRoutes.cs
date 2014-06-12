@@ -15,8 +15,6 @@ namespace Articulate
     {
         public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache)
         {
-            //StackExchange.Profiling.UI.MiniProfilerHandler.RegisterRoutes();
-
             //find all articulate root nodes
             var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 

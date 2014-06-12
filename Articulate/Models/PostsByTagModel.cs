@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Umbraco.Core;
 
 namespace Articulate.Models
 {
@@ -17,7 +18,7 @@ namespace Articulate.Models
             Posts = posts;
             TagName = tagName;
 
-            TagUrl = tagUrl.SafeEncodeUrlSegments();
+            TagUrl = tagUrl.SafeEncodeUrlSegments().EnsureStartsWith('/');
         }
 
         public IEnumerable<PostModel> Posts { get; private set; }

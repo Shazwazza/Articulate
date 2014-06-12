@@ -13,6 +13,7 @@ using Articulate.Models;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Events;
+using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using umbraco.dialogs;
 using Umbraco.Web;
@@ -21,12 +22,6 @@ using Umbraco.Web.UI.JavaScript;
 
 namespace Articulate
 {
-    //TODO: Create these themes:
-    // * https://github.com/Bartinger/phantom = DONE
-    // * https://github.com/thyu/minighost = DONE
-    // * http://ivanbarcia.eu/edictum.php = DONE?
-    // * 
-
     public class UmbracoEventHandler : ApplicationEventHandler
     {
         
@@ -40,6 +35,28 @@ namespace Articulate
             ContentService.Created += ContentService_Created;
             ContentService.Saving += ContentService_Saving;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
+            ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
+        }
+
+        /// <summary>
+        /// Ensure list view is enabled for certain doc types when created
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ContentTypeService_SavingContentType(IContentTypeService sender, SaveEventArgs<Umbraco.Core.Models.IContentType> e)
+        {
+            foreach (var c in e.SavedEntities)
+            {
+                if (c.Alias.InvariantEquals("ArticulateArchive") || c.Alias.InvariantEquals("ArticulateAuthors"))
+                {
+                    if (c.IsNewEntity())
+                    {
+                        c.IsContainer = true;
+                    }    
+                }
+                
+            }
+            
         }
 
         void ContentService_Saving(IContentService sender, SaveEventArgs<Umbraco.Core.Models.IContent> e)
@@ -103,7 +120,7 @@ namespace Articulate
                     e.Entity.SetValue("pageSize", 10);
                     e.Entity.SetValue("categoriesUrlName", "categories");
                     e.Entity.SetValue("tagsUrlName", "tags");
-                    e.Entity.SetValue("searchUrlName", "tags");
+                    e.Entity.SetValue("searchUrlName", "search");
                     e.Entity.SetValue("categoriesPageName", "Categories");
                     e.Entity.SetValue("tagsPageName", "Tags");
                     e.Entity.SetValue("searchPageName", "Search results");
