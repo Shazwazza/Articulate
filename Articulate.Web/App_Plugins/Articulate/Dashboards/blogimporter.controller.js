@@ -12,8 +12,8 @@
                         //assign the file data to the request
                         formData.append(file.name, file);
                     },
-                    function (data, status, headers, config) {                        
-                        $scope.status = "Importing " + data.count + " blog posts...";
+                    function (data, status, headers, config) {
+                        $scope.status = "Please wait... Importing " + data.count + " blog posts...";
                         deferred.resolve(data.tempFile);
                     },
                     function (data, status, headers, config) {
@@ -31,8 +31,9 @@
                         regexMatch: $scope.regexMatch,
                         regexReplace: $scope.regexReplace,
                         publish: $scope.publish,
-                        tempFile: tempFile
-                        }),
+                        tempFile: tempFile,
+                        exportDisqusXml: $scope.exportDisqusXml
+                    }),
                 'Failed to import blog posts');
         }
 
@@ -40,11 +41,11 @@
 
         $scope.submitting = false;
 
-        $scope.$on("filesSelected", function(e, args) {
-            file = args.files[0];        
+        $scope.$on("filesSelected", function (e, args) {
+            file = args.files[0];
         });
 
-        $scope.submit = function() {
+        $scope.submit = function () {
 
             if (formHelper.submitForm({ scope: $scope })) {
 
@@ -56,12 +57,11 @@
                 postInitialize()
                     .then(postImport)
                     .then(function(data) {
-                        alert("Success!");
-                        $scope.submitting = false;
+                        $scope.status = "Finished!";
                     });
-                //.catch(function (err) {
-                //    //error
-                //    alert(err);
+                //.catch(function (response) {
+                //    // error
+                //    alert("FAILED!");
                 //    $scope.submitting = false;
                 //});
             }

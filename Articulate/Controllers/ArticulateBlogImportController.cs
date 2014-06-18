@@ -67,7 +67,8 @@ namespace Articulate.Controllers
                 model.Overwrite,
                 model.RegexMatch, 
                 model.RegexReplace, 
-                model.Publish);
+                model.Publish,
+                model.ExportDisqusXml);
             
             //cleanup
             File.Delete(model.TempFile);

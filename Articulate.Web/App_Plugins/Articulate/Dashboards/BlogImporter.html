@@ -32,12 +32,16 @@
                            label="Regex replacement statement">
             <input type="text" class="" name="regexReplace" ng-model="$parent.regexReplace" />
         </umb-control-group>
+        
+        <umb-control-group alias="exportDisqusXml" description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
+                           label="Export Disqus Xml">
+            <input type="checkbox" class="" name="exportDisqusXml" ng-model="$parent.exportDisqusXml" />
+        </umb-control-group>
 
         <umb-control-group>
             <input type="submit" ng-if="!submitting" />
-            <div ng-if="submitting">
-                <span ng-bind="status"></span>
-            </div>
+            <p ng-bind-html="status"></p>
+            <p ng-if="status === 'Finished!'">Click <a href='/media/articulate/DisqusXmlExport.xml' target='_blank'>here</a> to download the exported Disqus Xml file</p>
         </umb-control-group>
 
     </form>

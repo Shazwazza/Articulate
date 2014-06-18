@@ -232,6 +232,8 @@
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
+    <Compile Include="DisqusImporter.cs" />
+    <Compile Include="DisqusXmlExporter.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Installer.cs" />
     <Compile Include="MetaWeblogHandler.cs" />

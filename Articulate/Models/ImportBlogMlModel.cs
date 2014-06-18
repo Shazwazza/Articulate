@@ -25,5 +25,8 @@ namespace Articulate.Models
         [DataMember(Name = "tempFile", IsRequired = true)]
         [Required]
         public string TempFile { get; set; }
+
+        [DataMember(Name = "exportDisqusXml")]
+        public bool ExportDisqusXml { get; set; }
     }
 }
