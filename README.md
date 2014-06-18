@@ -16,8 +16,10 @@ Supporting all the features you'd want in a blogging platform
 * Disqus, Google+ or Facebook comment support
 * Search
 * Blogml import/export
-  * During import we can also export a compatible XML so you can easily import your comments to Disqus
+ * During import we can also export a compatible XML so you can easily import your comments to Disqus
 * RSS
+ * Built in or custom feed
+ * Feeds per category/tag
 * Customizable urls 
 * Author profiles
 
