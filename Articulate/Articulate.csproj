@@ -237,6 +237,7 @@
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
+    <Compile Include="Models\ImportBlogMlModel.cs" />
     <Compile Include="Models\ListModel.cs" />
     <Compile Include="Models\MardownEditorModel.cs" />
     <Compile Include="Models\MetaWeblog\IBloggerMetaWeblog.cs" />

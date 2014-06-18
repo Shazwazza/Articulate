@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.UI.WebControls;
+using Articulate.Models;
+using Newtonsoft.Json.Linq;
 using umbraco.BusinessLogic;
 using Umbraco.Core;
 using Umbraco.Core.IO;
@@ -16,52 +18,66 @@ namespace Articulate.Controllers
 {
     public class ArticulateBlogImportController : UmbracoApiController
     {
-        public async Task<bool> PostImportBlogMl(HttpRequestMessage request)
+        public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType); 
 
             var dir = IOHelper.MapPath("~/App_Data/TEMP/FileUploads");
             Directory.CreateDirectory(dir);
             var provider = new MultipartFormDataStreamProvider(dir);
             var result = await request.Content.ReadAsMultipartAsync(provider);
 
-            var importIdAttempt = result.FormData["articulateNode"].TryConvertTo<int>();
-            if (!importIdAttempt)
-            {
-                throw new InvalidOperationException("An invalid articulate root node id was specified");
-            }
-
-            var overwriteAttempt = result.FormData["overwrite"].TryConvertTo<bool>();
-            if (!overwriteAttempt)
-            {
-                throw new InvalidOperationException("An invalid overwrite value was specified");
-            }
-
-            var regexMatch = result.FormData["regexMatch"];
-            var regexReplace = result.FormData["regexReplace"];
-            var publishAttempt = result.FormData["publish"].TryConvertTo<bool>();
-            if (!publishAttempt)
-            {
-                throw new InvalidOperationException("An invalid publish value was specified");
-            }
-
             if (result.FileData.Any())
             {
                 if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
                 {
-                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);    
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
 
                 //there should only be one file so we'll just use the first one
                 var importer = new BlogMlImporter(ApplicationContext);
-                importer.Import(Security.CurrentUser.Id, result.FileData[0].LocalFileName, importIdAttempt.Result, overwriteAttempt.Result, regexMatch, regexReplace, publishAttempt.Result);
+                var count = importer.GetPostCount(result.FileData[0].LocalFileName);
 
-                //cleanup
-                File.Delete(result.FileData[0].LocalFileName);
+                return JObject.FromObject(new
+                {
+                    count = count,
+                    tempFile = result.FileData[0].LocalFileName
+                });
+            }
+            else
+            {
+                throw new InvalidOperationException("Not blogml file was found in the request");
             }
 
-            return true;
+        }
+
+        public async Task<HttpResponseMessage> PostImportBlogMl(ImportBlogMlModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
+            }
+            
+            //there should only be one file so we'll just use the first one
+            var importer = new BlogMlImporter(ApplicationContext);
+            await importer.Import(Security.CurrentUser.Id, 
+                model.TempFile,
+                model.ArticulateNodeId,
+                model.Overwrite,
+                model.RegexMatch, 
+                model.RegexReplace, 
+                model.Publish);
+            
+            //cleanup
+            File.Delete(model.TempFile);
+
+            if (importer.HasErrors)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details");
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
     }

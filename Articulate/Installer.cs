@@ -10,6 +10,9 @@ using umbraco.interfaces;
 
 namespace Articulate
 {
+
+    //TODO: Make this do the actual installation of data, do not rely on the packager!
+
     public class Installer : IPackageAction
     {
         public bool Execute(string packageName, XmlNode xmlData)

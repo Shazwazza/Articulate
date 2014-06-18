@@ -1,24 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using File = System.IO.File;
+using Task = System.Threading.Tasks.Task;
 
 namespace Articulate
 {
     public class BlogMlImporter
     {
+        public BlogMlImporter()
+        {
+            HasErrors = false;
+        }
+
+        public bool HasErrors { get; private set; }
+
         private readonly ApplicationContext _applicationContext;
 
         public BlogMlImporter(ApplicationContext applicationContext)
@@ -27,34 +42,74 @@ namespace Articulate
 
         }
 
-        public void Import(int userId, string fileName, int blogRootNode, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
+        public int GetPostCount(string fileName)
+        {
+            var doc = GetDocument(fileName);
+            return doc.Posts.Count();
+        }
+
+        public async Task Import(
+            int userId, 
+            string fileName, 
+            int blogRootNode, 
+            bool overwrite, 
+            string regexMatch, 
+            string regexReplace, 
+            bool publishAll,
+            string disqusPublicKey = null /*, string disqusPrivateKey = null*/)
+        {
+            try
+            {
+                if (!File.Exists(fileName))
+                {
+                    throw new FileNotFoundException("File not found: " + fileName);
+                }
+
+                var root = _applicationContext.Services.ContentService.GetById(blogRootNode);
+                if (root == null)
+                {
+                    throw new InvalidOperationException("No node found with id " + blogRootNode);
+                }
+                if (!root.ContentType.Alias.InvariantEquals("Articulate"))
+                {
+                    throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
+                }
+
+                using (var stream = File.OpenRead(fileName))
+                {
+                    var document = new BlogMLDocument();
+                    document.Load(stream);
+
+                    stream.Position = 0;
+                    var xdoc = XDocument.Load(stream);
+
+                    var authorIdsToName = ImportAuthors(userId, root, document.Authors);
+
+                    if (!disqusPublicKey.IsNullOrWhiteSpace())
+                    {
+                        await ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll, disqusPublicKey);    
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HasErrors = true;
+                LogHelper.Error<BlogMlImporter>("Importing failed with errors", ex);
+            }
+        }
+
+        private BlogMLDocument GetDocument(string fileName)
         {
             if (!File.Exists(fileName))
             {
                 throw new FileNotFoundException("File not found: " + fileName);
             }
 
-            var root = _applicationContext.Services.ContentService.GetById(blogRootNode);
-            if (root == null)
-            {
-                throw new InvalidOperationException("No node found with id " + blogRootNode);
-            }
-            if (!root.ContentType.Alias.InvariantEquals("Articulate"))
-            {
-                throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
-            }
-
-            using (var stream = File.OpenRead(fileName))            
+            using (var stream = File.OpenRead(fileName))
             {
                 var document = new BlogMLDocument();
                 document.Load(stream);
-
-                stream.Position = 0;
-                var xdoc = XDocument.Load(stream);
-
-                var authorIdsToName = ImportAuthors(userId, root, document.Authors);
-
-                ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll);
+                return document;
             }
         }
 
@@ -126,7 +181,8 @@ namespace Articulate
 
         }
 
-        private void ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
+        private async Task ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll,
+            string publicKey/*, string privateKey, string accessToken*/)
         {
             
             var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
@@ -203,7 +259,7 @@ namespace Articulate
 
                 ImportTags(xdoc, postNode, post);
                 ImportCategories(postNode, post, categories);
-
+                
                 if (publishAll)
                 {
                     _applicationContext.Services.ContentService.SaveAndPublishWithStatus(postNode, userId);
@@ -212,7 +268,39 @@ namespace Articulate
                 {
                     _applicationContext.Services.ContentService.Save(postNode, userId);    
                 }
-                
+
+                await ImportComments(userId, postNode, post, publicKey);
+
+            }
+        }
+
+        private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
+            string publicKey/*, string privateKey, string accessToken*/)
+        {
+
+            var importer = new DisqusImporter(publicKey);
+
+            foreach (var comment in post.Comments)
+            {
+                var result = await importer.Import(
+                    postNode.Id.ToString(CultureInfo.InvariantCulture),
+                    comment.Content.Content,
+                    comment.UserName,
+                    comment.UserEmailAddress,
+                    comment.UserUrl != null ? comment.UserUrl.ToString() : string.Empty,
+                    comment.CreatedOn);
+
+                if (!result)
+                {
+                    HasErrors = true;
+                }
+                else
+                {
+                    postNode.SetValue("disqusCommentsImported", 1);
+                    //just save it, we don't need to publish it (if publish = true then its already published), we just need
+                    // this for reference.
+                    _applicationContext.Services.ContentService.Save(postNode, userId);    
+                }
             }
         }
 
@@ -235,5 +323,97 @@ namespace Articulate
             postNode.SetTags("tags", tags, true, "ArticulateTags");
         }
 
+    }
+
+    internal class DisqusImporter
+    {
+        private readonly string _accessToken;
+        private readonly string _publicKey;
+        private readonly string _privateKey;
+
+
+        public DisqusImporter(string publicKey/*, string privateKey, string accessToken*/)
+        {
+            //_accessToken = accessToken;
+            //_privateKey = privateKey;
+            _publicKey = publicKey;
+        }
+
+        public async Task<bool> Import(string postId, string comment, string user, string email, string userUrl, DateTime date)
+        {
+            var outgoingQueryString = HttpUtility.ParseQueryString(String.Empty);
+            outgoingQueryString.Add("message", comment);
+            outgoingQueryString.Add("thread", postId);
+            outgoingQueryString.Add("author_email", email);
+            outgoingQueryString.Add("author_name", user);
+            outgoingQueryString.Add("author_url", userUrl);
+            outgoingQueryString.Add("date", date.ToIsoString());
+            outgoingQueryString.Add("state", "approved");
+            var postdata = outgoingQueryString.ToString();
+
+            var byteArray = Encoding.UTF8.GetBytes(postdata);
+
+            //var request = (HttpWebRequest) WebRequest.Create(
+            //    string.Format("https://disqus.com/api/3.0/posts/create.json?access_token={0}&api_key={1}&api_secret={2}",
+            //        _accessToken, _publicKey, _privateKey));
+
+            //TODO: This should work but everyone is having a problem with it, apparently the public key listed in apps isn't the one
+            // that should be used here but they don't provide you with the correct one! :(
+            var request = (HttpWebRequest)WebRequest.Create(
+                string.Format("https://disqus.com/api/3.0/posts/create.json?api_key={0}", _publicKey));
+
+            //var request = (HttpWebRequest)WebRequest.Create(
+            //    string.Format("https://disqus.com/api/3.0/posts/create.json?api_secret={0}", _privateKey));
+
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.ContentLength = byteArray.Length;
+            
+            //important! need referrer header for white list on disqus
+            request.Referer = "http://articulate.dev/umbraco/umbracoapi/backoffice/ArticulateBlogImport/PostImportBlogMl";
+
+            using (var dataStream = await request.GetRequestStreamAsync())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);   
+            }
+
+            try
+            {
+                using (var response = await request.GetResponseAsync())
+                {
+                    Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                    var responseStream = response.GetResponseStream();
+                    if (responseStream == null) return false;
+                    using (var reader = new StreamReader(responseStream))
+                    {
+                        var stringResponse = reader.ReadToEnd();
+                        var jsonResponse = JObject.Parse(stringResponse);
+                        return jsonResponse["code"].Value<int>() == 0;
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                var stream = ex.Response.GetResponseStream();
+                if (stream != null)
+                {
+                    using (var resp = new StreamReader(stream))
+                    {
+                        var result = resp.ReadToEnd();
+
+                        LogHelper.Error<BlogMlImporter>("Importing comment failed", new Exception(result));
+
+                        var obj = (JObject)JsonConvert.DeserializeObject(result);
+                        throw;
+                    }
+                }
+                else
+                {
+                    throw;
+                }
+                
+            }
+            
+        }
     }
 }

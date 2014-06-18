@@ -35,7 +35,9 @@
 
         <umb-control-group>
             <input type="submit" ng-if="!submitting" />
-            <div ng-if="submitting">Please wait...</div>
+            <div ng-if="submitting">
+                <span ng-bind="status"></span>
+            </div>
         </umb-control-group>
 
     </form>
