@@ -19,11 +19,14 @@
 
         <p class="description">@Model.BlogDescription</p>
         <div class="social-icons">
-            <a href="https://github.com/Bartinger" class="icon icon-github"></a>
-            <a href="https://plus.google.com/+DominicBartl?rel=author" class="icon icon-gplus"></a>
-            <a href="https://twitter.com/DevBartinger" class="icon icon-twitter"></a>
+            
+            @*Change 'SomeGuy' to your own urls*@
 
-            <a href="/rss" class="icon-rss"></a>
+            <a href="https://github.com/SomeGuy" class="icon icon-github"></a>
+            <a href="https://plus.google.com/+SomeGuy?rel=author" class="icon icon-gplus"></a>
+            <a href="https://twitter.com/SomeGuy" class="icon icon-twitter"></a>
+
+            <a href="@Url.ArticulateRssUrl(Model)" class="icon-rss"></a>
         </div>
 
         <div class="separator"></div>

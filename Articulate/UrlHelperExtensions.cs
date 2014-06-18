@@ -1,11 +1,26 @@
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Web;
 
 namespace Articulate
 {
     public static class UrlHelperExtensions
     {
+        /// <summary>
+        /// Returns the main rss feed url for this blog
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string ArticulateRssUrl(this UrlHelper url, IMasterModel model)
+        {
+            return model.CustomRssFeed.IsNullOrWhiteSpace()
+                ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                : model.CustomRssFeed;
+        }
+
+
         /// <summary>
         /// Returns an RSS feed URL specific to this tag
         /// </summary>
