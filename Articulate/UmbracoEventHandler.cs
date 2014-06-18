@@ -34,8 +34,22 @@ namespace Articulate
 
             ContentService.Created += ContentService_Created;
             ContentService.Saving += ContentService_Saving;
+            ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
+        }
+
+        void ContentService_Saved(IContentService sender, SaveEventArgs<IContent> e)
+        {
+            foreach (var c in e.SavedEntities)
+            {
+                if (c.ContentType.Alias.InvariantEquals("Articulate"))
+                {
+                    //it's a root blog node, set up the required sub nodes (archive , authors)
+                    var articles = sender.CreateContentWithIdentity("Articles", c, "ArticulateArchive");
+                    var authors = sender.CreateContentWithIdentity("Authors", c, "ArticulateAuthors");
+                }
+            }
         }
 
         /// <summary>
@@ -61,9 +75,10 @@ namespace Articulate
 
         void ContentService_Saving(IContentService sender, SaveEventArgs<Umbraco.Core.Models.IContent> e)
         {
-            //fill in the excerpt if required
+            
             foreach (var c in e.SavedEntities)
             {
+                //fill in the excerpt if required
                 if (c.ContentType.Alias.InvariantEquals("ArticulateRichText")
                     || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
@@ -86,7 +101,8 @@ namespace Articulate
                                 : string.Join("", val.StripHtml().StripNewLines().Take(200)));
                         }
                     }   
-                }                
+                }
+                
             }
         }
 
@@ -117,6 +133,7 @@ namespace Articulate
                 }
                 else if (e.Entity.ContentType.Alias.InvariantEquals("Articulate"))
                 {
+                    e.Entity.SetValue("theme", "VAPOR");
                     e.Entity.SetValue("pageSize", 10);
                     e.Entity.SetValue("categoriesUrlName", "categories");
                     e.Entity.SetValue("tagsUrlName", "tags");
