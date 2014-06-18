@@ -580,3 +580,11 @@ ul.tag-list {
 .tag-list table td:nth-child(1) {
     width: 100px;
 }
+
+.tag-list a.fa {
+    font-size: 60%;
+    margin-right: 4px;
+}
+.tag-list a.fa span {
+    display: none;
+}

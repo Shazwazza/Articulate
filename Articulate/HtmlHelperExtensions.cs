@@ -20,6 +20,17 @@ namespace Articulate
 {
     public static class HtmlHelperExtensions
     {
+        public static IHtmlString RssFeed(this HtmlHelper html, IMasterModel model)
+        {
+            var url = model.CustomRssFeed.IsNullOrWhiteSpace()
+                ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                : model.CustomRssFeed;
+
+            return new HtmlString(
+                string.Format(@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{0}"" />",
+                    url));
+        }
+
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
         {
             var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd";

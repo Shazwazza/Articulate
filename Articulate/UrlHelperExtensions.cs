@@ -7,6 +7,17 @@ namespace Articulate
     public static class UrlHelperExtensions
     {
         /// <summary>
+        /// Returns an RSS feed URL specific to this tag
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string ArticulateTagRssUrl(this UrlHelper url, PostsByTagModel model)
+        {
+            return model.TagUrl.EnsureEndsWith('/') + "rss";
+        }
+        
+        /// <summary>
         /// Get the search url without the 'term' query string
         /// </summary>
         /// <param name="url"></param>

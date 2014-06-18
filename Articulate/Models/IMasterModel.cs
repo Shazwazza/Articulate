@@ -22,6 +22,7 @@ namespace Articulate.Models
         int PageSize { get; }
 
         string DisqusShortName { get; }
+        string CustomRssFeed { get; }
 
     }
 }

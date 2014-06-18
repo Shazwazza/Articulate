@@ -27,12 +27,12 @@ namespace Articulate
                 {
                     RemoveExisting(routes,
                         "articulate_tags_" + node.Id,
+                        "articulate_tags_rss_" + node.Id,
                         "articulate_search_" + node.Id,
                         "articulate_metaweblog_" + node.Id,
                         "articulate_rsd_" + node.Id,
                         "articulate_wlwmanifest_" + node.Id,
                         "articulate_markdown_" + node.Id);
-
                     
                     MapSearchRoute(routes, node);
                     MapManifestRoute(routes, node);
@@ -66,6 +66,22 @@ namespace Articulate
                 {
                     controller = "ArticulateTags",
                     tag = UrlParameter.Optional
+                },
+                new ArticulateTagsRouteHandler(node.Id,
+                    node.GetPropertyValue<string>("tagsUrlName"),
+                    node.GetPropertyValue<string>("tagsPageName"),
+                    node.GetPropertyValue<string>("categoriesUrlName"),
+                    node.GetPropertyValue<string>("categoriesPageName")),
+                //Constraings: only match either the tags or categories url names
+                new { action = node.GetPropertyValue<string>("tagsUrlName") + "|" + node.GetPropertyValue<string>("categoriesUrlName") });
+
+            //Create the routes for the RSS specific feeds
+            routes.MapUmbracoRoute(
+                "articulate_tags_rss_" + node.Id,
+                (node.Url.EnsureEndsWith('/') + "{action}/{tag}/rss").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateTagRss"
                 },
                 new ArticulateTagsRouteHandler(node.Id,
                     node.GetPropertyValue<string>("tagsUrlName"),

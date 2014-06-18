@@ -52,8 +52,7 @@ namespace Articulate
             string regexMatch, 
             string regexReplace, 
             bool publishAll,
-            bool exportDisqusXml = false,
-            string disqusPublicKey = null /*, string disqusPrivateKey = null*/)
+            bool exportDisqusXml = false)
         {
             try
             {
@@ -82,7 +81,7 @@ namespace Articulate
 
                     var authorIdsToName = ImportAuthors(userId, root, document.Authors);
 
-                    var imported = await ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll, disqusPublicKey);
+                    var imported = await ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll);
 
                     if (exportDisqusXml)
                     {
@@ -182,8 +181,7 @@ namespace Articulate
 
         }
 
-        private async Task<IEnumerable<IContent>>  ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll,
-            string publicKey/*, string privateKey, string accessToken*/)
+        private async Task<IEnumerable<IContent>>  ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
         {
 
             var result = new List<IContent>();
@@ -272,10 +270,10 @@ namespace Articulate
                     _applicationContext.Services.ContentService.Save(postNode, userId);    
                 }
 
-                if (!publicKey.IsNullOrWhiteSpace())
-                {
-                    await ImportComments(userId, postNode, post, publicKey);
-                }
+                //if (!publicKey.IsNullOrWhiteSpace())
+                //{
+                //    await ImportComments(userId, postNode, post, publicKey);
+                //}
 
                 result.Add(postNode);
             }
@@ -283,35 +281,35 @@ namespace Articulate
             return result;
         }
 
-        private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
-            string publicKey/*, string privateKey, string accessToken*/)
-        {
+        //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
+        //    string publicKey/*, string privateKey, string accessToken*/)
+        //{
 
-            var importer = new DisqusImporter(publicKey);
+        //    var importer = new DisqusImporter(publicKey);
 
-            foreach (var comment in post.Comments)
-            {
-                var result = await importer.Import(
-                    postNode.Id.ToString(CultureInfo.InvariantCulture),
-                    comment.Content.Content,
-                    comment.UserName,
-                    comment.UserEmailAddress,
-                    comment.UserUrl != null ? comment.UserUrl.ToString() : string.Empty,
-                    comment.CreatedOn);
+        //    foreach (var comment in post.Comments)
+        //    {
+        //        var result = await importer.Import(
+        //            postNode.Id.ToString(CultureInfo.InvariantCulture),
+        //            comment.Content.Content,
+        //            comment.UserName,
+        //            comment.UserEmailAddress,
+        //            comment.UserUrl != null ? comment.UserUrl.ToString() : string.Empty,
+        //            comment.CreatedOn);
 
-                if (!result)
-                {
-                    HasErrors = true;
-                }
-                else
-                {
-                    postNode.SetValue("disqusCommentsImported", 1);
-                    //just save it, we don't need to publish it (if publish = true then its already published), we just need
-                    // this for reference.
-                    _applicationContext.Services.ContentService.Save(postNode, userId);    
-                }
-            }
-        }
+        //        if (!result)
+        //        {
+        //            HasErrors = true;
+        //        }
+        //        else
+        //        {
+        //            postNode.SetValue("disqusCommentsImported", 1);
+        //            //just save it, we don't need to publish it (if publish = true then its already published), we just need
+        //            // this for reference.
+        //            _applicationContext.Services.ContentService.Save(postNode, userId);    
+        //        }
+        //    }
+        //}
 
         private void ImportCategories(IContent postNode, BlogMLPost post, IEnumerable<BlogMLCategory> allCategories)
         {

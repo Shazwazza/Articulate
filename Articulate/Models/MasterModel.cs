@@ -60,6 +60,11 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<string>("disqusShortname", true); }
         }
 
+        public string CustomRssFeed
+        {
+            get { return RootBlogNode.GetPropertyValue<string>("customRssFeedUrl"); }
+        }
+
         public string BlogLogo
         {
             get { return RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max); }

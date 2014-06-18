@@ -1,8 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Mvc;
+using Argotic.Common;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Web.Models;
@@ -13,6 +17,10 @@ namespace Articulate.Controllers
     /// <summary>
     /// Renders the blog post archive by tags/categories and also the tag/category blog listing
     /// </summary>
+    /// <remarks>
+    /// Cached for one minute
+    /// </remarks>
+    [OutputCache(Duration = 60)]
     public class ArticulateTagsController : RenderMvcController
     {
         /// <summary>

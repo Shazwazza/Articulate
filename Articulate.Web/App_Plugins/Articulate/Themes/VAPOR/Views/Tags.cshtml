@@ -27,7 +27,10 @@
             @for (var i = 0; i < asArray.Length; i++)
             {
                 <li>
-                    <h2><a id="tag-@i" href="@asArray[i].TagUrl">@asArray[i].TagName</a></h2>                    
+                    <h2>
+                        <a href="@Url.ArticulateTagRssUrl(asArray[i])" class="fa fa-rss"><span>RSS</span></a>
+                        <a id="tag-@i" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
+                    </h2>                    
 
                     @Html.Table(
                         asArray[i].Posts.OrderBy(x => x.PublishedDate),
