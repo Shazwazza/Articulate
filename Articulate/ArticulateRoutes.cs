@@ -26,6 +26,7 @@ namespace Articulate
                 foreach (var node in articulateNodes)
                 {
                     RemoveExisting(routes,
+                        "articulate_rss_" + node.Id,
                         "articulate_tags_" + node.Id,
                         "articulate_tags_rss_" + node.Id,
                         "articulate_search_" + node.Id,
@@ -33,7 +34,8 @@ namespace Articulate
                         "articulate_rsd_" + node.Id,
                         "articulate_wlwmanifest_" + node.Id,
                         "articulate_markdown_" + node.Id);
-                    
+
+                    MapRssRoute(routes, node);
                     MapSearchRoute(routes, node);
                     MapManifestRoute(routes, node);
                     MapRsdRoute(routes, node);
@@ -54,6 +56,20 @@ namespace Articulate
                             action = "NewPost",
                             id = node.Id
                         });
+        }
+
+        private static void MapRssRoute(RouteCollection routes, IPublishedContent node)
+        {
+            //Create the route for the /search/{term} results
+            routes.MapUmbracoRoute(
+                "articulate_rss_" + node.Id,
+                (node.Url.EnsureEndsWith('/') + "rss").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateRss",
+                    action = "Index"
+                },
+                new UmbracoVirtualNodeByIdRouteHandler(node.Id));
         }
 
         private static void MapTagsAndCategoriesRoute(RouteCollection routes, IPublishedContent node)
@@ -81,7 +97,7 @@ namespace Articulate
                 (node.Url.EnsureEndsWith('/') + "{action}/{tag}/rss").TrimStart('/'),
                 new
                 {
-                    controller = "ArticulateTagRss"
+                    controller = "ArticulateRss"
                 },
                 new ArticulateTagsRouteHandler(node.Id,
                     node.GetPropertyValue<string>("tagsUrlName"),
