@@ -23,17 +23,4 @@
         @Html.ThemedPartial(Model, "Pager", Model.Pages)
     }
     
-    @*Used to display comment counts for each article*@        
-    <script type="text/javascript">
-        var disqus_shortname = '@Model.DisqusShortName';
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function () {
-            var s = document.createElement('script'); s.async = true;
-            s.type = 'text/javascript';
-            s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
-            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-        }());
-    </script>
-
 </div>

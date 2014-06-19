@@ -15,7 +15,9 @@
                 <li>
                     <a href="@post.Url">@post.Name</a>
                     <div class="descr">@post.PublishedDate.ToString("MMMM d, yyyy HH:mm")</div>
-                    <div><a class="comment-count" href="@post.UrlWithDomain()#disqus_thread">Comments: ?</a></div>
+                    <div>
+                        <a data-disqus-identifier="@post.Id" class="comment-count" href="@post.Url#disqus_thread"></a>
+                    </div>
                 </li>
             }
         </ul>

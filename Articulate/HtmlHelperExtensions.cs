@@ -190,7 +190,8 @@ namespace Articulate
         /// </summary>
         public static HelperResult Table<T>(this HtmlHelper html,
             IEnumerable<T> collection,
-            IEnumerable<string> headers,
+            string[] headers,
+            string[] cssClasses,
             params Func<T, HelperResult>[] cellTemplates) where T : class
         {
             return new HelperResult(writer =>
@@ -207,10 +208,10 @@ namespace Articulate
                 writer.Write("<table>");
                 writer.Write("<thead>");
                 writer.Write("<tr>");
-                foreach (var header in headers)
+                for (int i = 0; i < cols; i++)
                 {
-                    writer.Write("<th>");
-                    writer.Write(header);
+                    writer.Write("<th class='{0}'>", (cssClasses.Length-1) >= 1 ? cssClasses[i] : "");
+                    writer.Write(headers[i]);
                     writer.Write("</th>");
                 }
                 writer.Write("</thead>");
@@ -219,7 +220,7 @@ namespace Articulate
                     writer.Write("<tr>");
                     for (var colIndex = 0; colIndex < cols; colIndex++)
                     {
-                        writer.Write("<td>");
+                        writer.Write("<td class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[colIndex] : "");
                         var item = items[rowIndex];
                         if (item != null)
                         {

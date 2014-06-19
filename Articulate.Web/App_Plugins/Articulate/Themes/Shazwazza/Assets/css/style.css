@@ -108,6 +108,10 @@ cite {
     padding-left: 28px;
 }
 
+th {
+    font-weight: 300;
+}
+
 ::-webkit-input-placeholder {
    font-family: 'Roboto', "Trebuchet MS",verdana,arial,Lucida Grande;
    font-weight: 300;
@@ -743,25 +747,50 @@ div.widget a.delete:hover {
 
 /* Archive */
 #archive table {
-    width: 500px;
+    width: 100%;
     font-size: 0.8em;
+    border-collapse: collapse;
+    line-height: 1.8em;
 }
 
 #archive table td.date {
     width: 80px;
 }
 
+#archive table tr:nth-child(even) {
+    background-color: #EEE;
+}
+
 #archive table td.title {
-    width: 380px;
+    width: 450px;
 }
 
 #archive table td.comments {
-    width: 40px;
+    width: 100px;
+    text-align: right;
+    vertical-align: middle;
+}
+
+#archive table td.comments a {
+    color: #666666;
+    font-size: smaller;
 }
 
 #archive img {
     border: none;
     padding-right: 5px;
+}
+
+#archive h2 a {
+    text-decoration: none;
+    color: inherit;
+}
+#archive  a {
+    text-decoration: none;
+}
+#archive .fa {
+    font-size: 0.7em;
+    color: #e86c00;
 }
 
 
@@ -1042,4 +1071,8 @@ div.imported-post {
 
 a.comment-count {
     color: inherit;
+}
+
+.fa span {
+    display: none;
 }

@@ -8,45 +8,35 @@
     var asArray = Model.Tags.ToArray();
 }
 
-<main class="content" role="main">
+<div id="archive">
 
-    <article>
-        <h1>@Model.Name</h1>
-        <ul>
-            @for (var i = 0; i < asArray.Length; i++)
-            {
-                <li>
-                    <a href="#tag-@i">@asArray[i].TagName</a> - (@asArray[i].PostCount)
-                </li>
-            }
-        </ul>
+    <h1>@Model.Name</h1>
 
-        <hr />
-
-        <ul class="tag-list">
-            @for (var i = 0; i < asArray.Length; i++)
-            {
-                <li>
-                    <h2>
-                        <a href="@Url.ArticulateTagRssUrl(asArray[i])" class="fa fa-rss"><span>RSS</span></a>
-                        <a id="tag-@i" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
-                    </h2>                    
-
-                    @Html.Table(
-                        asArray[i].Posts.OrderBy(x => x.PublishedDate),
-                        new[] { "Date", "Name" },
-                        @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
-                        @<a href="@item.Url">@item.Name</a>)
-
-                </li>
-            }
-        </ul>
+    <ul>
+        @for (var i = 0; i < asArray.Length; i++)
+        {
+            <li>
+                <a href="#tag-@i">@asArray[i].TagName</a> - (@asArray[i].PostCount)
+            </li>
+        }
+    </ul>
 
 
-    </article>
+    @for (var i = 0; i < asArray.Length; i++)
+    {
 
-    @*<article>
-        @Html.TagCloud(Model)
-    </article>*@
+        <h2>
+            <a href="@Url.ArticulateTagRssUrl(asArray[i])" class="fa fa-rss"><span>RSS</span></a>
+            <a id="tag-@i" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
+        </h2>
 
-</main>
+        @Html.Table(
+            asArray[i].Posts.OrderBy(x => x.PublishedDate),
+            new[] { "Date", "Name", "" },
+            new[] { "date", "title", "comments" },
+            @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
+            @<a href="@item.Url">@item.Name</a>,
+            @<a href="@item.Url#disqus_thread" data-disqus-identifier="@item.Id"></a>)
+
+    }
+</div>
