@@ -67,7 +67,7 @@ namespace Articulate
 
         public static HtmlHelper RequiresThemedJs(this HtmlHelper html, IMasterModel model, string filePath)
         {
-            return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
+            return html.RequiresJs(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
         }
 
         public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
@@ -102,7 +102,7 @@ namespace Articulate
 
         public static HtmlHelper RequiresThemedJsFolder(this HtmlHelper html, IMasterModel model)
         {
-            return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/js");
+            return html.RequiresJsFolder(PathHelper.GetThemePath(model) + "Assets/js");
         }
 
         /// <summary>

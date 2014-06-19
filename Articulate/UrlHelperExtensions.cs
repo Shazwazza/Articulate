@@ -8,6 +8,18 @@ namespace Articulate
     public static class UrlHelperExtensions
     {
         /// <summary>
+        /// Returns the url of a themed asset
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <param name="relativeAssetPath"></param>
+        /// <returns></returns>
+        public static string ThemedPath(this UrlHelper url, IMasterModel model, string relativeAssetPath)
+        {
+            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + relativeAssetPath;
+        }
+
+        /// <summary>
         /// Returns the main rss feed url for this blog
         /// </summary>
         /// <param name="url"></param>
