@@ -373,11 +373,13 @@ ul.recentPosts li div {
 
 /* TRANSPARENT BOXES */
 .box {
-    /*background-color: white;
-    background-color: rgba(255,255,255,0.8);*/
-    background: transparent url(../img/bg80.png) repeat;
+    /*background-color: white;*/
+    background-color: #7f878f;
+    background-color: rgba(255,255,255,0.5);
+    /*background: transparent url(../img/bg80.png) repeat;*/
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
+    -ms-border-radius: 12px 12px 12px 12px;
     border-radius: 12px 12px 12px 12px;
     padding: 16px 20px;
     border: 1px solid #333;
@@ -388,11 +390,13 @@ ul.recentPosts li div {
 }
 
 .post, .box-inner, #archive, #contact, #page {
-    /*background-color: white;
-    background-color: rgba(255,255,255,0.7);*/
-    background: transparent url(../img/bg70.png) repeat;
+    /*background-color: white;*/
+    background-color: #7f878f;
+    background-color: rgba(255,255,255,0.5);
+    /*background: transparent url(../img/bg70.png) repeat;*/
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+    -ms-border-radius: 4px 4px 4px 4px;
     border-radius: 4px 4px 4px 4px;
     padding: 5px;
     margin-bottom: 2px;
@@ -407,7 +411,8 @@ ul.recentPosts li div {
     background-color: white;
 }
 
-.old-ie .post, .old-ie .box-inner, .old-ie #archive, .old-ie #contact, .old-ie #page {
+.old-ie .box, .old-ie .post, .old-ie .box-inner, .old-ie #archive, .old-ie #contact, .old-ie #page {
+    background: transparent url(../img/bg70.png) repeat;
     filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=/themes/ShazIndigo/img/bg70.png,sizingMethod='scale');
 }
 
