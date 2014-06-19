@@ -51,7 +51,7 @@ namespace Articulate.Controllers
                 }
             };
 
-            foreach (var post in rootPageModel.Children.Select(x => new PostModel(x)))
+            foreach (var post in rootPageModel.Children<PostModel>())
             {
                 var item = new RssItem
                 {

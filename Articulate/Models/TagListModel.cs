@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core.Models;
@@ -6,13 +7,50 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
+    public class PostTagCollection : IEnumerable<PostsByTagModel>
+    {
+        private readonly IEnumerable<PostsByTagModel> _tags;
+
+        public PostTagCollection(IEnumerable<PostsByTagModel> tags)
+        {
+            _tags = tags;
+        }
+
+        private int? _maxCount;
+
+        /// <summary>
+        /// Returns a tag weight based on the current tag collection out of x
+        /// </summary>
+        /// <param name="postsByTag"></param>
+        /// <param name="maxWeight"></param>
+        /// <returns></returns>
+        public int GetTagWeight(PostsByTagModel postsByTag, decimal maxWeight)
+        {
+            if (_maxCount.HasValue == false)
+            {
+                _maxCount = this.Max(x => x.PostCount);
+            }
+            return Convert.ToInt32(Math.Ceiling(postsByTag.PostCount * maxWeight / _maxCount.Value));
+        }
+
+        public IEnumerator<PostsByTagModel> GetEnumerator()
+        {
+            return _tags.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
     public class TagListModel : IMasterModel
     {
         public TagListModel(
             IMasterModel masterModel, 
             string name, 
-            int pageSize, 
-            IEnumerable<PostsByTagModel> tags)
+            int pageSize,
+            PostTagCollection tags)
         {
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
@@ -40,24 +78,8 @@ namespace Articulate.Models
 
         public string BlogLogo { get; private set; }
         public string BlogBanner { get; private set; }
-        
-        public IEnumerable<PostsByTagModel> Tags { get; private set; }
 
-        private int? _maxCount;
+        public PostTagCollection Tags { get; private set; }
 
-        /// <summary>
-        /// Returns a tag weight based on the current tag collection out of 10
-        /// </summary>
-        /// <param name="postsByTag"></param>
-        /// <returns></returns>
-        public int GetTagWeight(PostsByTagModel postsByTag)
-        {
-            if (_maxCount.HasValue == false)
-            {
-                _maxCount = Tags.Max(x => x.PostCount);    
-            }
-
-            return Convert.ToInt32(Math.Ceiling(postsByTag.PostCount * 10.0 / _maxCount.Value));
-        }
     }
 }

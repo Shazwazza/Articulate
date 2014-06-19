@@ -1,0 +1,14 @@
+@using Articulate
+@inherits UmbracoViewPage<Articulate.Models.IMasterModel>
+
+@{
+    var tagModel = Umbraco.GetPostTagCollection(Model);
+}
+
+<div class="widget tagcloud">
+    <h4>Popular tags</h4>
+
+    <div class="content">
+        @Html.TagCloud(tagModel, 5, 50)
+    </div>
+</div>

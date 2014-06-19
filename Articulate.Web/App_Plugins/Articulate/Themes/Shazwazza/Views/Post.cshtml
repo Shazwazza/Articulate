@@ -1,0 +1,9 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.PostModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template";
+}
+
+@Html.ThemedPartial(Model, "Post", Model)

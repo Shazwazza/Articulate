@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,62 @@ using Umbraco.Web;
 
 namespace Articulate
 {
-    internal static class UmbracoHelperExtensions
+
+    public static class UmbracoHelperExtensions
     {
+        public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
+        {
+            var listNode = masterModel.RootBlogNode.Children
+               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
+            if (listNode == null)
+            {
+                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
+            }
+
+            //create a blog model of the main page
+            var rootPageModel = new ListModel(listNode);
+
+            var tagsBaseUrl = masterModel.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
+
+            var contentByTags = helper.GetContentByTags(rootPageModel, "ArticulateTags", tagsBaseUrl);
+
+            return new PostTagCollection(contentByTags);
+        }
+
+        /// <summary>
+        /// Returns a list of all categories
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="masterModel"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetAllCategories(this UmbracoHelper helper, IMasterModel masterModel)
+        {
+            //TODO: Make this somehow only lookup tag categories that are relavent to posts underneath the current Articulate root node!
+
+            return helper.TagQuery.GetAllContentTags("ArticulateCategories").Select(x => x.Text);
+        }
+
+        /// <summary>
+        /// Returns a list of the most recent posts
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="masterModel"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static IEnumerable<PostModel> GetRecentPosts(this UmbracoHelper helper, IMasterModel masterModel, int count)
+        {
+            var listNode = masterModel.RootBlogNode.Children
+               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
+            if (listNode == null)
+            {
+                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
+            }
+
+            var rootPageModel = new ListModel(listNode, new PagerModel(count, 0, 1));
+            return rootPageModel.Children<PostModel>();
+        }
      
-        public static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
+        internal static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
         {
             var tags = helper.TagQuery.GetAllContentTags(tagGroup).ToArray();
             if (!tags.Any())
@@ -46,8 +99,8 @@ namespace Articulate
                 .OrderBy(x => x.TagName);
         }
 
-        
-        public static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
+
+        internal static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
         {
             //TODO: Use the new 7.1.2 tags API to do this
 

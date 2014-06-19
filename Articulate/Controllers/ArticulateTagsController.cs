@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using Argotic.Common;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
@@ -32,9 +33,11 @@ namespace Articulate.Controllers
         /// <returns></returns>
         public ActionResult Categories(RenderModel model, string tag, int? p)
         {
-            return tag.IsNullOrWhiteSpace() 
-                ? RenderTagsOrCategories(model, "ArticulateCategories", "categories") 
-                : RenderByTagOrCategory(model, p, "ArticulateCategories", "categories");
+            var caturlName = model.Content.GetPropertyValue<string>("categoriesUrlName");
+
+            return tag.IsNullOrWhiteSpace()
+                ? RenderTagsOrCategories(model, "ArticulateCategories", caturlName)
+                : RenderByTagOrCategory(model, p, "ArticulateCategories", caturlName);
         }
 
         /// <summary>
@@ -46,9 +49,11 @@ namespace Articulate.Controllers
         /// <returns></returns>
         public ActionResult Tags(RenderModel model, string tag, int? p)
         {
-            return tag.IsNullOrWhiteSpace() 
-                ? RenderTagsOrCategories(model, "ArticulateTags", "tags") 
-                : RenderByTagOrCategory(model, p, "ArticulateTags", "tags");
+            var tagurlName = model.Content.GetPropertyValue<string>("tagsUrlName");
+
+            return tag.IsNullOrWhiteSpace()
+                ? RenderTagsOrCategories(model, "ArticulateTags", tagurlName) 
+                : RenderByTagOrCategory(model, p, "ArticulateTags", tagurlName);
         }
 
         public ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
@@ -68,7 +73,7 @@ namespace Articulate.Controllers
                 rootPageModel,
                 tagPage.Name,
                 rootPageModel.PageSize,
-                contentByTags);
+                new PostTagCollection(contentByTags));
 
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }

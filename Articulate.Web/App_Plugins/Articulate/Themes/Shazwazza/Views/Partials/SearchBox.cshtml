@@ -1,0 +1,11 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<div class="topNav box-inner searchBar">
+    <div>
+        <form method="get" action="@Url.ArticulateSearchUrl(Model)">
+
+            <input type="text" id="topSearch" name="term" placeholder="Search..." />&nbsp;&nbsp;&nbsp;<button type="submit" class="fa fa-search fa"></button>
+        </form>
+    </div> 
+</div>

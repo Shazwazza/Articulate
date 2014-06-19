@@ -112,11 +112,12 @@ namespace Articulate
         /// <param name="model"></param>
         /// <param name="partialName"></param>
         /// <param name="viewModel"></param>
+        /// <param name="viewData"></param>
         /// <returns></returns>
-        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, object viewModel)
+        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, object viewModel, ViewDataDictionary viewData = null)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
-            return html.Partial(path, viewModel);
+            return html.Partial(path, viewModel, viewData);
         }
 
         /// <summary>
@@ -125,28 +126,63 @@ namespace Articulate
         /// <param name="html"></param>
         /// <param name="model"></param>
         /// <param name="partialName"></param>
+        /// <param name="viewData"></param>
         /// <returns></returns>
-        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName)
+        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
-            return html.Partial(path);
+            return html.Partial(path, viewData);
         }
 
-        public static IHtmlString TagCloud(this HtmlHelper html, TagListModel model)
+        public static IHtmlString TagCloud(this HtmlHelper html, PostTagCollection model, decimal maxWeight, int maxResults)
         {
+            var tagsAndWeight = model.Select(x => new {tag = x, weight = model.GetTagWeight(x, maxWeight)})
+                .OrderByDescending(x => x.weight)
+                .Take(maxResults)
+                .RandomOrder();
+
             var ul = new TagBuilder("ul");
             ul.AddCssClass("tag-cloud");
-            foreach (var tag in model.Tags)
+            foreach (var tag in tagsAndWeight)
             {
                 var li = new TagBuilder("li");
-                li.AddCssClass("tag-cloud-" + model.GetTagWeight(tag));
+                li.AddCssClass("tag-cloud-" + tag.weight);
                 var a = new TagBuilder("a");
-                a.MergeAttribute("href", tag.TagUrl);
-                a.SetInnerText(tag.TagName);
+                a.MergeAttribute("href", tag.tag.TagUrl);
+                a.MergeAttribute("title", tag.tag.TagName);
+                a.SetInnerText(tag.tag.TagName);
                 li.InnerHtml = a.ToString();
                 ul.InnerHtml += li.ToString();
             }
             return MvcHtmlString.Create(ul.ToString());
+        }
+
+        public static HelperResult ListTags(this HtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
+        {
+            return html.ListCategoriesOrTags(model.Tags.ToArray(), tagLink, delimiter);
+        }
+
+        public static HelperResult ListCategories(this HtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
+        {
+            return html.ListCategoriesOrTags(model.Categories.ToArray(), tagLink, delimiter);
+        }
+
+        public static HelperResult ListCategoriesOrTags(this HtmlHelper html, string[] items, Func<string, HelperResult> tagLink, string delimiter)
+        {
+            return new HelperResult(writer =>
+            {
+                foreach (var tag in items)
+                {
+                    tagLink(tag).WriteTo(writer);
+                    if (tag != items.Last())
+                    {
+                        writer.Write("<span>");
+                        writer.Write(delimiter);
+                        writer.Write("</span>");
+                    }
+                }
+            });
+
         }
 
         /// <summary>

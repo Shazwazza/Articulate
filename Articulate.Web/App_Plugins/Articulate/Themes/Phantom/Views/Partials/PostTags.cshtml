@@ -1,11 +1,5 @@
 @using Articulate
 @model Articulate.Models.PostModel
 
-@foreach (var tag in Model.Tags)
-{
-    <a href="@Url.ArticulateTagUrl(Model, tag)">@tag</a>
-    if (tag != Model.Tags.Last())
-    {
-        <text>|</text>
-    }
-}
+@Html.ListTags(Model,
+    @<a href="@Url.ArticulateTagUrl(Model, @item)">@item</a>, "|")

@@ -26,9 +26,14 @@
             <div>
                 Posted in
 
-                @Html.ListTags(Model,
-                    @<a href="@Url.ArticulateTagUrl(Model, @item)">@item</a>)
-
+                @foreach (var tag in Model.Tags)
+                {
+                    <a href="@Url.ArticulateTagUrl(Model, tag)">@tag</a>
+                    if (tag != Model.Tags.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
             </div>
         }
     </div>

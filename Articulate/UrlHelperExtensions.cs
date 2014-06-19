@@ -1,3 +1,4 @@
+using System.Web;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
@@ -14,9 +15,9 @@ namespace Articulate
         /// <param name="model"></param>
         /// <param name="relativeAssetPath"></param>
         /// <returns></returns>
-        public static string ThemedPath(this UrlHelper url, IMasterModel model, string relativeAssetPath)
+        public static string ThemedAsset(this UrlHelper url, IMasterModel model, string relativeAssetPath)
         {
-            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + relativeAssetPath;
+            return VirtualPathUtility.ToAbsolute(PathHelper.GetThemePath(model)).EnsureEndsWith('/') + "assets/" + relativeAssetPath;
         }
 
         /// <summary>

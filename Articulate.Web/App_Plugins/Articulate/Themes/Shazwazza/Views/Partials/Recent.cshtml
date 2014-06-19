@@ -1,0 +1,23 @@
+@using Articulate
+@inherits UmbracoViewPage<Articulate.Models.IMasterModel>
+
+@{
+    var recent = Umbraco.GetRecentPosts(Model, 5);
+}
+
+<div class="widget recentposts">
+    <h4>Recent posts</h4>
+
+    <div class="content">
+        <ul class="recentPosts" id="recentPosts">
+            @foreach (var post in recent)
+            {
+                <li>
+                    <a href="@post.Url">@post.Name</a>
+                    <div class="descr">@post.PublishedDate.ToString("MMMM d, yyyy HH:mm")</div>
+                    <div><a class="comment-count" href="@post.UrlWithDomain()#disqus_thread">Comments: ?</a></div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
