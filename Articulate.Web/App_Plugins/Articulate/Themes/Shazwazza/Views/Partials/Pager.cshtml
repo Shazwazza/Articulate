@@ -2,7 +2,7 @@
 
 @if (Model.HasNext || Model.HasPrevious)
 {
-    <nav class="pagination" role="pagination">
+    <div class="pagination" role="pagination">
         @if (Model.HasPrevious)
         {
             <a class="newer-posts" href="@Model.PreviousUrl">
@@ -16,5 +16,5 @@
                 Older <i class="fa fa-chevron-circle-right"></i>
             </a>
         }
-    </nav>
+    </div>
 }

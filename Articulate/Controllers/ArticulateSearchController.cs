@@ -9,6 +9,7 @@ using Examine;
 using Examine.LuceneEngine.SearchCriteria;
 using Examine.SearchCriteria;
 using Umbraco.Core;
+using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Web.Media.EmbedProviders.Settings;
 using Umbraco.Web.Models;
@@ -41,10 +42,14 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
+            //create a blog model of the main page
+            var rootPageModel = new ListModel(model.Content.Parent);
+
             if (term == null)
             {
-                //redirect home, no search term
-                return new RedirectToUmbracoPageResult(model.Content.Parent.Id);
+                //nothing to search, just render the view
+                var emptyList = new ListModel(tagPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(rootPageModel.PageSize, 0, 0));
+                return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
             }
 
             if (p == null || p.Value <= 0)
@@ -52,8 +57,7 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
+            
 
             var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);            
             var fields = new Dictionary<string, int>

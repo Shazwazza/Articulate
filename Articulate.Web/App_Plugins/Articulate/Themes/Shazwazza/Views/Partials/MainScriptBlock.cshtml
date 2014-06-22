@@ -1,41 +1,53 @@
 @model dynamic
 
     <script type="text/javascript">        
-        $(document).ready(function () {            
-            var qtipOpts = {
-                position: {
-                    corner: {
-                        tooltip: "topMiddle",
-                        target: "bottomMiddle"
-                    }
-                },
-                show: {
-                    solo: true
-                },
-                style: {
-                    border: {
-                        width: 5,
-                        radius: 10
-                    },
-                    padding: 10,
-                    textAlign: 'center',
-                    tip: true, // Give it a speech bubble tip with automatic corner detection
-                    name: 'cream' // Style it according to the preset 'cream' style
-                }
-            };
-            qtipOpts.content = "Nearly everything you need to know about me";
-            qtipOpts.position.corner.tooltip = "topRight";
-            qtipOpts.position.corner.target = "bottomLeft";
-            $(".links a:first").qtip(qtipOpts);
-            qtipOpts.content = "All posts organized and listed by category & date";
-            qtipOpts.position.corner.tooltip = "topMiddle";
-            qtipOpts.position.corner.target = "bottomMiddle";
-            $(".links a:eq(1)").qtip(qtipOpts);
-            qtipOpts.content = "Questions? Suggestions? Opinions?";
-            $(".links a:eq(2)").qtip(qtipOpts);
-            qtipOpts.content = "Shazwazza??";
-            qtipOpts.position.corner.tooltip = "topLeft";
-            qtipOpts.position.corner.target = "bottomRight";
-            $(".links a:last").qtip(qtipOpts);
-        });
+
+        //Sort out the tool tip
+
+        //$(document).ready(function () {            
+        //    var qtipOpts = {
+        //        position: {
+        //            corner: {
+        //                tooltip: "topMiddle",
+        //                target: "bottomMiddle"
+        //            }
+        //        },
+        //        show: {
+        //            solo: true
+        //        },
+        //        style: {
+        //            border: {
+        //                width: 5,
+        //                radius: 10
+        //            },
+        //            padding: 10,
+        //            textAlign: 'center',
+        //            tip: true, // Give it a speech bubble tip with automatic corner detection
+        //            name: 'cream' // Style it according to the preset 'cream' style
+        //        }
+        //    };
+        //    qtipOpts.content = "Nearly everything you need to know about me";
+        //    qtipOpts.position.corner.tooltip = "topRight";
+        //    qtipOpts.position.corner.target = "bottomLeft";
+        //    $(".links a:first").qtip(qtipOpts);
+        //    qtipOpts.content = "All posts organized and listed by category & date";
+        //    qtipOpts.position.corner.tooltip = "topMiddle";
+        //    qtipOpts.position.corner.target = "bottomMiddle";
+        //    $(".links a:eq(1)").qtip(qtipOpts);
+        //    qtipOpts.content = "Questions? Suggestions? Opinions?";
+        //    $(".links a:eq(2)").qtip(qtipOpts);
+        //    qtipOpts.content = "Shazwazza??";
+        //    qtipOpts.position.corner.tooltip = "topLeft";
+        //    qtipOpts.position.corner.target = "bottomRight";
+        //    $(".links a:last").qtip(qtipOpts);
+        //});
+
+        //Google+ button
+
+        (function () {
+            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+
     </script>

@@ -6,6 +6,16 @@
 <html>
 <head>
 
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+    @*
+        IE10 Mobile ignores the meta viewport tag.
+        This fix needs to be in the head.
+    *@
+    <script src="@Url.ThemedAsset(Model, "js/responsive.ie10mobilefix.min.js")"></script>
+
     <link rel="icon" type="image/png" href="@Url.ThemedAsset(Model, "img/favicon.ico")" />
 
     @if (IsSectionDefined("title"))
@@ -20,14 +30,17 @@
     <meta name="description" content="@Model.BlogDescription" />
     @Html.AdvertiseWeblogApi(Model)
     @Html.RssFeed(Model)
-    
+
 
     @{ Html
-           .RequiresJs("http://ajax.microsoft.com/ajax/jQuery/jquery-1.3.2.min.js")            
+           .RequiresJs("http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
+           .RequiresJs("http://cdn.jsdelivr.net/qtip2/2.2.0/basic/jquery.qtip.min.js")
            .RequiresCss("//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
-           .RequiresCss("http://fonts.googleapis.com/css?family=Roboto:400,300,100,500")       
+           .RequiresCss("http://fonts.googleapis.com/css?family=Roboto:400,300,100,500")
+           .RequiresCss("http://cdn.jsdelivr.net/qtip2/2.2.0/basic/jquery.qtip.min.css")
+         //This loads all Css found in the current theme's js folder: /Assets/js
            .RequiresThemedCssFolder(Model)
-            //This loads all JS found in the current theme's js folder: /Assets/js
+         //This loads all JS found in the current theme's js folder: /Assets/js
            .RequiresThemedJsFolder(Model);
     }
 
@@ -35,86 +48,72 @@
 
 </head>
 <body>
-
-    <!--[if lte IE 7]>
-    <div class="old-ie">
-    <![endif]-->
-
+    
     <div class="container">
 
-        @Html.ThemedPartial(Model, "Menu")
-
-        @Html.ThemedPartial(Model, "SearchBox")
-
-        <div class="header">
-            <div class="title">
-                <h1>
-                    <a href="@Url.ArticulateRootUrl(Model)">@Model.BlogTitle</a>
-                </h1>
-                <div class="subTitle">
-                    @Model.BlogDescription
-                </div>
+        <div class="row topNav">
+            <div class="col-s-9">
+                @Html.ThemedPartial(Model, "Menu")
+                @*@Html.ThemedPartial(Model, "SearchBox")*@
+                
             </div>
+            <div class="col-s-3">
 
-            @Html.ThemedPartial(Model, "Follow")
-
+            </div>
         </div>
-        <div class="main">
 
-            <div class="mainContent box">
+        <div class="row">
+            <div class="col-s-12">
 
-                @RenderBody()
+                <div class="header">
+                    <div class="title">
+                        <h1>
+                            <a href="@Url.ArticulateRootUrl(Model)">@Model.BlogTitle</a>
+                        </h1>
+                        <div class="subTitle">
+                            @Model.BlogDescription
+                        </div>
+                    </div>
 
-            </div>
+                    @*@Html.ThemedPartial(Model, "Follow")*@
 
-            <!-- adsense
-                <div class="sidead">
-                    <script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                    <ins class="adsbygoogle"
-                         style="display:inline-block;width:250px;height:250px"
-                         data-ad-client="ca-pub-7680168625827600"
-                         data-ad-slot="2233356972"></ins>
-                    <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-                </div>
-                -->
-
-            <div class="sidenav box">
-                <div class="widgetzone">
-                    @Html.ThemedPartial(Model, "Categories")
-                    @Html.ThemedPartial(Model, "Recent")
-                    @Html.ThemedPartial(Model, "TagCloud")
                 </div>
             </div>
-
-            <div class="clearer">
-                <span></span>
-            </div>
-
         </div>
-        <div id="footer">
-            <div class="copy">&copy; <b>@Model.BlogTitle</b>&nbsp;@DateTime.Now.Year</div>
+        <div class="row">
+            <div class="col-s-9">
+
+                <div class="main">
+                    <div class="mainContent box">
+                        @RenderBody()
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-s-3">
+                <div class="sidenav box">
+                    <div class="widgetzone">
+                        @Html.ThemedPartial(Model, "Categories")
+                        @Html.ThemedPartial(Model, "Recent")
+                        @Html.ThemedPartial(Model, "TagCloud")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-s-12">
+                <div id="footer">
+                    <div class="copy">&copy; <b>@Model.BlogTitle</b>&nbsp;@DateTime.Now.Year</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!--[if lte IE 8]>
-    </div>
-    <![endif]-->
     @Html.RenderJsHere()
 
-    @*HACK! - this should clearly just be in a js file *@
+    @*Some additional JS scripts that need to execute*@
     @Html.ThemedPartial(Model, "MainScriptBlock")
 
-    <!-- G+ button -->
-    <script type="text/javascript">
-        (function () {
-            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-            po.src = 'https://apis.google.com/js/plusone.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-        })();
-    </script>
-    
     @*Used to display comment counts for each article*@
     <script type="text/javascript">
         var disqus_shortname = '@Model.DisqusShortName';
@@ -127,8 +126,7 @@
             (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
         }());
     </script>
-
     @Html.GoogleAnalyticsTracking(Model)
-    
+
 </body>
 </html>

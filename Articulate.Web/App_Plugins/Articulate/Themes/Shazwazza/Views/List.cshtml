@@ -11,7 +11,14 @@
 
     @if (!Model.Children.Any())
     {
-        <div class="box-inner post xfolkentry">No blog posts found</div>
+        
+        @Html.ThemedPartial(Model, "SearchBox")
+        
+        if (!Request.QueryString["term"].IsNullOrWhiteSpace())
+        {
+            <div class="box-inner post xfolkentry">No blog posts found</div>
+        }
+
     }
     else
     {

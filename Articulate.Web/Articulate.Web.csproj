@@ -250,6 +250,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\main.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\js\index.js" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\responsive.min.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\author.gif" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\background.png" />
@@ -261,7 +262,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\quote.gif" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\timeicon.gif" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\jquery.qtip-1.0.0-rc3.min.js" />
-    <None Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\Museo_Sans_500_400.font.js.bak" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\responsive.ie10mobilefix.min.js" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
@@ -346,7 +347,6 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Menu.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Pager.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\PostTags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SearchBox.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Post.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Tags.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Web.config" />
@@ -356,6 +356,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Categories.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Recent.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\TagCloud.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SearchBox.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />
