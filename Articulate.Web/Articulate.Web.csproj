@@ -268,6 +268,7 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\js\index.js" />
     <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.html" />
+    <Content Include="App_Data\packages\created\createdPackages.config" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="css\dummy.txt" />
     <Content Include="default.aspx" />
@@ -279,7 +280,6 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>

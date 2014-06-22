@@ -46,7 +46,7 @@ namespace Articulate
                 if (c.ContentType.Alias.InvariantEquals("Articulate"))
                 {
                     //it's a root blog node, set up the required sub nodes (archive , authors)
-                    var articles = sender.CreateContentWithIdentity("Articles", c, "ArticulateArchive");
+                    var articles = sender.CreateContentWithIdentity("Archive", c, "ArticulateArchive");
                     var authors = sender.CreateContentWithIdentity("Authors", c, "ArticulateAuthors");
                 }
             }
