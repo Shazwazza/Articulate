@@ -52,10 +52,8 @@
     <div class="container">
 
         <div class="row topNav">
-            <div class="col-s-9">
-                @Html.ThemedPartial(Model, "Menu")
-                @*@Html.ThemedPartial(Model, "SearchBox")*@
-                
+            <div class="col-s-9">                
+                @Html.ThemedPartial(Model, "Menu")                
             </div>
             <div class="col-s-3">
 
@@ -63,8 +61,8 @@
         </div>
 
         <div class="row">
-            <div class="col-s-12">
-
+            <div class="col-s-9">
+                
                 <div class="header">
                     <div class="title">
                         <h1>
@@ -75,9 +73,11 @@
                         </div>
                     </div>
 
-                    @*@Html.ThemedPartial(Model, "Follow")*@
+                </div>                
+                
+            </div>
+            <div class="col-s-3">
 
-                </div>
             </div>
         </div>
         <div class="row">
@@ -110,12 +110,19 @@
     </div>
 
     @Html.RenderJsHere()
-
-    @*Some additional JS scripts that need to execute*@
-    @Html.ThemedPartial(Model, "MainScriptBlock")
-
-    @*Used to display comment counts for each article*@
+    
     <script type="text/javascript">
+        
+        @*Used for the g+ button*@
+
+        (function () {
+            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+
+        @*Used to display comment counts for each article*@
+
         var disqus_shortname = '@Model.DisqusShortName';
 
         /* * * DON'T EDIT BELOW THIS LINE * * */
@@ -126,6 +133,7 @@
             (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
         }());
     </script>
+
     @Html.GoogleAnalyticsTracking(Model)
 
 </body>

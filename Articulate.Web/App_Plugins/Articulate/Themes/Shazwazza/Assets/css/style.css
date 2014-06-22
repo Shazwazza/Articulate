@@ -209,10 +209,10 @@ th {
     margin-top: -10px;
 }
 
-.header .follow {
-    position: absolute;
-    top: 70px;
-    left: 18px;
+.follow {
+    padding: 0px 5px 0px 5px;
+    top: 3px;
+    position: relative;
 }
 
 
