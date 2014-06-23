@@ -23,9 +23,7 @@
     <meta name="robots" content="index, follow">
     
     @{ Html
-           .RequiresThemedCss(Model, "style.css")
-           .RequiresThemedCss(Model, "style-cms.css")
-           .RequiresThemedCss(Model, "custom.css")
+           .RequiresThemedCssFolder(Model)
            .RequiresThemedJsFolder(Model);
     }
 

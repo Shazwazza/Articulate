@@ -229,11 +229,7 @@
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\font-awesome.min.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\normalize.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\prettify.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\custom.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style-cms.css" />
+    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\js\modernizr.js" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\base.css" />
