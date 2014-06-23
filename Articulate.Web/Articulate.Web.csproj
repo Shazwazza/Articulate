@@ -225,9 +225,10 @@
   <ItemGroup>
     <Content Include="App_Plugins\Articulate\Assets\md-editor.js" />
     <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
-    <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.html" />
-    <Content Include="App_Plugins\Articulate\Dashboards\blogimporter.controller.js" />
-    <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
+    <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\font-awesome.min.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\assets\prettify.css" />
@@ -249,7 +250,6 @@
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\main.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\js\index.js" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\responsive.min.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\author.gif" />
@@ -266,8 +266,7 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\js\index.js" />
-    <Content Include="App_Plugins\Articulate\PropertyEditors\themepicker.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
     <Content Include="App_Data\packages\created\createdPackages.config" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="css\dummy.txt" />

@@ -8,26 +8,26 @@ using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Publishing;
 using umbraco.interfaces;
 
 namespace Articulate
 {
-    public class Installer : IPackageAction
+    public class ArticulateDataInstaller
     {
-        public bool Execute(string packageName, XmlNode xmlData)
+        public IContent Execute()
         {
             //Create the root node - this will automatically create the authors and archive nodes
-
-            LogHelper.Info<Installer>("Creating Articulate root node");
+            LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = ApplicationContext.Current.Services.ContentService.CreateContent(
                 "Blog", -1, "Articulate");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");
             ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(root);
-            
+
             //get the authors and archive nodes and publish them
-            LogHelper.Info<Installer>("Publishing authors and archive nodes");
+            LogHelper.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
             var children = root.Children().ToArray();
             var authors = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             var archive = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
@@ -35,7 +35,7 @@ namespace Articulate
             ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(archive);
 
             //Create the author
-            LogHelper.Info<Installer>("Creating demo author");
+            LogHelper.Info<ArticulateDataInstaller>("Creating demo author");
             var author = ApplicationContext.Current.Services.ContentService.CreateContent(
                 "Demo author", authors, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
@@ -44,7 +44,7 @@ namespace Articulate
             ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(author);
 
             //Create a test post
-            LogHelper.Info<Installer>("Creating test blog post");
+            LogHelper.Info<ArticulateDataInstaller>("Creating test blog post");
             var post = ApplicationContext.Current.Services.ContentService.CreateContent(
                 "Test post", archive, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
@@ -83,26 +83,9 @@ http://yoursiteurl.com/a-new
 
 Enjoy!");
             ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(post);
-            
-            return true;
+
+            return root;
         }
 
-        public string Alias()
-        {
-            return typeof (Installer).FullName;
-        }
-
-        public bool Undo(string packageName, XmlNode xmlData)
-        {
-            return true;
-        }
-
-        public XmlNode SampleXml()
-        {
-            var xml = "<Action runat=\"install\" undo=\"true\" alias=\"" + typeof(Installer).FullName + "\" />";
-            var doc = new XmlDocument();
-            doc.LoadXml(xml);
-            return doc.DocumentElement;
-        }
     }
 }

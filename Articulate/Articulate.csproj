@@ -230,10 +230,13 @@
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
+    <Compile Include="Controls\Installer.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="DisqusImporter.cs" />
     <Compile Include="DisqusXmlExporter.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
-    <Compile Include="Installer.cs" />
+    <Compile Include="ArticulateDataInstaller.cs" />
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
@@ -270,7 +273,6 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

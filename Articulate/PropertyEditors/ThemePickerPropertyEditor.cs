@@ -11,7 +11,7 @@ using Umbraco.Web.PropertyEditors.ValueConverters;
 
 namespace Articulate.PropertyEditors
 {
-    [PropertyEditor("ArticulateThemePicker", "Articulate Theme Picker", "../App_Plugins/Articulate/PropertyEditors/ThemePicker.html")]
+    [PropertyEditor("ArticulateThemePicker", "Articulate Theme Picker", "../App_Plugins/Articulate/BackOffice/PropertyEditors/ThemePicker.html")]
     public class ThemePickerPropertyEditor : PropertyEditor
     {
     }

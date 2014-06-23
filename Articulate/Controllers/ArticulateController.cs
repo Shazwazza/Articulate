@@ -61,7 +61,7 @@ namespace Articulate.Controllers
             var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
 
             //Invalid page, redirect without pages
-            if (totalPages < p)
+            if (totalPages > 0 && totalPages < p)
             {
                 return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
             }

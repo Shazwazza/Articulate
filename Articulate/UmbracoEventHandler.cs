@@ -39,11 +39,16 @@ namespace Articulate
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
         }
 
+        /// <summary>
+        /// When a new root Articulate node is created, then create the required 2 sub nodes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ContentService_Saved(IContentService sender, SaveEventArgs<IContent> e)
         {
             foreach (var c in e.SavedEntities)
             {
-                if (c.ContentType.Alias.InvariantEquals("Articulate"))
+                if (c.IsNewEntity() && c.ContentType.Alias.InvariantEquals("Articulate"))
                 {
                     //it's a root blog node, set up the required sub nodes (archive , authors)
                     var articles = sender.CreateContentWithIdentity("Archive", c, "ArticulateArchive");
