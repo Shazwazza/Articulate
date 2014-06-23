@@ -23,4 +23,12 @@ Supporting all the features you'd want in a blogging platform
 * Customizable urls 
 * Author profiles
 
-Document is [here](https://github.com/Shandem/Articulate/wiki)
+## Documentation
+
+[Document is here](https://github.com/Shandem/Articulate/wiki)
+
+## Copyright & Licence
+
+&copy; 2014 by Shannon Deminick
+
+This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
