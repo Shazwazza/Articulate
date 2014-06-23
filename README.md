@@ -23,3 +23,4 @@ Supporting all the features you'd want in a blogging platform
 * Customizable urls 
 * Author profiles
 
+Document is [here](https://github.com/Shandem/Articulate/wiki)
