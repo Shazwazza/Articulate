@@ -23,9 +23,10 @@ Supporting all the features you'd want in a blogging platform
 * Customizable urls 
 * Author profiles
 
-## Documentation
+## [Documentation](https://github.com/Shandem/Articulate/wiki)
 
-[Document is here](https://github.com/Shandem/Articulate/wiki)
+Docs on installation, creating posts, customizing/creating themes, etc...
+
 
 ## Copyright & Licence
 
