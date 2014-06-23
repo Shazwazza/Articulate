@@ -190,11 +190,10 @@ hr {
   width: 92%;
 }
 .post-entry.post-list:hover {
-  background-color: #f0f0f0;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f5f5fa;
 }
 .post-entry .post-list-link {
-  color: #COLOR_BODY_FG;
+  color: #444444;
 }
 .post-entry .readmore-hover {
   display: inline-block;
@@ -304,7 +303,7 @@ hr {
 }
 .post-share {
   text-align: right;
-  background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f5f5fa;
 }
 .post-share .share-button {
   display: inline-block;
@@ -317,7 +316,7 @@ hr {
   -webkit-transform: rotate(360deg) scale(1.2);
 }
 .post-comment {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f5f5fa;
   width: 94%;
   padding: 20px 3% 20px 3%;
   margin-top: 20px;

@@ -36,45 +36,18 @@
     @{ Html
            .RequiresCss("http://fonts.googleapis.com/css?family=Raleway:200")
            .RequiresCss("http://fonts.googleapis.com/css?family=Open+Sans:300")
-           .RequiresThemedCssFolder(Model)
-           .RequiresThemedJsFolder(Model);
+           .RequiresCss("//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
+           .RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+           .RequiresThemedCssFolder(Model);           
     }
 
     @Html.RenderCssHere()
-
-    <!-- Icons -->
-    @*<link rel="shortcut icon" href="/assets/images/favicon.ico">
-
-        <!-- For iPad with high-resolution Retina display running iOS ≥ 7: -->
-        <link rel="apple-touch-icon" sizes="152x152" href="/assets/images/apple-touch-icon-152x152.png">
-        <!-- For iPad with high-resolution Retina display running iOS ≤ 6: -->
-        <link rel="apple-touch-icon" sizes="144x144" href="/assets/images/apple-touch-icon-144x144.png">
-        <!-- For iPhone with high-resolution Retina display running iOS ≥ 7: -->
-        <link rel="apple-touch-icon" sizes="120x120" href="/assets/images/apple-touch-icon-120x120.png">
-        <!-- For iPhone with high-resolution Retina display running iOS ≤ 6: -->
-        <link rel="apple-touch-icon" sizes="114x114" href="/assets/images/apple-touch-icon-114x114.png">
-        <!-- For the iPad mini and the first- and second-generation iPad on iOS ≥ 7: -->
-        <link rel="apple-touch-icon" sizes="76x76" href="/assets/images/apple-touch-icon-76x76.png">
-        <!-- For the iPad mini and the first- and second-generation iPad on iOS ≤ 6: -->
-        <link rel="apple-touch-icon" sizes="72x72" href="/assets/images/apple-touch-icon-72x72.png">
-        <!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
-        <link rel="apple-touch-icon" sizes="57x57" href="/assets/images/apple-touch-icon-57x57.png">*@
-
-    <!-- RSS -->
-    @*{{ghost_head}}*@
 
 </head>
 
 <body class="@ViewBag.CssBodyClass">
 
     @RenderBody()
-
-    @*
-        <!--[if lt IE 9 ]>
-            <script src="/assets/js/polyfills/selectivizr.min.js"></script>
-            <script src="/assets/js/polyfills/respond-1.1.0.min.js"></script>
-        <![endif]-->
-    *@
 
     @Html.RenderJsHere()
 
