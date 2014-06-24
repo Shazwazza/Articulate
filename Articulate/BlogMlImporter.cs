@@ -87,7 +87,15 @@ namespace Articulate
                     {
                         var exporter = new DisqusXmlExporter();
                         var xDoc = exporter.Export(imported, document);
-                        xDoc.Save(IOHelper.MapPath("~/media/Articulate/DisqusXmlExport.xml"));
+
+                        using (var memStream = new MemoryStream())
+                        {
+                            xDoc.Save(memStream);
+                            
+                            var mediaFs = FileSystemProviderManager.Current.GetFileSystemProvider<MediaFileSystem>();
+
+                            mediaFs.AddFile("Articulate/DisqusXmlExport.xml", memStream, true);
+                        }
                     }
                 }
             }
