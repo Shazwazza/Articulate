@@ -8,19 +8,14 @@ namespace Articulate.Models
         /// Returns the current theme
         /// </summary>
         string Theme { get; }
-
         IPublishedContent RootBlogNode { get; }
         IPublishedContent BlogArchiveNode { get; }
-
         string Name { get; }
         string BlogTitle { get; }
         string BlogDescription { get; }
         string BlogLogo { get; }
         string BlogBanner { get; }
-
-        //additional global props
         int PageSize { get; }
-
         string DisqusShortName { get; }
         string CustomRssFeed { get; }
 

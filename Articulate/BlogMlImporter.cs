@@ -162,7 +162,7 @@ namespace Articulate
                 else
                 {
                     //no user existsw with this email, so check if a node exists with the current author's title
-                    var authorNode = allAuthorNodes.First(x => x.Name.InvariantEquals(author.Title.Content));
+                    var authorNode = allAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(author.Title.Content));
                     
                     //nope, not found so create one
                     if (authorNode == null)
