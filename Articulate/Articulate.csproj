@@ -213,6 +213,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArcticulateInstallerPackageAction.cs" />
     <Compile Include="ArticulateTagsRouteHandler.cs" />
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />

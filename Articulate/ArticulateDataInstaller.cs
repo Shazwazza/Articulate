@@ -2,14 +2,12 @@ using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Web.UI;
-using System.Xml;
 using umbraco.BusinessLogic;
 using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Publishing;
-using umbraco.interfaces;
 
 namespace Articulate
 {

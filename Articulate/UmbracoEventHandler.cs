@@ -13,6 +13,7 @@ using Articulate.Models;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Events;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using umbraco.dialogs;
@@ -50,9 +51,16 @@ namespace Articulate
             {
                 if (c.IsNewEntity() && c.ContentType.Alias.InvariantEquals("Articulate"))
                 {
+                    LogHelper.Debug<UmbracoEventHandler>(() => "Creating sub nodes (authors, archive) for new Articulate node");
+
                     //it's a root blog node, set up the required sub nodes (archive , authors)
                     var articles = sender.CreateContentWithIdentity("Archive", c, "ArticulateArchive");
+
+                    LogHelper.Debug<UmbracoEventHandler>(() => "Archive node created with name: " + articles.Name);
+
                     var authors = sender.CreateContentWithIdentity("Authors", c, "ArticulateAuthors");
+
+                    LogHelper.Debug<UmbracoEventHandler>(() => "Authors node created with name: " + authors.Name);
                 }
             }
         }
