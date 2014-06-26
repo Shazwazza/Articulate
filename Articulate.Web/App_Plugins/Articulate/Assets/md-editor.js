@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 var articulateapp = angular.module('articulateapp', [
-    //'ngRoute',
+    'ngRoute',
     'ngSanitize']);
 
 articulateapp.config([
