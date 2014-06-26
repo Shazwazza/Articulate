@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 var articulateapp = angular.module('articulateapp', [
-    'ngRoute',
+    //'ngRoute',
     'ngSanitize']);
 
 articulateapp.config([
@@ -10,7 +10,7 @@ articulateapp.config([
         $routeProvider.
             when('/md', {
                 templateUrl: 'md.html',
-                controller: function ($scope) {
+                controller: function ($scope, angularHelper) {
                     
                     function insertAtCaretPos($el, text, pos) {
                         var content = $el.val();
@@ -41,8 +41,7 @@ articulateapp.config([
                     }
 
                     $scope.caret = 0;
-                    //$scope.lastFile = "sdf";
-
+                    
                     //TODO: when the content has changed check if a file has been removed from the markup
                     // if it has we need to remove the file from the uploads as well - we also need to deal
                     // with that on the server side too.
@@ -70,15 +69,13 @@ articulateapp.config([
 
                             //NOTE: for some reason angular is not in a current apply when using events
                             // so we need to manually apply a digest here
-                            $scope.$apply(function() {
+                            angularHelper.safeApply($scope, function () {
                                 //add to main file collection to upload
                                 $scope.$parent.files.push(file);
 
                                 var token = "[i:" + ($scope.$parent.files.length - 1) + ":" + file.name + "]";
 
-                                insertAtCaretPos($("#mdInput"), token, $scope.caret);
-                                //$scope.lastFile = file.name;
-                                
+                                insertAtCaretPos($("#mdInput"), token, $scope.caret);                                
                             });
                             
                         }
@@ -143,7 +140,7 @@ articulateapp.config([
 
                             if (data === "true") {
 
-                                httpHelper.postMultiPartRequest($scope.$parent.postUrl,
+                                httpHelper.postMultiPartRequest($scope, $scope.$parent.postUrl,
                                 [
                                     {
                                         key: "model",
@@ -231,31 +228,29 @@ articulateapp.directive('filesSelected', function () {
     };
 });
 
-//articulateapp.directive('oneTimeFileUpload', function ($compile) {
-//    return {
-//        restrict: "E",
-//        scope: {
-//            rebuild: "="
-//        },
-//        replace: true,
-//        template: "<div><input id='insertFile' type='file' accept='image/*' files-selected /></div>",
-//        link: function(scope, el, attrs) {
-
-//            scope.$watch("rebuild", function(newVal, oldVal) {
-//                if (newVal && newVal !== oldVal) {
-//                    //recompile it!
-//                    el.html("<input id='insertFile' type='file' accept='image/*' files-selected />");
-//                    $compile(el.contents())(scope);
-//                }
-//            });
-
-//        }
-//    };
-//});
-
-articulateapp.factory("httpHelper", function ($http) {
+articulateapp.factory("angularHelper", function() {
     return {
-        postMultiPartRequest: function(url, jsonData, transformCallback, successCallback, failureCallback) {
+        safeApply: function (scope, fn) {
+            if (scope.$$phase || scope.$root.$$phase) {
+                if (angular.isFunction(fn)) {
+                    fn();
+                }
+            }
+            else {
+                if (angular.isFunction(fn)) {
+                    scope.$apply(fn);
+                }
+                else {
+                    scope.$apply();
+                }
+            }
+        }
+    }
+});
+
+articulateapp.factory("httpHelper", function ($http, angularHelper) {
+    return {
+        postMultiPartRequest: function(scope, url, jsonData, transformCallback, successCallback, failureCallback) {
 
             //validate input, jsonData can be an array of key/value pairs or just one key/value pair.
             if (!jsonData) {
@@ -274,7 +269,8 @@ articulateapp.factory("httpHelper", function ($http) {
             }
 
 
-            $http({
+            angularHelper.safeApply(scope, function() {
+                $http({
                     method: 'POST',
                     url: url,
                     //IMPORTANT!!! You might think this should be set to 'multipart/form-data' but this is not true because when we are sending up files
@@ -282,11 +278,11 @@ articulateapp.factory("httpHelper", function ($http) {
                     // and setting the Content-type manually will not set this boundary parameter. For whatever reason, setting the Content-type to 'false'
                     // will force the request to automatically populate the headers properly including the boundary parameter.
                     headers: { 'Content-Type': false },
-                    transformRequest: function(data) {
+                    transformRequest: function (data) {
                         var formData = new FormData();
                         //add the json data
                         if (angular.isArray(data)) {
-                            angular.forEach(data, function(item) {
+                            angular.forEach(data, function (item) {
                                 formData.append(item.key, !angular.isString(item.value) ? angular.toJson(item.value) : item.value);
                             });
                         }
@@ -303,16 +299,18 @@ articulateapp.factory("httpHelper", function ($http) {
                     },
                     data: jsonData
                 }).
-                success(function(data, status, headers, config) {
+                success(function (data, status, headers, config) {
                     if (successCallback) {
                         successCallback.apply(this, [data, status, headers, config]);
                     }
                 }).
-                error(function(data, status, headers, config) {
+                error(function (data, status, headers, config) {
                     if (failureCallback) {
                         failureCallback.apply(this, [data, status, headers, config]);
                     }
                 });
+            });
+            
         }
     }
 });

@@ -15,13 +15,16 @@
     <title>Articulate - Create New Post</title>
     
     @{
-        Html            
+        Html
+            .RequiresJs("~/umbraco/lib/jquery/jquery-2.0.3.min.js")
+            .RequiresJs("~/umbraco/lib/angular/1.1.5/angular.min.js")
+            .RequiresJs("~/umbraco/lib/angular/1.1.5/angular-sanitize.min.js")
             .RequiresCss("//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css")
             .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css")
-            .RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-            .RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js")
-            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js")
-            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-sanitize.min.js")
+            //.RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+            //.RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js")
+            //.RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js")
+            //.RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js")
             .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js");
     }
     @Html.RenderCssHere()
@@ -50,7 +53,6 @@
             <input id='insertFile' type='file' accept='image/*' files-selected />
             <input id='insertCamera' type='file' accept='image/*' files-selected capture="camera" />
 
-            @*<one-time-file-upload rebuild="lastFile"  />*@
         </div>
 
     </script>
