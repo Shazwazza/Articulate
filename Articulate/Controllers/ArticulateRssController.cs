@@ -1,9 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
+using System.Text;
 using System.Web.Mvc;
-using Argotic.Syndication;
+using System.Xml;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -16,7 +22,9 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
+#if (!DEBUG)
     [OutputCache(Duration = 300)]
+#endif
     public class ArticulateRssController : RenderMvcController
     {
 
@@ -40,29 +48,9 @@ namespace Articulate.Controllers
 
             var rootPageModel = new ListModel(listNode, new PagerModel(maxItems.Value, 0, 1));
 
-            var feed = new RssFeed
-            {
-                Channel =
-                {
-                    Link = new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
-                    Title = rootPageModel.BlogTitle,
-                    Description = rootPageModel.BlogDescription,
-                    Generator = "Articulate, blogging built on Umbraco"
-                }
-            };
+            var feed = GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
 
-            foreach (var post in rootPageModel.Children<PostModel>())
-            {
-                var item = new RssItem
-                {
-                    Title = post.Name,
-                    Link = new Uri(post.UrlWithDomain()),
-                    Description = post.Excerpt
-                };
-                feed.Channel.AddItem(item);
-            }
-
-            return new RssResult(feed);
+            return new RssResult(feed, rootPageModel);
         }
 
         public ActionResult Categories(RenderModel model, string tag, int? maxItems)
@@ -102,44 +90,101 @@ namespace Articulate.Controllers
                 tagGroup,
                 baseUrl);
 
-            var feed = new RssFeed
+            var feed = GetFeed(rootPageModel, contentByTag.Posts.Take(maxItems));
+
+            return new RssResult(feed, rootPageModel);
+        }
+
+        /// <summary>
+        /// Returns the XSLT to render the RSS nicely in a browser
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult FeedXslt()
+        {
+            var result = Resources.FeedXslt;
+            return Content(result, "text/xml");
+        }
+
+        private SyndicationFeed GetFeed(IMasterModel rootPageModel, IEnumerable<PostModel> posts)
+        {
+            return new SyndicationFeed(
+               rootPageModel.BlogTitle,
+               rootPageModel.BlogDescription,
+               new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
+               GetFeedItems(posts))
             {
-                Channel =
-                {
-                    Link = new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
-                    Title = rootPageModel.BlogTitle,
-                    Description = rootPageModel.BlogDescription,
-                    Generator = "Articulate, blogging built on Umbraco"
-                }               
+                Generator = "Articulate, blogging built on Umbraco",
+                ImageUrl = GetBlogImage(rootPageModel)
             };
+        }
 
-            foreach (var post in contentByTag.Posts.Take(maxItems))
+        private IEnumerable<SyndicationItem> GetFeedItems(IEnumerable<PostModel> posts)
+        {
+            return posts.Select(post => new SyndicationItem(
+                post.Name,
+                new TextSyndicationContent(post.Body.ToHtmlString(), TextSyndicationContentKind.Html),
+                new Uri(post.UrlWithDomain()),
+                post.Id.ToString(CultureInfo.InvariantCulture),
+                post.PublishedDate))
+                .ToArray();
+        } 
+
+        private Uri GetBlogImage(IMasterModel rootPageModel)
+        {
+            Uri logoUri = null;
+            try
             {
-                var item = new RssItem
-                {
-                    Title = post.Name,
-                    Link = new Uri(post.UrlWithDomain()),
-                    Description = post.Excerpt
-                };
-                feed.Channel.AddItem(item);
+                logoUri = rootPageModel.BlogLogo.IsNullOrWhiteSpace()
+                    ? null
+                    : new Uri(rootPageModel.BlogLogo);
             }
-
-            return new RssResult(feed);
+            catch (Exception ex)
+            {
+                LogHelper.Error<ArticulateRssController>("Could not convert the blog logo path to a Uri", ex);
+            }
+            return logoUri;
         }
 
         internal class RssResult : ActionResult
         {
-            private readonly RssFeed _feed;
+            private readonly SyndicationFeed _feed;
+            private readonly IMasterModel _model;
 
-            public RssResult(RssFeed feed)
+            public RssResult(SyndicationFeed feed, IMasterModel model)
             {
                 _feed = feed;
+                _model = model;
             }
 
             public override void ExecuteResult(ControllerContext context)
             {
-                context.HttpContext.Response.ContentType = "application/rss+xml";
-                _feed.Save(context.HttpContext.Response.OutputStream);
+                context.HttpContext.Response.ContentType = "application/xml";
+
+                using (var txtWriter = new Utf8StringWriter())
+                {
+                    var xmlWriter = XmlWriter.Create(txtWriter, new XmlWriterSettings
+                    {
+                        Encoding = Encoding.UTF8,
+                        Indent = true,
+                        OmitXmlDeclaration = false
+                    });
+
+                    // Write the Processing Instruction node.
+                    var xsltHeader = string.Format("type=\"text/xsl\" href=\"{0}\"", _model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss/xslt");
+                    xmlWriter.WriteProcessingInstruction("xml-stylesheet", xsltHeader);
+
+                    var formatter = _feed.GetRss20Formatter();
+                    formatter.WriteTo(xmlWriter);
+                    
+                    xmlWriter.Flush();
+
+                    context.HttpContext.Response.Write(txtWriter.ToString());
+                }                
+            }
+
+            public sealed class Utf8StringWriter : StringWriter
+            {
+                public override Encoding Encoding { get { return Encoding.UTF8; } }
             }
         }
     }

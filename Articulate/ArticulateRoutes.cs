@@ -27,6 +27,7 @@ namespace Articulate
                 {
                     RemoveExisting(routes,
                         "articulate_rss_" + node.Id,
+                        "articulate_rss_xslt_" + node.Id,
                         "articulate_tags_" + node.Id,
                         "articulate_tags_rss_" + node.Id,
                         "articulate_search_" + node.Id,
@@ -60,7 +61,7 @@ namespace Articulate
 
         private static void MapRssRoute(RouteCollection routes, IPublishedContent node)
         {
-            //Create the route for the /search/{term} results
+            //Create the route for the /rss results
             routes.MapUmbracoRoute(
                 "articulate_rss_" + node.Id,
                 (node.Url.EnsureEndsWith('/') + "rss").TrimStart('/'),
@@ -68,6 +69,15 @@ namespace Articulate
                 {
                     controller = "ArticulateRss",
                     action = "Index"
+                },
+                new UmbracoVirtualNodeByIdRouteHandler(node.Id));
+            routes.MapUmbracoRoute(
+                "articulate_rss_xslt_" + node.Id,
+                (node.Url.EnsureEndsWith('/') + "rss/xslt").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateRss",
+                    action = "FeedXslt"
                 },
                 new UmbracoVirtualNodeByIdRouteHandler(node.Id));
         }
