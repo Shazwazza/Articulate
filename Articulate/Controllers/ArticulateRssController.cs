@@ -7,6 +7,7 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
+using System.Xml.Linq;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
@@ -107,26 +108,55 @@ namespace Articulate.Controllers
 
         private SyndicationFeed GetFeed(IMasterModel rootPageModel, IEnumerable<PostModel> posts)
         {
-            return new SyndicationFeed(
+            var feed = new SyndicationFeed(
                rootPageModel.BlogTitle,
                rootPageModel.BlogDescription,
                new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
                GetFeedItems(posts))
             {
                 Generator = "Articulate, blogging built on Umbraco",
-                ImageUrl = GetBlogImage(rootPageModel)
+                ImageUrl = GetBlogImage(rootPageModel)                
             };
+
+            //TODO: attempting to add media:thumbnail...
+            //feed.AttributeExtensions.Add(new XmlQualifiedName("media", "http://www.w3.org/2000/xmlns/"), "http://search.yahoo.com/mrss/");
+
+            return feed;
         }
 
         private IEnumerable<SyndicationItem> GetFeedItems(IEnumerable<PostModel> posts)
         {
-            return posts.Select(post => new SyndicationItem(
-                post.Name,
-                new TextSyndicationContent(post.Body.ToHtmlString(), TextSyndicationContentKind.Html),
-                new Uri(post.UrlWithDomain()),
-                post.Id.ToString(CultureInfo.InvariantCulture),
-                post.PublishedDate))
-                .ToArray();
+            XNamespace nsMedia = "media";
+
+            var result = new List<SyndicationItem>();
+            foreach (var post in posts)
+            {
+                var item = new SyndicationItem(
+                    post.Name,
+                    new TextSyndicationContent(post.Body.ToHtmlString(), TextSyndicationContentKind.Html),
+                    new Uri(post.UrlWithDomain()),
+                    post.Id.ToString(CultureInfo.InvariantCulture),
+                    post.PublishedDate)
+                {
+                    PublishDate = post.PublishedDate,
+                    
+                    //don't include this as it will override the main content bits
+                    //Summary = new TextSyndicationContent(post.Excerpt)
+                };
+
+                //TODO: attempting to add media:thumbnail...
+                //item.ElementExtensions.Add(new SyndicationElementExtension("thumbnail", "http://search.yahoo.com/mrss/", "This is a test!"));
+
+                foreach (var c in post.Categories)
+                {
+                    item.Categories.Add(new SyndicationCategory(c));    
+                }
+                
+
+                result.Add(item);
+            }
+
+            return result;
         } 
 
         private Uri GetBlogImage(IMasterModel rootPageModel)
