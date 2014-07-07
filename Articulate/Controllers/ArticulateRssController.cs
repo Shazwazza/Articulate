@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Xml;
 using System.Xml.Linq;
@@ -112,7 +113,7 @@ namespace Articulate.Controllers
                rootPageModel.BlogTitle,
                rootPageModel.BlogDescription,
                new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
-               GetFeedItems(posts))
+               GetFeedItems(rootPageModel, posts))
             {
                 Generator = "Articulate, blogging built on Umbraco",
                 ImageUrl = GetBlogImage(rootPageModel)                
@@ -124,16 +125,40 @@ namespace Articulate.Controllers
             return feed;
         }
 
-        private IEnumerable<SyndicationItem> GetFeedItems(IEnumerable<PostModel> posts)
+        private Regex _relativeMediaSrc = new Regex(" src=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private Regex _relativeMediaHref = new Regex(" href=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
-            XNamespace nsMedia = "media";
+            var rootUrl = model.RootBlogNode.DescendantOrSelf(1).UrlWithDomain();
 
             var result = new List<SyndicationItem>();
             foreach (var post in posts)
             {
+                var content = _relativeMediaHref.Replace(post.Body.ToHtmlString(), match =>
+                {
+                    if (match.Groups.Count == 2)
+                    {
+                        return " href=\"" +
+                               rootUrl.TrimEnd('/') + match.Groups[1].Value.EnsureStartsWith('/') +
+                               "\"";
+                    }
+                    return null;
+                });
+                content = _relativeMediaSrc.Replace(content, match =>
+                {
+                    if (match.Groups.Count == 2)
+                    {
+                        return " src=\"" +
+                               rootUrl.TrimEnd('/') + match.Groups[1].Value.EnsureStartsWith('/') +
+                               "\"";
+                    }
+                    return null;
+                });
+
                 var item = new SyndicationItem(
                     post.Name,
-                    new TextSyndicationContent(post.Body.ToHtmlString(), TextSyndicationContentKind.Html),
+                    new TextSyndicationContent(content, TextSyndicationContentKind.Html),
                     new Uri(post.UrlWithDomain()),
                     post.Id.ToString(CultureInfo.InvariantCulture),
                     post.PublishedDate)
