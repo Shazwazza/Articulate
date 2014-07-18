@@ -27,6 +27,13 @@ Supporting all the features you'd want in a blogging platform
 
 Docs on installation, creating posts, customizing/creating themes, etc...
 
+## [Discussions](http://our.umbraco.org/projects/starter-kits/articulate/discussions)
+
+Please post to this Umbraco discussions forum to discuss Articulate, it's features and functionality. Do not post issues here, post them [here](https://github.com/Shandem/Articulate/issues) on GitHub
+
+## [Issues](https://github.com/Shandem/Articulate/issues)
+
+If you have any issues, please post them here on GitHub
 
 ## Copyright & Licence
 
