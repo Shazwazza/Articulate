@@ -76,12 +76,20 @@ namespace Articulate
 
             //TODO: Use the new 7.1.2 tags API to do this
 
-            //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
-            // need to run a query
-            var sql = new Sql().Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
-                .From("cmsTagRelationship")
-                .InnerJoin("cmsTags")
+            //TODO: This query will also cause problems if/when a site ends up with thousands of tags! It will fail.
+
+            var sql = new Sql()
+                .Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
+                .From("cmsTags")
+                .InnerJoin("cmsTagRelationship")
                 .On("cmsTagRelationship.tagId = cmsTags.id")
+                .InnerJoin("cmsContent")
+                .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
+                .InnerJoin("umbracoNode")
+                .On("umbracoNode.id = cmsContent.nodeId")
+                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
+                //only get nodes underneath the current articulate root
+                .Where("umbracoNode." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" })
                 .Where("tagId IN (@tagIds) AND cmsTags." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("group") + " = @tagGroup", new
                 {
                     tagIds = tags.Select(x => x.Id).ToArray(),
@@ -105,12 +113,18 @@ namespace Articulate
         {
             //TODO: Use the new 7.1.2 tags API to do this
 
-            //TODO: Umbraco core needs to have a method to get content by tag(s), in the meantime we 
-            // need to run a query
-            var sql = new Sql().Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
-                .From("cmsTagRelationship")
-                .InnerJoin("cmsTags")
+            var sql = new Sql()
+                .Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
+                .From("cmsTags")
+                .InnerJoin("cmsTagRelationship")
                 .On("cmsTagRelationship.tagId = cmsTags.id")
+                .InnerJoin("cmsContent")
+                .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
+                .InnerJoin("umbracoNode")
+                .On("umbracoNode.id = cmsContent.nodeId")
+                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new {nodeObjectType = Constants.ObjectTypes.Document})
+                //only get nodes underneath the current articulate root
+                .Where("umbracoNode." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("path") + " LIKE @path", new {path = masterModel.RootBlogNode.Path + ",%"})
                 .Where("cmsTags.tag = @tagName AND cmsTags." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("group") + " = @tagGroup", new
                 {
                     tagName = tag,
@@ -118,10 +132,12 @@ namespace Articulate
                 });
 
             var taggedContent = ApplicationContext.Current.DatabaseContext.Database.Fetch<TagDto>(sql);
+            
             return taggedContent.GroupBy(x => x.TagId)
                 .Select(x => new PostsByTagModel(
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct())
+                        .WhereNotNull()
                         .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
                     masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
