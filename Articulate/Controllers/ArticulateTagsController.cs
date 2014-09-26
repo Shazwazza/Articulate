@@ -21,7 +21,7 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
-    [OutputCache(Duration = 60)]
+    [OutputCache(Duration = 60, VaryByHeader = "host")]
     public class ArticulateTagsController : RenderMvcController
     {
         /// <summary>
