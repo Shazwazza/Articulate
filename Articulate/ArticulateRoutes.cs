@@ -56,32 +56,33 @@ namespace Articulate
                     var nodesAsArray = grouping.ToArray();
 
                     MapRssRoute(routes, grouping.Key, nodesAsArray);
-                    MapSearchRoute(routes, grouping.Key, nodesAsArray);
-                    MapManifestRoute(routes, grouping.Key, nodesAsArray);
-                    MapRsdRoute(routes, grouping.Key, nodesAsArray);
+                    MapSearchRoute(routes, grouping.Key, nodesAsArray);                    
                     MapMetaWeblogRoute(routes, grouping.Key);
                     MapTagsAndCategoriesRoute(routes, grouping.Key, nodesAsArray);
-                    MapMarkdownEditorRoute(routes, grouping.Key, nodesAsArray);
+
+                    foreach (var content in grouping)
+                    {
+                        MapManifestRoute(routes, grouping.Key, content);
+                        MapRsdRoute(routes, grouping.Key, content);
+                        MapMarkdownEditorRoute(routes, grouping.Key, content);    
+                    }
 
                 }
             }
         }
 
-        private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
-            var routeHash = nodeRoutePath.GetHashCode();
+            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
 
-            var routePath = RouteCollectionExtensions.RoutePathFromNodeUrl(nodeRoutePath.EnsureEndsWith('/') + "a-new/{id}").TrimStart('/');
-
-            //TODO: FIx this!
-
-            //routes.MapRoute("articulate_markdown_new" + routeHash, routePath,
-            //            new
-            //            {
-            //                controller = "MarkdownEditor",
-            //                action = "NewPost",
-            //                id = node.Id
-            //            });
+            routes.MapRoute("articulate_markdown_new" + node.Id,
+                routePath,
+                new
+                {
+                    controller = "MarkdownEditor",
+                    action = "NewPost",
+                    id = node.Id
+                });
         }
 
         private static void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -151,38 +152,32 @@ namespace Articulate
                 new Route(routePath, new MetaWeblogHandler()));
         }
 
-        private static void MapRsdRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapRsdRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
-            var routeHash = nodeRoutePath.GetHashCode();
+            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "rsd/" + node.Id).TrimStart('/');
 
-            //TODO: Make this work!
-
-            //routes.MapRoute("articulate_rsd_" + routeHash,
-            //            nodeRoutePath,
-            //                new
-            //            {
-            //                controller = "Rsd",
-            //                action = "Index",
-            //                id = node.Id
-            //            });
+            routes.MapRoute("articulate_rsd_" + node.Id,
+                routePath,
+                new
+                {
+                    controller = "Rsd",
+                    action = "Index",
+                    id = node.Id
+                });
         }
 
-        private static void MapManifestRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapManifestRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
-            var routeHash = nodeRoutePath.GetHashCode();
+            var routePath = (nodeRoutePath + "wlwmanifest/" + node.Id).TrimStart('/');
 
-            var routePath = (nodeRoutePath + "wlwmanifest/{id}").TrimStart('/');
-
-            //TODO: Make this work!
-
-            //routes.MapRoute("articulate_wlwmanifest_" + routeHash,
-            //           routePath,
-            //           new
-            //           {
-            //               controller = "WlwManifest",
-            //               action = "Index",
-            //               id = node.Id
-            //           });
+            routes.MapRoute("articulate_wlwmanifest_" + node.Id,
+                       routePath,
+                       new
+                       {
+                           controller = "WlwManifest",
+                           action = "Index",
+                           id = node.Id
+                       });
         }
 
         private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
