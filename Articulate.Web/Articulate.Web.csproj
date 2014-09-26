@@ -256,27 +256,25 @@
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
     <Content Include="App_Data\packages\created\createdPackages.config" />
     <None Include="App_Plugins\Articulate\package.manifest" />
-    <Content Include="css\dummy.txt" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />
-    <Content Include="masterpages\dummy.txt" />
-    <Content Include="media\dummy.txt" />
-    <Content Include="scripts\dummy.txt" />
-    <Content Include="usercontrols\dummy.txt" />
-    <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="css\" />
+    <Folder Include="macroScripts\" />
+    <Folder Include="masterpages\" />
+    <Folder Include="media\" />
     <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="xslt\Web.config" />
+    <Folder Include="scripts\" />
+    <Folder Include="usercontrols\" />
+    <Folder Include="Views\" />
+    <Folder Include="xslt\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="macroScripts\Web.config" />
     <Content Include="config\ClientDependency.config">
       <SubType>Designer</SubType>
     </Content>

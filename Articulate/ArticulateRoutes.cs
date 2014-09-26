@@ -63,12 +63,6 @@ namespace Articulate
                     MapTagsAndCategoriesRoute(routes, grouping.Key, nodesAsArray);
                     MapMarkdownEditorRoute(routes, grouping.Key, nodesAsArray);
 
-                    foreach (var node in grouping)
-                    {
-                        
-                    }
-
-                    
                 }
             }
         }
@@ -193,23 +187,25 @@ namespace Articulate
 
         private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
-            var routeHash = nodeRoutePath.GetHashCode();
+            //we need to group by te search url name and make unique routes amongst that
+            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.GetPropertyValue<string>("searchUrlName")))
+            {
+                var routeHash = nodeSearch.Key.GetHashCode();
 
-            //TODO: Make this work!
+                //Create the route for the /search/{term} results
+                routes.MapUmbracoRoute(
+                    "articulate_search_" + routeHash,
+                    (nodeRoutePath.EnsureEndsWith('/') + nodeSearch.Key + "/{term}").TrimStart('/'),
+                    new
+                    {
+                        controller = "ArticulateSearch",
+                        action = "Search",
+                        term = UrlParameter.Optional
+                    },
+                    new ArticulateSearchRouteHandler(nodesWithPath));
+            }
 
-            ////Create the route for the /search/{term} results
-            //routes.MapUmbracoRoute(
-            //    "articulate_search_" + routeHash,
-            //    (nodeRoutePath.EnsureEndsWith('/') + node.GetPropertyValue<string>("searchUrlName") + "/{term}").TrimStart('/'),
-            //    new
-            //    {
-            //        controller = "ArticulateSearch",
-            //        action = "Search",
-            //        term = UrlParameter.Optional
-            //    },
-            //    new ArticulateSearchRouteHandler(node.Id,
-            //        node.GetPropertyValue<string>("searchUrlName"),
-            //        node.GetPropertyValue<string>("searchPageName")));
+            
         }
 
         private static void RemoveExisting(RouteCollection routes, params string[] names)

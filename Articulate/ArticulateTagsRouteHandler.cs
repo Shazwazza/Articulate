@@ -70,19 +70,7 @@ namespace Articulate
 
         protected override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {
-            //determine if it's for a particular domain
-            int realNodeId;
-            if (HostsAndIds.Count() == 1)
-            {
-                realNodeId = HostsAndIds.First().Item2;
-            }
-            else
-            {
-                realNodeId = requestContext.HttpContext.Request.Url == null
-                    ? HostsAndIds.First().Item2  //cannot be determined
-                    : HostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
-            }
-            var urlAndPageName = _urlsAndPageNames.Single(x => x.NodeId == realNodeId);
+            var urlAndPageName = _urlsAndPageNames.Single(x => x.NodeId == baseContent.Id);
 
             var tag = requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString();
             var actionName = requestContext.RouteData.GetRequiredString("action");

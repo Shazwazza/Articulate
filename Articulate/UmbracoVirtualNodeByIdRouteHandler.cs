@@ -45,10 +45,6 @@ namespace Articulate
             _hostsAndIds.Add(new Tuple<string, int>(string.Empty, realNodeId));
         }
 
-        protected IEnumerable<Tuple<string, int>> HostsAndIds
-        {
-            get { return _hostsAndIds; }
-        }
 
         protected sealed override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext)
         {
@@ -56,13 +52,15 @@ namespace Articulate
             int realNodeId;
             if (_hostsAndIds.Count == 1)
             {
-                realNodeId = HostsAndIds.First().Item2;
+                realNodeId = _hostsAndIds.First().Item2;
             }
             else
             {
-                realNodeId = requestContext.HttpContext.Request.Url == null 
-                    ? HostsAndIds.First().Item2  //cannot be determined
-                    : HostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
+                realNodeId = requestContext.HttpContext.Request.Url == null
+                    ? _hostsAndIds.First().Item2 //cannot be determined
+                    : requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
+                        ? _hostsAndIds.First(x => x.Item1 == string.Empty).Item2
+                        : _hostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
             }
 
             var byId = umbracoContext.ContentCache.GetById(realNodeId);

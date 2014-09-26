@@ -63,7 +63,9 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.First()  //cannot be determined
-                    : _urlNames.First(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                    : httpContext.Request.Url.Host.InvariantEquals("localhost")
+                        ? _urlNames.First(x => x.Host == string.Empty)
+                        : _urlNames.First(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
 
             var currentAction = values[parameterName].ToString();
