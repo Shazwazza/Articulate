@@ -257,6 +257,7 @@
     <Compile Include="Models\MetaWeblog\MetaWeblogPost.cs" />
     <Compile Include="Models\PagerModel.cs" />
     <Compile Include="Models\PostModel.cs" />
+    <Compile Include="Models\PostTagCollection.cs" />
     <Compile Include="Models\TagListModel.cs" />
     <Compile Include="Models\PostsByTagModel.cs" />
     <Compile Include="Models\ArticulateVirtualPage.cs" />

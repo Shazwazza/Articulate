@@ -14,16 +14,15 @@ namespace Articulate.Models
             : base(content)
         {
         }
-
+        
         /// <summary>
         /// Returns the current theme
         /// </summary>
         public string Theme
         {
-            get { return Content.GetPropertyValue<string>("theme", true); }
+            get { return _theme ?? (_theme = Content.GetPropertyValue<string>("theme", true)); }
+            protected set { _theme = value; }
         }
-
-        private IPublishedContent _rootBlogNode;
 
         public IPublishedContent RootBlogNode
         {
@@ -37,9 +36,19 @@ namespace Articulate.Models
                 _rootBlogNode = root;
                 return _rootBlogNode;
             }
+            protected set { _rootBlogNode = value; }
         }
 
+        private IPublishedContent _rootBlogNode;
+        private string _theme;
         private IPublishedContent _blogListNode;
+        private int? _pageSize;
+        private string _blogTitle;
+        private string _blogDescription;
+        private string _blogBanner;
+        private string _blogLogo;
+        private string _disqusShortName;
+        private string _customRssFeed;
 
         public IPublishedContent BlogArchiveNode
         {
@@ -53,41 +62,56 @@ namespace Articulate.Models
                 _blogListNode = list;
                 return _blogListNode;
             }
+            protected set { _blogListNode = value; }
         }
 
         public string DisqusShortName
         {
-            get { return Content.GetPropertyValue<string>("disqusShortname", true); }
+            get { return _disqusShortName ?? (_disqusShortName = Content.GetPropertyValue<string>("disqusShortname", true)); }
+            protected set { _disqusShortName = value; }
         }
 
         public string CustomRssFeed
         {
-            get { return RootBlogNode.GetPropertyValue<string>("customRssFeedUrl"); }
+            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.GetPropertyValue<string>("customRssFeedUrl")); }
+            protected set { _customRssFeed = value; }
         }
 
         public string BlogLogo
         {
-            get { return RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max); }
+            get { return _blogLogo ?? (_blogLogo = RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max)); }
+            protected set { _blogLogo = value; }
         }
 
         public string BlogBanner
         {
-            get { return RootBlogNode.GetCropUrl(propertyAlias: "blogBanner", imageCropMode: ImageCropMode.Max); }
+            get { return _blogBanner ?? (_blogBanner = RootBlogNode.GetCropUrl(propertyAlias: "blogBanner", imageCropMode: ImageCropMode.Max)); }
+            protected set { _blogBanner = value; }
         }
 
         public string BlogTitle
         {
-            get { return Content.GetPropertyValue<string>("blogTitle", true); }
+            get { return _blogTitle ?? (_blogTitle = Content.GetPropertyValue<string>("blogTitle", true)); }
+            protected set { _blogTitle = value; }
         }
 
         public string BlogDescription
         {
-            get { return Content.GetPropertyValue<string>("blogDescription", true); }
+            get { return _blogDescription ?? (_blogDescription = Content.GetPropertyValue<string>("blogDescription", true)); }
+            protected set { _blogDescription = value; }
         }
 
         public int PageSize
         {
-            get { return Content.GetPropertyValue<int>("pageSize", 10); }
+            get
+            {
+                if (_pageSize.HasValue == false)
+                {
+                    _pageSize = Content.GetPropertyValue<int>("pageSize", 10);
+                }
+                return _pageSize.Value;
+            }
+            protected set { _pageSize = value; }
         }
     }
 }
