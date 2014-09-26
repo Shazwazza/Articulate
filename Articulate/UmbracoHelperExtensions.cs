@@ -93,6 +93,7 @@ namespace Articulate
                 .Select(x => new PostsByTagModel(
                     helper.TypedContent(
                         x.Select(t => t.NodeId).Distinct())
+                        .WhereNotNull()
                         .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
                     x.First().Tag,
                     masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
