@@ -49,8 +49,10 @@ namespace Articulate
 
         private static void MapMarkdownEditorRoute(RouteCollection routes, IPublishedContent node)
         {
-            routes.MapRoute("articulate_markdown_new" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + "a-new/{id}").TrimStart('/'),
+
+            var routePath = RouteCollectionExtensions.EnsureRoutePath(node.Url.EnsureEndsWith('/') + "a-new/{id}").TrimStart('/');
+
+            routes.MapRoute("articulate_markdown_new" + node.Id, routePath,
                         new
                         {
                             controller = "MarkdownEditor",
@@ -120,19 +122,20 @@ namespace Articulate
 
         private static void MapMetaWeblogRoute(RouteCollection routes, IPublishedContent node)
         {
-            routes.Add("articulate_metaweblog_" + node.Id,
-                        new Route
-                            (
-                            (node.Url.EnsureEndsWith('/') + "metaweblog").TrimStart('/'),
-                            new MetaWeblogHandler()
-                            ));
+            var routePath = RouteCollectionExtensions.EnsureRoutePath(node.Url.EnsureEndsWith('/') + "metaweblog").TrimStart('/');
+
+            routes.Add(
+                "articulate_metaweblog_" + node.Id,
+                new Route(routePath, new MetaWeblogHandler()));
         }
 
         private static void MapRsdRoute(RouteCollection routes, IPublishedContent node)
         {
+            var routePath = RouteCollectionExtensions.EnsureRoutePath(node.Url.EnsureEndsWith('/') + "rsd/{id}").TrimStart('/');
+
             routes.MapRoute("articulate_rsd_" + node.Id,
-                        (node.Url.EnsureEndsWith('/') + "rsd/{id}").TrimStart('/'),
-                        new
+                        routePath,
+                            new
                         {
                             controller = "Rsd",
                             action = "Index",
@@ -142,8 +145,11 @@ namespace Articulate
 
         private static void MapManifestRoute(RouteCollection routes, IPublishedContent node)
         {
+
+            var routePath = RouteCollectionExtensions.EnsureRoutePath(node.Url.EnsureEndsWith('/') + "wlwmanifest/{id}").TrimStart('/');
+
             routes.MapRoute("articulate_wlwmanifest_" + node.Id,
-                       (node.Url.EnsureEndsWith('/') + "wlwmanifest/{id}").TrimStart('/'),
+                       routePath,
                        new
                        {
                            controller = "WlwManifest",
