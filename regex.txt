@@ -1,0 +1,9 @@
+http://shazwazza\.com/image\.axd\?picture=(.*?)("|')
+
+/media/articulate-import/$1$2
+
+"WVXoqfpgkBNl5ETqrv0CSAfOI5CQB0bSji3OkOk1M8If5Z9hLCFqEZHMXQ0eOowy",
+
+"asCHIsXIiEoMhos9EhNuzb7Q35J7AZAOddGdfJ58WKKqEdumBiW5cmtaRJyRR5Pj",
+
+"145687f159bb457d9a97816c6ed4c01e"
