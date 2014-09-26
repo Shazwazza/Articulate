@@ -130,7 +130,7 @@ namespace Articulate.Controllers
 
         private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
-            var rootUrl = model.RootBlogNode.DescendantOrSelf(1).UrlWithDomain();
+            var rootUrl = model.RootBlogNode.UrlWithDomain();
 
             var result = new List<SyndicationItem>();
             foreach (var post in posts)
