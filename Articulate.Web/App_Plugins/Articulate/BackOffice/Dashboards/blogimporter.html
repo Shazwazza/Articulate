@@ -41,7 +41,7 @@
         <umb-control-group>
             <input type="submit" ng-if="!submitting" />
             <p ng-bind-html="status"></p>
-            <p ng-if="status === 'Finished!'">Click <a href='/media/articulate/DisqusXmlExport.xml' target='_blank'>here</a> to download the exported Disqus Xml file</p>
+            <p ng-if="status === 'Finished!'" ng-show="$parent.exportDisqusXml == 1">Click <a href='/media/articulate/DisqusXmlExport.xml' target='_blank'>here</a> to download the exported Disqus Xml file</p>
         </umb-control-group>
 
     </form>
