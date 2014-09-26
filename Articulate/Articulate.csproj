@@ -267,6 +267,7 @@
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
     <Compile Include="RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="TagsOrCategoryPathRouteConstraint.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

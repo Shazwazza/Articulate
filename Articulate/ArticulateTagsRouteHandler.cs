@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web.Routing;
@@ -11,11 +12,45 @@ namespace Articulate
 {
     public class ArticulateTagsRouteHandler : UmbracoVirtualNodeByIdRouteHandler
     {
-        private readonly string _tagsUrlName;
-        private readonly string _tagsPageName;
-        private readonly string _categoriesUrlName;
-        private readonly string _categoriesPageName;
+        private struct UrlAndPageNames
+        {
+            public int NodeId { get; set; }
+            public string TagsUrlName { get; set; }
+            public string TagsPageName { get; set; }
+            public string CategoriesUrlName { get; set; }
+            public string CategoriesPageName { get; set; }
+        }
 
+        private readonly List<UrlAndPageNames> _urlsAndPageNames = new List<UrlAndPageNames>(); 
+
+        /// <summary>
+        /// Constructor used to create a new handler for multi-tenency with domains and ids
+        /// </summary>
+        /// <param name="itemsForRoute"></param>
+        public ArticulateTagsRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
+            : base(itemsForRoute)
+        {
+            foreach (var node in itemsForRoute)
+            {
+                _urlsAndPageNames.Add(new UrlAndPageNames
+                {
+                    NodeId = node.Id,
+                    TagsUrlName = node.GetPropertyValue<string>("tagsUrlName"),
+                    TagsPageName = node.GetPropertyValue<string>("tagsPageName"),
+                    CategoriesUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
+                    CategoriesPageName = node.GetPropertyValue<string>("categoriesPageName")
+                });
+            }
+        }
+
+        /// <summary>
+        /// Constructor used to create a new handler for only one id and no domain
+        /// </summary>
+        /// <param name="realNodeId"></param>
+        /// <param name="tagsUrlName"></param>
+        /// <param name="tagsPageName"></param>
+        /// <param name="categoriesUrlName"></param>
+        /// <param name="categoriesPageName"></param>
         public ArticulateTagsRouteHandler(int realNodeId,
             string tagsUrlName,
             string tagsPageName,
@@ -23,19 +58,37 @@ namespace Articulate
             string categoriesPageName)
             : base(realNodeId)
         {
-            _tagsUrlName = tagsUrlName;
-            _tagsPageName = tagsPageName;
-            _categoriesUrlName = categoriesUrlName;
-            _categoriesPageName = categoriesPageName;
+            _urlsAndPageNames.Add(new UrlAndPageNames
+            {
+                CategoriesPageName = categoriesPageName,
+                CategoriesUrlName = categoriesUrlName,
+                NodeId = realNodeId,
+                TagsPageName = tagsPageName,
+                TagsUrlName = tagsUrlName
+            });
         }
 
         protected override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {
+            //determine if it's for a particular domain
+            int realNodeId;
+            if (HostsAndIds.Count() == 1)
+            {
+                realNodeId = HostsAndIds.First().Item2;
+            }
+            else
+            {
+                realNodeId = requestContext.HttpContext.Request.Url == null
+                    ? HostsAndIds.First().Item2  //cannot be determined
+                    : HostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
+            }
+            var urlAndPageName = _urlsAndPageNames.Single(x => x.NodeId == realNodeId);
+
             var tag = requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString();
             var actionName = requestContext.RouteData.GetRequiredString("action");
             var rootUrl = baseContent.Url;
-            var urlName = actionName.InvariantEquals("tags") ? _tagsUrlName : _categoriesUrlName;
-            var pageName = actionName.InvariantEquals("tags") ? _tagsPageName : _categoriesPageName;
+            var urlName = actionName.InvariantEquals("tags") ? urlAndPageName.TagsUrlName : urlAndPageName.CategoriesUrlName;
+            var pageName = actionName.InvariantEquals("tags") ? urlAndPageName.TagsPageName : urlAndPageName.CategoriesPageName;
 
             return new ArticulateVirtualPage(
                 baseContent,
