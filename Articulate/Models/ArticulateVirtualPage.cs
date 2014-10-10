@@ -48,7 +48,7 @@ namespace Articulate.Models
 
         public override int Id
         {
-            get { return int.MaxValue; }
+            get { return int.MaxValue - Parent.Id; }
         }
 
         public override string Name
@@ -68,7 +68,7 @@ namespace Articulate.Models
 
         public override int DocumentTypeId
         {
-            get { return int.MaxValue; }
+            get { return int.MaxValue - Parent.DocumentTypeId; }
         }
 
         public override string Path

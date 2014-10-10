@@ -2,11 +2,14 @@ using System;
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.Routing;
+using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -72,6 +75,22 @@ namespace Articulate
         protected virtual IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {
             return baseContent;
+        }
+
+        /// <summary>
+        /// Assigns the culture based on the root node's domain if one is assigned
+        /// </summary>
+        /// <param name="publishedContentRequest"></param>
+        protected override void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
+        {
+            base.PreparePublishedContentRequest(publishedContentRequest);
+
+            if (_hostsAndIds.Any(x => x.Item2 == publishedContentRequest.PublishedContent.Parent.Id))
+            {
+                var hostAndId = _hostsAndIds.Single(x => x.Item2 == publishedContentRequest.PublishedContent.Parent.Id);
+                var domain = Domain.GetDomain(hostAndId.Item1);
+                publishedContentRequest.Culture = new CultureInfo(domain.Language.CultureAlias);
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -46,6 +48,10 @@ namespace Articulate
 
         protected abstract IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext);
 
+        /// <summary>
+        /// Allows inheritors to modify the PublishedContentRequest for things like assigning culture, etc...
+        /// </summary>
+        /// <param name="publishedContentRequest"></param>
         protected virtual void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
         {
         }
