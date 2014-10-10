@@ -266,6 +266,7 @@
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ArticulateMarkdownPropertyEditor.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
+    <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TagsOrCategoryPathRouteConstraint.cs" />

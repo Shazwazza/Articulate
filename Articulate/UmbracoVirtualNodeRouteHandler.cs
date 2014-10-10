@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -33,6 +34,8 @@ namespace Articulate
             //allows inheritors to change the pcr
             PreparePublishedContentRequest(umbracoContext.PublishedContentRequest);
 
+            umbracoContext.PublishedContentRequest.ConfigureRequest();
+
             //create the render model
             var renderModel = new RenderModel(umbracoContext.PublishedContentRequest.PublishedContent, umbracoContext.PublishedContentRequest.Culture);
 
@@ -40,8 +43,6 @@ namespace Articulate
             requestContext.RouteData.DataTokens.Add("umbraco", renderModel);
             requestContext.RouteData.DataTokens.Add("umbraco-doc-request", umbracoContext.PublishedContentRequest);
             requestContext.RouteData.DataTokens.Add("umbraco-context", umbracoContext);
-
-            umbracoContext.PublishedContentRequest.ConfigureRequest();
 
             return new MvcHandler(requestContext);
         }
@@ -54,6 +55,19 @@ namespace Articulate
         /// <param name="publishedContentRequest"></param>
         protected virtual void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
         {
+            //We're going to use some reflection to get at the PublishedContentRequestEngine.FindDomain() method which will lookup
+            // the domain based on the assigned PublishedContent on the PCR, which will take into account the parent/ancestor ids
+            // to find the domain.
+
+            var engine = publishedContentRequest.GetPropertyValue("Engine");
+            var findDomainMethod = engine.GetType().GetMethod("FindDomain", BindingFlags.Instance |
+                                                                            BindingFlags.NonPublic |
+                                                                            BindingFlags.Public);
+            findDomainMethod.Invoke(engine, null);
+
+            //NOTE: In Umbraco 7.2, when this is fixed: http://issues.umbraco.org/issue/U4-5628, we don't need to do this and 
+            // we can just call Prepare(). Currently we cannot use reflection to call Prepare() because it will still launch
+            // the content finders even though a content item is already assigned. in 7.2 this is also fixed.
         }
     }
 }
