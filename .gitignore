@@ -25,3 +25,5 @@ packages/*
 Articulate.Web/xslt/*
 Articulate.Web/media/*
 Articulate.Web/App_Data/cache/*
+*.suo
+*.csproj.user

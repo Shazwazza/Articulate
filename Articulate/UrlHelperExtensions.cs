@@ -53,6 +53,7 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateSearchUrl(this UrlHelper url, IMasterModel model)
         {
+            //TODO: Fix this since it's configurable in the UI!
             return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "search";
         }
 
@@ -69,6 +70,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateCategoriesUrl(this UrlHelper url, IMasterModel model)
         {
+            //TODO: Fix this since it's configurable in the UI!
             return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories";
         }
 
@@ -80,6 +82,7 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateTagsUrl(this UrlHelper url, IMasterModel model)
         {
+            //TODO: Fix this since it's configurable in the UI!
             return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags";
         }
 
@@ -94,6 +97,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
+                //TODO: Fix this since it's configurable in the UI!
                 : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + tag.SafeEncodeUrlSegments();
         }
 
@@ -108,6 +112,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
+                //TODO: Fix this since it's configurable in the UI!
                 : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + category.SafeEncodeUrlSegments();
         }
     }

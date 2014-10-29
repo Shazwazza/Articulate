@@ -5,6 +5,40 @@ namespace Articulate
 {
     internal static class ReflectionHelper
     {
+        public static object CallStaticMethod(this Type type, string methodName, params object[] parameters)
+        {
+            var methodInfo = GetMethodInfo(type, methodName);
+            if (methodInfo == null)
+                throw new ArgumentOutOfRangeException("methodName",
+                    string.Format("Couldn't find method {0} in type {1}", methodName, type.FullName));
+            return methodInfo.Invoke(null, parameters);
+        }
+
+        public static object CallMethod(this object obj, string methodName, params object[] parameters)
+        {
+            if (obj == null)
+                throw new ArgumentNullException("obj");
+            Type type = obj.GetType();
+            var methodInfo = GetMethodInfo(type, methodName);
+            if (methodInfo == null)
+                throw new ArgumentOutOfRangeException("methodName",
+                    string.Format("Couldn't find method {0} in type {1}", methodName, type.FullName));
+            return methodInfo.Invoke(obj, parameters);
+        }
+
+        private static MethodInfo GetMethodInfo(Type type, string methodName)
+        {
+            MethodInfo methodInfo = null;
+            do
+            {
+                methodInfo = type.GetMethod(methodName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                type = type.BaseType;
+            }
+            while (methodInfo == null && type != null);
+            return methodInfo;
+        }
+
         private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
         {
             PropertyInfo propInfo = null;

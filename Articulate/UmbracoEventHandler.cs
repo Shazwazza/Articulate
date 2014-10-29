@@ -25,7 +25,17 @@ namespace Articulate
 {
     public class UmbracoEventHandler : ApplicationEventHandler
     {
-        
+        /// <summary>
+        /// OVerridable method to execute when All resolvers have been initialized but resolution is not frozen so they can be modified in this method
+        /// </summary>
+        /// <param name="umbracoApplication"/><param name="applicationContext"/>
+        protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        {
+            base.ApplicationStarting(umbracoApplication, applicationContext);
+
+            UrlProviderResolver.Current.AddType<VirtualNodeUrlProvider>();
+        }
+
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
             //TODO: Listen to events when we need to re-map the routes when data changes!

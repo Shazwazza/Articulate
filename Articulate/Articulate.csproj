@@ -276,6 +276,7 @@
     <Compile Include="UmbracoVirtualNodeByIdRouteHandler.cs" />
     <Compile Include="UmbracoVirtualNodeRouteHandler.cs" />
     <Compile Include="UrlHelperExtensions.cs" />
+    <Compile Include="VirtualNodeUrlProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
