@@ -182,10 +182,12 @@ namespace Articulate
 
         private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
-            //we need to group by te search url name and make unique routes amongst that
+            //we need to group by the search url name and make unique routes amongst those,
+            // alternatively we could create route constraints like we do for the tags/categories routes
             foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.GetPropertyValue<string>("searchUrlName")))
             {
-                var routeHash = nodeSearch.Key.GetHashCode();
+                //the hash needs to be the combination of the nodeRoutePath and the searchUrl group
+                var routeHash = (nodeRoutePath + nodeSearch.Key).GetHashCode();
 
                 //Create the route for the /search/{term} results
                 routes.MapUmbracoRoute(
