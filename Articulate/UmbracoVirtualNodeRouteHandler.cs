@@ -63,8 +63,17 @@ namespace Articulate
 
                 requestContext.RouteData.DataTokens["umbraco-route-def"] = def;
 
-                var rrh = new RenderRouteHandler(ControllerBuilder.Current.GetControllerFactory());
-                return (IHttpHandler)rrh.CallMethod("HandlePostedValues", requestContext, (object)formInfo);                
+                try
+                {
+                    //First try to call this method as a static method (since it is a static method in umbraco 7.2)
+                    // if that fails then we will call it with a non static instance since that is how it was pre-7.2)
+                    return (IHttpHandler)typeof(RenderRouteHandler).CallStaticMethod("HandlePostedValues", requestContext, (object)formInfo);
+                }
+                catch (System.Reflection.TargetException)
+                {
+                    var rrh = new RenderRouteHandler(ControllerBuilder.Current.GetControllerFactory());
+                    return (IHttpHandler)rrh.CallMethod("HandlePostedValues", requestContext, (object)formInfo);
+                }
             }
 
             return new MvcHandler(requestContext);
