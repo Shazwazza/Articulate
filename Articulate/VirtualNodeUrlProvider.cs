@@ -21,7 +21,8 @@ namespace Articulate
             if (umbracoContext.PublishedContentRequest.PublishedContent == null) return null;
             var virtualPage = umbracoContext.PublishedContentRequest.PublishedContent as ArticulateVirtualPage;
             if (virtualPage == null) return null;
-            return virtualPage.Url;
+            //if the ids match, then return the assigned url
+            return id == virtualPage.Id ? virtualPage.Url : null;
         }
 
         /// <summary>
