@@ -45,9 +45,45 @@ namespace Articulate
 
             ContentService.Created += ContentService_Created;
             ContentService.Saving += ContentService_Saving;
+            ContentService.Published += ContentService_Published;
+            ContentService.UnPublished += ContentService_UnPublished;
             ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
+        }
+
+        /// <summary>
+        /// Check if an articulate root node is un-published, if so we will need to rebuild the routes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ContentService_UnPublished(Umbraco.Core.Publishing.IPublishingStrategy sender, PublishEventArgs<IContent> e)
+        {
+            if (UmbracoContext.Current != null)
+            {
+                var rebuild = e.PublishedEntities.Any(c => c.ContentType.Alias.InvariantEquals("Articulate"));
+                if (rebuild)
+                {
+                    ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check if an articulate root node is published, if so we will need to rebuild the routes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ContentService_Published(Umbraco.Core.Publishing.IPublishingStrategy sender, PublishEventArgs<IContent> e)
+        {
+            if (UmbracoContext.Current != null)
+            {
+                var rebuild = e.PublishedEntities.Any(c => c.ContentType.Alias.InvariantEquals("Articulate"));
+                if (rebuild)
+                {
+                    ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+                }
+            }
         }
 
         /// <summary>

@@ -25,7 +25,10 @@ namespace Articulate
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
             using (routes.GetWriteLock())
-            {   
+            {
+                //clear the existing articulate routes (if any)
+                RemoveExisting(routes);
+
                 // For each articulate root, we need to create some custom route, BUT routes can overlap
                 // based on multi-tenency so we need to deal with that. 
                 // For example a root articulate node might yield a route like:
@@ -40,19 +43,6 @@ namespace Articulate
                 var groups = articulateNodes.GroupBy(x => RouteCollectionExtensions.RoutePathFromNodeUrl(x.Url));
                 foreach (var grouping in groups)
                 {
-                    var groupHash = grouping.Key.GetHashCode();
-
-                    RemoveExisting(routes,
-                        "articulate_rss_" + groupHash,
-                        "articulate_rss_xslt_" + groupHash,
-                        "articulate_tags_" + groupHash,
-                        "articulate_tags_rss_" + groupHash,
-                        "articulate_search_" + groupHash,
-                        "articulate_metaweblog_" + groupHash,
-                        "articulate_rsd_" + groupHash,
-                        "articulate_wlwmanifest_" + groupHash,
-                        "articulate_markdown_" + groupHash);
-
                     var nodesAsArray = grouping.ToArray();
 
                     MapRssRoute(routes, grouping.Key, nodesAsArray);
@@ -75,14 +65,15 @@ namespace Articulate
         {
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
 
-            routes.MapRoute("articulate_markdown_new" + node.Id,
+            var name = "articulate_markdown_new" + node.Id;
+            routes.MapRoute(name,
                 routePath,
                 new
                 {
                     controller = "MarkdownEditor",
                     action = "NewPost",
                     id = node.Id
-                });
+                }).AddRouteNameToken(name);
         }
 
         private static void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -147,37 +138,39 @@ namespace Articulate
 
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog").TrimStart('/');
 
-            routes.Add(
-                "articulate_metaweblog_" + routeHash,
-                new Route(routePath, new MetaWeblogHandler()));
+            var name = "articulate_metaweblog_" + routeHash;
+            var route = new Route(routePath, new MetaWeblogHandler()).AddRouteNameToken(name);
+            routes.Add(name, route);
         }
 
         private static void MapRsdRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "rsd/" + node.Id).TrimStart('/');
 
-            routes.MapRoute("articulate_rsd_" + node.Id,
+            var name = "articulate_rsd_" + node.Id;
+            routes.MapRoute(name,
                 routePath,
                 new
                 {
                     controller = "Rsd",
                     action = "Index",
                     id = node.Id
-                });
+                }).AddRouteNameToken(name);
         }
 
         private static void MapManifestRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
             var routePath = (nodeRoutePath + "wlwmanifest/" + node.Id).TrimStart('/');
 
-            routes.MapRoute("articulate_wlwmanifest_" + node.Id,
+            var name = "articulate_wlwmanifest_" + node.Id;
+            routes.MapRoute(name,
                        routePath,
                        new
                        {
                            controller = "WlwManifest",
                            action = "Index",
                            id = node.Id
-                       });
+                       }).AddRouteNameToken(name);
         }
 
         private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -205,15 +198,23 @@ namespace Articulate
             
         }
 
-        private static void RemoveExisting(RouteCollection routes, params string[] names)
+        /// <summary>
+        /// Removes existing articulate custom routes
+        /// </summary>
+        /// <param name="routes"></param>
+        private static void RemoveExisting(ICollection<RouteBase> routes)
         {
-            foreach (var name in names)
+            var articulateRoutes = routes
+                .OfType<Route>()
+                .Where(x =>
+                    x.DataTokens != null
+                    && x.DataTokens.ContainsKey("__RouteName")
+                    && ((string) x.DataTokens["__RouteName"]).InvariantStartsWith("articulate_"))
+                .ToArray();
+
+            foreach (var route in articulateRoutes)
             {
-                var r = routes[name];
-                if (r != null)
-                {
-                    routes.Remove(r);
-                }
+                routes.Remove(route);
             }
         }
     }

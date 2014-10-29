@@ -1,9 +1,9 @@
+using System;
+using System.Web.Mvc;
+using System.Web.Routing;
+
 namespace Articulate
 {
-    using System;
-    using System.Web.Mvc;
-    using System.Web.Routing;
-
     public static class RouteCollectionExtensions
     {
         /// <summary>
@@ -33,6 +33,24 @@ namespace Articulate
 
             var route = RouteTable.Routes.MapRoute(name, url, defaults, constraints, namespaces);
             route.RouteHandler = virtualNodeHandler;
+            route.AddRouteNameToken(name);
+            return route;
+        }
+
+        /// <summary>
+        /// Add the route name to the data tokens so we can search on it later - unfortunately the RouteCollection doesn't let
+        /// use query names directly.
+        /// </summary>
+        /// <param name="route"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        internal static Route AddRouteNameToken(this Route route, string name)
+        {
+            if (route.DataTokens == null)
+            {
+                route.DataTokens = new RouteValueDictionary();
+            }
+            route.DataTokens["__RouteName"] = name;
             return route;
         }
 
