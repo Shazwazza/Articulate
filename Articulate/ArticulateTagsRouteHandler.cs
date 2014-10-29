@@ -83,8 +83,8 @@ namespace Articulate
                 tag.IsNullOrWhiteSpace() ? pageName : tag,
                 requestContext.RouteData.GetRequiredString("controller"),
                 tag.IsNullOrWhiteSpace()
-                    ? rootUrl.EnsureEndsWith('/') + urlName
-                    : rootUrl.EnsureEndsWith('/') + urlName.EnsureEndsWith('/') + tag);
+                    ? urlName
+                    : urlName.EnsureEndsWith('/') + tag);
         }
     }
 

@@ -58,7 +58,7 @@ namespace Articulate
                 baseContent,
                 urlNames.SearchPageName,
                 controllerName,
-                rootUrl.EnsureEndsWith('/') + urlNames.SearchUrlName);
+                urlNames.SearchUrlName);
         }
     }
 }
