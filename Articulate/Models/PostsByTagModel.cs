@@ -18,7 +18,14 @@ namespace Articulate.Models
             Posts = posts;
             TagName = tagName;
 
-            TagUrl = tagUrl.SafeEncodeUrlSegments().EnsureStartsWith('/');
+            if (tagUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            {
+                TagUrl = tagUrl.SafeEncodeUrlSegments();
+            }
+            else
+            {
+                TagUrl = tagUrl.SafeEncodeUrlSegments().EnsureStartsWith('/');
+            }
         }
 
         public IEnumerable<PostModel> Posts { get; private set; }
