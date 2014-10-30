@@ -9,48 +9,25 @@ namespace Articulate
     {
         public static string SafeEncodeUrlSegments(this string urlPath)
         {
-            bool addHTTP = false;
-            if (urlPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+
+            // handle relative or absolute URLs
+            bool IsAbsolute;
+            Uri Url = new Uri(urlPath, UriKind.RelativeOrAbsolute);
+            IsAbsolute = Url.IsAbsoluteUri;
+            if (!IsAbsolute) // use request variables to build a full Uri class
             {
-                urlPath = urlPath.TrimStartString("http://");
-                addHTTP = true;
+                UriBuilder builder = new UriBuilder(HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.Url.Port);
+                builder.Path = VirtualPathUtility.ToAbsolute(urlPath);
+                Url = builder.Uri;
             }
 
-            urlPath = string.Join("/",
-                urlPath.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)
-               // .Select(x => x.Replace(' ', '-')) // routing page for tags/categories will not work
-                    .Select(x => HttpUtility.UrlEncode(x).Replace("+", "%20"))
-                    .WhereNotNull()
-                    //we are not supporting dots in our URLs it's just too difficult to
-                    // support across the board with all the different config options
-                    .Select(x => x.Replace('.', '-')));
-
-            if(addHTTP)
+            if (IsAbsolute)
             {
-                urlPath = "http://" + urlPath;
-            }
-
-            return urlPath;
-
-        }
-
-
-        public static string TrimStartString(this string str, string toRemove)
-        {
-            if ((toRemove != null))
-            {
-                if (toRemove.Length > 0 && str.StartsWith(toRemove, StringComparison.OrdinalIgnoreCase))
-                {
-                    return str.Remove(0, toRemove.Length);
-                }
-                else
-                {
-                    return str;
-                }
+                return Url.AbsoluteUri.Replace('.', '-');
             }
             else
             {
-                return str;
+                return Url.AbsolutePath.Replace('.', '-');
             }
 
         }

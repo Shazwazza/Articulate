@@ -33,7 +33,7 @@ namespace Articulate.Models
         
         public override string Url
         {
-            get { return base.Url.EnsureEndsWith('/') + (_urlPath ?? UrlName); }
+            get { return _urlPath; }
         }
 
         public override PublishedContentType ContentType
