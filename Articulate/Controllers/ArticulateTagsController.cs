@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Argotic.Common;
 using Articulate.Models;
 using Umbraco.Core;
@@ -24,6 +24,16 @@ namespace Articulate.Controllers
     [OutputCache(Duration = 60, VaryByHeader = "host")]
     public class ArticulateTagsController : RenderMvcController
     {
+        /// <summary>
+        /// Sets a custom action invoker so that the correct action is executed based on the specified tag/category url defined on the articulate root
+        /// </summary>
+        /// <param name="requestContext">The HTTP context and route data.</param>
+        protected override void Initialize(RequestContext requestContext)
+        {
+            ActionInvoker = new TagsControllerActionInvoker();
+            base.Initialize(requestContext);
+        }
+
         /// <summary>
         /// Used to render the category listing (virtual node)
         /// </summary>

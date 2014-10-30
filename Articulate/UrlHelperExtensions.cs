@@ -53,8 +53,10 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateSearchUrl(this UrlHelper url, IMasterModel model)
         {
-            //TODO: Fix this since it's configurable in the UI!
-            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "search";
+            return model.RootBlogNode == null
+                ? null
+                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                  model.RootBlogNode.GetPropertyValue<string>("searchUrlName");
         }
 
         /// <summary>
@@ -70,8 +72,10 @@ namespace Articulate
         /// </summary>
         public static string ArticulateCategoriesUrl(this UrlHelper url, IMasterModel model)
         {
-            //TODO: Fix this since it's configurable in the UI!
-            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories";
+            return model.RootBlogNode == null
+                ? null
+                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                  model.RootBlogNode.GetPropertyValue<string>("categoriesUrlName");
         }
 
         /// <summary>
@@ -82,8 +86,10 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateTagsUrl(this UrlHelper url, IMasterModel model)
         {
-            //TODO: Fix this since it's configurable in the UI!
-            return model.RootBlogNode == null ? null : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags";
+            return model.RootBlogNode == null
+                ? null
+                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                  model.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
         }
 
         /// <summary>
@@ -97,8 +103,9 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                //TODO: Fix this since it's configurable in the UI!
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "tags/" + tag.SafeEncodeUrlSegments();
+                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                  model.RootBlogNode.GetPropertyValue<string>("tagsUrlName").EnsureEndsWith('/') +
+                  tag.SafeEncodeUrlSegments();
         }
 
         /// <summary>
@@ -112,8 +119,9 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                //TODO: Fix this since it's configurable in the UI!
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "categories/" + category.SafeEncodeUrlSegments();
+                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                  model.RootBlogNode.GetPropertyValue<string>("categoriesUrlName").EnsureEndsWith('/') +
+                  category.SafeEncodeUrlSegments();
         }
     }
 }

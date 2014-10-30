@@ -236,6 +236,7 @@
     <Compile Include="Controllers\ArticulateTagsController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
+    <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
     <Compile Include="Controls\Installer.cs">
       <SubType>ASPXCodeBehind</SubType>
