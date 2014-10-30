@@ -18,7 +18,8 @@ namespace Articulate.Models
             Posts = posts;
             TagName = tagName;
 
-            if (tagUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+
+            if (Umbraco.Core.Configuration.UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes)
             {
                 TagUrl = tagUrl.SafeEncodeUrlSegments();
             }
