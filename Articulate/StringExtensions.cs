@@ -23,7 +23,7 @@ namespace Articulate
 
             if (IsAbsolute)
             {
-                return Url.AbsoluteUri.Replace('.', '-');
+                return Url.Scheme + "://" + Url.Host + Url.AbsolutePath.Replace('.', '-');
             }
             else
             {
