@@ -34,7 +34,7 @@
 
     @{ Html
            .RequiresJs("http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
-           .RequiresCss("//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
+           .RequiresCss("http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")           
            .RequiresCss("http://fonts.googleapis.com/css?family=Roboto:400,300,100,500")
          //This loads all Css found in the current theme's js folder: /Assets/js
            .RequiresThemedCssFolder(Model)
@@ -50,17 +50,14 @@
     <div class="container">
 
         <div class="row topNav">
-            <div class="col-s-9">                
+            <div class="col-l-9 col-m-9 col-s-12 col-xs-12">                
                 @Html.ThemedPartial(Model, "Menu")                
-            </div>
-            <div class="col-s-3">
-
-            </div>
+            </div>            
         </div>
 
         <div class="row">
-            <div class="col-s-9">
-                
+            <div class="col-l-9 col-m-9 col-s-12 col-xs-12">
+
                 <div class="header">
                     <div class="title">
                         <h1>
@@ -71,33 +68,13 @@
                         </div>
                     </div>
 
-                </div>                
-                
-            </div>
-            <div class="col-s-3">
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-s-9">
-
-                <div class="main">
-                    <div class="mainContent box">
-                        @RenderBody()
-                    </div>
                 </div>
 
             </div>
-            <div class="col-s-3">
-                <div class="sidenav box">
-                    <div class="widgetzone">
-                        @Html.ThemedPartial(Model, "Categories")
-                        @Html.ThemedPartial(Model, "Recent")
-                        @Html.ThemedPartial(Model, "TagCloud")
-                    </div>
-                </div>
-            </div>
         </div>
+        
+        @RenderBody()
+        
         <div class="row">
             <div class="col-s-12">
                 <div id="footer">

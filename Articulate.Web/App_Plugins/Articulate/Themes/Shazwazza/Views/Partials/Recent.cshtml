@@ -12,9 +12,14 @@
         <ul class="recentPosts" id="recentPosts">
             @foreach (var post in recent)
             {
-                <li>
+                <li>                    
+                    <div class="time">
+                        <time datetime="@post.PublishedDate">
+                            @post.PublishedDate.ToString("MMM d, yyyy HH:mm")
+                        </time>
+                    </div>
+
                     <a href="@post.Url">@post.Name</a>
-                    <div class="descr">@post.PublishedDate.ToString("MMMM d, yyyy HH:mm")</div>
                     <div>
                         <a data-disqus-identifier="@post.Id" class="comment-count" href="@post.Url#disqus_thread"></a>
                     </div>

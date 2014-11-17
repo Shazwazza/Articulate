@@ -1,0 +1,46 @@
+@using Articulate
+@using Newtonsoft.Json.Linq
+@inherits UmbracoViewPage<Articulate.Models.IMasterModel>
+
+@{
+
+    //TODO: Update your delicious feed URL!
+    //EXAMPLE: var feedUrl = "http://feeds.delicious.com/v2/json/shandem";
+
+    var feedUrl = "";
+}
+
+<div class="widget feeddelicious">
+    <h4>Recent Delicious links</h4>
+
+    <div class="content news">
+
+        @if (!string.IsNullOrEmpty(feedUrl))
+        {
+            var result = JsonFeedHelper.GetResult(
+                ApplicationContext.ApplicationCache.RuntimeCache,
+                feedUrl)
+                //NOTE: You can adjust the number of results here (delicious returns a max of 10)
+                .Take(10);
+
+            foreach (var item in result)
+            {
+                <div class="alert">
+                    <div class="time">
+                        <time datetime="@item["dt"]" is="relative-time">
+                            @DateTime.Parse(item["dt"].ToString()).ToString("MMM dd, yyyy")
+                        </time>
+                    </div>
+                    <div class="title">
+                        <a href="@item["u"]" target="_blank">@item["d"]</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Edit this file: <br /><br /> ~/App_Plugins /Articulate /Themes /Shazwazza /Views /Partials /FeedDelicious.cshtml</p>
+        }
+
+    </div>
+</div>
