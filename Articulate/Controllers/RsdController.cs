@@ -44,7 +44,7 @@ namespace Articulate.Controllers
                     new XElement("api",
                         new XAttribute("name", "MetaWeblog"),
                         new XAttribute("preferred", true),
-                        new XAttribute("apiLink", node.UrlWithDomain().EnsureEndsWith('/') + "metaweblog"),
+                        new XAttribute("apiLink", node.UrlWithDomain().EnsureEndsWith('/') + "metaweblog/" + id),
                         new XAttribute("blogID", node.UrlWithDomain()))));
 
             return new XmlResult(new XDocument(rsd));

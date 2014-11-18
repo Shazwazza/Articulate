@@ -46,12 +46,12 @@ namespace Articulate
                     var nodesAsArray = grouping.ToArray();
 
                     MapRssRoute(routes, grouping.Key, nodesAsArray);
-                    MapSearchRoute(routes, grouping.Key, nodesAsArray);                    
-                    MapMetaWeblogRoute(routes, grouping.Key);
+                    MapSearchRoute(routes, grouping.Key, nodesAsArray);                                        
                     MapTagsAndCategoriesRoute(routes, grouping.Key, nodesAsArray);
 
                     foreach (var content in grouping)
                     {
+                        MapMetaWeblogRoute(routes, grouping.Key, content);
                         MapManifestRoute(routes, grouping.Key, content);
                         MapRsdRoute(routes, grouping.Key, content);
                         MapMarkdownEditorRoute(routes, grouping.Key, content);    
@@ -132,14 +132,18 @@ namespace Articulate
                 new { action = new TagsOrCategoryPathRouteConstraint(nodesWithPath) });
         }
 
-        private static void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath)
+        private static void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
         {
-            var routeHash = nodeRoutePath.GetHashCode();
+            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog/" + node.Id).TrimStart('/');
 
-            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog").TrimStart('/');
-
-            var name = "articulate_metaweblog_" + routeHash;
-            var route = new Route(routePath, new MetaWeblogHandler()).AddRouteNameToken(name);
+            var name = "articulate_metaweblog_" + node.Id;
+            var route = new Route(                
+                routePath,
+                new RouteValueDictionary(),
+                new RouteValueDictionary(new { controller = new MetaWeblogRouteConstraint() }),
+                new MetaWeblogHandler(node.Id))
+                .AddRouteNameToken(name);
+            
             routes.Add(name, route);
         }
 
@@ -164,13 +168,13 @@ namespace Articulate
 
             var name = "articulate_wlwmanifest_" + node.Id;
             routes.MapRoute(name,
-                       routePath,
-                       new
-                       {
-                           controller = "WlwManifest",
-                           action = "Index",
-                           id = node.Id
-                       }).AddRouteNameToken(name);
+                routePath,
+                new
+                {
+                    controller = "WlwManifest",
+                    action = "Index",
+                    id = node.Id
+                }).AddRouteNameToken(name);
         }
 
         private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)

@@ -12,7 +12,7 @@ namespace Articulate
     /// <summary>
     /// A route constraint that matches only the specified categories or tag route path names
     /// </summary>
-    public class TagsOrCategoryPathRouteConstraint : IRouteConstraint
+    public sealed class TagsOrCategoryPathRouteConstraint : IRouteConstraint
     {
         private struct UrlNames
         {

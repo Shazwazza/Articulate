@@ -33,8 +33,8 @@ namespace Articulate
 
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
         {
-            var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd";
-            var manifestUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "wlwmanifest";
+            var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
+            var manifestUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
 
             return new HtmlString(
                 string.Concat(

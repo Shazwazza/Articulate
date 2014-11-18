@@ -25,15 +25,17 @@ namespace Articulate
 {
     public class MetaWeblogHandler : XmlRpcService, IMetaWeblog, IBloggerMetaWeblog, IWordPressMetaWeblog, IRouteHandler
     {
+        private readonly int _blogRootId;
         private readonly ApplicationContext _applicationContext;
 
-        public MetaWeblogHandler()
-            : this(ApplicationContext.Current)
+        public MetaWeblogHandler(int blogRootId)
+            : this(blogRootId, ApplicationContext.Current)
         {
         }
 
-        public MetaWeblogHandler(ApplicationContext applicationContext)
+        public MetaWeblogHandler(int blogRootId, ApplicationContext applicationContext)
         {
+            _blogRootId = blogRootId;
             _applicationContext = applicationContext;
         }
 
@@ -298,10 +300,7 @@ namespace Articulate
 
         private IPublishedContent BlogRoot()
         {
-            //we can determine the blog url based on the incoming request for the weblog handler
-            var url = Context.Request.Url.AbsolutePath.TrimEnd("/metaweblog").EnsureStartsWith('/');
-            var node = UmbracoContext.Current.ContentCache.GetByRoute(
-                url, GlobalSettings.HideTopLevelNodeFromPath);
+            var node = UmbracoContext.Current.ContentCache.GetById(_blogRootId);
 
             if (node == null)
             {
