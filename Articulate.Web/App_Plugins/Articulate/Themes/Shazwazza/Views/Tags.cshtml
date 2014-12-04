@@ -36,7 +36,7 @@
                         </h2>
 
                         @Html.Table(
-                        asArray[i].Posts.OrderBy(x => x.PublishedDate),
+                        asArray[i].Posts.OrderByDescending(x => x.PublishedDate),
                         new[] { "Date", "Name", "" },
                         new[] { "date", "title", "comments" },
                         @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
