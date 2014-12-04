@@ -460,7 +460,7 @@ a:hover {
     }
 
     .sidebar .logo {
-        margin-top: 50px;
+        display: none;
     }
 
     .content {
