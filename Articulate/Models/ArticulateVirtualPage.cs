@@ -36,11 +36,9 @@ namespace Articulate.Models
             get { return base.Url.EnsureEndsWith('/') + (_urlPath ?? UrlName); }
         }
 
-        public override PublishedContentType ContentType
-        {
-            get { return null; }
-        }
-
+        /// <summary>
+        /// Returns the content that was used to create this virtual node - we'll assume this virtual node's parent is based on the real node that created it
+        /// </summary>
         public override IPublishedContent Parent
         {
             get { return Content; }
