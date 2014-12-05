@@ -79,6 +79,7 @@ namespace Articulate
         }
 
         //NOTE: This is the manual way we could assign culture this but I think there's more logic for edge case scenarios in Umbraco's Prepare method.
+        // I've just left this code here as an example
         protected override void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
         {
             //if (_hostsAndIds.Any(x => x.Item2 == publishedContentRequest.PublishedContent.Parent.Id))

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -20,7 +21,7 @@ namespace Articulate
             var umbracoContext = UmbracoContext.Current;
 
             //TODO: This is a huge hack - we need to publicize some stuff in the core
-            //TODO: publicize: ctor (or static method to create it), Prepared()
+            //TODO: Instead of using this we can use the native route handlers in umbraco 7.2+
             var ensurePcr = new EnsurePublishedContentRequestAttribute(umbracoContext, "__virtualnodefinder__");
 
             var found = FindContent(requestContext, umbracoContext);
@@ -29,13 +30,18 @@ namespace Articulate
             //assign the node to our special token
             requestContext.RouteData.DataTokens["__virtualnodefinder__"] = found;
             
-            //this hack creates and assigns the pcr to the context
+            //this hack creates and assigns the pcr to the context - from 7.2+ this also calls Prepare() to 
+            // wire up everything in the request
             ensurePcr.OnActionExecuted(new ActionExecutedContext{RequestContext = requestContext});
 
-            //allows inheritors to change the pcr
+            //allows inheritors to change the pcr - obsolete though!
             PreparePublishedContentRequest(umbracoContext.PublishedContentRequest);
 
-            umbracoContext.PublishedContentRequest.ConfigureRequest();
+            //This doesn't execute for less than 7.2.0
+            if (UmbracoVersion.Current < Version.Parse("7.2.0"))
+            {
+                umbracoContext.PublishedContentRequest.ConfigureRequest();   
+            }            
 
             //create the render model
             var renderModel = new RenderModel(umbracoContext.PublishedContentRequest.PublishedContent, umbracoContext.PublishedContentRequest.Culture);
@@ -69,7 +75,7 @@ namespace Articulate
                     // if that fails then we will call it with a non static instance since that is how it was pre-7.2)
                     return (IHttpHandler)typeof(RenderRouteHandler).CallStaticMethod("HandlePostedValues", requestContext, (object)formInfo);
                 }
-                catch (System.Reflection.TargetException)
+                catch (TargetException)
                 {
                     var rrh = new RenderRouteHandler(ControllerBuilder.Current.GetControllerFactory());
                     return (IHttpHandler)rrh.CallMethod("HandlePostedValues", requestContext, (object)formInfo);
@@ -85,18 +91,20 @@ namespace Articulate
         /// Allows inheritors to modify the PublishedContentRequest for things like assigning culture, etc...
         /// </summary>
         /// <param name="publishedContentRequest"></param>
+        [Obsolete("This method should no longer be used, in Umbraco 7.2.0+ most changes to the PCR in this method will result in a YSOD")]
         protected virtual void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
         {
-            //We're going to use some reflection to get at the PublishedContentRequestEngine.FindDomain() method which will lookup
-            // the domain based on the assigned PublishedContent on the PCR, which will take into account the parent/ancestor ids
-            // to find the domain.
+            //NOTE: In Umbraco 7.2, when this is fixed: http://issues.umbraco.org/issue/U4-5628, we don't need to do this at all because the 
+            // call to OnActionExecuted does the whole Prepare() operation for us.
+            if (UmbracoVersion.Current < Version.Parse("7.2.0"))
+            {
+                //We're going to use some reflection to get at the PublishedContentRequestEngine.FindDomain() method which will lookup
+                // the domain based on the assigned PublishedContent on the PCR, which will take into account the parent/ancestor ids
+                // to find the domain.
 
-            var engine = publishedContentRequest.GetPropertyValue("Engine");
-            engine.CallMethod("FindDomain");
-
-            //NOTE: In Umbraco 7.2, when this is fixed: http://issues.umbraco.org/issue/U4-5628, we don't need to do this and 
-            // we can just call Prepare(). Currently we cannot use reflection to call Prepare() because it will still launch
-            // the content finders even though a content item is already assigned. in 7.2 this is also fixed.
+                var engine = publishedContentRequest.GetPropertyValue("Engine");
+                engine.CallMethod("FindDomain");
+            }
         }
 
         /// <summary>
