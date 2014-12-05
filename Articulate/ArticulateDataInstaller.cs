@@ -19,9 +19,12 @@ namespace Articulate
             LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = ApplicationContext.Current.Services.ContentService.CreateContent(
                 "Blog", -1, "Articulate");
+            root.SetValue("theme", "Shazwazza");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
-            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");
+            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");            
+            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/1011/7406981406_1aff1cb527_o.jpg','crops': []}");
+            
             ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(root);
 
             //get the authors and archive nodes and publish them
