@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
@@ -6,9 +7,9 @@ namespace Articulate.Controllers
     public class MarkdownEditorController : UmbracoController
     {
         [System.Web.Mvc.HttpGet]
-        public ActionResult NewPost()
+        public ActionResult NewPost(RenderModel model)
         {
-            ViewBag.articulateNodeId = RouteData.Values["id"];
+            ViewBag.articulateNodeId = model.Content.Id;
             return View("~/App_Plugins/Articulate/Views/MarkdownEditor.cshtml");
         }
     }

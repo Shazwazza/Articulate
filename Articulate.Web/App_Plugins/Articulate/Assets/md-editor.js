@@ -277,7 +277,7 @@ articulateapp.factory("httpHelper", function ($http, angularHelper) {
                     // the request needs to include a 'boundary' parameter which identifies the boundary name between parts in this multi-part request
                     // and setting the Content-type manually will not set this boundary parameter. For whatever reason, setting the Content-type to 'false'
                     // will force the request to automatically populate the headers properly including the boundary parameter.
-                    headers: { 'Content-Type': false },
+                    headers: { 'Content-Type': undefined },
                     transformRequest: function (data) {
                         var formData = new FormData();
                         //add the json data

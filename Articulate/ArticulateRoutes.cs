@@ -48,32 +48,35 @@ namespace Articulate
                     MapRssRoute(routes, grouping.Key, nodesAsArray);
                     MapSearchRoute(routes, grouping.Key, nodesAsArray);                                        
                     MapTagsAndCategoriesRoute(routes, grouping.Key, nodesAsArray);
+                    MapMarkdownEditorRoute(routes, grouping.Key, nodesAsArray);  
 
                     foreach (var content in grouping)
                     {
                         MapMetaWeblogRoute(routes, grouping.Key, content);
                         MapManifestRoute(routes, grouping.Key, content);
-                        MapRsdRoute(routes, grouping.Key, content);
-                        MapMarkdownEditorRoute(routes, grouping.Key, content);    
+                        MapRsdRoute(routes, grouping.Key, content);                          
                     }
 
                 }
             }
         }
 
-        private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
-            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
+            //var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
+            var routeHash = nodeRoutePath.GetHashCode();
 
-            var name = "articulate_markdown_new" + node.Id;
-            routes.MapRoute(name,
-                routePath,
+            //var name = "articulate_markdown_new" + node.Id;
+
+            routes.MapUmbracoRoute(
+                "articulate_markdown_new" + routeHash,
+                (nodeRoutePath.EnsureEndsWith('/') + "a-new").TrimStart('/'),
                 new
                 {
                     controller = "MarkdownEditor",
-                    action = "NewPost",
-                    id = node.Id
-                }).AddRouteNameToken(name);
+                    action = "NewPost"
+                },
+                new UmbracoVirtualNodeByIdRouteHandler(nodesWithPath));
         }
 
         private static void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
