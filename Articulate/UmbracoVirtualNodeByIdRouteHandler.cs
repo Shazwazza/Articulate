@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Web.Routing;
 using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -62,7 +63,7 @@ namespace Articulate
             {
                 realNodeId = requestContext.HttpContext.Request.Url == null
                     ? _hostsAndIds.First().Item2 //cannot be determined
-                    : requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
+                    : requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
                         ? _hostsAndIds.First(x => x.Item1 == string.Empty).Item2
                         : _hostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
             }

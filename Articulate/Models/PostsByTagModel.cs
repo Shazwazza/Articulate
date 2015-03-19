@@ -18,7 +18,9 @@ namespace Articulate.Models
             Posts = posts;
             TagName = tagName;
 
-            TagUrl = tagUrl.SafeEncodeUrlSegments().EnsureStartsWith('/');
+            var safeEncoded = tagUrl.SafeEncodeUrlSegments();
+
+            TagUrl = safeEncoded.Contains("//") ? safeEncoded : safeEncoded.EnsureStartsWith('/');
         }
 
         public IEnumerable<PostModel> Posts { get; private set; }

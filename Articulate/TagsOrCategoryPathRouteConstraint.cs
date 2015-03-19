@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
@@ -63,7 +64,7 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.First()  //cannot be determined
-                    : httpContext.Request.Url.Host.InvariantEquals("localhost")
+                    : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
                         ? _urlNames.First(x => x.Host == string.Empty)
                         : _urlNames.First(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
