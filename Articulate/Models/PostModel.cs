@@ -73,7 +73,10 @@ namespace Articulate.Models
                             _author.Bio = authorNode.GetPropertyValue<string>("authorBio");
                             _author.Url = authorNode.GetPropertyValue<string>("authorUrl");
 
-                            _author.Image = authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max);
+                            var imageVal = authorNode.GetPropertyValue<string>("authorImage");
+                            _author.Image = !imageVal.IsNullOrWhiteSpace()
+                                ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
+                                : null;
                         }
                     }
                 }
