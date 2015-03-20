@@ -16,8 +16,10 @@ using Umbraco.Web.WebApi;
 
 namespace Articulate.Controllers
 {
+    [IsBackOffice]
     public class ArticulateBlogImportController : UmbracoApiController
     {
+     
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())

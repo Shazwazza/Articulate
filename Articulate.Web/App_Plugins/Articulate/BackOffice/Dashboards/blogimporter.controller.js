@@ -58,12 +58,8 @@
                     .then(postImport)
                     .then(function(data) {
                         $scope.status = "Finished!";
-                    });
-                //.catch(function (response) {
-                //    // error
-                //    alert("FAILED!");
-                //    $scope.submitting = false;
-                //});
+                        $scope.submitting = false;
+                });
             }
         }
     }).directive('requiredFile', function () {
