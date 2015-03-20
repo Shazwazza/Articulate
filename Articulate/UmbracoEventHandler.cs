@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Articulate.Controllers;
 using Articulate.Models;
+using Articulate.Options;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Events;
@@ -18,6 +19,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Core.Sync;
 using umbraco.dialogs;
+using Umbraco.Core.Configuration;
 using Umbraco.Web;
 using Umbraco.Web.Cache;
 using Umbraco.Web.Routing;
@@ -40,7 +42,6 @@ namespace Articulate
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-
             //list to the init event of the application base, this allows us to bind to the actual HttpApplication events
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
@@ -160,34 +161,27 @@ namespace Articulate
 
         void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
-            foreach (var c in e.SavedEntities
+            if (UmbracoConfig.For.ArticulateOptions().AutoGenerateExcerpt)
+            {
+                foreach (var c in e.SavedEntities
                 .Where(c => c.ContentType.Alias.InvariantEquals("ArticulateRichText") || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 .Where(c => c.GetValue<string>("excerpt").IsNullOrWhiteSpace()))
-            {
-                if (c.HasProperty("richText"))
                 {
-                    var val = c.GetValue<string>("richText");
-
-                    c.SetValue("excerpt", val == null
-                        ? string.Empty
-                        : string.Join("", val.StripHtml()
-                            .DecodeHtml()
-                            .StripNewLines()
-                            .TruncateAtWord(200, "")));
-                }
-                else
-                {
-                    var val = c.GetValue<string>("markdown");
-                    var md = new MarkdownDeep.Markdown();
-                    val = md.Transform(val);
-                    c.SetValue("excerpt", val == null
-                        ? string.Empty
-                        : string.Join("", val.StripHtml()
-                            .DecodeHtml()
-                            .StripNewLines()
-                            .TruncateAtWord(200, "")));
+                    if (c.HasProperty("richText"))
+                    {
+                        var val = c.GetValue<string>("richText");
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                    }
+                    else
+                    {
+                        var val = c.GetValue<string>("markdown");
+                        var md = new MarkdownDeep.Markdown();
+                        val = md.Transform(val);
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                    }
                 }
             }
+            
         }
 
         static void ServerVariablesParser_Parsing(object sender, Dictionary<string, object> e)

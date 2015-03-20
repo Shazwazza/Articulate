@@ -285,6 +285,8 @@
     <Compile Include="Models\ArticulateVirtualPage.cs" />
     <Compile Include="Models\MasterModel.cs" />
     <Compile Include="NotFoundHandler.cs" />
+    <Compile Include="Options\ArticulateOptions.cs" />
+    <Compile Include="Options\UmbracoConfigExtensions.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ArticulateMarkdownPropertyEditor.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
