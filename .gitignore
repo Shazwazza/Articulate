@@ -27,3 +27,7 @@ Articulate.Web/media/*
 Articulate.Web/App_Data/cache/*
 *.suo
 *.csproj.user
+Articulate.Console/bin/*
+Articulate.Console/obj/*
+Articulate.Console/App_Data/TEMP/PluginCache/*
+bin/Debug/*
