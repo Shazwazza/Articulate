@@ -286,7 +286,7 @@ namespace Articulate
                 result.Add(postNode);
             }
 
-            return result;
+            return await Task.FromResult(result);
         }
 
         //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,

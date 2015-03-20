@@ -167,9 +167,13 @@ namespace Articulate
                 if (c.HasProperty("richText"))
                 {
                     var val = c.GetValue<string>("richText");
+
                     c.SetValue("excerpt", val == null
-                        ? string.Empty 
-                        : string.Join("", val.StripHtml().StripNewLines().Take(200)));
+                        ? string.Empty
+                        : string.Join("", val.StripHtml()
+                            .DecodeHtml()
+                            .StripNewLines()
+                            .TruncateAtWord(200, "")));
                 }
                 else
                 {
@@ -178,7 +182,10 @@ namespace Articulate
                     val = md.Transform(val);
                     c.SetValue("excerpt", val == null
                         ? string.Empty
-                        : string.Join("", val.StripHtml().StripNewLines().Take(200)));
+                        : string.Join("", val.StripHtml()
+                            .DecodeHtml()
+                            .StripNewLines()
+                            .TruncateAtWord(200, "")));
                 }
             }
         }

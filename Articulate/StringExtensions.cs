@@ -7,6 +7,27 @@ namespace Articulate
 {
     internal static class StringExtensions
     {
+        public static string DecodeHtml(this string text)
+        {
+            return HttpUtility.HtmlDecode(text);
+        }
+
+        public static string TruncateAtWord(this string text, int maxCharacters, string trailingStringIfTextCut = "&hellip;")
+        {
+            if (text == null || (text = text.Trim()).Length <= maxCharacters)
+                return text;
+
+            int trailLength = trailingStringIfTextCut.StartsWith("&") ? 1
+                                                                      : trailingStringIfTextCut.Length;
+            maxCharacters = maxCharacters - trailLength >= 0 ? maxCharacters - trailLength
+                                                             : 0;
+            int pos = text.LastIndexOf(" ", maxCharacters, StringComparison.Ordinal);
+            if (pos >= 0)
+                return text.Substring(0, pos) + trailingStringIfTextCut;
+
+            return string.Empty;
+        }
+
         public static string SafeEncodeUrlSegments(this string urlPath)
         {
             if (urlPath.InvariantStartsWith("http://") || urlPath.InvariantStartsWith("https://"))
