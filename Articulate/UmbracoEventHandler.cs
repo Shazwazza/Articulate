@@ -42,6 +42,9 @@ namespace Articulate
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
+            //add the theme view engine
+            ViewEngines.Engines.Add(new ThemeViewEngine());
+
             //list to the init event of the application base, this allows us to bind to the actual HttpApplication events
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
@@ -50,7 +53,7 @@ namespace Articulate
 
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
-            ContentService.Saving += ContentService_Saving;            
+            ContentService.Saving += ContentService_Saving;
             ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;

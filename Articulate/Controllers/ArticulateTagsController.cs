@@ -77,6 +77,9 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
+            //store the theme for retrieval in the theme engine
+            HttpContext.Items["theme"] = rootPageModel.Theme;
+
             var contentByTags = Umbraco.GetContentByTags(rootPageModel, tagGroup, baseUrl);
 
             var tagListModel = new TagListModel(
@@ -85,7 +88,7 @@ namespace Articulate.Controllers
                 rootPageModel.PageSize,
                 new PostTagCollection(contentByTags));
 
-            return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
+            return View("Tags", tagListModel);
         }
 
         private ActionResult RenderByTagOrCategory(RenderModel model, int? p, string tagGroup, string baseUrl)
@@ -98,6 +101,9 @@ namespace Articulate.Controllers
 
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
+
+            //store the theme for retrieval in the theme engine
+            HttpContext.Items["theme"] = rootPageModel.Theme;
 
             var contentByTag = Umbraco.GetContentByTag(
                 rootPageModel,
@@ -151,7 +157,7 @@ namespace Articulate.Controllers
 
             var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
 
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return View("List", listModel);
         }
     }
 }

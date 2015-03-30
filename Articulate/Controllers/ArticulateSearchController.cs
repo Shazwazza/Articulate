@@ -45,11 +45,14 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
+            //store the theme for retrieval in the theme engine
+            HttpContext.Items["theme"] = rootPageModel.Theme;
+
             if (term == null)
             {
                 //nothing to search, just render the view
                 var emptyList = new ListModel(tagPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(rootPageModel.PageSize, 0, 0));
-                return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
+                return View("List", emptyList);
             }
 
             if (p == null || p.Value <= 0)
@@ -57,9 +60,7 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            
-
-            var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);            
+            var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             var fields = new Dictionary<string, int>
             {
                 {"markdown", 2},
@@ -110,7 +111,7 @@ namespace Articulate.Controllers
 
             var totalPosts = searchResult.Count();
             var pageSize = rootPageModel.PageSize;
-            
+
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages
@@ -128,7 +129,7 @@ namespace Articulate.Controllers
 
             var listModel = new ListModel(tagPage, searchResult, pager);
 
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return View("List", listModel);
         }
 
     }

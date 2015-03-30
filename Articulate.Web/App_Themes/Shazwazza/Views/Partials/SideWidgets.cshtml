@@ -1,0 +1,12 @@
+@using Articulate
+@inherits UmbracoViewPage<Articulate.Models.IMasterModel>
+
+<div class="col-s-3">
+    <div class="sidenav box small">
+        <div class="widgetzone">
+            @Html.Partial("Categories")
+            @Html.Partial("Recent")
+            @Html.Partial("TagCloud")
+        </div>
+    </div>
+</div>
