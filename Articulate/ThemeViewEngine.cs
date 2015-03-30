@@ -29,7 +29,7 @@ namespace Articulate
 		/// </summary>
         public ThemeViewEngine() : base()
 		{
-			string templateFolder = "~/App_Themes/%1/Views";
+			string templateFolder = "~/Themes/%1/Views";
 
             var replaceWithThemeViewFolder = _viewLocations.ForEach(location => templateFolder + location);
 			var replaceWithThemePartialViewFolder = _partialViewLocations.ForEach(location => templateFolder + location);

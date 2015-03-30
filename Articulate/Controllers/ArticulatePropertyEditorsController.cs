@@ -10,7 +10,7 @@ namespace Articulate.Controllers
     {
         public IEnumerable<string> GetThemes()
         {
-            var dir = IOHelper.MapPath("~/App_Themes");
+            var dir = IOHelper.MapPath("~/Themes");
             return Directory.GetDirectories(dir).Select(x => new DirectoryInfo(x).Name);
         }
     }
