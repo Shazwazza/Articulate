@@ -10,7 +10,7 @@ using Umbraco.Core;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Models;
 
-namespace Articulate
+namespace Articulate.Themes
 {
     /// <summary>
     /// A view engine to look into the App_Plugins folder for views for packaged controllers

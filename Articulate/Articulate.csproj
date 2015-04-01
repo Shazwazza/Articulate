@@ -245,7 +245,7 @@
     <Compile Include="GitHubFeed.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="ArticulateDataInstaller.cs" />
-    <Compile Include="IThemeManager.cs" />
+    <Compile Include="Themes\IThemeManager.cs" />
     <Compile Include="JsonFeedHelper.cs" />
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="MetaWeblogRouteConstraint.cs" />
@@ -276,10 +276,10 @@
     <Compile Include="RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TagsOrCategoryPathRouteConstraint.cs" />
-    <Compile Include="DefaultThemeManager.cs" />
-    <Compile Include="ThemeManagerConfiguration.cs" />
-    <Compile Include="ThemeManagerResolver.cs" />
-    <Compile Include="ThemeViewEngine.cs" />
+    <Compile Include="Themes\DefaultThemeManager.cs" />
+    <Compile Include="Themes\ThemeManagerConfiguration.cs" />
+    <Compile Include="Themes\ThemeManagerResolver.cs" />
+    <Compile Include="Themes\ThemeViewEngine.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

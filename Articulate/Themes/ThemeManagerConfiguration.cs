@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Core;
 
-namespace Articulate
+namespace Articulate.Themes
 {
     class ThemeManagerConfiguration : ApplicationEventHandler
     {

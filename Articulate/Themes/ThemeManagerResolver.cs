@@ -1,6 +1,6 @@
 ﻿using Umbraco.Core.ObjectResolution;
 
-namespace Articulate
+namespace Articulate.Themes
 {
     /// <summary>
     /// Resolves the <see cref="IThemeManager"/> implementation.

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Articulate
+namespace Articulate.Themes
 {
     public interface IThemeManager
     {
