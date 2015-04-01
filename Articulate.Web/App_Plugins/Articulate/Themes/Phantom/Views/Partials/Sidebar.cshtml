@@ -1,0 +1,45 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+@*
+
+    INSTRUCTIONS: Change the URLs below that have the alias 'SomeGuy' to have your own account aliases
+    
+    If you want, update the sidebar to have a background image using the BlogBanner assigned in the back office
+
+*@
+
+@*TODO: Here you could use the blog banner as the background..*@
+@*<div class="sidebar" role="aside"
+    @if (!Model.BlogBanner.IsNullOrWhiteSpace()) { <text> style="background-image: url(@Model.BlogBanner)" </text>     }>*@
+<div class="sidebar" role="aside">
+    
+    <header class="header">
+
+        @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+        {
+            <a href="@Url.ArticulateRootUrl(Model)">
+                <img id="blog" class="logo" src="@Model.BlogLogo">
+            </a>
+        }
+
+        <h1 class="title"><a href="@Model.RootBlogNode.Url">@Model.BlogTitle</a></h1>
+
+        <div class="separator"></div>
+
+        <p class="description">@Model.BlogDescription</p>
+        <div class="social-icons">
+
+            <a href="https://github.com/SomeGuy" class="icon icon-github"></a>
+            <a href="https://plus.google.com/+SomeGuy?rel=author" class="icon icon-gplus"></a>
+            <a href="https://twitter.com/SomeGuy" class="icon icon-twitter"></a>
+
+            <a href="@Url.ArticulateRssUrl(Model)" class="icon-rss"></a>
+        </div>
+
+        <div class="separator"></div>
+
+        @Html.ThemedPartial(Model, "SearchBox")
+
+    </header>
+</div>

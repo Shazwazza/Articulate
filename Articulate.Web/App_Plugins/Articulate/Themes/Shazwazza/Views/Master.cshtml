@@ -1,0 +1,115 @@
+@using ClientDependency.Core.Mvc
+@using Articulate;
+@model Articulate.Models.IMasterModel
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+    @*
+        IE10 Mobile ignores the meta viewport tag.
+        This fix needs to be in the head.
+    *@
+    <script src="@Url.ThemedAsset(Model, "js/responsive.ie10mobilefix.min.js")"></script>
+
+    <link rel="icon" type="image/png" href="@Url.ThemedAsset(Model, "img/favicon.ico")" />
+
+    @if (IsSectionDefined("title"))
+    {
+        @RenderSection("title")
+    }
+    else
+    {
+        <title>@Model.Name - @Model.BlogTitle</title>
+    }
+
+    <meta name="description" content="@Model.BlogDescription" />
+    @Html.AdvertiseWeblogApi(Model)
+    @Html.RssFeed(Model)
+
+
+    @{ Html
+           .RequiresJs("http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
+           .RequiresCss("http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")           
+           .RequiresCss("http://fonts.googleapis.com/css?family=Roboto:400,300,100,500")
+         //This loads all Css found in the current theme's js folder: /Assets/js
+           .RequiresThemedCssFolder(Model)
+         //This loads all JS found in the current theme's js folder: /Assets/js
+           .RequiresThemedJsFolder(Model);
+    }
+
+    @Html.RenderCssHere()
+
+</head>
+<body>
+    
+    <div class="container">
+
+        <div class="row topNav">
+            <div class="col-l-9 col-m-9 col-s-12 col-xs-12">                
+                @Html.ThemedPartial(Model, "Menu")                
+            </div>            
+        </div>
+
+        <div class="row">
+            <div class="col-l-9 col-m-9 col-s-12 col-xs-12">
+
+                <div class="header">
+                    <div class="title">
+                        <h1>
+                            <a href="@Url.ArticulateRootUrl(Model)">@Model.BlogTitle</a>
+                        </h1>
+                        <div class="subTitle">
+                            @Model.BlogDescription
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        
+        @RenderBody()
+        
+        <div class="row">
+            <div class="col-s-12">
+                <div id="footer">
+                    <div class="copy">&copy; <b>@Model.BlogTitle</b>&nbsp;@DateTime.Now.Year</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.RenderJsHere()
+    
+    <script type="text/javascript">
+        
+        @*Used for the g+ button*@
+
+        (function () {
+            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+
+        @*Used to display comment counts for each article*@
+
+        var disqus_shortname = '@Model.DisqusShortName';
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+
+    @Html.GoogleAnalyticsTracking(Model)
+
+</body>
+</html>

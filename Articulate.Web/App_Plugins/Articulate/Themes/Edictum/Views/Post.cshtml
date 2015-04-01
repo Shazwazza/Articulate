@@ -1,0 +1,26 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.PostModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template tag-sublime tag-javascript";
+}
+
+@Html.ThemedPartial(Model, "Header")
+<main>
+    
+    <article>
+        <small class="fecha">
+            @Model.PublishedDate.ToString("dddd, dd MMMM, yyyy")
+        </small>
+        <a class="title" href="@Model.Url">
+            <h1 class="titulo-articulo">@Model.Name</h1>
+        </a>
+
+        <h2 class="subtitulo-articulo">@Model.Excerpt</h2>
+        <div class="texto">
+            @Model.Body
+        </div>
+    </article>
+
+</main>

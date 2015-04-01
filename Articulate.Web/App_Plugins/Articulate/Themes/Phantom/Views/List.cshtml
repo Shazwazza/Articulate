@@ -1,0 +1,41 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Core
+@using Umbraco.Web
+@model Articulate.Models.ListModel
+@{
+    Layout = "Master.cshtml";
+}
+
+<main role="main">
+    
+    @if (!Model.Children.Any())
+    {
+        <article>No blog posts found</article>
+    }
+    else
+    {
+        foreach (var post in Model.Children<PostModel>())
+        {
+            <article class="post tag-ghost-tag">
+                <header class="post-header">
+                    <span class="post-meta">
+                        <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
+                            @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                        </time>
+                        @Html.ThemedPartial(Model, "PostTags", post)
+                    </span>
+
+                    <h2 class="post-title"><a href="@post.Url">@post.Name</a></h2>
+
+                </header>
+                <section class="post-excerpt">
+                    <p>@post.Excerpt&hellip;</p>
+                </section>
+            </article>
+        }
+        
+        @Html.ThemedPartial(Model, "Pager", Model.Pages)
+    }
+
+</main>

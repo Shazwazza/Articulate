@@ -1,0 +1,86 @@
+@using Articulate
+@using Articulate.Models
+@using ClientDependency.Core.Mvc
+@using Umbraco.Core
+@using Umbraco.Web
+@using Umbraco.Web.Models
+@inherits UmbracoViewPage<ListModel>
+@{
+    Layout = "Master.cshtml";
+    
+    //TODO: Update the headline text
+    var headlineText = "Hey fellow developer, please update this headline text by editing ~/App_Plugins/Articulate/Themes/Shazwazza/Views/List.cshtml";
+    
+    //TODO: Update bottom message text
+    var headlineFooterText = "Also, add your own message here :)";
+}
+
+@*Render different content if it's the homepage*@
+@if (Model.DocumentTypeAlias == "ArticulateArchive")
+{
+    Html.RequiresCss("http://cdnjs.cloudflare.com/ajax/libs/octicons/2.1.2/octicons.css");
+    
+    <div class="row box">
+        <div class="col-xs-12 col-s-12 col-m-12 col-l-12">
+            <div class="headline box-inner post visible-s visible-m visible-l"
+                 style="background: url('@Model.RootBlogNode.GetCropUrl(width:1140, height: 390, propertyAlias: "blogBanner", imageCropMode:ImageCropMode.Crop)') no-repeat center">
+                @headlineText
+                <span>@headlineFooterText</span>                
+            </div>
+        </div>        
+    </div>
+    <div class="row">
+        <div class="col-s-6">
+            <div class="row widget sidenav">
+                
+                @Html.ThemedPartial(Model, "Recent")
+            </div>            
+            <div class="row widget">
+                @Html.ThemedPartial(Model, "FeedDelicious")
+            </div>
+        </div>
+        <div class="col-s-6">
+            <div class="row widget">
+                @Html.ThemedPartial(Model, "FeedGitHub")
+            </div>
+        </div>
+    </div>
+    
+}
+else
+{
+    <div class="row">
+        <div class="col-s-9">
+            <div class="row main">
+                <div class="mainContent box small">
+                    <div class="posts" role="main">
+
+                        @if (!Model.Children.Any())
+                        {
+
+                            @Html.ThemedPartial(Model, "SearchBox")
+
+                            if (!Request.QueryString["term"].IsNullOrWhiteSpace())
+                            {
+                                <div class="box-inner post xfolkentry">No blog posts found</div>
+                            }
+
+                        }
+                        else
+                        {
+                            foreach (var post in Model.Children<PostModel>())
+                            {
+                                @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true } })
+                            }
+
+                            @Html.ThemedPartial(Model, "Pager", Model.Pages)
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @Html.ThemedPartial(Model, "SideWidgets")
+    </div>
+}

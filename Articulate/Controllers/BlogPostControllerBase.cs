@@ -20,9 +20,10 @@ namespace Articulate.Controllers
             var post = new PostModel(model.Content);
             
             //store the theme for retrieval in the theme engine
-            HttpContext.Items["theme"] = post.Theme;
+            //HttpContext.Items["theme"] = post.Theme;
             
-            return View("Post", post);
+            //return View("Post", post);
+            return View(PathHelper.GetThemeViewPath(post, "Post"), post);
         }
 
     }

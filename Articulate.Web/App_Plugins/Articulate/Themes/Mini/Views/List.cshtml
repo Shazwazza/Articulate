@@ -1,0 +1,71 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Core
+@using Umbraco.Web
+@model Articulate.Models.ListModel
+@{
+    Layout = "Master.cshtml";
+}
+
+<div class="container">
+
+    <!-- HEADER COLUMN --->
+    <div class="header-col">
+        <header>
+            @Html.ThemedPartial(Model, "Header")
+        </header>
+    </div>
+
+    <!--- MAIN COLUMN --->
+    <div class="main-col">
+        @if (!Model.Children.Any())
+        {
+            <article>No blog posts found</article>
+        }
+        else
+        {
+            foreach (var post in Model.Children<PostModel>())
+            {
+                <div class="post-entry post-list">
+                    <article role="article" itemscope itemtype="http://schema.org/Article">
+                        <div class="post-side">
+                            <time datetime="@post.PublishedDate.ToString("yyyy MMM dd")" itemprop="datePublished" class="post-date">
+                                <span class="year">@post.PublishedDate.ToString("yyyy")</span>
+                                <span class="datetime-month">@post.PublishedDate.ToString("MMM")</span><br>
+                                <span class="datetime-day">@post.PublishedDate.ToString("dd")</span>
+                            </time>
+                        </div>
+                        <div class="post-main">
+                            <a href="@post.Url" class="post-list-link">
+                                <div>
+                                    <h2>@post.Name</h2>
+                                    @post.Excerpt
+                                    <span class="readmore">
+                                        <i class="fa fa-plus-square plus-sign"></i>
+                                        <span class="readmore-hover">READMORE</span>
+                                    </span>
+                                </div>
+                            </a>
+                            <div class="post-info">
+                                
+                                @if (post.Tags.Any())
+                                {
+                                    <div class="tags">
+                                        <i class="fa fa-tags fa-lg"></i>
+                                        @Html.ThemedPartial(Model, "PostTags", post)
+                                    </div>    
+                                }
+
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        }
+        
+        @Html.ThemedPartial(Model, "Pager", Model.Pages)
+        
+        @Html.ThemedPartial(Model, "Footer")
+
+    </div>
+</div>

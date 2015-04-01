@@ -1,0 +1,50 @@
+@using ClientDependency.Core.Mvc
+@using Articulate;
+@model Articulate.Models.IMasterModel
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="google-site-verification" content="2sFNa3r5M51jSBOmqrR7s9kJ6ohxsR5CNOkp4I0a2ho" />
+
+    @if (IsSectionDefined("title"))
+    {
+        @RenderSection("title")
+    }
+    else
+    {
+        <title>@Model.Name - @Model.BlogTitle</title>
+    }
+
+    <meta name="description" content="@Model.BlogDescription" />
+    @Html.AdvertiseWeblogApi(Model)
+    @Html.RssFeed(Model)
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    @{ Html
+           .RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+           .RequiresThemedCssFolder(Model);
+    }
+
+    @Html.RenderCssHere()
+    
+</head>
+<body class="@ViewBag.CssBodyClass">
+
+    @Html.ThemedPartial(Model, "Sidebar")
+
+    <div class="content">
+        @RenderBody()
+    </div>
+    
+    @Html.RenderJsHere()
+
+    @Html.GoogleAnalyticsTracking(Model)
+
+</body>
+</html>

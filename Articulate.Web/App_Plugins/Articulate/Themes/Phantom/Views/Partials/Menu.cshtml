@@ -1,0 +1,12 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<nav class="menu" role="nav">
+    <ul>
+        <li><a href="@Url.ArticulateCategoriesUrl(Model)">Archive</a></li>
+        <li><a href="@Url.ArticulateTagsUrl(Model)">Tags</a></li>
+        <li>
+            @Html.ThemedPartial(Model, "SearchBox")
+        </li>
+    </ul>
+</nav>
