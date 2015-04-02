@@ -170,14 +170,14 @@ namespace Articulate
                     if (c.HasProperty("richText"))
                     {
                         var val = c.GetValue<string>("richText");
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
                     }
                     else
                     {
                         var val = c.GetValue<string>("markdown");
                         var md = new MarkdownDeep.Markdown();
                         val = md.Transform(val);
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
                     }
                 }
             }
