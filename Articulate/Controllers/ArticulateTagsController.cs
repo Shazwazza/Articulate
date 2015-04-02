@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -99,11 +100,7 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
-            var contentByTag = Umbraco.GetContentByTag(
-                rootPageModel,
-                tagPage.Name,
-                tagGroup,
-                baseUrl);
+            var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
 
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-' 
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
@@ -121,7 +118,7 @@ namespace Articulate.Controllers
             {
                 return new HttpNotFoundResult();
             }
-
+            
             if (p == null || p.Value <= 0)
             {
                 p = 1;
