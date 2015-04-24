@@ -189,11 +189,11 @@ namespace Articulate
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
             var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));
-            e.Add("articulate", new Dictionary<string, object>
+            e["articulate"] = new Dictionary<string, object>
             {
                 {"articulateImportBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.PostImportBlogMl(null))},
                 {"articulatePropertyEditorsBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulatePropertyEditorsController>(controller => controller.GetThemes())}
-            });
+            };
         }
 
         static void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
