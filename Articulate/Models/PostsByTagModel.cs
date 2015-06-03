@@ -15,7 +15,8 @@ namespace Articulate.Models
             if (tagName == null) throw new ArgumentNullException("tagName");
             if (tagUrl == null) throw new ArgumentNullException("tagUrl");
 
-            Posts = posts;
+            //resolve to array so it doesn't double lookup
+            Posts = posts.ToArray();
             TagName = tagName;
 
             var safeEncoded = tagUrl.SafeEncodeUrlSegments();
