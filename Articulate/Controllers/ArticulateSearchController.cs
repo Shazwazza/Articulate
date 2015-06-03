@@ -60,7 +60,9 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);            
+            
+            //The fields to search on and their 'weight' (importance)
             var fields = new Dictionary<string, int>
             {
                 {"markdown", 2},
@@ -70,12 +72,17 @@ namespace Articulate.Controllers
                 {"categories", 1},
                 {"umbracoUrlName", 3}
             };
+
+            //The multipliers for match types
+            const int exactMatch = 5;
+            const int termMatch = 2;
+
             var fieldQuery = new StringBuilder();
             //build field query
             foreach (var field in fields)
             {
                 //full exact match (which has a higher boost)
-                fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, "\"" + term + "\"", field.Value * 3));
+                fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, "\"" + term + "\"", field.Value * exactMatch));
                 fieldQuery.Append(" ");
                 //NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
                 // API like ComplexPhraseWildcardSomethingOrOther...
@@ -83,7 +90,7 @@ namespace Articulate.Controllers
                 foreach (var s in splitSearch)
                 {
                     //match on each term, no wildcard, higher boost
-                    fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, s, field.Value * 2));
+                    fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, s, field.Value * termMatch));
                     fieldQuery.Append(" ");
 
                     //match on each term, with wildcard 
@@ -102,6 +109,7 @@ namespace Articulate.Controllers
                 ? ExamineManager.Instance.DefaultSearchProvider
                 : ExamineManager.Instance.SearchProviderCollection[provider];
 
+
             var searchResult = Umbraco.TypedSearch(criteria, searchProvider).ToArray();
 
             //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
@@ -111,7 +119,7 @@ namespace Articulate.Controllers
 
             var totalPosts = searchResult.Count();
             var pageSize = rootPageModel.PageSize;
-
+            
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages

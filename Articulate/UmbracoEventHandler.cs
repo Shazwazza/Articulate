@@ -170,14 +170,14 @@ namespace Articulate
                     if (c.HasProperty("richText"))
                     {
                         var val = c.GetValue<string>("richText");
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
                     }
                     else
                     {
                         var val = c.GetValue<string>("markdown");
                         var md = new MarkdownDeep.Markdown();
                         val = md.Transform(val);
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt);
+                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
                     }
                 }
             }
@@ -189,11 +189,11 @@ namespace Articulate
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
             var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));
-            e.Add("articulate", new Dictionary<string, object>
+            e["articulate"] = new Dictionary<string, object>
             {
                 {"articulateImportBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.PostImportBlogMl(null))},
                 {"articulatePropertyEditorsBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulatePropertyEditorsController>(controller => controller.GetThemes())}
-            });
+            };
         }
 
         static void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
