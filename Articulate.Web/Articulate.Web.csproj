@@ -21,7 +21,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <NuGetPackageImportStamp>e9546ccb</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>bb21133a</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -61,9 +61,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ClientDependency.1.8.3.1\lib\net45\ClientDependency.Core.dll</HintPath>
     </Reference>
-    <Reference Include="ClientDependency.Core.Mvc, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ClientDependency-Mvc.1.8.0-beta4\lib\ClientDependency.Core.Mvc.dll</HintPath>
+    <Reference Include="ClientDependency.Core.Mvc">
+      <HintPath>..\packages\ClientDependency-Mvc.1.8.0.0\lib\net45\ClientDependency.Core.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="cms, Version=1.0.5557.19142, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -250,38 +249,26 @@
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\js\modernizr.js" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\base.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\style.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\site.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\responsive.min.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\style.css" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\author.gif" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\background.png" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\bg70.png" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\bg80.png" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\bgcode.gif" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\comments.gif" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\favicon.ico" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\quote.gif" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\timeicon.gif" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\responsive.ie10mobilefix.min.js" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
-    <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
-    <Content Include="App_Data\packages\created\createdPackages.config" />
-    <None Include="App_Plugins\Articulate\package.manifest" />
-    <Content Include="config\grid.editors.config.js" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
+    <None Include="App_Plugins\Articulate\package.manifest" />
+    <Content Include="config\grid.editors.config.js" />
     <Content Include="xslt\Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Mini\Assets\css\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\" />
+    <Folder Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\" />
+    <Folder Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\" />
+    <Folder Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\" />
     <Folder Include="Controllers\" />
     <Folder Include="media\" />
     <Folder Include="Models\" />
@@ -293,82 +280,34 @@
     <Content Include="config\ClientDependency.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.eot" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.ttf" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.woff" />
+    <Content Include="config\UrlRewriting.config" />
+    <Content Include="config\scripting.config" />
+    <Content Include="config\FileSystemProviders.config" />
+    <Content Include="config\feedProxy.config" />
+    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\List.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Post.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\List.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Header.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Post.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\List.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Master.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsDisqus.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Menu.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Pager.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\PostTags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\SearchBox.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Post.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Web.config" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsFacebook.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\config.json" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.eot" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.ttf" />
-    <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.woff" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Partials\Sidebar.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\List.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Master.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\CommentsDisqus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\CommentsFacebook.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Footer.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Header.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Menu.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Pager.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\PostTags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Partials\Share.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Post.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Mini\Views\Web.config" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\List.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Master.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Header.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\Pager.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Partials\PostTags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Post.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Edictum\Views\Web.config" />
+    <Content Include="App_Plugins\Articulate\Themes\Phantom\Views\Post.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\List.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Master.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\CommentsDisqus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\CommentsFacebook.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Menu.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Pager.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\PostTags.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Post.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Post.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Tags.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Web.config" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Follow.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Post.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Sharing.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Categories.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Recent.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\TagCloud.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SearchBox.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedDelicious.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedGitHub.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Tags.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\FooterDescription.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\HeaderDescription.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\SearchBox.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Menu.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Pager.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\List.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Master.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Menu.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Post.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Master.cshtml" />
-    <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\List.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\PostTags.cshtml" />
     <Content Include="App_Plugins\Articulate\Views\Web.config" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Web.config" />
-    <Content Include="config\Dashboard.config" />
+    <Content Include="config\Dashboard.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="App_Plugins\Articulate\Views\MarkdownEditor.cshtml" />
     <Content Include="packages.config">
       <SubType>Designer</SubType>
@@ -393,10 +332,6 @@
     <Content Include="Views\Partials\Grid\Editors\Base.cshtml" />
     <Content Include="Views\Partials\Grid\Bootstrap3.cshtml" />
     <Content Include="Views\Partials\Grid\Bootstrap2.cshtml" />
-    <Content Include="config\UrlRewriting.config" />
-    <Content Include="config\scripting.config" />
-    <Content Include="config\FileSystemProviders.config" />
-    <Content Include="config\feedProxy.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -438,15 +373,6 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\packages\UmbracoCms.7.2.4\build\UmbracoCms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.2.4\build\UmbracoCms.props'))" />
-    <Error Condition="!Exists('..\packages\UmbracoCms.7.2.4\build\UmbracoCms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.7.2.4\build\UmbracoCms.targets'))" />
-  </Target>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\packages\UmbracoCms.7.2.4\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.7.2.4\build\UmbracoCms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

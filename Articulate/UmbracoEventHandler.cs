@@ -50,7 +50,7 @@ namespace Articulate
 
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
-            ContentService.Saving += ContentService_Saving;            
+            ContentService.Saving += ContentService_Saving;
             ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;

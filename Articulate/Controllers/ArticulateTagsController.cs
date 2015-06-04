@@ -78,6 +78,9 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
+            //store the theme for retrieval in the theme engine
+            //HttpContext.Items["theme"] = rootPageModel.Theme;
+
             var contentByTags = Umbraco.GetContentByTags(rootPageModel, tagGroup, baseUrl);
 
             var tagListModel = new TagListModel(
@@ -86,6 +89,7 @@ namespace Articulate.Controllers
                 rootPageModel.PageSize,
                 new PostTagCollection(contentByTags));
 
+            //return View("Tags", tagListModel);
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 
@@ -100,7 +104,14 @@ namespace Articulate.Controllers
             //create a blog model of the main page
             var rootPageModel = new ListModel(model.Content.Parent);
 
-            var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
+            //store the theme for retrieval in the theme engine
+            //HttpContext.Items["theme"] = rootPageModel.Theme;
+
+            var contentByTag = Umbraco.GetContentByTag(
+                rootPageModel,
+                tagPage.Name,
+                tagGroup,
+                baseUrl);
 
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-' 
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
@@ -118,7 +129,7 @@ namespace Articulate.Controllers
             {
                 return new HttpNotFoundResult();
             }
-            
+
             if (p == null || p.Value <= 0)
             {
                 p = 1;
@@ -148,6 +159,7 @@ namespace Articulate.Controllers
 
             var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
 
+            //return View("List", listModel);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }

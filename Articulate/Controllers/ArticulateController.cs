@@ -51,6 +51,9 @@ namespace Articulate.Controllers
 
             var rootPageModel = new ListModel(model.Content);
 
+            //store the theme for retrieval in the theme engine
+            //HttpContext.Items["theme"] = rootPageModel.Theme;
+
             //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
             // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
             // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
@@ -74,6 +77,7 @@ namespace Articulate.Controllers
                 p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
 
             var listModel = new ListModel(listNode, pager);
+            //return View("List", listModel);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }
