@@ -31,3 +31,4 @@ Articulate.Console/bin/*
 Articulate.Console/obj/*
 Articulate.Console/App_Data/TEMP/PluginCache/*
 bin/Debug/*
+/Articulate.Web/App_Data/preview
