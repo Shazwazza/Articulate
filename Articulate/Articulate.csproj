@@ -285,8 +285,6 @@
     <Compile Include="Models\PagerModel.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\PostModel.cs" />
-    <Compile Include="Models\PostsByAuthorModel.cs" />
-    <Compile Include="Models\PostsByModelBase.cs" />
     <Compile Include="Models\PostTagCollection.cs" />
     <Compile Include="Models\TagListModel.cs" />
     <Compile Include="Models\PostsByTagModel.cs" />

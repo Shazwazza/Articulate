@@ -2,7 +2,7 @@
 @using Umbraco.Core
 @model Articulate.Models.PostModel
 
-@*This partial accepts view data parameters to modify how it is displayed - IsListView*@
+@*This partial accepts view data parameters to modify how it is displayed - IsListVie, HideAuthorCitationw*@
 
 <div class="box-inner post xfolkentry">
 
@@ -11,16 +11,21 @@
     @if (Model.Parent.Name != "Pages") 
     {
         <div class="descr">
-            By
-            @if (Model.Author.BlogUrl.IsNullOrWhiteSpace())
+            @if ((ViewBag.HideAuthorCitation == null || ViewBag.HideAuthorCitation == false))
             {
-                @Model.Author.Name
+                <span>
+                    By
+                    @if (Model.Author.BlogUrl.IsNullOrWhiteSpace())
+                    {
+                        @Model.Author.Name
+                    }
+                    else
+                    {
+                        <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+                    }
+                    on
+                </span>
             }
-            else
-            {
-                <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
-            }
-            on
             @Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")
         </div>
 

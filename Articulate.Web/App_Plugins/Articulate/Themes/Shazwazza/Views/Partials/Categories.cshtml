@@ -11,7 +11,7 @@
         <ul id="categorylist">
             @foreach (var c in categories)
             {
-                <li><a href="@Url.ArticulateCategoryUrl(Model, c)" title="Category: ASP.Net">@c</a></li>
+                <li><a href="@Url.ArticulateCategoryUrl(Model, c)" title="Category: @c">@c</a></li>
             }
         </ul>
     </div>
