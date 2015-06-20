@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Articulate.Options;
-using CookComputing.XmlRpc;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
@@ -19,7 +14,7 @@ namespace Articulate.Models
 {
     public class PostModel : MasterModel
     {
-        private AuthorModel _author;
+        private PostAuthorModel _author;
 
         public PostModel(IPublishedContent content)
             : base(content)
@@ -49,7 +44,7 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<bool>("enableComments", true); }
         }
 
-        public AuthorModel Author
+        public PostAuthorModel Author
         {
             get
             {
@@ -58,7 +53,7 @@ namespace Articulate.Models
                     return _author;
                 }
 
-                _author = new AuthorModel
+                _author = new PostAuthorModel
                 {
                     Name = Content.GetPropertyValue<string>("author", true)
                 };
