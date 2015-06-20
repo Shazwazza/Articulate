@@ -12,7 +12,17 @@
     @if (Model.Parent.Name != "Pages") 
     {
         <div class="descr">
-            @Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")      
+            By
+            @if (Model.Author.BlogUrl.IsNullOrWhiteSpace())
+            {
+                @Model.Author.Name
+            }
+            else
+            {
+                <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+            }
+            on
+            @Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")
         </div>
 
         @Html.ThemedPartial(Model, "Sharing")
