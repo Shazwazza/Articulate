@@ -1,4 +1,5 @@
-﻿using Umbraco.Core;
+﻿using System.Collections.Generic;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -32,6 +33,8 @@ namespace Articulate.Models
                     : null;
             }
         }
+
+        public IEnumerable<PostModel> Posts { get; set; }
     }
 
 }

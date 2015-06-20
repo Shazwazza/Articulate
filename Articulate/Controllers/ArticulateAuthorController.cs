@@ -10,6 +10,7 @@ namespace Articulate.Controllers
         public override ActionResult Index(RenderModel model)
         {   
             var author = new AuthorModel(model.Content);
+            author.Posts = Umbraco.GetContentByAuthor(author);
             return View(PathHelper.GetThemeViewPath(author, "Author"), author);
         }
     }
