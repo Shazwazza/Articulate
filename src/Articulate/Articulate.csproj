@@ -292,6 +292,7 @@
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlImporter.cs" />
+    <Compile Include="Controllers\ArticulateAuthorsController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateAuthorController.cs" />
@@ -332,6 +333,7 @@
     <Compile Include="JsonFeedHelper.cs" />
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="MetaWeblogRouteConstraint.cs" />
+    <Compile Include="Models\PostAuthorCollection.cs" />
     <Compile Include="Models\PostAuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ImportBlogMlModel.cs" />
@@ -346,6 +348,7 @@
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\PostModel.cs" />
     <Compile Include="Models\PostTagCollection.cs" />
+    <Compile Include="Models\AuthorListModel.cs" />
     <Compile Include="Models\TagListModel.cs" />
     <Compile Include="Models\PostsByTagModel.cs" />
     <Compile Include="Models\ArticulateVirtualPage.cs" />

@@ -437,6 +437,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedGitHub.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Author.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Authors.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\List.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Master.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsDisqus.cshtml" />
