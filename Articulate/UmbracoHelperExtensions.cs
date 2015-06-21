@@ -155,7 +155,9 @@ namespace Articulate
                 .Select(x => new AuthorModel(
                     authors
                         .FirstOrDefault(a => a.Name == x.Key),
-                    postsWithAuthors.OrderByDescending(c => c.PublishedDate)))
+                    postsWithAuthors
+                        .Where(c => c.Author.Name == x.Key)
+                        .OrderByDescending(c => c.PublishedDate)))
                 .OrderBy(x => x.Name);
         }
 
