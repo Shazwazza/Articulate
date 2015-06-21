@@ -22,7 +22,7 @@
                         {
                             <li>
                                 <h3>@asArray[i].Name</h3>
-                                <div><a href="#author-@i">Posts</a> - (@asArray[i].Posts.Count())</div>
+                                <div><a href="#author-@i">Posts</a>: Number of posts: @asArray[i].PostCount, Last post: @(asArray[i].LastPostDate.HasValue ? asArray[i].LastPostDate.Value.ToString("MMMM d, yyyy HH:mm") : "n/a")</div>
                                 <div><a href="@asArray[i].Url">About @asArray[i].Name</a></div>
                             </li>
                         }
