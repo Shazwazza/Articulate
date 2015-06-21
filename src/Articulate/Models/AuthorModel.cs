@@ -6,6 +6,9 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
+    using System;
+    using System.Linq;
+
     public class AuthorModel : MasterModel
     {
         public AuthorModel(IPublishedContent content)
@@ -41,6 +44,35 @@ namespace Articulate.Models
         }
 
         public IEnumerable<PostModel> Posts { get; set; }
+
+        public int PostCount
+        {
+            get
+            {
+                if (Posts != null)
+                {
+                    return Posts.Count();
+                }
+
+                return 0;
+            }
+        }
+
+        public DateTime? LastPostDate
+        {
+            get
+            {
+                if (Posts != null)
+                {
+                    return Posts
+                        .OrderByDescending(c => c.PublishedDate)
+                        .First()
+                        .PublishedDate;
+                }
+
+                return null;
+            }
+        }
     }
 
 }
