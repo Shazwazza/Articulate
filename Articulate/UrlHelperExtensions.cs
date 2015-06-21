@@ -44,6 +44,17 @@ namespace Articulate
         {
             return model.TagUrl.EnsureEndsWith('/') + "rss";
         }
+
+        /// <summary>
+        /// Returns an RSS feed URL specific to this author
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string ArticulateAuthorRssUrl(this UrlHelper url, AuthorModel model)
+        {
+            return model.Url.EnsureEndsWith('/') + "rss";
+        }
         
         /// <summary>
         /// Get the search url without the 'term' query string
