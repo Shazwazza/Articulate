@@ -333,7 +333,6 @@
     <Compile Include="JsonFeedHelper.cs" />
     <Compile Include="MetaWeblogHandler.cs" />
     <Compile Include="MetaWeblogRouteConstraint.cs" />
-    <Compile Include="Models\PostAuthorCollection.cs" />
     <Compile Include="Models\PostAuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ImportBlogMlModel.cs" />

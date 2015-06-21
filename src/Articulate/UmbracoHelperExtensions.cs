@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
@@ -13,8 +11,6 @@ using Umbraco.Web;
 
 namespace Articulate
 {
-    using Umbraco.Core.Models;
-
     public static class UmbracoHelperExtensions
     {
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
