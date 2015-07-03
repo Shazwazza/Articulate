@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Routing;
@@ -15,7 +16,8 @@ namespace Articulate
     /// </summary>
     public sealed class TagsOrCategoryPathRouteConstraint : IRouteConstraint
     {
-        private struct UrlNames
+        [DebuggerDisplay("Host: {Host}, TagsUrlName: {TagsUrlName}, CategoryUrlName: {CategoryUrlName}")]
+        private class UrlNames
         {
             public string Host { get; set; }
             public string TagsUrlName { get; set; }
@@ -26,6 +28,8 @@ namespace Articulate
 
         public TagsOrCategoryPathRouteConstraint(IEnumerable<IPublishedContent> itemsForRoute)
         {
+            if (itemsForRoute == null) throw new ArgumentNullException("itemsForRoute");
+
             foreach (var node in itemsForRoute)
             {
                 var url = node.Url;
@@ -52,22 +56,27 @@ namespace Articulate
             }
         }
 
-        public bool Match(HttpContextBase httpContext,Route route,string parameterName,RouteValueDictionary values,RouteDirection routeDirection)
+        public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
         {
+            //if this is an articulate root path, then we cannot match!
+
+
             //determine if it's for a particular domain
             UrlNames urlNames;
             if (_urlNames.Count == 1)
             {
-                urlNames = _urlNames.First();
+                urlNames = _urlNames.FirstOrDefault();
             }
             else
             {
                 urlNames = httpContext.Request.Url == null
-                    ? _urlNames.First()  //cannot be determined
+                    ? _urlNames.FirstOrDefault()  //cannot be determined
                     : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
-                        ? _urlNames.First(x => x.Host == string.Empty)
-                        : _urlNames.First(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                        ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
+                        : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
+
+            if (urlNames == null) return false;
 
             var currentAction = values[parameterName].ToString();
 

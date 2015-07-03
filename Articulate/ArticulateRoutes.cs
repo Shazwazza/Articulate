@@ -40,7 +40,11 @@ namespace Articulate
                 // which already exists and is already assigned to a specific node ID.
                 // So what we need to do in these cases is use a special route handler that takes
                 // into account the domain assigned to the route.
-                var groups = articulateNodes.GroupBy(x => RouteCollectionExtensions.RoutePathFromNodeUrl(x.Url));
+                var groups = articulateNodes
+                    .GroupBy(x => RouteCollectionExtensions.RoutePathFromNodeUrl(x.Url))
+                    //This is required to ensure that we create routes that are more specific first
+                    // before creating routes that are less specific
+                    .OrderByDescending(x => x.Key.Split('/').Length);
                 foreach (var grouping in groups)
                 {
                     var nodesAsArray = grouping.ToArray();
@@ -59,6 +63,7 @@ namespace Articulate
 
                 }
             }
+
         }
 
         private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
