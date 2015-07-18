@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Articulate.Syndication;
 using Umbraco.Core;
 
 namespace Articulate.Options
-{
+{    
     /// <summary>
     /// Articulate options that affect how articulate works
     /// </summary>
-    public sealed class ArticulateOptions
+    public class ArticulateOptions
     {
         /// <summary>
         /// Constructor sets defaults
@@ -35,6 +36,14 @@ namespace Articulate.Options
         public static void Setup(ArticulateOptions options)
         {
             Default = options;
+        }
+
+        /// <summary>
+        /// Returns the Rss feed generator instance that will be used to create feeds
+        /// </summary>
+        public virtual IRssFeedGenerator GetRssFeedGenerator()
+        {
+            return new RssFeedGenerator();
         }
 
         /// <summary>

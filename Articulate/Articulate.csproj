@@ -254,6 +254,8 @@
     <Compile Include="Controllers\ArticulateTagsController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
+    <Compile Include="Syndication\IRssFeedGenerator.cs" />
+    <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
     <Compile Include="Controls\Installer.cs">
@@ -293,6 +295,7 @@
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="Syndication\RssFeedGenerator.cs" />
     <Compile Include="TagsOrCategoryPathRouteConstraint.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
