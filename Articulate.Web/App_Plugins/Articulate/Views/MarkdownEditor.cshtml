@@ -11,13 +11,16 @@
 
 <html ng-app="articulateapp">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Articulate - Create New Post</title>
-    
+
     @{
         Html
-            .RequiresCss("http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css")
+            .RequiresCss("https://storage.googleapis.com/code.getmdl.io/1.0.0/material.pink-blue.min.css")
+            .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700")
+            .RequiresCss("https://fonts.googleapis.com/icon?family=Material+Icons")
             .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css")
+            .RequiresJs("https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js")
             .RequiresJs("http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
             .RequiresJs("http://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js")
             .RequiresJs("http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js")
@@ -29,23 +32,46 @@
     @Html.RenderJsHere()
 
     <script type="text/ng-template" id="md.html">
-        <div class="btn-top prev">
-            <button class="btn-insert-file" ng-click="addFile()"><i class="fa fa-picture-o"></i></button>
-            <button class="btn-insert-file" ng-click="addCamera()"><i class="fa fa-camera"></i></button>
-        </div>
-
 
         <div class="container">
-            <div class="form-element">
-                <input type="text" ng-model="$parent.title" placeholder="Title..." required />
-            </div>
-            <div class="md-input">
-                <textarea id="mdInput"
-                          ng-model="$parent.md" placeholder="Start writing blog post here..." required
-                          ng-keyup="storeCaret()"
-                          ng-click="storeCaret()"></textarea>
+            <div class="mdl-card mdl-shadow--2dp fill-height">
+                <div class="mdl-card__supporting-text">
+
+                    <div class="mdl-textfield mdl-js-textfield fixed">
+                        <input class="mdl-textfield__input" type="text" id="title" ng-model="$parent.title" required />
+                        <label class="mdl-textfield__label" for="title">Title...</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield md-input fixed">
+                        <textarea id="mdInput"
+                                  class="mdl-textfield__input expanding"
+                                  ng-model="$parent.md" required
+                                  ng-keyup="storeCaret()"
+                                  ng-click="storeCaret()"></textarea>
+                        <label class="mdl-textfield__label" for="mdInput">Start writing blog post here...</label>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="btn-fab-left">
+
+            <button id="image" class="icon material-icons mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" ng-click="addFile()">
+                photo
+            </button>
+            <div class="mdl-tooltip" for="image">
+                Choose image
+            </div>
+
+            <button id="photo" class="icon material-icons mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" ng-click="addCamera()">
+                photo_camera
+            </button>
+            <div class="mdl-tooltip" for="photo">
+                Take photo
+            </div>
+
+        </div>
+
         <div class="hidden-insert-file">
 
             <input id='insertFile' type='file' accept='image/*' files-selected />
@@ -53,60 +79,93 @@
 
         </div>
 
+        <material-refresh></material-refresh>
     </script>
 
     <script type="text/ng-template" id="optional.html">
         <div class="container">
-            <div class="form-element">
-                <label>Tags</label>
-                <input type="text" ng-model="$parent.tags" placeholder="Tags..." />
-            </div>
-            <div class="form-element">
-                <label>Categories</label>
-                <input type="text" ng-model="$parent.categories" placeholder="Categories..." />
-            </div>
-            <div class="form-element">
-                <label>Excerpt</label>
-                <textarea ng-model="$parent.excerpt" placeholder="Excerpt..." rows="4"></textarea>
-            </div>
-            <div class="form-element">
-                <label>Slug</label>
-                <input type="text" ng-model="$parent.slug" placeholder="Slug..." />
+            <div class="mdl-card mdl-shadow--2dp fill-height">
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="tags" ng-model="$parent.tags" />
+                        <label class="mdl-textfield__label" for="tags">Tags...</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="categories" ng-model="$parent.categories" />
+                        <label class="mdl-textfield__label" for="categories">Categories...</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <textarea id="excerpt"
+                                  class="mdl-textfield__input expanding"
+                                  ng-model="$parent.excerpt"
+                                  rows="4"></textarea>
+                        <label class="mdl-textfield__label" for="excerpt">Excerpt...</label>
+                    </div>
+
+
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="slug" ng-model="$parent.slug" />
+                        <label class="mdl-textfield__label" for="slug">Slug...</label>
+                    </div>
+
+                </div>
             </div>
         </div>
+        <material-refresh></material-refresh>
     </script>
 
     <script type="text/ng-template" id="login.html">
         <div class="container">
-            <div class="form-element">
-                <label>Username</label>
-                <input type="text" ng-model="username" placeholder="Username..." required />
-            </div>
-            <div class="form-element">
-                <label>Password</label>
-                <input type="password" ng-model="password" placeholder="Password..." required />
-            </div>
-            <div class="form-element">
-                <button class="btn-top" type="submit" ng-click="login()" class="next">Login</button>
-            </div>
-            <div class="form-element" ng-if="failed === true">
-                Invalid username or password, try again
+
+            <div class="mdl-card mdl-shadow--2dp fill-height">
+                <div class="mdl-card__supporting-text">
+
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="username" ng-model="username" required />
+                        <label class="mdl-textfield__label" for="username">Username...</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="password" id="password" ng-model="password" required />
+                        <label class="mdl-textfield__label" for="password">Password...</label>
+                    </div>
+                    <div class="mdl-textfield__error" ng-if="failed === true" style="visibility:visible;">
+                        Invalid username or password, try again
+                    </div>
+
+                    <div class="btn-raised-right">
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" type="submit" ng-click="login()">Login</button>
+                    </div>
+
+                </div>
             </div>
         </div>
+        <material-refresh></material-refresh>
     </script>
 
     <script type="text/ng-template" id="submit.html">
         <div class="container">
-            <p ng-if="!result">
-                Sending data...
-            </p>
-            <h3 ng-if="result">
-                Success!
-            </h3>
-            <p ng-if="result">
-                <a href="{{result}}">Click here to view your post</a>
-            </p>
+
+            <div class="mdl-card mdl-shadow--2dp">
+                <div class="mdl-card__supporting-text">
+                    
+                    <div ng-if="!result" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+
+                    <h3 ng-if="result">
+                        Success!
+                    </h3>
+
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a href="{{result}}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" ng-if="result">
+                        Click here to view your post
+                    </a>
+                </div>
+            </div>
         </div>
+        <material-refresh></material-refresh>
     </script>
 
 </head>
@@ -116,12 +175,43 @@
       data-articulate-post-url="@(Url.GetUmbracoApiService<MardownEditorApiController>(controller => controller.PostNew()))"
       data-umbraco-isauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.IsAuthenticated()))"
       data-umbraco-doauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.PostLogin(null)))">
-    <h1>{{caption}}</h1>
 
     <form name="articulateForm" novalidate>
-        <button class="btn-top prev" ng-click="go(prevPath)" ng-show="prevPath"><span ng-bind-html="prevText"></span></button>
-        <button class="btn-top next" ng-click="go(nextPath)" ng-show="nextPath"><span ng-bind-html="nextText"></span></button>
-        <div ng-view></div>
+
+        <!-- Always shows a header, even in smaller screens. -->
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">{{caption}}</span>
+                </div>
+            </header>
+
+            <main class="mdl-layout__content">
+                <div class="page-content" ng-view></div>
+            </main>
+        </div>
+
+        <div class="btn-fab-right">
+
+
+            <button id="prev"
+                    style="transform: rotate(180deg)"
+                    class="icon material-icons mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
+                    ng-click="go(prevPath)" ng-show="prevPath">
+                forward
+            </button>
+
+
+            <button id="next"
+                    class="icon material-icons mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
+                    ng-click="go(nextPath)" ng-show="nextPath">
+                forward
+            </button>
+
+
+
+        </div>
+
     </form>
 
 </body>

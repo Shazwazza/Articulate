@@ -107,16 +107,21 @@ articulateapp.config([
                     $scope.username = "";
                     $scope.password = "";
 
-                    $scope.login = function() {
-                        $http.post($scope.$parent.doAuthUrl, {
+                    $scope.login = function () {
+
+                        $scope.articulateForm.$setDirty();
+                        if ($scope.articulateForm.$valid) {
+                            $http.post($scope.$parent.doAuthUrl, {
                                 username: $scope.username,
                                 password: $scope.password
                             })
-                            .success(function(data, status, headers, config) {
+                            .success(function (data, status, headers, config) {
                                 $location.path("/submit");
-                            }).error(function(data, status, headers, config) {
+                            }).error(function (data, status, headers, config) {
                                 $scope.failed = true;
                             });
+                        }
+                        
                     }
                 }
             }).
@@ -161,7 +166,8 @@ articulateapp.config([
                                     }
                                 },
                                    function (d, status, headers, config) {
-                                    $scope.result = d;
+                                       $scope.result = d;
+                                       $scope.$parent.caption = "Post successful";
                                 }, function (d, status, headers, config) {
                                     if (d.Message) {
                                         alert(d.Message);
@@ -195,8 +201,8 @@ articulateapp.controller('EditorController', function ($scope, $location, $eleme
     $scope.files = [];
     $scope.nextPath = null;
     $scope.prevPath = null;
-    $scope.nextText = "&raquo;";
-    $scope.prevText = "&laquo;";
+    $scope.nextText = "redo";
+    $scope.prevText = "undo";
     $scope.caption = "";
     $scope.title = "";
     $scope.md = "";
@@ -209,6 +215,7 @@ articulateapp.controller('EditorController', function ($scope, $location, $eleme
         $scope.articulateForm.$setDirty();
         if ($scope.articulateForm.$valid) {
             $location.path(p);
+            $scope.articulateForm.$setPristine();
         }
     }
 
@@ -223,6 +230,18 @@ articulateapp.directive('filesSelected', function () {
                 var files = event.target.files;
                 //emit event upward
                 scope.$emit("filesSelected", { files: files });
+            });
+        }
+    };
+});
+
+//used to refresh the material design objects when the template changes
+articulateapp.directive('materialRefresh', function ($timeout) {
+    return {
+        restrict: "E",
+        link: function (scope, el, attrs) {
+            $timeout(function () {
+                componentHandler.upgradeAllRegistered();
             });
         }
     };
