@@ -95,6 +95,14 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<DateTime>("publishedDate"); }
         }
 
+        /// <summary>
+        /// Some blog post may have an associated image
+        /// </summary>
+        public string PostImageUrl
+        {
+            get { return Content.GetPropertyValue<string>("postImage"); }
+        }
+
         public IHtmlString Body
         {
             get

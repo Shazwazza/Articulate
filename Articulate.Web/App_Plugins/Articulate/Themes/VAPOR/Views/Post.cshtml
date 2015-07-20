@@ -22,8 +22,16 @@
 
         <section class="post-content">
 
-            @Model.Body
+            @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+            {
+                var cropUrl = Model.GetCropUrl("postImage", "blogPost");
+                if (!cropUrl.IsNullOrWhiteSpace())
+                {
+                    <img class="postImage" alt="@Model.Name" src="@cropUrl" />
+                }
+            }
 
+            @Model.Body
         </section>
 
         <section class="share">

@@ -42,6 +42,14 @@
                     </div>
                     <div class="hrule"></div>
                     <div class="postContent">
+                        @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+                        {
+                            var cropUrl = Model.GetCropUrl("postImage", "blogPost");
+                            if (!cropUrl.IsNullOrWhiteSpace())
+                            {
+                                <img class="postImage" alt="@Model.Name" src="@cropUrl" />
+                            }
+                        }
                         @Model.Body
                     </div>
                 </article>

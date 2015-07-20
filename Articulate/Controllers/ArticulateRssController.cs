@@ -38,7 +38,7 @@ namespace Articulate.Controllers
 
         protected IRssFeedGenerator FeedGenerator
         {
-            get { return UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(); }
+            get { return UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(UmbracoContext); }
         }
 
         public ActionResult Index(RenderModel model, int? maxItems)

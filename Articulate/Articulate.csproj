@@ -254,6 +254,7 @@
     <Compile Include="Controllers\ArticulateTagsController.cs" />
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
+    <Compile Include="Options\MetaWeblogOptions.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />

@@ -509,28 +509,6 @@ table tbody tr {
 table tfoot {  
 }
 
-/* === Media Queries === */
-@media only screen and (min-width: 320px) and (max-width: 500px) {
-  footer section span.copyright {
-    display: block;
-  }
-  nav li {
-    width: auto;
-  }
-  .older-posts,
-  .newer-posts {
-    position: static;
-  }
-  .newer-posts {
-    margin-bottom: 10px;
-  }
-  .older-posts {
-    margin-top: 10px;
-  }
-  .page-number {
-    display: block;
-  }
-}
 
 /* === Tag cloud === */
 ul.tag-cloud {
@@ -587,4 +565,42 @@ ul.tag-list {
 }
 .tag-list a.fa span {
     display: none;
+}
+
+/* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
+.a-image-0 {
+    display: none;
+}
+
+.postImage {
+    float: left; 
+    padding: 10px 25px 10px 0px;
+}
+
+img.thumb {
+    float: left;
+    padding: 0px 10px 0px 0px;
+}
+
+/* === Media Queries === */
+@media only screen and (min-width: 320px) and (max-width: 500px) {
+  footer section span.copyright {
+    display: block;
+  }
+  nav li {
+    width: auto;
+  }
+  .older-posts,
+  .newer-posts {
+    position: static;
+  }
+  .newer-posts {
+    margin-bottom: 10px;
+  }
+  .older-posts {
+    margin-top: 10px;
+  }
+  .page-number {
+    display: block;
+  }
 }

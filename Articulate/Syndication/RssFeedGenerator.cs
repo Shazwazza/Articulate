@@ -19,6 +19,13 @@ namespace Articulate.Syndication
 {
     public class RssFeedGenerator : IRssFeedGenerator
     {
+        private readonly UmbracoContext _umbracoContext;
+
+        public RssFeedGenerator(UmbracoContext umbracoContext)
+        {
+            _umbracoContext = umbracoContext;
+        }
+
         private readonly Regex _relativeMediaSrc = new Regex(" src=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly Regex _relativeMediaHref = new Regex(" href=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 

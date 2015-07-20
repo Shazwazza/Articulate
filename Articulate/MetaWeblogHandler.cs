@@ -11,7 +11,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Security;
+using Articulate.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
@@ -148,8 +152,8 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            return _applicationContext.Services.TagService.GetAllTags("ArticulateCategories")                
-                .Select(x => (object) new
+            return _applicationContext.Services.TagService.GetAllTags("ArticulateCategories")
+                .Select(x => (object)new
                 {
                     description = x.Text,
                     id = x.Id,
@@ -175,7 +179,7 @@ namespace Articulate
             ValidateUser(username, password);
 
             var node = BlogRoot();
-            
+
             return new[]
             {
                 (object) new
@@ -189,9 +193,9 @@ namespace Articulate
 
         object[] IBloggerMetaWeblog.GetUsersBlogs(string key, string username, string password)
         {
-            return ((IMetaWeblog) this).GetUsersBlogs(key, username, password);
+            return ((IMetaWeblog)this).GetUsersBlogs(key, username, password);
         }
-        
+
         object[] IWordPressMetaWeblog.GetTags(string blogid, string username, string password)
         {
             ValidateUser(username, password);
@@ -201,18 +205,69 @@ namespace Articulate
                 {
                     name = x.Text,
                     id = x.Id,
-                    tag_id = x.Id                    
+                    tag_id = x.Id
                 }).ToArray();
         }
 
+        private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish)
         {
+
             content.Name = post.Title;
             content.SetValue("author", user.Name);
             if (content.HasProperty("richText"))
             {
-                content.SetValue("richText", post.Content);
+                var firstImage = "";
+
+                //we need to replace all absolute image paths with relative ones
+                var contentToSave = _mediaSrc.Replace(post.Content, match =>
+                {
+                    if (match.Groups.Count == 2)
+                    {
+                        var imageSrc = match.Groups[1].Value.EnsureStartsWith('/');
+                        if (firstImage.IsNullOrWhiteSpace())
+                        {
+                            firstImage = imageSrc;
+                        }
+                        return " src=\"" + imageSrc + "\"";
+                    }
+                    return null;
+                });
+
+                var imagesProcessed = 0;
+
+                //now replace all absolute anchor paths with relative ones
+                contentToSave = _mediaHref.Replace(contentToSave, match =>
+                {
+                    if (match.Groups.Count == 2)
+                    {
+                        var href = " href=\"" +
+                               match.Groups[1].Value.EnsureStartsWith('/') +
+                               "\" class=\"a-image-" + imagesProcessed + "\" ";
+
+                        imagesProcessed++;
+
+                        return href;
+                    }
+                    return null;
+                });
+
+                content.SetValue("richText", contentToSave);
+
+                if (UmbracoConfig.For.ArticulateOptions().MetaWeblogOptions.ExtractFirstImageAsProperty
+                    && content.HasProperty("postImage") 
+                    && !firstImage.IsNullOrWhiteSpace())
+                {
+                    content.SetValue("postImage", firstImage);
+                    //content.SetValue("postImage", JsonConvert.SerializeObject(JObject.FromObject(new
+                    //{
+                    //    src = firstImage
+                    //})));
+                }
             }
+
             if (!post.Slug.IsNullOrWhiteSpace())
             {
                 content.SetValue("umbracoUrlName", post.Slug);
@@ -221,6 +276,7 @@ namespace Articulate
             {
                 content.SetValue("excerpt", post.Excerpt);
             }
+
             if (post.AllowComments == 1)
             {
                 content.SetValue("enableComments", 1);
@@ -229,15 +285,16 @@ namespace Articulate
             {
                 content.SetValue("enableComments", 0);
             }
+
             content.SetTags("categories", post.Categories, true, "ArticulateCategories");
-            var tags = post.Tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+            var tags = post.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
             content.SetTags("tags", tags, true, "ArticulateTags");
 
             if (publish)
             {
                 if (post.CreateDate != DateTime.MinValue)
                 {
-                    content.SetValue("publishedDate", post.CreateDate);    
+                    content.SetValue("publishedDate", post.CreateDate);
                 }
 
                 _applicationContext.Services.ContentService.SaveAndPublishWithStatus(content, user.Id);
@@ -276,24 +333,24 @@ namespace Articulate
                 Title = post.Name
             };
         }
-        
+
         private object FromContent(IContent post)
         {
             return new MetaWeblogPost
             {
                 AllowComments = post.GetValue<bool>("enableComments") ? 1 : 2,
                 Author = post.GetValue<string>("author"),
-                Categories = post.GetValue<string>("categories").Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries),
+                Categories = post.GetValue<string>("categories").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
                 Content = post.ContentType.Alias == "ArticulateRichText"
                     ? post.GetValue<string>("richText")
                     : new MarkdownDeep.Markdown().Transform(post.GetValue<string>("markdown")),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
-                Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace() 
-                    ? post.Name.ToUrlSegment() 
+                Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()
+                    ? post.Name.ToUrlSegment()
                     : post.GetValue<string>("umbracoUrlName").ToUrlSegment(),
                 Excerpt = post.GetValue<string>("excerpt"),
-                Tags = string.Join(",",post.GetValue<string>("tags").Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries)),
+                Tags = string.Join(",", post.GetValue<string>("tags").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)),
                 Title = post.Name
             };
         }
@@ -328,7 +385,7 @@ namespace Articulate
         {
             if (Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider] == null)
                 throw new InvalidOperationException("No membership provider found with name " + UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider);
-            
+
             return Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider];
         }
 
@@ -336,7 +393,7 @@ namespace Articulate
         {
             return this;
         }
-        
+
     }
 
 }

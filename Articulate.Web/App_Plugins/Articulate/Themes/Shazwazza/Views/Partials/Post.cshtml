@@ -15,11 +15,17 @@
         </div>
 
         @Html.ThemedPartial(Model, "Sharing")
-    }    
+        if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+        {
+            var cropUrl = Model.GetCropUrl("postImage", "blogPost");
+            if (!cropUrl.IsNullOrWhiteSpace())
+            {
+                <img class="postImage" alt="@Model.Name" src="@cropUrl" />
+            }
+        }
+    }
 
-    
-
-    <div class="postcontent">
+    <div class="postcontent">        
         @Model.Body
     </div>
 

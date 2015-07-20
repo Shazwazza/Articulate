@@ -12,7 +12,15 @@
         <ul class="recentPosts" id="recentPosts">
             @foreach (var post in recent)
             {
-                <li>                    
+                <li>
+                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    {
+                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
+                        if (!thumbnail.IsNullOrWhiteSpace())
+                        {
+                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                        }
+                    }
                     <div class="time">
                         <time datetime="@post.PublishedDate">
                             @post.PublishedDate.ToString("MMM d, yyyy HH:mm")

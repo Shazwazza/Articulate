@@ -39,6 +39,14 @@
                             <a href="@post.Url" class="post-list-link">
                                 <div>
                                     <h2>@post.Name</h2>
+                                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                                    {
+                                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
+                                        if (!thumbnail.IsNullOrWhiteSpace())
+                                        {
+                                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                                        }
+                                    }
                                     @post.Excerpt
                                     <span class="readmore">
                                         <i class="fa fa-plus-square plus-sign"></i>

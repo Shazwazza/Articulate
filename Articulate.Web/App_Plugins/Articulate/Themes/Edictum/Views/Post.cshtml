@@ -19,6 +19,14 @@
 
         <h2 class="subtitulo-articulo">@Model.Excerpt</h2>
         <div class="texto">
+            @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+            {
+                var thumbnail = Model.GetCropUrl("postImage", "blogPost");
+                if (!thumbnail.IsNullOrWhiteSpace())
+                {
+                    <img class="thumb" src="@thumbnail" alt="@Model.Name" />
+                }
+            }
             @Model.Body
         </div>
     </article>

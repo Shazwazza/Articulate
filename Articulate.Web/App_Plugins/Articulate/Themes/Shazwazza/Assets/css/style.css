@@ -28,20 +28,6 @@ button.fa {
     cursor: pointer;
 }
 
-/*
-input, textarea {
-    color: #555;
-    padding: 3px;
-}*/
-
-/*p, cite, code {
-    font-size: 1.0em;
-    padding-bottom: 1.1em;
-}*/
-
-/*ul ul {
-    padding-left: 20px;
-}*/
 
 h1, h2, h3, h4, h5 {
     color: #06C;
@@ -813,6 +799,22 @@ a.comment-count {
 .headline a span {
     display: none;
 }
+
+/* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
+.a-image-0 {
+    display: none;
+}
+
+.postImage {
+    float: left; 
+    padding: 10px 10px 10px 0px;
+}
+
+img.thumb {
+    float: left;
+    padding: 0px 10px 0px 0px;
+}
+
 @media (max-width: 47.99em) {
     .header {
         margin: 0;        

@@ -435,6 +435,33 @@ a:hover {
     border-bottom: 1px solid rgba(255,255,255,0.5);
 }
 
+
+.articulate-search button {
+    color: ButtonText;
+}
+
+.articulate-search input {
+    background: inherit;
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 5px;
+    margin: 15px;
+}
+
+/* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
+.a-image-0 {
+    display: none;
+}
+
+.postImage {
+    float: left; 
+    padding: 10px 25px 10px 0px;
+}
+
+img.thumb {
+    float: left;
+    padding: 0px 10px 0px 0px;
+}
+
 @media all and (max-width: 800px) {
     .sidebar {
         position: relative;
@@ -466,15 +493,4 @@ a:hover {
     .content {
         margin-left: 0px;
     }
-}
-
-.articulate-search button {
-    color: ButtonText;
-}
-
-.articulate-search input {
-    background: inherit;
-    border: 1px solid rgba(255,255,255,0.5);
-    padding: 5px;
-    margin: 15px;
 }

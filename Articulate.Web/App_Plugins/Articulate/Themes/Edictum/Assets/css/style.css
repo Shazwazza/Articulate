@@ -180,15 +180,11 @@ article:last-child {
     column-gap: 40px;
 }
 
-.texto img {
-    width: 100%;
-}
-
-.texto p:first-child {
+.texto p:first-of-type {
     padding-top: 20px;
 }
 
-.texto p:first-child:first-letter {
+.texto p:first-of-type:first-letter {
     font-size: 3.5rem;
     float: left;
     padding-right: 5px;
@@ -303,6 +299,22 @@ footer .footer2 {
 .justificado {
     text-align: justify;
 }
+
+/* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
+.a-image-0 {
+    display: none;
+}
+
+.postImage {
+    float: left; 
+    padding: 10px 25px 10px 0px;
+}
+
+img.thumb {
+    float: left;
+    padding: 0px 20px 0px 0px;
+}
+
 /**************************************
              BREACKPOINTS
 **************************************/

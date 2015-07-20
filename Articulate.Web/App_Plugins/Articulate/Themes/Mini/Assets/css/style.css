@@ -364,6 +364,22 @@ hr {
     width: 90%;
   }
 }
+
+/* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
+.a-image-0 {
+    display: none;
+}
+
+.postImage {
+    float: left; 
+    padding: 10px 25px 10px 0px;
+}
+
+img.thumb {
+    float: left;
+    padding: 0px 10px 0px 0px;
+}
+
 /* Smaller than standard 960 (devices and browsers) */
 /* Tablet Portrait size to standard 960 (devices and browsers) */
 /* All Mobile Sizes (devices and browser) */

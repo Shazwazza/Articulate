@@ -28,6 +28,14 @@
                 
                 <h2 class="subtitulo-articulo">@post.Excerpt</h2>
                 <div class="texto">
+                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    {
+                        var thumbnail = post.GetCropUrl("postImage", "blogPost");
+                        if (!thumbnail.IsNullOrWhiteSpace())
+                        {
+                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                        }
+                    }
                     @post.Body
                 </div>
             </article>
