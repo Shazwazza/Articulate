@@ -188,6 +188,8 @@ namespace Articulate
         {
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
+            if (e.ContainsKey("articulate")) return;
+
             var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));
             e["articulate"] = new Dictionary<string, object>
             {
