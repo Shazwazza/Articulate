@@ -28,12 +28,14 @@ namespace Articulate.Models
         {
             get
             {
-                var root = Content.AncestorOrSelf("Articulate");
-                if (root == null)
+                if (_rootBlogNode == null)
                 {
-                    throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
+                    _rootBlogNode = Content.AncestorOrSelf("Articulate");
+                    if (_rootBlogNode == null)
+                    {
+                        throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
+                    }
                 }
-                _rootBlogNode = root;
                 return _rootBlogNode;
             }
             protected set { _rootBlogNode = value; }
