@@ -7,8 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Articulate.Options;
 using CookComputing.XmlRpc;
 using Umbraco.Core;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -115,6 +117,7 @@ namespace Articulate.Models
                 {
                     var val = this.GetPropertyValue<string>("markdown");
                     var md = new MarkdownDeep.Markdown();
+                    UmbracoConfig.For.ArticulateOptions().MarkdownDeepOptionsCallBack(md);
                     return new MvcHtmlString(md.Transform(val));                    
                 }
                 
