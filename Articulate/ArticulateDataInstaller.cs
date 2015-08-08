@@ -8,45 +8,76 @@ using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Publishing;
+using Umbraco.Core.Services;
 
 namespace Articulate
 {
     public class ArticulateDataInstaller
     {
+        private readonly ServiceContext _services;
+
+        public ArticulateDataInstaller(ServiceContext services)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            _services = services;
+        }
+
+        [Obsolete("Use the ctor with all dependencies instead")]
+        public ArticulateDataInstaller()
+            : this(ApplicationContext.Current.Services)
+        {
+        }
+
         public IContent Execute()
+        {
+            var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
+
+            if (articulateContentType == null)
+            {
+                return Install();
+            }
+            else
+            {
+                return _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
+            }
+        }
+       
+
+        private IContent Install()
         {
             //Create the root node - this will automatically create the authors and archive nodes
             LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = ApplicationContext.Current.Services.ContentService.CreateContent(
+            var root = _services.ContentService.CreateContent(
                 "Blog", -1, "Articulate");
             root.SetValue("theme", "Shazwazza");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
-            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");            
+            root.SetValue("extractFirstImage", true);
+            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/1011/7406981406_1aff1cb527_o.jpg','crops': []}");
-            
-            ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(root);
+
+            _services.ContentService.SaveAndPublishWithStatus(root);
 
             //get the authors and archive nodes and publish them
             LogHelper.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
             var children = root.Children().ToArray();
             var authors = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             var archive = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(authors);
-            ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(archive);
+            _services.ContentService.SaveAndPublishWithStatus(authors);
+            _services.ContentService.SaveAndPublishWithStatus(archive);
 
             //Create the author
             LogHelper.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = ApplicationContext.Current.Services.ContentService.CreateContent(
+            var author = _services.ContentService.CreateContent(
                 "Demo author", authors, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/1008/random-mask.jpg','crops': []}");
-            ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(author);
+            _services.ContentService.SaveAndPublishWithStatus(author);
 
             //Create a test post
             LogHelper.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = ApplicationContext.Current.Services.ContentService.CreateContent(
+            var post = _services.ContentService.CreateContent(
                 "Test post", archive, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
@@ -83,7 +114,7 @@ You can post directly from your mobile (including images and photos). This edito
 http://yoursiteurl.com/a-new
 
 Enjoy!");
-            ApplicationContext.Current.Services.ContentService.SaveAndPublishWithStatus(post);
+            _services.ContentService.SaveAndPublishWithStatus(post);
 
             return root;
         }

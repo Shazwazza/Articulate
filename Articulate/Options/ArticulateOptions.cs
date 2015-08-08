@@ -19,8 +19,7 @@ namespace Articulate.Options
         /// </summary>
         public ArticulateOptions(
             bool autoGenerateExcerpt = true, 
-            Func<string, string> generateExcerpt = null,
-            MetaWeblogOptions weblogOptions = null)
+            Func<string, string> generateExcerpt = null)
         {
             AutoGenerateExcerpt = autoGenerateExcerpt;
 
@@ -29,12 +28,7 @@ namespace Articulate.Options
                 : string.Join("", val.StripHtml()
                     .DecodeHtml()
                     .StripNewLines()
-                    .TruncateAtWord(200, "")));
-
-            if (weblogOptions == null)
-            {
-                MetaWeblogOptions = new MetaWeblogOptions();    
-            }
+                    .TruncateAtWord(200, "")));            
         }
 
         internal static ArticulateOptions Default = new ArticulateOptions();
@@ -54,11 +48,6 @@ namespace Articulate.Options
         {
             return new RssFeedGenerator(umbracoContext);
         }
-
-        /// <summary>
-        /// Options for MetaWeblogOptions (i.e. Live writer options)
-        /// </summary>
-        public MetaWeblogOptions MetaWeblogOptions { get; private set; }
 
         /// <summary>
         /// Default is true and will generate an excerpt if it is blank, will be a truncated version based on the post content

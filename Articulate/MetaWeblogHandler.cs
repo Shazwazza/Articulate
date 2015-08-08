@@ -56,7 +56,13 @@ namespace Articulate
             var content = _applicationContext.Services.ContentService.CreateContent(
                 post.Title, node.Id, "ArticulateRichText", user.Id);
 
-            AddOrUpdateContent(content, post, user, publish);
+            var extractFirstImageAsProperty = true;
+            if (node.HasProperty("extractFirstImage"))
+            {
+                extractFirstImageAsProperty = node.GetPropertyValue<bool>("extractFirstImage");
+            }
+
+            AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);
 
             return content.Id.ToString(CultureInfo.InvariantCulture);
         }
@@ -78,7 +84,19 @@ namespace Articulate
                 return false;
             }
 
-            AddOrUpdateContent(content, post, user, publish);
+            var node = BlogRoot().Children(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
+            if (node == null)
+            {
+                throw new XmlRpcFaultException(0, "No Articulate Archive node found");
+            }
+
+            var extractFirstImageAsProperty = true;
+            if (node.HasProperty("extractFirstImage"))
+            {
+                extractFirstImageAsProperty = node.GetPropertyValue<bool>("extractFirstImage");
+            }
+
+            AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);
 
             return true;
         }
@@ -212,7 +230,7 @@ namespace Articulate
         private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish)
+        private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
 
             content.Name = post.Title;
@@ -256,7 +274,7 @@ namespace Articulate
 
                 content.SetValue("richText", contentToSave);
 
-                if (UmbracoConfig.For.ArticulateOptions().MetaWeblogOptions.ExtractFirstImageAsProperty
+                if (extractFirstImageAsProperty
                     && content.HasProperty("postImage") 
                     && !firstImage.IsNullOrWhiteSpace())
                 {

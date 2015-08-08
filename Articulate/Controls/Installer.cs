@@ -13,10 +13,18 @@ namespace Articulate.Controls
         {
             base.OnInit(e);
 
-            var dataInstaller = new ArticulateDataInstaller();
+            var dataInstaller = new ArticulateDataInstaller(Services);
             var root = dataInstaller.Execute();
 
-            BlogUrl = Umbraco.TypedContent(root.Id).Url;
+            if (root != null)
+            {
+                BlogUrl = Umbraco.TypedContent(root.Id).Url;
+            }
+            else
+            {
+                BlogUrl = "/";
+            }
+            
         }
     }
 }

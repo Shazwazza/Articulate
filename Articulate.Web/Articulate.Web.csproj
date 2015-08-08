@@ -25,6 +25,13 @@
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <MvcProjectUpgradeChecked>true</MvcProjectUpgradeChecked>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>12.0</OldToolsVersion>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -256,6 +263,9 @@
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\js\modernizr.js" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\material.min.css" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\styles.css" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Assets\js\material.min.js" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\base.css" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
@@ -356,6 +366,21 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedDelicious.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedGitHub.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\List.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Master.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsDisqus.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsFacebook.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsGooglePlus.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\FooterDescription.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\HeaderDescription.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\Menu.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\Pager.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\PostTags.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\SearchBox.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Post.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Tags.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Web.config" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Assets\js\material.min.js.map" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />

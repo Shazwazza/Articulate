@@ -1,0 +1,128 @@
+@using ClientDependency.Core.Mvc
+@using Articulate;
+@model Articulate.Models.IMasterModel
+
+<!doctype html>
+<!--
+  Material Design Lite
+  Copyright 2015 Google Inc. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License
+-->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="@Model.Name - @Model.BlogTitle">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    @if (IsSectionDefined("title"))
+    {
+        @RenderSection("title")
+    }
+    else
+    {
+        <title>@Model.Name - @Model.BlogTitle</title>
+    }
+
+    @Html.AdvertiseWeblogApi(Model)
+    @Html.RssFeed(Model)
+
+    @{ Html
+                  .RequiresCss("https://fonts.googleapis.com/icon?family=Material+Icons")
+                  .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en")
+                  //This loads all CSS found in the current theme's css folder: /Assets/css
+                  .RequiresThemedCssFolder(Model)
+                  .RequiresThemedJsFolder(Model);
+    }
+
+    @Html.RenderCssHere()
+
+    <style>
+        #view-source {
+            position: fixed;
+            display: block;
+            right: 0;
+            bottom: 0;
+            margin-right: 40px;
+            margin-bottom: 40px;
+            z-index: 900;
+        }
+
+        body::before {
+            background-image: url('@(Model.BlogBanner)');
+            background-size: cover;
+            background-attachment: fixed;            
+        }
+    </style>
+
+</head>
+<body>
+    <div class="demo-blog mdl-layout mdl-js-layout has-drawer is-upgraded">
+        <main class="mdl-layout__content">
+            @RenderBody()
+            <footer class="mdl-mini-footer">
+                <div class="mdl-mini-footer--left-section">
+                    <button class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
+                        <span class="visuallyhidden">Twitter</span>
+                    </button>
+                    <button class="mdl-mini-footer--social-btn social-btn social-btn__blogger">
+                        <span class="visuallyhidden">Facebook</span>
+                    </button>
+                    <button class="mdl-mini-footer--social-btn social-btn social-btn__gplus">
+                        <span class="visuallyhidden">Google Plus</span>
+                    </button>
+                </div>
+                <div class="mdl-mini-footer--right-section">
+                    <button class="mdl-mini-footer--social-btn social-btn__share">
+                        <i class="material-icons" role="presentation">share</i>
+                        <span class="visuallyhidden">share</span>
+                    </button>
+                </div>
+            </footer>
+        </main>
+        <div class="mdl-layout__obfuscator"></div>
+    </div>
+
+    @Html.RenderJsHere()
+</body>
+<script type="text/javascript">
+    Array.prototype.forEach.call(document.querySelectorAll('.mdl-card__media'), function(el) {
+      var link = el.querySelector('a');
+      if(!link) {
+        return;
+      }
+      var target = link.getAttribute('href');
+      if(!target) {
+        return;
+      }
+      el.addEventListener('click', function() {
+        location.href = target;
+      });
+    });
+</script>
+</html>
