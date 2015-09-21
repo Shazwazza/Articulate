@@ -152,16 +152,15 @@ body {
 a {
   transition: color 0.5s ease 0s;
   text-decoration: none;
-  color: #1731a3;
+  
 }
 a :hover {
-  color: #5d99de;
+  
 }
 a :active {
-  color: #70b3ff;
+  
 }
 a :visited {
-  color: #1731a3;
 }
 h1,
 h2,
