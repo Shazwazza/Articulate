@@ -9,6 +9,7 @@
 @inherits UmbracoViewPage<Articulate.Models.ListModel>
 @{
     Layout = "Master.cshtml";
+    ViewBag.CssWrapperClass = Model.DocumentTypeAlias == "ArticulateArchive" ? null : "demo-blog--blogpost";
 }
 
 <div class="demo-back">
@@ -20,8 +21,6 @@
 
     @if (!Model.Children.Any())
     {
-        ViewBag.CssWrapperClass = "demo-blog--search";
-
         <div class="mdl-card mdl-cell mdl-cell--12-col comments">
 
             @Html.ThemedPartial(Model, "SearchBox")

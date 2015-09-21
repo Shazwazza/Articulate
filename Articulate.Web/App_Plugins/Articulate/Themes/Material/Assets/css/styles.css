@@ -1,3 +1,5 @@
+@charset "utf-8";
+
 body::before {
     background-size: cover;
     background-attachment: fixed;
@@ -109,6 +111,53 @@ body .demo-blog {
 }
 .demo-blog:not(.demo-blog--blogpost) .mdl-card__supporting-text ~ .mdl-card__supporting-text {
   border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.demo-blog .comments > form {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  flex-diretion: row;
+  margin-bottom: 16px;
+}
+.demo-blog .comments > form .mdl-textfield {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  margin-right: 16px;
+  color: rgb(97, 97, 97);
+}
+/* Workaround for Firefox.
+ * User agent stylesheet kept overwriting the font in FF only.
+ */
+.demo-blog .comments > form .mdl-textfield .mdl-textfield__input {
+  font-family: 'Roboto', 'Helvetica', sans-serif;
+}
+.demo-blog .comments > form .mdl-textfield input,
+.demo-blog .comments > form .mdl-textfield textarea {
+  resize: none;
+}
+.demo-blog .comments > form button {
+  margin-top: 20px;
+  background-color: rgba(0, 0, 0, 0.24);
+  color: white;
+}
+.demo-blog .comments .comment {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: stretch;
+  -webkit-align-items: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
 }
 
 .demo-blog .mdl-card__actions:first-child {
@@ -276,8 +325,11 @@ body .demo-blog {
 .demo-blog .mdl-card h3 {
   margin: 0;
 }
-.demo-blog .mdl-card h3 a {
+.demo-blog .mdl-card h3 a, .demo-blog .mdl-card h4 a {
   text-decoration: none;
+}
+.demo-blog .mdl-card h4 a {
+    font-weight: inherit;
 }
 .demo-blog .mdl-card h3.quote:before, .demo-blog .mdl-card h3.quote:after {
   display: block;
@@ -285,18 +337,18 @@ body .demo-blog {
   margin-top: 0.5em;
 }
 .demo-blog .mdl-card h3.quote:before {
-    content: '“';
+    content: '“'; 
 }
 .demo-blog .mdl-card h3.quote:after {
-    content: '”';
+    content: '”'; 
 }
 .demo-blog--blogpost .custom-header {
   background-color: transparent;
 }
-
-.demo-blog .comments {
-  background-color: #EEE;
+.demo-blog--blogpost .demo-blog__posts > .mdl-card .mdl-card__media { 
+  height: 280px;
 }
+
 .demo-blog--blogpost .meta > * {
   -webkit-box-align: center;
   -webkit-align-items: center;
@@ -343,126 +395,13 @@ body .demo-blog {
   padding: 32px;
   box-sizing: border-box;
 }
-.demo-blog .comments > form {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  flex-diretion: row;
-  margin-bottom: 16px;
-}
-.demo-blog .comments > form .mdl-textfield {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  margin-right: 16px;
-  color: rgb(97, 97, 97);
-}
-/* Workaround for Firefox.
- * User agent stylesheet kept overwriting the font in FF only.
- */
-.demo-blog .comments > form .mdl-textfield .mdl-textfield__input {
-  font-family: 'Roboto', 'Helvetica', sans-serif;
-}
-.demo-blog .comments > form .mdl-textfield input,
-.demo-blog .comments > form .mdl-textfield textarea {
-  resize: none;
-}
-.demo-blog .comments > form button {
-  margin-top: 20px;
-  background-color: rgba(0, 0, 0, 0.24);
-  color: white;
-}
-.demo-blog .comments .comment {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: stretch;
-  -webkit-align-items: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
-}
-.demo-blog .comments .comment > .comment__header {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: row;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  margin-bottom: 16px;
-}
-.demo-blog .comments .comment > .comment__header > .comment__avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-  margin-right: 16px;
-}
-.demo-blog .comments .comment > .comment__header > .comment__author {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-}
-.demo-blog .comments .comment > .comment__text {
-  line-height: 1.5em;
-}
-.demo-blog .comments .comment > .comment__actions {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: row;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  font-size: 0.8em;
-  margin-top: 16px;
-}
-.demo-blog .comments .comment > .comment__actions button {
-  margin-right: 16px;
-  color: rgba(0, 0, 0, 0.24);
-}
-.demo-blog .comments .comment > .comment__answers {
-  padding-top: 32px;
-  padding-left: 48px;
-}
+
+
 
 .demo-blog .demo-back {
     display: none;
 }
-.demo-blog--blogpost .demo-back,.demo-blog--search .demo-back {
+.demo-blog--blogpost .demo-back {
     display: block;
   position: absolute;
   top: 16px;
@@ -547,4 +486,13 @@ a.social-btn {
     text-decoration: inherit;
     color: inherit;
     font-weight: inherit;
+}
+
+.full-box-width {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+th.date {
+    width: 100px;
 }

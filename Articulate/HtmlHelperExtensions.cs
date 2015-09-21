@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
+using System.Web.Routing;
 using System.Web.WebPages;
 using Articulate.Models;
 using ClientDependency.Core.Mvc;
@@ -188,8 +189,28 @@ namespace Articulate
         /// <summary>
         /// Creates an Html table based on the collection
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="html"></param>
+        /// <param name="collection"></param>
+        /// <param name="headers"></param>
+        /// <param name="cssClasses"></param>
+        /// <param name="cellTemplates"></param>
+        /// <returns></returns>
         public static HelperResult Table<T>(this HtmlHelper html,
             IEnumerable<T> collection,
+            string[] headers,
+            string[] cssClasses,
+            params Func<T, HelperResult>[] cellTemplates) where T : class
+        {
+            return html.Table(collection, null, headers, cssClasses, cellTemplates);
+        }
+
+        /// <summary>
+        /// Creates an Html table based on the collection
+        /// </summary>
+        public static HelperResult Table<T>(this HtmlHelper html,
+            IEnumerable<T> collection,
+            object htmlAttributes,
             string[] headers,
             string[] cssClasses,
             params Func<T, HelperResult>[] cellTemplates) where T : class
@@ -203,9 +224,15 @@ namespace Articulate
                 {
                     throw new InvalidOperationException("The number of cell templates must equal the number of columns defined");
                 }
-
-                //create a table based on the grid
-                writer.Write("<table>");
+                
+                var tagBuilder = new TagBuilder("table");
+                if (htmlAttributes != null)
+                {
+                    IDictionary<string, object> atts = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+                    tagBuilder.MergeAttributes(atts);
+                }
+                writer.Write(tagBuilder.ToString(TagRenderMode.StartTag));
+                
                 writer.Write("<thead>");
                 writer.Write("<tr>");
                 for (int i = 0; i < cols; i++)

@@ -295,7 +295,6 @@
     <Content Include="xslt\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Plugins\Articulate\Themes\Material\Assets\images\" />
     <Folder Include="Controllers\" />
     <Folder Include="media\" />
     <Folder Include="Models\" />
@@ -372,8 +371,6 @@
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsDisqus.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsFacebook.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\CommentsGooglePlus.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\FooterDescription.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\HeaderDescription.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\Menu.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\Pager.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\PostTags.cshtml" />
