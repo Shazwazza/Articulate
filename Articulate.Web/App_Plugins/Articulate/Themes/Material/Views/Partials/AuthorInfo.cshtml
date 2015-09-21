@@ -1,0 +1,38 @@
+@using Articulate.Models
+@using Umbraco.Core.Cache
+@using Umbraco.Web.Models
+@inherits UmbracoViewPage<PostModel>
+
+@if (!Model.Author.Image.IsNullOrWhiteSpace())
+{
+<div class="minilogo" style="background: url(@GetAuthorThumbnail(Model))"></div>
+}
+<div>
+    <strong>@Model.Author.Name</strong>
+    <span>2 days ago</span>
+</div>
+
+@functions {
+
+    public string GetAuthorThumbnail(PostModel postModel)
+    {
+        return ApplicationContext.ApplicationCache.RuntimeCache.GetCacheItem<string>("a_author_thumb_" + postModel.Author.Name, () =>
+        {
+            var blogRootNode = postModel.RootBlogNode;
+            var authors = blogRootNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
+            if (authors != null)
+            {
+                var authorNode = authors.Children(content => content.Name.InvariantEquals(postModel.Author.Name)).FirstOrDefault();
+                if (authorNode != null)
+                {
+                    var imageVal = authorNode.GetPropertyValue<string>("authorImage");
+                    return !imageVal.IsNullOrWhiteSpace()
+                        ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Crop, width: 50)
+                        : null;
+                }
+            }
+
+            return null;
+        });
+    }
+}

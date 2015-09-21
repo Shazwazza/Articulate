@@ -1,5 +1,4 @@
 body::before {
-    background-image: url('../images/bg.jpg');
     background-size: cover;
     background-attachment: fixed;
     content: '';
@@ -152,6 +151,11 @@ body .demo-blog {
   cursor: pointer;
   margin-left: 12px;
 }
+.demo-blog .meta > .meta__favorites a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
 .demo-blog .mdl-card .meta.meta--fill {
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
@@ -178,14 +182,14 @@ body .demo-blog {
       -ms-flex-order: 0;
           order: 0;
 }
-.demo-blog.is-small-screen .demo-blog__posts > .mdl-card.something-else {
+.demo-blog.is-small-screen .demo-blog__posts > .mdl-card.title-banner {
   -webkit-box-ordinal-group: 0;
   -webkit-order: -1;
       -ms-flex-order: -1;
           order: -1;
 }
 
-.demo-blog .something-else .mdl-card__media {
+.demo-blog .title-banner .mdl-card__media {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -204,7 +208,7 @@ body .demo-blog {
       -ms-flex-align: center;
           align-items: center;
 }
-.demo-blog .something-else > button {
+.demo-blog .title-banner > a {
   position: absolute;
   top: 0;
   right: 28px;
@@ -212,18 +216,18 @@ body .demo-blog {
       -ms-transform: translate(0px, -28px);
           transform: translate(0px, -28px);
 }
-.demo-blog .something-else .mdl-card__media {
+.demo-blog .title-banner .mdl-card__media {
   font-size: 13px;
   font-weight: 500;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
 }
-.demo-blog .something-else .mdl-card__media img {
+.demo-blog .title-banner .mdl-card__media img {
   width: 100%;
   height: 100%;
   margin-bottom: 10px;
 }
-.demo-blog .something-else .mdl-card__supporting-text {
+.demo-blog .title-banner .mdl-card__supporting-text {
   background-color: #F5F5F5;
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
@@ -281,19 +285,16 @@ body .demo-blog {
   margin-top: 0.5em;
 }
 .demo-blog .mdl-card h3.quote:before {
-  content: '“';
+    content: '“';
 }
 .demo-blog .mdl-card h3.quote:after {
-  content: '”';
+    content: '”';
 }
 .demo-blog--blogpost .custom-header {
   background-color: transparent;
 }
-.demo-blog--blogpost .demo-blog__posts > .mdl-card .mdl-card__media {
-  background-image: url('../images/road_big.jpg');
-  height: 280px;
-}
-.demo-blog--blogpost .comments {
+
+.demo-blog .comments {
   background-color: #EEE;
 }
 .demo-blog--blogpost .meta > * {
@@ -321,7 +322,7 @@ body .demo-blog {
   line-height: 28px;
 }
 
-.demo-blog--blogpost .comments {
+.demo-blog .comments {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -342,7 +343,7 @@ body .demo-blog {
   padding: 32px;
   box-sizing: border-box;
 }
-.demo-blog--blogpost .comments > form {
+.demo-blog .comments > form {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -350,7 +351,7 @@ body .demo-blog {
   flex-diretion: row;
   margin-bottom: 16px;
 }
-.demo-blog--blogpost .comments > form .mdl-textfield {
+.demo-blog .comments > form .mdl-textfield {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
@@ -361,19 +362,19 @@ body .demo-blog {
 /* Workaround for Firefox.
  * User agent stylesheet kept overwriting the font in FF only.
  */
-.demo-blog--blogpost .comments > form .mdl-textfield .mdl-textfield__input {
+.demo-blog .comments > form .mdl-textfield .mdl-textfield__input {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
-.demo-blog--blogpost .comments > form .mdl-textfield input,
-.demo-blog--blogpost .comments > form .mdl-textfield textarea {
+.demo-blog .comments > form .mdl-textfield input,
+.demo-blog .comments > form .mdl-textfield textarea {
   resize: none;
 }
-.demo-blog--blogpost .comments > form button {
+.demo-blog .comments > form button {
   margin-top: 20px;
   background-color: rgba(0, 0, 0, 0.24);
   color: white;
 }
-.demo-blog--blogpost .comments .comment {
+.demo-blog .comments .comment {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -388,7 +389,7 @@ body .demo-blog {
       -ms-flex-align: stretch;
           align-items: stretch;
 }
-.demo-blog--blogpost .comments .comment > .comment__header {
+.demo-blog .comments .comment > .comment__header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -404,13 +405,13 @@ body .demo-blog {
           align-items: center;
   margin-bottom: 16px;
 }
-.demo-blog--blogpost .comments .comment > .comment__header > .comment__avatar {
+.demo-blog .comments .comment > .comment__header > .comment__avatar {
   width: 48px;
   height: 48px;
   border-radius: 24px;
   margin-right: 16px;
 }
-.demo-blog--blogpost .comments .comment > .comment__header > .comment__author {
+.demo-blog .comments .comment > .comment__header > .comment__author {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
@@ -425,10 +426,10 @@ body .demo-blog {
       -ms-flex-direction: column;
           flex-direction: column;
 }
-.demo-blog--blogpost .comments .comment > .comment__text {
+.demo-blog .comments .comment > .comment__text {
   line-height: 1.5em;
 }
-.demo-blog--blogpost .comments .comment > .comment__actions {
+.demo-blog .comments .comment > .comment__actions {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -449,16 +450,20 @@ body .demo-blog {
   font-size: 0.8em;
   margin-top: 16px;
 }
-.demo-blog--blogpost .comments .comment > .comment__actions button {
+.demo-blog .comments .comment > .comment__actions button {
   margin-right: 16px;
   color: rgba(0, 0, 0, 0.24);
 }
-.demo-blog--blogpost .comments .comment > .comment__answers {
+.demo-blog .comments .comment > .comment__answers {
   padding-top: 32px;
   padding-left: 48px;
 }
 
-.demo-blog--blogpost .demo-back {
+.demo-blog .demo-back {
+    display: none;
+}
+.demo-blog--blogpost .demo-back,.demo-blog--search .demo-back {
+    display: block;
   position: absolute;
   top: 16px;
   left: 16px;
@@ -471,7 +476,7 @@ body .demo-blog {
       -ms-flex-positive: 1;
           flex-grow: 1;
 }
-.demo-blog .something-else {
+.demo-blog .title-banner {
   overflow: visible;
   z-index: 10;
 }
@@ -508,6 +513,9 @@ body .demo-blog {
   opacity: 0.46;
   border-radius: 2px;
 }
+a.social-btn {
+    display: inline-block;
+}
 .social-btn__twitter {
   background-image: url('https://www.gstatic.com/images/icons/material/system/2x/post_twitter_black_24dp.png');
 }
@@ -532,4 +540,11 @@ body .demo-blog {
           align-items: center;
   background-color: white;
   box-sizing: border-box;
+}
+
+.demo-blog .mdl-menu .mdl-menu__item a {
+    display: block;
+    text-decoration: inherit;
+    color: inherit;
+    font-weight: inherit;
 }

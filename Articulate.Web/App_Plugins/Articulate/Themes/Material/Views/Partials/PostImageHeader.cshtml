@@ -1,0 +1,33 @@
+@using Articulate.Models
+@using Umbraco.Core.Cache
+@using Umbraco.Web.Models
+@using Umbraco.Web
+@using Umbraco.Core
+@inherits UmbracoViewPage<PostModel>
+@{
+    var postBg = "none";
+
+    if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+    {
+        var bgUrl = Model.GetCropUrl(propertyAlias: "postImage", width: 550);
+        if (!bgUrl.IsNullOrWhiteSpace())
+        {
+            postBg = "url('" + bgUrl + "')";
+        }
+
+        <div class="mdl-card__media mdl-color-text--grey-50"
+             style="background-image: @(postBg);">
+            <h3>
+                <a href="@Model.Url">@Model.Name</a>
+            </h3>
+        </div>
+    }
+    else
+    {
+        <div class="mdl-card__title mdl-color-text--grey-50">
+            <h3 class="quote">
+                <a href="@Model.Url">@Model.Name</a>
+            </h3>
+        </div>
+    }
+}

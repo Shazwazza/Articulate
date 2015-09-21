@@ -33,6 +33,13 @@ namespace Articulate
                 : model.CustomRssFeed;
         }
 
+        public static string ArticulateCreateBlogEntryUrl(this UrlHelper url, IMasterModel model)
+        {
+            return model.RootBlogNode == null
+                ? null
+                : model.RootBlogNode.Url.EnsureEndsWith('/') + "a-new/";
+        }
+
 
         /// <summary>
         /// Returns an RSS feed URL specific to this tag

@@ -3,6 +3,7 @@
 @using Articulate.Models
 @using Umbraco.Core
 @using Umbraco.Core.Cache;
+@using Umbraco.Core.Security
 @using Umbraco.Web
 @using Umbraco.Web.Models
 @inherits UmbracoViewPage<Articulate.Models.ListModel>
@@ -10,92 +11,27 @@
     Layout = "Master.cshtml";
 }
 
-@functions {
-
-    public string GetAuthorThumbnail(PostModel postModel)
-    {
-        return ApplicationContext.ApplicationCache.RuntimeCache.GetCacheItem<string>("a_author_thumb_" + postModel.Author.Name, () =>
-        {
-            var blogRootNode = postModel.RootBlogNode;
-            var authors = blogRootNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
-            if (authors != null)
-            {
-                var authorNode = authors.Children(content => content.Name.InvariantEquals(postModel.Author.Name)).FirstOrDefault();
-                if (authorNode != null)
-                {
-                    var imageVal = authorNode.GetPropertyValue<string>("authorImage");
-                    return !imageVal.IsNullOrWhiteSpace()
-                        ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Crop, width: 50)
-                        : null;
-                }
-            }
-
-            return null;
-        });
-    }
-}
-
-@helper AuthorInfo(PostModel post)
-{
-if (!post.Author.Image.IsNullOrWhiteSpace())
-{
-        <div class="minilogo" style="background: url(@GetAuthorThumbnail(post))"></div>
-}
-    <div>
-        <strong>@post.Author.Name</strong>
-        <span>2 days ago</span>
-    </div>
-}
-
-@helper PostInfo(PostModel post)
-{
-    var postBg = "none";
-
-    if (!post.PostImageUrl.IsNullOrWhiteSpace())
-    {
-        var bgUrl = post.GetCropUrl(propertyAlias: "postImage", width: 550);
-        if (!bgUrl.IsNullOrWhiteSpace())
-        {
-            postBg = "url('" + bgUrl + "')";
-        }
-
-        <div class="mdl-card__media mdl-color-text--grey-50"
-             style="background-image: @(postBg);">
-            <h3>
-                <a href="entry.html">@post.Name</a>
-            </h3>
-        </div>
-    }
-    else
-    {
-        <div class="mdl-card__title mdl-color-text--grey-50">
-            <h3 class="quote">
-                <a href="entry.html">@post.Name</a>
-            </h3>
-        </div>
-    }
-
-
-    <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-        @AuthorInfo(post)
-    </div>
-}
-
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
 <div class="demo-blog__posts mdl-grid">
 
     @if (!Model.Children.Any())
     {
-        <div class="mdl-card mdl-cell mdl-cell--8-col">
-            <div class="mdl-card__media mdl-color-text--grey-50">
-                <h3>No blog posts found</h3>
-            </div>
-            <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-                <div class="minilogo"></div>
-                <div>
-                    <strong>The Newist</strong>
-                    <span>2 days ago</span>
+        ViewBag.CssWrapperClass = "demo-blog--search";
+
+        <div class="mdl-card mdl-cell mdl-cell--12-col comments">
+
+            @Html.ThemedPartial(Model, "SearchBox")
+
+            @if (!Request.QueryString["term"].IsNullOrWhiteSpace())
+            {
+                <div class="mdl-card__media mdl-color-text--grey-50">
+                    <h3>No blog posts found</h3>
                 </div>
-            </div>
+            }
         </div>
     }
     else
@@ -108,31 +44,32 @@ if (!post.Author.Image.IsNullOrWhiteSpace())
                 doneFirst = true;
 
                 <div class="mdl-card mdl-cell mdl-cell--8-col">
-                    @PostInfo(post)
+                    @PostInfo(post, false)
                 </div>
 
-                <div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
-                    <button class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent">
-                        <i class="material-icons mdl-color-text--white" role="presentation">add</i>
-                        <span class="visuallyhidden">add</span>
-                    </button>
+                <div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+                    @{
+                        //if the user is logged in to the back office, we can put this link on the front to 
+                        // link to the blog post creator
+                        var backofficeAuthTicket = Context.GetUmbracoAuthTicket();
+                    }
+                    @if (backofficeAuthTicket != null)
+                    {
+                        <a href="@Url.ArticulateCreateBlogEntryUrl(Model)" rel="nofollow"
+                           class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent">
+                            <i class="material-icons mdl-color-text--white" role="presentation">add</i>
+                            <span class="visuallyhidden">add</span>
+                        </a>
+                    }
                     <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
-                        <img src="@Model.BlogLogo">
+                        <a href="@Url.ArticulateRootUrl(Model)"><img src="@Model.BlogLogo"/></a>
                     </div>
                     <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
                         <div>
                             <strong>@Model.BlogTitle</strong>
                         </div>
-                        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="menubtn">
-                            <li class="mdl-menu__item mdl-js-ripple-effect">About</li>
-                            <li class="mdl-menu__item mdl-js-ripple-effect">Message</li>
-                            <li class="mdl-menu__item mdl-js-ripple-effect">Favorite</li>
-                            <li class="mdl-menu__item mdl-js-ripple-effect">Search</li>
-                        </ul>
-                        <button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                            <i class="material-icons" role="presentation">more_vert</i>
-                            <span class="visuallyhidden">show menu</span>
-                        </button>
+
+                        @Html.ThemedPartial(Model, "Menu", Model)
                     </div>
                 </div>
             }
@@ -140,52 +77,8 @@ if (!post.Author.Image.IsNullOrWhiteSpace())
             {
                 <div class="mdl-card mdl-cell mdl-cell--12-col">
                     @PostInfo(post)
-                </div>
-                @*<div class="mdl-card amazing mdl-cell mdl-cell--12-col">
-                        <div class="mdl-card__title mdl-color-text--grey-50">
-                            <h3 class="quote">
-                                <a href="entry.html">I couldn’t take any pictures but this was an amazing thing…</a>
-                            </h3>
-                        </div>
-                        <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-                            Enim labore aliqua consequat ut quis ad occaecat aliquip incididunt. Sunt nulla eu enim irure enim nostrud aliqua consectetur ad consectetur sunt ullamco officia. Ex officia laborum et consequat duis.
-                        </div>
-                        <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-                            <div class="minilogo"></div>
-                            <div>
-                                <strong>The Newist</strong>
-                                <span>2 days ago</span>
-                            </div>
-                        </div>
-                    </div>*@
+                </div>                
             }
-
-            @*<article class="preview">
-                    <header>
-                        <h1 class="post-title"><a href="@post.Url">@post.Name</a></h1>
-                        <div class="post-meta">
-                            <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
-                                @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
-                            </time>
-                        </div>
-                    </header>
-                    <section class="post-excerpt">
-                        @if (!post.PostImageUrl.IsNullOrWhiteSpace())
-                        {
-                            var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                            if (!thumbnail.IsNullOrWhiteSpace())
-                            {
-                                <img class="thumb" src="@thumbnail" alt="@post.Name" />
-                            }
-                        }
-                        <p>
-                            @post.Excerpt&hellip;
-                        </p>
-                        <p class="readmore">
-                            <a href="@post.Url">Read this article <i class="fa fa-chevron-circle-right"></i></a>
-                        </p>
-                    </section>
-                </article>*@
         }
 
         @Html.ThemedPartial(Model, "Pager", Model.Pages)
@@ -193,3 +86,25 @@ if (!post.Author.Image.IsNullOrWhiteSpace())
 
 
 </div>
+
+
+
+
+
+
+@helper PostInfo(PostModel post, bool withExcerpt = true)
+{
+    @Html.ThemedPartial(Model, "PostImageHeader", post)
+
+    if (withExcerpt)
+    {
+        <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+            @post.Excerpt&hellip;
+        </div>
+    }
+
+
+    <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+        @Html.ThemedPartial(Model, "AuthorInfo", post)
+    </div>
+}

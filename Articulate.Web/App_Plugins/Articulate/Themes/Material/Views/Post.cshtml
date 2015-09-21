@@ -3,89 +3,73 @@
 @model Articulate.Models.PostModel
 @{
     Layout = "Master.cshtml";
-    ViewBag.CssBodyClass = "post-template";
+    ViewBag.CssWrapperClass = "demo-blog--blogpost";
 }
 
-<main class="content" role="main">
 
-    <article class="post">
-
-        <header>
-            <h1 class="post-title">@Model.Name</h1>
-            <div class="post-meta">
-                <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">
-                    @Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")
-                </time>
-            </div>
-            @Html.ThemedPartial(Model, "PostTags")
-        </header>
-
-        <section class="post-content">
-
-            @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
-            {
-                var cropUrl = Model.GetCropUrl("postImage", "blogPost");
-                if (!cropUrl.IsNullOrWhiteSpace())
-                {
-                    <img class="postImage" alt="@Model.Name" src="@cropUrl" />
-                }
-            }
-
-            @Model.Body
-        </section>
-
-        <section class="share">
-            <p class="info prompt">Share this post</p>
-            <a href="http://twitter.com/share?text=@Model.Name&url=@Model.NiceUrlWithDomain()"
-               onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=@Model.NiceUrlWithDomain()"
-               onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
-            </a>
-            <a href="https://plus.google.com/share?url=@Model.NiceUrlWithDomain()"
-               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                <i class="fa fa-2x fa-fw fa-google-plus-square"></i> <span class="hidden">Google+</span>
-            </a>
-        </section>
-
-        <footer class="post-footer">
-
-            @if (!Model.Author.Name.IsNullOrWhiteSpace())
-            {
-                <section class="author">
-                    @if (!Model.Author.Image.IsNullOrWhiteSpace())
-                    {
-                        <div class="authorimage" style="background: url(@Model.Author.Image)"></div>    
-                    }
-                    <p class="attr">Author</p>
-                    <h4>
-                        @if (!Model.Author.Url.IsNullOrWhiteSpace())
-                        {
-                            <a href="@Model.Author.Url">@Model.Author.Name</a>
-                        }
-                        else
-                        {
-                            @Model.Author.Name
-                        }
-                    </h4>
-                    @if (!Model.Author.Bio.IsNullOrWhiteSpace())
-                    {
-                        <p class="bio">@Model.Author.Bio</p>
-                    }
-                </section>
-            }
-
-        </footer>
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
+<div class="demo-blog__posts mdl-grid">
+    <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
         
+        @Html.ThemedPartial(Model, "PostImageHeader", Model)
+
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+            @Html.ThemedPartial(Model, "AuthorInfo", Model)
+            <div class="section-spacer"></div>
+            <div class="meta__favorites">
+                <a href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id"></a>
+                <i class="material-icons" role="presentation">comment</i> 
+                <span class="visuallyhidden">comments</span>
+            </div>
+           
+        </div>
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+            @Model.Body
+        </div>
         @if (Model.EnableComments)
         {
-            @Html.ThemedPartial(Model, "CommentsDisqus")
-            @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
-            @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
+            <div class="mdl-color-text--primary-contrast mdl-card__supporting-text comments">
+
+
+                @Html.ThemedPartial(Model, "CommentsDisqus")
+                @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
+                @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
+
+            </div>
+
         }
 
-    </article>
+        
+    </div>
 
-</main>
+    @{
+        var next = Model.Next();
+        var prev = Model.Previous();
+
+    }
+    <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+        @if (next != null)
+        {
+            <a href="@next.Url" class="demo-nav__button">
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                Newer
+            </a>
+        }
+        <div class="section-spacer"></div>
+        @if (prev != null)
+        {
+            <a href="@prev.Url" class="demo-nav__button">
+                Older
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_forward</i>
+                </button>
+            </a>
+        }
+    </nav>
+</div>
