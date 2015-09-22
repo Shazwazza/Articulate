@@ -17,18 +17,32 @@
         
         @Html.ThemedPartial(Model, "PostImageHeader", Model)
 
-        <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
-            @Html.ThemedPartial(Model, "AuthorInfo", Model)
+        <div class="mdl-color-text--grey-7400 mdl-card__supporting-text meta">
+            @Html.ThemedPartial(Model, "AuthorInfo", Model)            
             <div class="section-spacer"></div>
             <div class="meta__favorites">
-                <a href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id"></a>
+                <a class="mdl-color-text--grey-500" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id">100 comments</a>
                 <i class="material-icons" role="presentation">comment</i> 
                 <span class="visuallyhidden">comments</span>
             </div>
-           
+            
         </div>
         <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
             @Model.Body
+        </div>
+        <div class="mdl-color-text--grey-7400 mdl-card__supporting-text meta">           
+            <div class="post-tags">
+                <div>
+                    <span>Tags:</span>
+                    @Html.ListTags(Model,
+                @<a class="mdl-color-text--accent" href="@Url.ArticulateTagUrl(Model, @item)">@item</a>)
+                </div>
+                <div>
+                    <span>Categories:</span>
+                    @Html.ListCategories(Model,
+                @<a class="mdl-color-text--accent" href="@Url.ArticulateCategoryUrl(Model, @item)">@item</a>, " | ")
+                </div>
+            </div>
         </div>
         @if (Model.EnableComments)
         {
