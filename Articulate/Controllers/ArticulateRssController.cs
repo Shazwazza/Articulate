@@ -24,7 +24,7 @@ namespace Articulate.Controllers
     /// Cached for one minute
     /// </remarks>
 #if (!DEBUG)
-    [OutputCache(Duration = 300)]
+    [OutputCache(Duration = 300, VaryByHeader = "host")]
 #endif
     public class ArticulateRssController : RenderMvcController
     {

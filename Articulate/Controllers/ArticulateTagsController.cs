@@ -22,7 +22,9 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
+#if !DEBUG
     [OutputCache(Duration = 60, VaryByHeader = "host")]
+#endif
     public class ArticulateTagsController : RenderMvcController
     {
         /// <summary>

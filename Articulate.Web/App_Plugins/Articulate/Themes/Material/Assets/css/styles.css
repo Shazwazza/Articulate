@@ -1,4 +1,4 @@
-@charset "utf-8";
+﻿@charset "utf-8";
 
 body::before {
     background-size: cover;
@@ -495,4 +495,12 @@ a.social-btn {
 
 th.date {
     width: 100px;
+}
+
+.floatinglist li {
+    float: left; 
+       /* or */ 
+    display: inline-block;
+
+    margin: 10px 10px;
 }
