@@ -2,7 +2,7 @@
 @using Articulate.Models
 @using Umbraco.Core
 @using Umbraco.Web
-@model Articulate.Models.TagListModel
+@inherits UmbracoViewPage<Articulate.Models.TagListModel>
 @{
     Layout = "Master.cshtml";
     var asArray = Model.Tags.ToArray();
@@ -41,7 +41,7 @@
                         new[] { "date", "title", "comments" },
                         @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
                         @<a href="@item.Url">@item.Name</a>,
-                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@item.Id"></a>)
+                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(item, ApplicationContext.Services.EntityService)"></a>)
 
                     }
                 </div>

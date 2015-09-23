@@ -1,6 +1,6 @@
 @using Articulate
 @using Umbraco.Core
-@model Articulate.Models.PostModel
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<Articulate.Models.PostModel>
 
 @*This partial accepts view data parameters to modify how it is displayed - IsListView*@
 
@@ -41,7 +41,7 @@
             @<a href="@Url.ArticulateCategoryUrl(Model, @item)">@item</a>, " | ")
             <br />
             <img id="Img4" alt="comment" src="@Url.ThemedAsset(Model, "img/comments.gif")" />
-            <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id"></a>
+            <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(Model, ApplicationContext.Services.EntityService)"></a>
         </div>
     }
     

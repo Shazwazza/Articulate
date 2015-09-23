@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace Articulate
@@ -14,6 +16,13 @@ namespace Articulate
 
     public static class UmbracoHelperExtensions
     {
+        //TODO: Change this in 7.3 since it's built into IPublishedContent
+        public static Guid GetContentUniqueId(this UmbracoHelper helper, IPublishedContent content, IEntityService entityService)
+        {
+            var result = entityService.GetKeyForId(content.Id, UmbracoObjectTypes.Document);
+            return result ? result.Result : Guid.Empty;
+        }
+
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
             var listNode = masterModel.RootBlogNode.Children
