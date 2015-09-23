@@ -11,8 +11,8 @@ public class MyTestController : SurfaceController
     public ActionResult DoThis()
     {
         ViewBag.MyMessage = "hello world";
-        return CurrentUmbracoPage();
-        //return RedirectToCurrentUmbracoPage();
+        //return CurrentUmbracoPage();
+        return RedirectToCurrentUmbracoPage();
         //return RedirectToCurrentUmbracoUrl();
     }
 }
