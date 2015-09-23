@@ -33,3 +33,4 @@ src/Articulate.Console/App_Data/TEMP/PluginCache/*
 bin/Debug/*
 src/Articulate.sln.DotSettings.user
 build/Releases/*
+build/Releases/*

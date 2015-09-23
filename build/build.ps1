@@ -57,11 +57,11 @@ Function WritePackageFile ($f)
 	$NewFileXML = $PackageManifestXML.CreateElement("file")
 	$NewFileXML.set_InnerXML("<guid></guid><orgPath></orgPath><orgName></orgName>")
 	$GuidName = ([guid]::NewGuid()).ToString() + "_" + $f.Name
-	$NewFileXML.guid = $GuidName
-	Copy-Item $f.FullName "$TempFolder\$GuidName"
+	$NewFileXML.guid = $GuidName	
 	$NewFileXML.orgPath = ReverseMapPath $f
 	$NewFileXML.orgName = $f.Name
 	$NewFilesXML.AppendChild($NewFileXML)
+	Copy-Item $f.FullName "$TempFolder\$GuidName"
 }
 Function ReverseMapPath ($f)
 {
@@ -80,13 +80,14 @@ foreach($FileXML in $CreatedPackagesConfigXML.packages.package.files.file)
     {
         Get-ChildItem -path $File -Recurse `
 			| Where-Object { $_ -isnot [System.IO.DirectoryInfo]} `
-			| ForEach-Object { WritePackageFile($_) }			
+			| ForEach-Object { WritePackageFile($_) } `
+		    | Out-Null	
     }
 	else {
-		WritePackageFile($File)
+		WritePackageFile($File)| Out-Null	
 	}
 }
-$PackageManifestXML.umbPackage.ReplaceChild($NewFilesXML, $PackageManifestXML.SelectSingleNode("/umbPackage/files"))
+$PackageManifestXML.umbPackage.ReplaceChild($NewFilesXML, $PackageManifestXML.SelectSingleNode("/umbPackage/files")) | Out-Null
 $PackageManifestXML.Save($PackageManifest)
 
 #finally zip the package
