@@ -17,12 +17,12 @@
         
         @Html.ThemedPartial(Model, "PostImageHeader", Model)
 
-        <div class="mdl-color-text--grey-7400 mdl-card__supporting-text meta">
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
             @Html.ThemedPartial(Model, "AuthorInfo", Model)            
             <div class="section-spacer"></div>
             <div class="meta__favorites">
-                <a class="mdl-color-text--grey-500" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id">100 comments</a>
-                <i class="material-icons" role="presentation">comment</i> 
+                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id"></a>
+                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.Id"><i class="material-icons" role="presentation">comment</i></a>
                 <span class="visuallyhidden">comments</span>
             </div>
             

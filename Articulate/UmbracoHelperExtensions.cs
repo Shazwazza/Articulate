@@ -43,7 +43,7 @@ namespace Articulate
         {
             //TODO: Make this somehow only lookup tag categories that are relavent to posts underneath the current Articulate root node!
 
-            return helper.TagQuery.GetAllContentTags("ArticulateCategories").Select(x => x.Text);
+            return helper.TagQuery.GetAllContentTags("ArticulateCategories").Select(x => x.Text).OrderBy(x => x);
         }
 
         /// <summary>
