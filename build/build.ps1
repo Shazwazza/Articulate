@@ -10,16 +10,58 @@ param (
 )
 
 $PSScriptFilePath = Get-Item $MyInvocation.MyCommand.Path
-$SolutionRoot = $PSScriptFilePath.Directory.Parent.FullName
-$BuildFolder = Join-Path -Path $SolutionRoot -ChildPath "build";
-$WebProjFolder = Join-Path -Path $SolutionRoot -ChildPath "src\Articulate.Web";
+$RepoRoot = $PSScriptFilePath.Directory.Parent.FullName
+$BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
+$WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
 $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
+$SolutionRoot = Join-Path -Path $RepoRoot "src";
+$MSBuild = "${Env:ProgramFiles(x86)}\MSBuild\14.0\Bin\MsBuild.exe";
+
 
 if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 {
 	Write-Warning "$ReleaseFolder already exists on your local machine. It will now be deleted."
 	Remove-Item $ReleaseFolder -Recurse
+}
+
+# Go get nuget.exe if we don't hae it
+$NuGet = "$BuildFolder\nuget.exe"
+$FileExists = Test-Path $NuGet 
+If ($FileExists -eq $False) {
+	$SourceNugetExe = "http://nuget.org/nuget.exe"
+	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
+}
+
+# Set the version number in SolutionInfo.cs
+$SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
+(gc -Path $SolutionInfoPath) `
+	-replace "(?<=Version\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
+	sc -Path $SolutionInfoPath -Encoding UTF8
+(gc -Path $SolutionInfoPath) `
+	-replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
+	sc -Path $SolutionInfoPath -Encoding UTF8
+# Set the copyright
+$Copyright = "Copyright © Shannon Deminick " + (Get-Date).year;
+(gc -Path $SolutionInfoPath) `
+	-replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
+	sc -Path $SolutionInfoPath -Encoding UTF8;
+
+# Build the solution in release mode
+$SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Articulate.sln";
+
+# clean sln for all deploys
+& $MSBuild "$SolutionPath" /p:Configuration=Release /maxcpucount /t:Clean
+if (-not $?)
+{
+	throw "The MSBuild process returned an error code."
+}
+
+#build
+& $MSBuild "$SolutionPath" /p:Configuration=Release /maxcpucount
+if (-not $?)
+{
+	throw "The MSBuild process returned an error code."
 }
 
 # Set the version number in createdPackages.config

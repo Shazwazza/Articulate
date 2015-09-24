@@ -34,3 +34,4 @@ bin/Debug/*
 src/Articulate.sln.DotSettings.user
 build/Releases/*
 build/Releases/*
+build/nuget.exe
