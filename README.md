@@ -1,4 +1,4 @@
-![Articulate](Logo.png?raw=true)
+![Articulate](assets/Logo.png?raw=true)
 
 ==========
 
