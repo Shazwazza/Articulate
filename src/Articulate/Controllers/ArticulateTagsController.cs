@@ -120,6 +120,11 @@ namespace Articulate.Controllers
             {
                 return new HttpNotFoundResult();
             }
+
+            if (p != null && p.Value == 1)
+            {
+                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+            } 
             
             if (p == null || p.Value <= 0)
             {
@@ -146,7 +151,7 @@ namespace Articulate.Controllers
                 p.Value - 1,
                 totalPages,
                 totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
+                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
 
             var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
 
