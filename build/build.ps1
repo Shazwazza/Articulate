@@ -25,6 +25,8 @@ if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 	Remove-Item $ReleaseFolder -Recurse
 }
 
+####### DO THE SLN BUILD PART #############
+
 # Go get nuget.exe if we don't hae it
 $NuGet = "$BuildFolder\nuget.exe"
 $FileExists = Test-Path $NuGet 
@@ -63,6 +65,8 @@ if (-not $?)
 {
 	throw "The MSBuild process returned an error code."
 }
+
+####### DO THE UMBRACO PACKAGE BUILD #############
 
 # Set the version number in createdPackages.config
 $CreatedPackagesConfig = Join-Path -Path $BuildFolder -ChildPath "createdPackages.config"

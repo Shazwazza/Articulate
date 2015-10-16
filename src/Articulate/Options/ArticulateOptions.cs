@@ -19,8 +19,7 @@ namespace Articulate.Options
         /// </summary>
         public ArticulateOptions(
             bool autoGenerateExcerpt = true, 
-            Func<string, string> generateExcerpt = null)
-            MetaWeblogOptions weblogOptions = null,
+            Func<string, string> generateExcerpt = null,
             Action<MarkdownDeep.Markdown> markdownDeepOptionsCallBack = null)
         {
             AutoGenerateExcerpt = autoGenerateExcerpt;
@@ -31,12 +30,7 @@ namespace Articulate.Options
                     .DecodeHtml()
                     .StripNewLines()
                     .TruncateAtWord(200, "")));
-
-            if (weblogOptions == null)
-            {
-                MetaWeblogOptions = new MetaWeblogOptions();    
-            }
-
+            
             MarkdownDeepOptionsCallBack = markdownDeepOptionsCallBack ?? (markdown => { });
         }
 
