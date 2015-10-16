@@ -1,7 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" Inherits="Articulate.Controls.Installer"  %>
 
 <div>
-    <img src="https://raw.githubusercontent.com/Shandem/Articulate/master/Logo.png" alt="Articulate"/>
+    <img src="https://raw.githubusercontent.com/Shandem/Articulate/master/assets/Logo.png" alt="Articulate"/>
     <h3>Congrats! Articulate is now installed</h3>    
     <br/>
     <p>

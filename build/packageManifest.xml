@@ -816,6 +816,16 @@ Supporting all the features you'd want in a blogging platform:
           <Validation />
           <Description><![CDATA[Optional blog banner]]></Description>
         </GenericProperty>
+		  <GenericProperty>
+			  <Name>Extract First Image to Property</Name>
+			  <Alias>extractFirstImage</Alias>
+			  <Type>Umbraco.TrueFalse</Type>
+			  <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+			  <Tab>MetaWeblog options</Tab>
+			  <Mandatory>False</Mandatory>
+			  <Validation />
+			  <Description><![CDATA[When Windows Live Writer (or compatible WebBlog API tool) is used to create blog posts, with this option enabled it will set the first image found in the blog post to the blog's image property if one is found.]]></Description>
+		  </GenericProperty>
       </GenericProperties>
       <Tabs>
         <Tab>
@@ -833,6 +843,11 @@ Supporting all the features you'd want in a blogging platform:
           <Caption>Style</Caption>
           <SortOrder>2</SortOrder>
         </Tab>
+		<Tab>
+			 <Id>15</Id>
+			 <Caption>MetaWeblog options</Caption>
+			 <SortOrder>3</SortOrder>
+		 </Tab>
       </Tabs>
     </DocumentType>
     <DocumentType>
@@ -914,7 +929,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>15</Id>
+          <Id>16</Id>
           <Caption>Author info</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -1047,7 +1062,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>16</Id>
+          <Id>17</Id>
           <Caption>Post Attributes</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -1084,7 +1099,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>17</Id>
+          <Id>18</Id>
           <Caption>Content</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -1121,7 +1136,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>18</Id>
+          <Id>19</Id>
           <Caption>Content</Caption>
           <SortOrder>0</SortOrder>
         </Tab>

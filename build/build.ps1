@@ -77,8 +77,8 @@ $CreatedPackagesConfigXML.Save($CreatedPackagesConfig)
 #copy the orig manifest to temp location to be updated to be used for the package
 $PackageManifest = Join-Path -Path $BuildFolder -ChildPath "packageManifest.xml"
 New-Item -ItemType Directory -Path $TempFolder
-Copy-Item $PackageManifest "$TempFolder\packageManifest.xml"
-$PackageManifest = (Join-Path -Path $TempFolder -ChildPath "packageManifest.xml")
+Copy-Item $PackageManifest "$TempFolder\package.xml"
+$PackageManifest = (Join-Path -Path $TempFolder -ChildPath "package.xml")
 
 # Set the data in packageManifest.config
 $PackageManifestXML = [xml](Get-Content $PackageManifest)

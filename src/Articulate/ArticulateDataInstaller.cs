@@ -31,15 +31,23 @@ namespace Articulate
         public IContent Execute()
         {
             var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
+            
 
             if (articulateContentType == null)
             {
+                //this should not happen!
+                LogHelper.Warn<ArticulateDataInstaller>("Could not find the Articulate content type");
+                return null;
+            }
+
+            var root = _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
+            if (root == null)
+            {
                 return Install();
             }
-            else
-            {
-                return _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
-            }
+            
+            //TODO: We need to upgrade! if there are changes!
+            return root;
         }
        
 
