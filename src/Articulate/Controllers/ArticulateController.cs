@@ -44,6 +44,11 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
+            if (p != null && p.Value == 1)
+            {
+                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+            }
+            
             if (p == null || p.Value <= 0)
             {
                 p = 1;
@@ -71,7 +76,7 @@ namespace Articulate.Controllers
                 p.Value - 1,
                 totalPages,
                 totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 1 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : null);
+                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
 
             var listModel = new ListModel(listNode, pager);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
