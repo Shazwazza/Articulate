@@ -61,8 +61,8 @@ namespace Articulate
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("extractFirstImage", true);
-            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/1007/capture3.png','crops': []}");
-            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/1011/7406981406_1aff1cb527_o.jpg','crops': []}");
+            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
+            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 
             _services.ContentService.SaveAndPublishWithStatus(root);
 
@@ -80,7 +80,7 @@ namespace Articulate
                 "Demo author", authors, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
-            author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/1008/random-mask.jpg','crops': []}");
+            author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
             _services.ContentService.SaveAndPublishWithStatus(author);
 
             //Create a test post

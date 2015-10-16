@@ -55,7 +55,7 @@
                     new string[] {"mdl-data-table__cell--non-numeric date", "mdl-data-table__cell--non-numeric", "mdl-data-table__cell--non-numeric" },
                     @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
                     @<a href="@item.Url">@item.Name</a>,
-                    @<a href="@item.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(Model, ApplicationContext.Services.EntityService)"></a>)
+                    @<a href="@item.Url#disqus_thread" data-disqus-identifier="@Model.GetKey()"></a>)
             </div>
             <div class="mdl-card__menu">
                 <a href="@Url.ArticulateTagRssUrl(asArray[i])" title="RSS Feed" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color--primary mdl-color-text--grey-50">

@@ -29,7 +29,7 @@
 
                     <a href="@post.Url">@post.Name</a>
                     <div>
-                        <a data-disqus-identifier="@Umbraco.GetContentUniqueId(post, ApplicationContext.Services.EntityService)" class="comment-count" href="@post.Url#disqus_thread"></a>
+                        <a data-disqus-identifier="@Model.GetKey()" class="comment-count" href="@post.Url#disqus_thread"></a>
                     </div>
                 </li>
             }

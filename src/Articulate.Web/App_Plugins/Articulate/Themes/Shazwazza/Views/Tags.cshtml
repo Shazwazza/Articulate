@@ -41,7 +41,7 @@
                         new[] { "date", "title", "comments" },
                         @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
                         @<a href="@item.Url">@item.Name</a>,
-                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(item, ApplicationContext.Services.EntityService)"></a>)
+                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@Model.GetKey()"></a>)
 
                     }
                 </div>

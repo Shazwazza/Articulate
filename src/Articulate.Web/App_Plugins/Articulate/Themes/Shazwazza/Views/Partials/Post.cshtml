@@ -41,7 +41,7 @@
             @<a href="@Url.ArticulateCategoryUrl(Model, @item)">@item</a>, " | ")
             <br />
             <img id="Img4" alt="comment" src="@Url.ThemedAsset(Model, "img/comments.gif")" />
-            <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(Model, ApplicationContext.Services.EntityService)"></a>
+            <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.GetKey()"></a>
         </div>
     }
     

@@ -16,13 +16,6 @@ namespace Articulate
 
     public static class UmbracoHelperExtensions
     {
-        //TODO: Change this in 7.3 since it's built into IPublishedContent
-        public static Guid GetContentUniqueId(this UmbracoHelper helper, IPublishedContent content, IEntityService entityService)
-        {
-            var result = entityService.GetKeyForId(content.Id, UmbracoObjectTypes.Document);
-            return result ? result.Result : Guid.Empty;
-        }
-
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
             var listNode = masterModel.RootBlogNode.Children

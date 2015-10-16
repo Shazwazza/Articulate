@@ -21,8 +21,8 @@
             @Html.ThemedPartial(Model, "AuthorInfo", Model)            
             <div class="section-spacer"></div>
             <div class="meta__favorites">
-                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(Model, ApplicationContext.Services.EntityService)"></a>
-                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Umbraco.GetContentUniqueId(Model, ApplicationContext.Services.EntityService)"><i class="material-icons" role="presentation">comment</i></a>
+                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.GetKey()"></a>
+                <a class="mdl-color-text--grey-700" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.GetKey()"><i class="material-icons" role="presentation">comment</i></a>
                 <span class="visuallyhidden">comments</span>
             </div>
             
