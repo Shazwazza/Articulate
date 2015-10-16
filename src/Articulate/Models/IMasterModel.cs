@@ -2,7 +2,7 @@ using Umbraco.Core.Models;
 
 namespace Articulate.Models
 {
-    public interface IMasterModel
+    public interface IMasterModel : IPublishedContent
     {
         /// <summary>
         /// Returns the current theme
@@ -10,7 +10,6 @@ namespace Articulate.Models
         string Theme { get; }
         IPublishedContent RootBlogNode { get; }
         IPublishedContent BlogArchiveNode { get; }
-        string Name { get; }
         string BlogTitle { get; }
         string BlogDescription { get; }
         string BlogLogo { get; }
