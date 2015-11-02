@@ -131,6 +131,11 @@ namespace Articulate
         /// <returns></returns>
         public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
         {
+            if (viewData == null)
+            {
+                viewData = html.ViewData;
+            }
+
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path, viewData);
         }
