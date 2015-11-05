@@ -334,6 +334,8 @@ namespace Articulate
             var xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                 .SingleOrDefault(x => ((string)x.Attribute("id")) == post.Id);
 
+            if (xmlPost == null) return;
+
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
             postNode.SetTags("tags", tags, true, "ArticulateTags");
         }
