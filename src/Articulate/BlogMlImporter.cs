@@ -255,6 +255,9 @@ namespace Articulate
 
                 var content = post.Content.Content;
 
+                if (post.Content.ContentType == BlogMLContentType.Base64)
+                    content = Encoding.UTF8.GetString(Convert.FromBase64String(post.Content.Content));
+
                 if (!regexMatch.IsNullOrWhiteSpace() && !regexReplace.IsNullOrWhiteSpace())
                 {
                     //run the replacement
