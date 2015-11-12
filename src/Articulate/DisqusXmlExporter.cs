@@ -54,7 +54,7 @@ namespace Articulate
                     new XElement("title", post.Name),
                     new XElement("link", umbHelper.NiceUrlWithDomain(post.Id)),
                     new XElement(nsContent + "encoded", new XCData(body)),
-                    new XElement(nsDsq + "thread_identifier", post.Id.ToString(CultureInfo.InvariantCulture)),
+                    new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),
                     new XElement(nsWp + "comment_status", "open"));
 
