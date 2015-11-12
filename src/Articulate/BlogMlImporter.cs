@@ -225,13 +225,16 @@ namespace Articulate
                 IContent postNode;
 
                 //Use post.id if it's there
-                if (!String.IsNullOrWhiteSpace(post.Id))
+                if (!string.IsNullOrWhiteSpace(post.Id))
                 {
                     postNode = allPostNodes.FirstOrDefault(x => x.GetValue<string>("importId") == post.Id);                    
                 }
-                else //Use the "slug" (post name) if post.id is not there
+                else 
                 {
-                    postNode = allPostNodes.FirstOrDefault(x => x.GetValue<string>("umbracoUrlName") != null && x.GetValue<string>("umbracoUrlName").StartsWith(post.Name.Content));
+                    //Use the "slug" (post name) if post.id is not there
+                    postNode = allPostNodes
+                        .FirstOrDefault(x => x.GetValue<string>("umbracoUrlName") != null
+                                             && x.GetValue<string>("umbracoUrlName").InvariantStartsWith(post.Name.Content));
                 }
                 
                 //it exists and we don't wanna overwrite, skip it
