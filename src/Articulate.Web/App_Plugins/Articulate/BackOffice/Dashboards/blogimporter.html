@@ -1,9 +1,10 @@
 ﻿<div ng-controller="Articulate.Dashboard.BlogImporter">
     <h3>Articulate BlogMl importer</h3>
     <form name="articulateImportForm" ng-submit="submit()" novalidate val-form-manager>
-        <umb-control-group alias="articulateNodeId" description="Enter the Articulate blog node Id to import to"
-                           label="Articulate blog node Id">
-            <input type="number" ng-model="$parent.articulateNodeId" name="articulateNodeId" required no-dirty-check />
+
+        <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to import to"
+                           label="Articulate blog node">
+            <umb-editor model="contentPickerModel" ng-model="$parent.articulateNodeId" name="articulateNodeId" no-dirty-check ></umb-editor>
             <span class="help-inline" val-msg-for="articulateNodeId" val-toggle-msg="required">Required</span>
         </umb-control-group>
 
@@ -32,7 +33,7 @@
                            label="Regex replacement statement">
             <input type="text" class="" name="regexReplace" ng-model="$parent.regexReplace" no-dirty-check />
         </umb-control-group>
-        
+
         <umb-control-group alias="exportDisqusXml" description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
                            label="Export Disqus Xml">
             <input type="checkbox" class="" name="exportDisqusXml" ng-model="$parent.exportDisqusXml" no-dirty-check />

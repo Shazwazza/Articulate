@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
+angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
     function ($scope, umbRequestHelper, formHelper, fileManager, $http, $q) {
 
         //initialize the import, this will upload the file and return the post count
@@ -26,7 +26,7 @@
             return umbRequestHelper.resourcePromise(
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostImportBlogMl", {
-                        articulateNode: $scope.articulateNodeId,
+                        articulateNode: $scope.contentPickerModel.value,
                         overwrite: $scope.overwrite,
                         regexMatch: $scope.regexMatch,
                         regexReplace: $scope.regexReplace,
@@ -40,6 +40,13 @@
         var file = null;
 
         $scope.submitting = false;
+
+        $scope.contentPickerModel = {
+          view: "contentpicker",
+          config: {
+            minNumber:1
+          }
+        };
 
         $scope.$on("filesSelected", function (e, args) {
             file = args.files[0];
