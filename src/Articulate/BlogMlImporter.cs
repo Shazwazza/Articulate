@@ -270,10 +270,13 @@ namespace Articulate
 
                 postNode.SetValue("richText", content);
                 postNode.SetValue("enableComments", true);
-
-                //we're only going to use the last url segment
-                var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                postNode.SetValue("umbracoUrlName", slug[slug.Length - 1].Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                
+                if (post.Url != null && !string.IsNullOrWhiteSpace(post.Url.AbsoluteUri))
+                {
+                    //we're only going to use the last url segment
+                    var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    postNode.SetValue("umbracoUrlName", slug[slug.Length - 1].Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                }
 
                 if (post.Authors.Count > 0)
                 {
