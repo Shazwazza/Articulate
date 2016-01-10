@@ -37,22 +37,53 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
                 'Failed to import blog posts');
         }
 
+        function postExport() {
+            return umbRequestHelper.resourcePromise(
+                $http.post(
+                    Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostExportBlogMl", {
+                        articulateNode: $scope.contentPickerModel.value
+                    }),
+                'Failed to export blog posts');
+        }
+
         var file = null;
+
+        $scope.dataAction = "i";
 
         $scope.submitting = false;
 
         $scope.contentPickerModel = {
-          view: "contentpicker",
-          config: {
-            minNumber:1
-          }
+            view: "contentpicker",
+            config: {
+                minNumber: 1
+            }
         };
 
         $scope.$on("filesSelected", function (e, args) {
             file = args.files[0];
         });
 
-        $scope.submit = function () {
+        $scope.submitExport = function () {
+
+            if (formHelper.submitForm({ scope: $scope })) {
+
+                formHelper.resetForm({ scope: $scope });
+
+                $scope.submitting = true;
+                $scope.status = "Please wait...";
+
+                postExport()
+                    .then(function (data) {
+
+                        $scope.downloadLink = data;
+
+                        $scope.status = "Finished!";
+                        $scope.submitting = false;
+                    });
+            }
+        }
+
+        $scope.submitImport = function () {
 
             if (formHelper.submitForm({ scope: $scope })) {
 
@@ -63,10 +94,13 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
 
                 postInitialize()
                     .then(postImport)
-                    .then(function(data) {
+                    .then(function (data) {
+
+                        $scope.downloadLink = data;
+
                         $scope.status = "Finished!";
                         $scope.submitting = false;
-                });
+                    });
             }
         }
     }).directive('requiredFile', function () {

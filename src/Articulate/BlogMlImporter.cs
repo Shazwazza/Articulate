@@ -24,20 +24,17 @@ namespace Articulate
 {
     public class BlogMlImporter
     {
-        public BlogMlImporter()
+        private readonly IFileSystem _fileSystem;
+
+        public BlogMlImporter(ApplicationContext applicationContext, IFileSystem fileSystem)
         {
-            HasErrors = false;
+            _applicationContext = applicationContext;
+            _fileSystem = fileSystem;
         }
 
         public bool HasErrors { get; private set; }
 
         private readonly ApplicationContext _applicationContext;
-
-        public BlogMlImporter(ApplicationContext applicationContext)
-        {
-            _applicationContext = applicationContext;
-
-        }
 
         public int GetPostCount(string fileName)
         {
@@ -88,14 +85,11 @@ namespace Articulate
                     {
                         var exporter = new DisqusXmlExporter();
                         var xDoc = exporter.Export(imported, document);
-
+                        
                         using (var memStream = new MemoryStream())
                         {
-                            xDoc.Save(memStream);
-                            
-                            var mediaFs = FileSystemProviderManager.Current.GetFileSystemProvider<MediaFileSystem>();
-
-                            mediaFs.AddFile("Articulate/DisqusXmlExport.xml", memStream, true);
+                            xDoc.Save(memStream);                            
+                            _fileSystem.AddFile("Articulate/DisqusXmlExport.xml", memStream, true);
                         }
                     }
                 }

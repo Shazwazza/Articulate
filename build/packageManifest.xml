@@ -1187,7 +1187,7 @@ Supporting all the features you'd want in a blogging platform:
         <areas>
           <area>developer</area>
         </areas>
-        <tab caption="Articulate Importer">
+        <tab caption="Articulate Import/Export">
           <control showOnce="false" addPanel="true" panelCaption="">
               ~/App_Plugins/Articulate/BackOffice/Dashboards/BlogImporter.html
             </control>

@@ -6,12 +6,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Mvc;
+using System.Web.Routing;
 using System.Web.UI.WebControls;
 using Articulate.Models;
 using Newtonsoft.Json.Linq;
 using umbraco.BusinessLogic;
 using Umbraco.Core;
 using Umbraco.Core.IO;
+using Umbraco.Web;
 using Umbraco.Web.WebApi;
 
 namespace Articulate.Controllers
@@ -37,8 +40,11 @@ namespace Articulate.Controllers
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
 
+                //save to Temp folder (base path)
+                var fs = new PhysicalFileSystem(IOHelper.MapPath("~/App_Data/Temp"));
+
                 //there should only be one file so we'll just use the first one
-                var importer = new BlogMlImporter(ApplicationContext);
+                var importer = new BlogMlImporter(ApplicationContext, fs);
                 var count = importer.GetPostCount(result.FileData[0].LocalFileName);
 
                 return JObject.FromObject(new
@@ -54,15 +60,27 @@ namespace Articulate.Controllers
 
         }
 
-        public async Task<HttpResponseMessage> PostImportBlogMl(ImportBlogMlModel model)
+        public ImportModel PostExportBlogMl(ImportBlogMlModel model)
+        {
+            var mvcUrlHelper = new UrlHelper(new RequestContext());
+            return new ImportModel
+            {
+                DownloadUrl = mvcUrlHelper.SurfaceAction<ArticulateBlogImportDataController>("DownloadDisqusExport")
+            };            
+        }
+
+        public async Task<ImportModel> PostImportBlogMl(ImportBlogMlModel model)
         {
             if (!ModelState.IsValid)
             {
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
-            
+
+            //save to Temp folder (base path)
+            var fs = new PhysicalFileSystem(IOHelper.MapPath("~/App_Data/Temp"));
+
             //there should only be one file so we'll just use the first one
-            var importer = new BlogMlImporter(ApplicationContext);
+            var importer = new BlogMlImporter(ApplicationContext, fs);
             await importer.Import(Security.CurrentUser.Id, 
                 model.TempFile,
                 model.ArticulateNodeId,
@@ -77,10 +95,14 @@ namespace Articulate.Controllers
 
             if (importer.HasErrors)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details"));
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            var mvcUrlHelper = new UrlHelper(new RequestContext());
+            return new ImportModel
+            {
+                DownloadUrl = mvcUrlHelper.SurfaceAction<ArticulateBlogImportDataController>("DownloadDisqusExport")
+            };
         }
 
     }
