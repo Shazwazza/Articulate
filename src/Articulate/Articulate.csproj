@@ -312,6 +312,7 @@
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Models\ExportBlogMlModel.cs" />
     <Compile Include="Models\ImportModel.cs" />
+    <Compile Include="Models\PublishedContentExtensions.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
