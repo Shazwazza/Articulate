@@ -6,17 +6,23 @@ namespace Articulate.Models
 {
     public static class PublishedContentExtensions
     {
-        public static Guid GetContentKey(this IMasterModel model)
+        public static IPublishedContentWithKey GetContentWithKey(IPublishedContent model)
         {
             var withKey = model as IPublishedContentWithKey;
-            if (withKey != null) return withKey.Key;
-            
+            if (withKey != null) return withKey;
+
             var wrapped = model as PublishedContentWrapped;
             if (wrapped != null)
             {
-                withKey = wrapped.Unwrap() as IPublishedContentWithKey;
-                if (withKey != null) return withKey.Key;
+                return GetContentWithKey(wrapped.Unwrap());
             }
+            return null;
+        }
+
+        public static Guid GetContentKey(this IMasterModel model)
+        {
+            var withKey = GetContentWithKey(model);
+            if (withKey != null) return withKey.Key;
             return Guid.Empty;
         }
     }
