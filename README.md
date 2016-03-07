@@ -23,6 +23,10 @@ Supporting all the features you'd want in a blogging platform
 * Customizable urls 
 * Author profiles
 
+## Minimum requirements
+
+Articulate version 2+ is only compatible with Umbraco 7.3+
+
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 
 Docs on installation, creating posts, customizing/creating themes, etc...
