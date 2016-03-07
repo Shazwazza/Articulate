@@ -39,6 +39,10 @@ Please post to this Umbraco discussions forum to discuss Articulate, it's featur
 
 If you have any issues, please post them here on GitHub
 
+## [Releases](https://github.com/Shazwazza/Articulate/releases)
+
+See here for the list of releases and their release notes
+
 ## Copyright & Licence
 
 &copy; 2016 by Shannon Deminick
