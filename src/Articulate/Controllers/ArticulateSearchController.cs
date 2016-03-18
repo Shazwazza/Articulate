@@ -22,13 +22,13 @@ namespace Articulate.Controllers
         
         public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
         {
-            if (articulateSearcher == null) throw new ArgumentNullException("articulateSearcher"); // TODO: nameof(articulateSearcher)
+            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
             _articulateSearcher = articulateSearcher;
         }
 
         public ArticulateSearchController(UmbracoContext umbracoContext, IArticulateSearcher articulateSearcher) : base(umbracoContext)
         {
-            if (articulateSearcher == null) throw new ArgumentNullException("articulateSearcher"); // TODO: nameof(articulateSearcher)
+            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
             _articulateSearcher = articulateSearcher;
         }
 
