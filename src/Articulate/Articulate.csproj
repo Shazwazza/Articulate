@@ -312,8 +312,8 @@
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Models\ExportBlogMlModel.cs" />
     <Compile Include="Models\ImportModel.cs" />
-    <Compile Include="Extensions\DefaultArticulateSearcher.cs" />
-    <Compile Include="Extensions\IArticulateSearcher.cs" />
+    <Compile Include="DefaultArticulateSearcher.cs" />
+    <Compile Include="IArticulateSearcher.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />

@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Web.UI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using umbraco.BusinessLogic;
 using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
@@ -46,10 +49,61 @@ namespace Articulate
                 return Install();
             }
             
-            //TODO: We need to upgrade! if there are changes!
+
+            Upgrade();
             return root;
         }
-       
+
+        private void Upgrade()
+        {
+            //For v2.0 we need to manually add some pre-values to the Articulate Cropper, 
+            // https://github.com/Shazwazza/Articulate/issues/80
+            // https://github.com/Shazwazza/Articulate/issues/135
+            // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
+
+            var cropperDt = _services.DataTypeService.GetDataTypeDefinitionByName("Articulate Cropper");
+            if (cropperDt != null)
+            {
+                if (cropperDt.PropertyEditorAlias.InvariantEquals("Umbraco.ImageCropper"))
+                {
+                    var preVals = _services.DataTypeService.GetPreValuesCollectionByDataTypeId(cropperDt.Id);
+                    if (preVals != null)
+                    {
+                        if (!HasPrevalues(preVals))
+                        {
+                            //need to add the crops
+                            var crops = new[]
+                            {
+                                new {alias = "blogPost", width = 200, height=200},
+                                new {alias = "thumbnail", width = 50, height=50}
+                            };
+                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(crops));
+
+                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool HasPrevalues(PreValueCollection preVals)
+        {
+            if (preVals.PreValuesAsDictionary["crops"] == null
+                || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
+            {
+                return false;
+            }
+
+            try
+            {
+                var array = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
+                return array.Count > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         private IContent Install()
         {
