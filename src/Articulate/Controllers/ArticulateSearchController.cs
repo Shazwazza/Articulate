@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Web.Mvc;
 using Articulate.Models;
-using Articulate.Extensions;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;

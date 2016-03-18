@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Umbraco.Core.Models;
 
-namespace Articulate.Extensions
+namespace Articulate
 {
     public interface IArticulateSearcher
     {

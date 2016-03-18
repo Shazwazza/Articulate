@@ -6,7 +6,7 @@ using Examine;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
-namespace Articulate.Extensions
+namespace Articulate
 {
     public class DefaultArticulateSearcher : IArticulateSearcher
     {
