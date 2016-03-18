@@ -26,7 +26,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
             return umbRequestHelper.resourcePromise(
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostImportBlogMl", {
-                        articulateNode: $scope.contentPickerModel.value,
+                        articulateNode: $scope.contentPickerImportModel.value,
                         overwrite: $scope.overwrite,
                         regexMatch: $scope.regexMatch,
                         regexReplace: $scope.regexReplace,
@@ -41,7 +41,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
             return umbRequestHelper.resourcePromise(
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostExportBlogMl", {
-                        articulateNode: $scope.contentPickerModel.value
+                        articulateNode: $scope.contentPickerExportModel.value
                     }),
                 'Failed to export blog posts');
         }
@@ -52,7 +52,14 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
 
         $scope.submitting = false;
 
-        $scope.contentPickerModel = {
+        $scope.contentPickerExportModel = {
+            view: "contentpicker",
+            config: {
+                minNumber: 1
+            }
+        };
+
+        $scope.contentPickerImportModel = {
             view: "contentpicker",
             config: {
                 minNumber: 1
@@ -65,7 +72,9 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
 
         $scope.submitExport = function () {
 
-            if (formHelper.submitForm({ scope: $scope })) {
+            $scope.status = "";
+
+            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateExportForm })) {
 
                 formHelper.resetForm({ scope: $scope });
 
@@ -75,7 +84,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
                 postExport()
                     .then(function (data) {
 
-                        $scope.downloadLink = data;
+                        $scope.downloadLink = data.downloadUrl;
 
                         $scope.status = "Finished!";
                         $scope.submitting = false;
@@ -85,7 +94,9 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
 
         $scope.submitImport = function () {
 
-            if (formHelper.submitForm({ scope: $scope })) {
+            $scope.status = "";
+
+            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateImportForm })) {
 
                 formHelper.resetForm({ scope: $scope });
 
@@ -96,7 +107,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
                     .then(postImport)
                     .then(function (data) {
 
-                        $scope.downloadLink = data;
+                        $scope.downloadLink = data.downloadUrl;
 
                         $scope.status = "Finished!";
                         $scope.submitting = false;

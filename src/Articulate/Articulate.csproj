@@ -291,6 +291,7 @@
     <Compile Include="ArticulateTagsRouteHandler.cs" />
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />
+    <Compile Include="BlogMlExporter.cs" />
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />

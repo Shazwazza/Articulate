@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using Newtonsoft.Json.Serialization;
 using Umbraco.Core;
@@ -25,6 +24,7 @@ namespace Articulate
     public class BlogMlImporter
     {
         private readonly IFileSystem _fileSystem;
+        private readonly ApplicationContext _applicationContext;
 
         public BlogMlImporter(ApplicationContext applicationContext, IFileSystem fileSystem)
         {
@@ -34,8 +34,6 @@ namespace Articulate
 
         public bool HasErrors { get; private set; }
 
-        private readonly ApplicationContext _applicationContext;
-
         public int GetPostCount(string fileName)
         {
             var doc = GetDocument(fileName);
@@ -43,12 +41,12 @@ namespace Articulate
         }
 
         public async Task Import(
-            int userId, 
-            string fileName, 
-            int blogRootNode, 
-            bool overwrite, 
-            string regexMatch, 
-            string regexReplace, 
+            int userId,
+            string fileName,
+            int blogRootNode,
+            bool overwrite,
+            string regexMatch,
+            string regexReplace,
             bool publishAll,
             bool exportDisqusXml = false)
         {
@@ -85,11 +83,11 @@ namespace Articulate
                     {
                         var exporter = new DisqusXmlExporter();
                         var xDoc = exporter.Export(imported, document);
-                        
+
                         using (var memStream = new MemoryStream())
                         {
-                            xDoc.Save(memStream);                            
-                            _fileSystem.AddFile("Articulate/DisqusXmlExport.xml", memStream, true);
+                            xDoc.Save(memStream);
+                            _fileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
                         }
                     }
                 }
@@ -148,7 +146,7 @@ namespace Articulate
                 {
                     //check if an author node exists for this user
                     var authorNode = allAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(found.Name));
-                    
+
                     //nope not found so create a node for this user name
                     if (authorNode == null)
                     {
@@ -166,7 +164,7 @@ namespace Articulate
                 {
                     //no user existsw with this email, so check if a node exists with the current author's title
                     var authorNode = allAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(author.Title.Content));
-                    
+
                     //nope, not found so create one
                     if (authorNode == null)
                     {
@@ -184,7 +182,7 @@ namespace Articulate
 
         }
 
-        private async Task<IEnumerable<IContent>>  ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
+        private async Task<IEnumerable<IContent>> ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
         {
 
             var result = new List<IContent>();
@@ -194,8 +192,6 @@ namespace Articulate
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
-
-            //TODO: Check for existence of ArticulateArchive
 
             var children = rootNode.Children().ToArray();
 
@@ -221,16 +217,16 @@ namespace Articulate
                 //Use post.id if it's there
                 if (!string.IsNullOrWhiteSpace(post.Id))
                 {
-                    postNode = allPostNodes.FirstOrDefault(x => x.GetValue<string>("importId") == post.Id);                    
+                    postNode = allPostNodes.FirstOrDefault(x => x.GetValue<string>("importId") == post.Id);
                 }
-                else 
+                else
                 {
                     //Use the "slug" (post name) if post.id is not there
                     postNode = allPostNodes
                         .FirstOrDefault(x => x.GetValue<string>("umbracoUrlName") != null
                                              && x.GetValue<string>("umbracoUrlName").InvariantStartsWith(post.Name.Content));
                 }
-                
+
                 //it exists and we don't wanna overwrite, skip it
                 if (!overwrite && postNode != null) continue;
 
@@ -238,7 +234,7 @@ namespace Articulate
                 if (postNode == null)
                 {
                     postNode = _applicationContext.Services.ContentService.CreateContent(
-                        post.Title.Content, archiveNode, "ArticulateRichText");        
+                        post.Title.Content, archiveNode, "ArticulateRichText");
                 }
 
                 postNode.SetValue("publishedDate", post.CreatedOn);
@@ -258,14 +254,14 @@ namespace Articulate
                 if (!regexMatch.IsNullOrWhiteSpace() && !regexReplace.IsNullOrWhiteSpace())
                 {
                     //run the replacement
-                    content = Regex.Replace(content, regexMatch, regexReplace, 
-                        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);    
+                    content = Regex.Replace(content, regexMatch, regexReplace,
+                        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
                 }
 
                 postNode.SetValue("richText", content);
                 postNode.SetValue("enableComments", true);
-                
-                if (post.Url != null && !string.IsNullOrWhiteSpace(post.Url.AbsoluteUri))
+
+                if (post.Url != null && !string.IsNullOrWhiteSpace(post.Url.OriginalString))
                 {
                     //we're only going to use the last url segment
                     var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -275,24 +271,24 @@ namespace Articulate
                 if (post.Authors.Count > 0)
                 {
                     var author = authors.FirstOrDefault(x => x.Id.InvariantEquals(post.Authors[0]));
-                    
+
                     if (author != null)
                     {
                         var name = authorIdsToName[author.Id];
-                        postNode.SetValue("author", name);   
-                    }                    
+                        postNode.SetValue("author", name);
+                    }
                 }
 
                 ImportTags(xdoc, postNode, post);
                 ImportCategories(postNode, post, categories);
-                
+
                 if (publishAll)
                 {
                     _applicationContext.Services.ContentService.SaveAndPublishWithStatus(postNode, userId);
                 }
                 else
                 {
-                    _applicationContext.Services.ContentService.Save(postNode, userId);    
+                    _applicationContext.Services.ContentService.Save(postNode, userId);
                 }
 
                 //if (!publicKey.IsNullOrWhiteSpace())

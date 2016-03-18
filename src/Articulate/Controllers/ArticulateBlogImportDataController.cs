@@ -3,17 +3,17 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    [UmbracoAuthorize]
-    public class ArticulateBlogImportDataController : SurfaceController
-    {
-        public FileResult DownloadDisqusExport()
-        {
-            return null;
-        }
+    //[UmbracoAuthorize]
+    //public class ArticulateBlogImportDataController : SurfaceController
+    //{
+    //    public FileResult DownloadDisqusExport()
+    //    {
+    //        return null;
+    //    }
 
-        public FileResult DownloadBlogMlExport()
-        {
-            return null;
-        }
-    }
+    //    public FileResult DownloadBlogMlExport()
+    //    {
+    //        return null;
+    //    }
+    //}
 }
