@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Web.Mvc;
 using Articulate.Models;
-using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -23,13 +22,13 @@ namespace Articulate.Controllers
         
         public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
         {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
+            if (articulateSearcher == null) throw new ArgumentNullException("articulateSearcher"); // TODO: nameof(articulateSearcher)
             _articulateSearcher = articulateSearcher;
         }
 
         public ArticulateSearchController(UmbracoContext umbracoContext, IArticulateSearcher articulateSearcher) : base(umbracoContext)
         {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
+            if (articulateSearcher == null) throw new ArgumentNullException("articulateSearcher"); // TODO: nameof(articulateSearcher)
             _articulateSearcher = articulateSearcher;
         }
 

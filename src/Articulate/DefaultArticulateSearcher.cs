@@ -14,7 +14,7 @@ namespace Articulate
 
         public DefaultArticulateSearcher(UmbracoHelper umbracoHelper)
         {
-            if (umbracoHelper == null) throw new ArgumentNullException(nameof(umbracoHelper));
+            if (umbracoHelper == null) throw new ArgumentNullException("umbracoHelper"); // TODO: nameof(umbracoHelper)
             _umbracoHelper = umbracoHelper;
         }
 
