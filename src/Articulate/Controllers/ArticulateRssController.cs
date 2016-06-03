@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web.Http.Results;
 using System.Web.Mvc;
 using System.Xml.Linq;
 using Articulate.Models;
@@ -95,6 +96,22 @@ namespace Articulate.Controllers
                 tagPage.Name,
                 tagGroup,
                 baseUrl);
+
+            //super hack - but this is because we are replacing '.' with '-' in StringExtensions.EncodePath method
+            // so if we get nothing, we'll retry with replacing back
+            if (contentByTag == null)
+            {
+                contentByTag = Umbraco.GetContentByTag(
+                    rootPageModel,
+                    tagPage.Name.Replace('-', '.'),
+                    tagGroup,
+                    baseUrl);
+            }
+
+            if (contentByTag == null)
+            {
+                return HttpNotFound();
+            }
 
             var feed = FeedGenerator.GetFeed(rootPageModel, contentByTag.Posts.Take(maxItems));
 
