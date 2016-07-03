@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
 using Umbraco.Core;
@@ -53,19 +54,25 @@ namespace Articulate
                     new XElement("title", post.Name),
                     new XElement("link", umbHelper.NiceUrlWithDomain(post.Id)),
                     new XElement(nsContent + "encoded", new XCData(body)),
-                    new XElement(nsDsq + "thread_identifier", post.Id.ToString(CultureInfo.InvariantCulture)),
+                    new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),
                     new XElement(nsWp + "comment_status", "open"));
 
                 foreach (var comment in blogMlPost.Comments)
                 {
+                    string commentText = comment.Content.Content;
+
+                    if (comment.Content.ContentType == BlogMLContentType.Base64)
+                        commentText = Encoding.UTF8.GetString(Convert.FromBase64String(comment.Content.Content));
+
+
                     var xComment = new XElement(nsWp + "comment",
                         new XElement(nsWp + "comment_id", comment.Id),
                         new XElement(nsWp + "comment_author", comment.UserName),
                         new XElement(nsWp + "comment_author_email", comment.UserEmailAddress),
                         new XElement(nsWp + "comment_author_url", comment.UserUrl == null ? string.Empty : comment.UserUrl.ToString()),
                         new XElement(nsWp + "comment_date_gmt", comment.CreatedOn.ToUniversalTime().ToIsoString()),
-                        new XElement(nsWp + "comment_content", comment.Content.Content),
+                        new XElement(nsWp + "comment_content", commentText),
                         new XElement(nsWp + "comment_approved", comment.ApprovalStatus == BlogMLApprovalStatus.Approved ? 1 : 0));
 
                     xItem.Add(xComment);
