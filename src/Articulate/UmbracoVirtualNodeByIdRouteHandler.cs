@@ -2,6 +2,7 @@ using System;
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -19,24 +20,40 @@ namespace Articulate
     {
         private readonly List<Tuple<string, int>> _hostsAndIds = new List<Tuple<string, int>>();
 
+        [Obsolete("Use the ctor with all dependencies instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public UmbracoVirtualNodeByIdRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
+            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
+        {
+        }
+
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
+        /// <param name="umbracoUrlProvider"></param>
         /// <param name="itemsForRoute"></param>
-        public UmbracoVirtualNodeByIdRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
+        public UmbracoVirtualNodeByIdRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
         {
             foreach (var publishedContent in itemsForRoute)
             {
-                var url = publishedContent.Url;
-                //if there is a double slash, it will have a domain
-                if (url.Contains("//"))
+                //we need to get ALL urls for this item since one node can have multiple domains assigned
+                var allUrls = new HashSet<string>(umbracoUrlProvider.GetOtherUrls(publishedContent.Id))
                 {
-                    var uri = new Uri(url, UriKind.Absolute);
-                    _hostsAndIds.Add(new Tuple<string, int>(uri.Host, publishedContent.Id));
-                }
-                else
+                    umbracoUrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute),
+                    publishedContent.Url
+                };
+                foreach (var url in allUrls)
                 {
-                    _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));       
+                    //if there is a double slash, it will have a domain
+                    if (url.Contains("//"))
+                    {
+                        var uri = new Uri(url, UriKind.Absolute);
+                        _hostsAndIds.Add(new Tuple<string, int>(uri.Host, publishedContent.Id));
+                    }
+                    else
+                    {
+                        _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
+                    }
                 }
             }
         }

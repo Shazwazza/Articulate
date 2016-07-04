@@ -8,6 +8,7 @@ using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -26,32 +27,41 @@ namespace Articulate
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
 
-        public TagsOrCategoryPathRouteConstraint(IEnumerable<IPublishedContent> itemsForRoute)
+        public TagsOrCategoryPathRouteConstraint(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException("itemsForRoute");
 
             foreach (var node in itemsForRoute)
             {
-                var url = node.Url;
-                //if there is a double slash, it will have a domain
-                if (url.Contains("//"))
+                //we need to get ALL urls for this item since one node can have multiple domains assigned
+                var allUrls = new HashSet<string>(umbracoUrlProvider.GetOtherUrls(node.Id))
                 {
-                    var uri = new Uri(url, UriKind.Absolute);
-                    _urlNames.Add(new UrlNames
-                    {
-                        Host = uri.Host,
-                        CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                        TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
-                    });
-                }
-                else
+                    umbracoUrlProvider.GetUrl(node.Id, UrlProviderMode.Absolute),
+                    node.Url
+                };
+
+                foreach (var url in allUrls)
                 {
-                    _urlNames.Add(new UrlNames
+                    //if there is a double slash, it will have a domain
+                    if (url.Contains("//"))
                     {
-                        Host = string.Empty,
-                        CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                        TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
-                    });
+                        var uri = new Uri(url, UriKind.Absolute);
+                        _urlNames.Add(new UrlNames
+                        {
+                            Host = uri.Host,
+                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
+                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                        });
+                    }
+                    else
+                    {
+                        _urlNames.Add(new UrlNames
+                        {
+                            Host = string.Empty,
+                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
+                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                        });
+                    }
                 }
             }
         }

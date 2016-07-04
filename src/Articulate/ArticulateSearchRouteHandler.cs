@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web.Routing;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -19,9 +21,16 @@ namespace Articulate
         }
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
-        
+
+        [Obsolete("Use the ctor with all dependencies instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ArticulateSearchRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
-            : base(itemsForRoute)
+            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
+        {            
+        }
+
+        public ArticulateSearchRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(umbracoUrlProvider, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {

@@ -46,7 +46,7 @@ namespace Articulate
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
             //map routes
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
 
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
@@ -82,7 +82,7 @@ namespace Articulate
             if (ApplicationContext.Current == null) return;
             if (ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes") == null) return;
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
         }
 
         /// <summary>

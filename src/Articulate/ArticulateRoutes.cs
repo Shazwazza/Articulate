@@ -8,6 +8,7 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.PublishedCache;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -16,10 +17,60 @@ namespace Articulate
     /// </summary>
     public static class ArticulateRoutes
     {
-        public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache)
+        /// <summary>
+        /// This is used to indicate the max search depth of the tree to find Articulate roots
+        /// </summary>
+        public static int MaxSearchDepth = 5;
+
+        /// <summary>
+        /// Finds the articulate roots in the project without iterating over every single node
+        /// </summary>
+        /// <param name="umbracoCache"></param>
+        /// <returns></returns>
+        public static IEnumerable<IPublishedContent> FindArticulateRoots(ContextualPublishedCache umbracoCache)
+        {
+            var found = new HashSet<IPublishedContent>();
+            foreach (var child in umbracoCache.GetAtRoot())
+            {
+                if (child.DocumentTypeAlias == "Articulate")
+                {
+                    found.Add(child);
+                }
+                else
+                {
+                    FindArticulateRoots(child, found);
+                }
+            }
+            return found;
+        }
+
+        /// <summary>
+        /// Used to recursively search through the children
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="found"></param>
+        private static void FindArticulateRoots(IPublishedContent current, ISet<IPublishedContent> found)
+        {
+            //stop searching here if it's too deep
+            if (current.Level > MaxSearchDepth) return;
+
+            foreach (var child in current.Children)
+            {
+                if (child.DocumentTypeAlias == "Articulate")
+                {
+                    found.Add(child);
+                }
+                else
+                {
+                    FindArticulateRoots(child, found);
+                }            
+            }
+        }
+
+        public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache, UrlProvider umbracoUrlProvider)
         {
             //find all articulate root nodes
-            var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
+            var articulateNodes = FindArticulateRoots(umbracoCache);
 
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
@@ -49,10 +100,10 @@ namespace Articulate
                 {
                     var nodesAsArray = grouping.ToArray();
 
-                    MapRssRoute(routes, grouping.Key, nodesAsArray);
-                    MapSearchRoute(routes, grouping.Key, nodesAsArray);                                        
-                    MapTagsAndCategoriesRoute(routes, grouping.Key, nodesAsArray);
-                    MapMarkdownEditorRoute(routes, grouping.Key, nodesAsArray);  
+                    MapRssRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);
+                    MapSearchRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);                                        
+                    MapTagsAndCategoriesRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);
+                    MapMarkdownEditorRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);  
 
                     foreach (var content in grouping)
                     {
@@ -66,7 +117,7 @@ namespace Articulate
 
         }
 
-        private static void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapMarkdownEditorRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
             //var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
             var routeHash = nodeRoutePath.GetHashCode();
@@ -81,10 +132,10 @@ namespace Articulate
                     controller = "MarkdownEditor",
                     action = "NewPost"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(nodesWithPath));
+                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
         }
 
-        private static void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapRssRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
             var routeHash = nodeRoutePath.GetHashCode();
 
@@ -97,7 +148,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "Index"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(nodesWithPath));
+                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
 
             routes.MapUmbracoRoute(
                 "articulate_rss_xslt_" + routeHash,
@@ -107,10 +158,10 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "FeedXslt"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(nodesWithPath));
+                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
         }
 
-        private static void MapTagsAndCategoriesRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapTagsAndCategoriesRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
             var routeHash = nodeRoutePath.GetHashCode();
 
@@ -123,9 +174,9 @@ namespace Articulate
                     controller = "ArticulateTags",
                     tag = UrlParameter.Optional
                 },
-                new ArticulateTagsRouteHandler(nodesWithPath),
+                new ArticulateTagsRouteHandler(umbracoUrlProvider, nodesWithPath),
                 //Constraints: only match either the tags or categories url names
-                new { action = new TagsOrCategoryPathRouteConstraint(nodesWithPath) });
+                new { action = new TagsOrCategoryPathRouteConstraint(umbracoUrlProvider, nodesWithPath) });
 
             //Create the routes for the RSS specific feeds
             routes.MapUmbracoRoute(
@@ -135,9 +186,9 @@ namespace Articulate
                 {
                     controller = "ArticulateRss"
                 },
-                new ArticulateTagsRouteHandler(nodesWithPath),
+                new ArticulateTagsRouteHandler(umbracoUrlProvider, nodesWithPath),
                 //Constraints: only match either the tags or categories url names
-                new { action = new TagsOrCategoryPathRouteConstraint(nodesWithPath) });
+                new { action = new TagsOrCategoryPathRouteConstraint(umbracoUrlProvider, nodesWithPath) });
         }
 
         private static void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
@@ -185,7 +236,7 @@ namespace Articulate
                 }).AddRouteNameToken(name);
         }
 
-        private static void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private static void MapSearchRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
             //we need to group by the search url name and make unique routes amongst those,
             // alternatively we could create route constraints like we do for the tags/categories routes
@@ -204,7 +255,7 @@ namespace Articulate
                         action = "Search",
                         term = UrlParameter.Optional
                     },
-                    new ArticulateSearchRouteHandler(nodesWithPath));
+                    new ArticulateSearchRouteHandler(umbracoUrlProvider, nodesWithPath));
             }
 
             
