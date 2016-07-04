@@ -433,7 +433,6 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Recent.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\TagCloud.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SearchBox.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedDelicious.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedGitHub.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\List.cshtml" />

@@ -1,0 +1,183 @@
+﻿/* git hub feed */
+.news .account-switcher {
+    margin-bottom: 20px
+}
+
+.news .release {
+    margin-top: 0;
+    margin-bottom: 0
+}
+
+.news blockquote {
+    color: #666
+}
+
+.news h1 {
+    margin-bottom: 0
+}
+
+.news .alert {
+    position: relative;
+    padding: 0 0 1em 45px;
+    overflow: hidden;
+    border-top: 1px solid #f1f1f1
+}
+
+.news .alert .commits {
+    padding-left: 40px
+}
+
+.news .alert .css-truncate.css-truncate-target,.news .alert .css-truncate .css-truncate-target {
+    max-width: 180px
+}
+
+.news .alert p {
+    margin: 0
+}
+
+.news .alert .markdown-body blockquote {
+    padding: 0 0 0 40px;
+    border: 0 none
+}
+
+.news .alert .octicon {
+    color: #bbb
+}
+
+.news .alert .dashboard-event-icon {
+    position: absolute;
+    top: 14px;
+    left: 22px;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%)
+}
+
+.news .alert .body {
+    padding: 1em 0 0;
+    overflow: hidden;
+    font-size: 14px;
+    border-bottom: 0
+}
+
+.news .alert .time {
+    font-size: 12px;
+    color: #bbb
+}
+
+.news .alert .title {
+    padding: 0;
+    font-weight: bold
+}
+
+.news .alert .title .subtle {
+    color: #bbb
+}
+
+.news .alert .gravatar {
+    float: left;
+    margin-right: 0.6em;
+    line-height: 0;
+    background-color: #fff;
+    border-radius: 3px
+}
+
+.news .alert .simple .title {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: normal;
+    color: #666
+}
+
+.news .alert .simple .time {
+    display: inline-block
+}
+
+.news .alert .branch-link,.news .alert .pull-info {
+    display: inline-block;
+    padding: 3px 7px;
+    margin-top: 5px;
+    font-size: 12px;
+    color: rgba(0,0,0,0.5);
+    background: #e8f1f6;
+    border-radius: 3px
+}
+
+.news .alert .branch-link em,.news .alert .pull-info em {
+    font-style: normal;
+    font-weight: bold
+}
+
+.news .alert .branch-link {
+    position: relative;
+    top: -2px;
+    margin: 0;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    color: #4183c4
+}
+
+.news .alert .branch-link .octicon {
+    display: none
+}
+
+.news .alert:first-child {
+    border-top: 0
+}
+
+.news .alert:first-child .body {
+    padding-top: 0
+}
+
+.news .alert:first-child .dashboard-event-icon {
+    top: 0
+}
+
+.news .github-welcome .done {
+    color: #666;
+    text-decoration: line-through
+}
+
+.news .commits li {
+    margin-top: 0.15em;
+    list-style-type: none
+}
+
+.news .commits li.more {
+    padding-top: 2px;
+    font-size: 11px
+}
+
+.news .commits li .committer {
+    display: none;
+    padding-left: 0.5em
+}
+
+.news .commits li img {
+    margin: 0 1px 0 0;
+    vertical-align: middle;
+    background-color: #fff;
+    border-radius: 2px
+}
+
+.news .commits li img.emoji {
+    padding: 0;
+    margin: 0;
+    border: 0
+}
+
+.news .commits li .message {
+    display: inline-block;
+    max-width: 390px;
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top
+}
+
+.news div.message,.news li blockquote {
+    display: inline;
+    font-size: 13px;
+    color: #666
+}

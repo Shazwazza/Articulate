@@ -543,220 +543,36 @@ a.comment-count {
     width: 100% !important;
 }
 
-/* git hub feed */
-.news {
-    
-}
 
-.news .release {
-    margin-top: 0;
-    margin-bottom: 0
-}
 
-.news blockquote {
- 
-}
-
-.news h1 {
-    margin-bottom: 0
-}
-
+/* customize github feed */
 .news a {
     text-decoration: none;
 }
-
 .news .alert {
     background-color: inherit;
     border: inherit;
-    margin: inherit;
-    color: inherit;
-    padding: inherit;
-
-    position: relative;
-    padding: 0 0 1em 0px;
-    overflow: hidden;
-    border-top: 1px solid #f1f1f1;    
+    margin: inherit;    
+    border-top: 1px solid #f1f1f1;
+    color: inherit; 
 }
-
-.feedgithub .alert {
-    padding: 0 0 1em 45px;
+.news .alert .body {
+    font-size: inherit;
+    color: inherit; 
 }
-
-.news .alert .commits {
-    padding-left: 40px
-}
-
-.news .alert .css-truncate.css-truncate-target,.news .alert .css-truncate .css-truncate-target {
-    max-width: 180px
-}
-
-.news .alert p {
-    margin: 0
-}
-
-.news .alert .markdown-body blockquote {
-    padding: 0 0 0 40px;
-    border: 0 none
-}
-
-.news .alert .mega-octicon {
-    position: absolute;
-    top: 14px;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    padding: 3px;
-    color: #bbb
-}
-
 .news .alert .mega-octicon::before {
     color: inherit
 }
-
-.news .alert .octicon {
-    width: 16px;
-    height: 16px;
-    color: #bbb
+.news .alert .octicon {    
+    fill: #bbb;
 }
-
-.news .alert .body {
-    padding: 1em 0 0;
-    overflow: hidden;
-    font-size: 14px;
-    border-bottom: 0
-}
-
 .news .alert .title {
-    padding: 0;
     padding-bottom: 5px;
+    font-weight: inherit;
 }
-
-.news .alert .title .subtle {
-    
-}
-
-.news .alert .gravatar {
-    float: left;
-    margin-right: 0.6em;
-    line-height: 0;
-    -ms-border-radius: 3px;
-    border-radius: 3px
-}
-
-.news .alert .simple>.octicon {
-    position: absolute !important;
-    left: 11px;
-    width: 16px;
-    height: 16px
-}
-
-.news .alert .simple .title {
-    display: inline-block;
-    font-size: 13px;
-    font-weight: normal;
-    
-}
-
-.news .alert .simple .time {
-    display: inline-block
-}
-
-.news .alert .pull-info,.news .alert .branch-link {
-    display: inline-block;
-    padding: 3px 7px;
-    margin-top: 5px;
-    font-size: 12px;
-    color: #000000;
-    color: rgba(0,0,0,0.5);
-    background: #e8f1f6;
-    -ms-border-radius: 3px;
-    border-radius: 3px
-}
-
-.news .alert .pull-info em,.news .alert .branch-link em {
-    font-style: normal;
-    font-weight: bold
-}
-
-.news .alert .branch-link {
-    position: relative;
-    top: -2px;
-    margin: 0;
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace
-}
-
-.news .alert .branch-link .octicon {
-    color: #b0c4ce
-}
-
-.news .alert:first-child {
-    border-top: 0
-}
-
-.news .alert:first-child .body {
-    padding-top: 0
-}
-
-.news .alert:first-child .mega-octicon {
-    top: 0
-}
-
-.news .git_hub .done {
-
-    text-decoration: line-through
-}
-
-.news .commits li {
-    margin-top: 0.15em;
-    list-style-type: none
-}
-
-.news .commits li.more {
-    padding-top: 2px;
-    font-size: 11px
-}
-
-.news .commits li .committer {
-    display: none;
-    padding-left: 0.5em
-}
-
-.news .commits li img {
-    margin: 0 1px 0 0;
-    vertical-align: middle;
-    -ms-border-radius: 2px;
-    border-radius: 2px
-}
-
-.news .commits li img.emoji {
-    padding: 0;
-    margin: 0;
-    border: 0
-}
-
-.news .commits li .message {
-    display: inline-block;
-    max-width: 390px;
-    margin-top: 2px;
-    overflow: hidden;
-    font-size: 13px;
-    line-height: 1.3;
-    -moz-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: top
-}
-
-.news div.message,.news li blockquote {
-    display: inline;
-    font-size: 13px;
- 
-}
-
 .news div blockquote {
     margin: 0;
 }
-
 .news code {
     font-size: 12px;
     font-weight: normal;
@@ -765,6 +581,7 @@ a.comment-count {
      color: inherit; 
      padding: inherit;     
 }
+
 
 .widget .time, .news .time, .news small {
     font-size: 12px;
