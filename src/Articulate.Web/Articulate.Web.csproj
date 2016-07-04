@@ -324,6 +324,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\site.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\githubfeed.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\responsive.min.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\author.gif" />
