@@ -54,14 +54,7 @@ namespace Articulate
             }
         }
 
-        /// <summary>
-        /// Constructor used to create a new handler for only one id and no domain
-        /// </summary>
-        /// <param name="realNodeId"></param>
-        /// <param name="tagsUrlName"></param>
-        /// <param name="tagsPageName"></param>
-        /// <param name="categoriesUrlName"></param>
-        /// <param name="categoriesPageName"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ArticulateTagsRouteHandler(int realNodeId,
             string tagsUrlName,
             string tagsPageName,

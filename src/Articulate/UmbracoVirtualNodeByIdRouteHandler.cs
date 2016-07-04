@@ -6,10 +6,12 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Web.Routing;
 using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -36,12 +38,8 @@ namespace Articulate
         {
             foreach (var publishedContent in itemsForRoute)
             {
-                //we need to get ALL urls for this item since one node can have multiple domains assigned
-                var allUrls = new HashSet<string>(umbracoUrlProvider.GetOtherUrls(publishedContent.Id))
-                {
-                    umbracoUrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute),
-                    publishedContent.Url
-                };
+                var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, publishedContent);
+
                 foreach (var url in allUrls)
                 {
                     //if there is a double slash, it will have a domain
@@ -55,6 +53,7 @@ namespace Articulate
                         _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
                     }
                 }
+                LogHelper.Debug<UmbracoVirtualNodeByIdRouteHandler>(() => $"Hosts/IDs map for node {publishedContent.Id}. Values: {DebugHostIdsCollection()}");
             }
         }
 
@@ -66,29 +65,75 @@ namespace Articulate
         {
             _hostsAndIds.Add(new Tuple<string, int>(string.Empty, realNodeId));
         }
-
-
+        
         protected sealed override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext)
         {
             //determine if it's for a particular domain
             int realNodeId;
             if (_hostsAndIds.Count == 1)
             {
-                realNodeId = _hostsAndIds.First().Item2;
+                realNodeId = _hostsAndIds[0].Item2;
             }
             else
             {
-                realNodeId = requestContext.HttpContext.Request.Url == null
-                    ? _hostsAndIds.First().Item2 //cannot be determined
-                    : requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
-                        ? _hostsAndIds.First(x => x.Item1 == string.Empty).Item2
-                        : _hostsAndIds.First(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host)).Item2;
+                if (requestContext.HttpContext.Request.Url == null)
+                {
+                    if (_hostsAndIds.Count > 0)
+                    {
+                        //cannot be determined
+                        realNodeId = _hostsAndIds[0].Item2;
+                    }
+                    else
+                    {
+                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
+                        return null;
+                    }
+                }
+                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost") 
+                    && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes)
+                {
+                    //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
+
+                    var found = _hostsAndIds.FirstOrDefault(x => x.Item1 == string.Empty);
+                    if (found != null)
+                    {
+                        realNodeId = found.Item2;
+                    }
+                    else
+                    {
+                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: " + DebugHostIdsCollection());
+                        return null;
+                    }
+                }
+                else
+                {
+                    var found = _hostsAndIds.FirstOrDefault(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host));
+                    if (found != null)
+                    {
+                        realNodeId = found.Item2;
+                    }
+                    else
+                    {
+                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of " + requestContext.HttpContext.Request.Url.Host + ". Values: " + DebugHostIdsCollection());
+                        return null;
+                    }
+                }                
             }
 
             var byId = umbracoContext.ContentCache.GetById(realNodeId);
             if (byId == null) return null;
 
             return FindContent(requestContext, umbracoContext, byId);
+        }
+
+        private string DebugHostIdsCollection()
+        {
+            var sb = new StringBuilder();
+            foreach (var hostsAndId in _hostsAndIds)
+            {
+                sb.AppendFormat("{0} = {1}, ", hostsAndId.Item1, hostsAndId.Item2);
+            }
+            return sb.ToString();
         }
 
         protected virtual IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)

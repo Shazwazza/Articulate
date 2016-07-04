@@ -43,6 +43,7 @@ namespace Articulate
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ArticulateSearchRouteHandler(int realNodeId,
             string searchUrlName,
             string searchPageName)

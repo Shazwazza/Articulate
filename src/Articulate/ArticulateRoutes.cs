@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.PublishedCache;
@@ -72,6 +73,7 @@ namespace Articulate
             //find all articulate root nodes
             var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 
+            LogHelper.Info(typeof(ArticulateRoutes), () => $"Mapping routes for {articulateNodes.Length} Articulate root nodes");
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
@@ -115,6 +117,34 @@ namespace Articulate
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Returns the content item URLs taking into account any domains assigned
+        /// </summary>
+        /// <param name="umbracoUrlProvider"></param>
+        /// <param name="publishedContent"></param>
+        /// <returns></returns>
+        internal static HashSet<string> GetContentUrls(UrlProvider umbracoUrlProvider, IPublishedContent publishedContent)
+        {
+            HashSet<string> allUrls;
+            var other = umbracoUrlProvider.GetOtherUrls(publishedContent.Id).ToArray();
+            if (other.Length > 0)
+            {
+                //this means there are domains assigned
+                allUrls = new HashSet<string>(other)
+                    {
+                        umbracoUrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute)
+                    };
+            }
+            else
+            {
+                allUrls = new HashSet<string>()
+                    {
+                        publishedContent.Url
+                    };
+            }
+            return allUrls;
         }
 
         private static void MapMarkdownEditorRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)

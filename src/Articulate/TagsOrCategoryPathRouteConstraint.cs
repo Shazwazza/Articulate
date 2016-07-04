@@ -33,13 +33,8 @@ namespace Articulate
 
             foreach (var node in itemsForRoute)
             {
-                //we need to get ALL urls for this item since one node can have multiple domains assigned
-                var allUrls = new HashSet<string>(umbracoUrlProvider.GetOtherUrls(node.Id))
-                {
-                    umbracoUrlProvider.GetUrl(node.Id, UrlProviderMode.Absolute),
-                    node.Url
-                };
-
+                var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, node);
+                
                 foreach (var url in allUrls)
                 {
                     //if there is a double slash, it will have a domain
@@ -81,6 +76,7 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
+                    //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
                     : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
