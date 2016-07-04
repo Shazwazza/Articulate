@@ -17,60 +17,60 @@ namespace Articulate
     /// </summary>
     public static class ArticulateRoutes
     {
-        /// <summary>
-        /// This is used to indicate the max search depth of the tree to find Articulate roots
-        /// </summary>
-        public static int MaxSearchDepth = 5;
+        ///// <summary>
+        ///// This is used to indicate the max search depth of the tree to find Articulate roots
+        ///// </summary>
+        //public static int MaxSearchDepth = 5;
 
-        /// <summary>
-        /// Finds the articulate roots in the project without iterating over every single node
-        /// </summary>
-        /// <param name="umbracoCache"></param>
-        /// <returns></returns>
-        public static IEnumerable<IPublishedContent> FindArticulateRoots(ContextualPublishedCache umbracoCache)
-        {
-            var found = new HashSet<IPublishedContent>();
-            foreach (var child in umbracoCache.GetAtRoot())
-            {
-                if (child.DocumentTypeAlias == "Articulate")
-                {
-                    found.Add(child);
-                }
-                else
-                {
-                    FindArticulateRoots(child, found);
-                }
-            }
-            return found;
-        }
+        ///// <summary>
+        ///// Finds the articulate roots in the project without iterating over every single node
+        ///// </summary>
+        ///// <param name="umbracoCache"></param>
+        ///// <returns></returns>
+        //public static IEnumerable<IPublishedContent> FindArticulateRoots(ContextualPublishedCache umbracoCache)
+        //{
+        //    var found = new HashSet<IPublishedContent>();
+        //    foreach (var child in umbracoCache.GetAtRoot())
+        //    {
+        //        if (child.DocumentTypeAlias == "Articulate")
+        //        {
+        //            found.Add(child);
+        //        }
+        //        else
+        //        {
+        //            FindArticulateRoots(child, found);
+        //        }
+        //    }
+        //    return found;
+        //}
 
-        /// <summary>
-        /// Used to recursively search through the children
-        /// </summary>
-        /// <param name="current"></param>
-        /// <param name="found"></param>
-        private static void FindArticulateRoots(IPublishedContent current, ISet<IPublishedContent> found)
-        {
-            //stop searching here if it's too deep
-            if (current.Level > MaxSearchDepth) return;
+        ///// <summary>
+        ///// Used to recursively search through the children
+        ///// </summary>
+        ///// <param name="current"></param>
+        ///// <param name="found"></param>
+        //private static void FindArticulateRoots(IPublishedContent current, ISet<IPublishedContent> found)
+        //{
+        //    //stop searching here if it's too deep
+        //    if (current.Level > MaxSearchDepth) return;
 
-            foreach (var child in current.Children)
-            {
-                if (child.DocumentTypeAlias == "Articulate")
-                {
-                    found.Add(child);
-                }
-                else
-                {
-                    FindArticulateRoots(child, found);
-                }            
-            }
-        }
+        //    foreach (var child in current.Children)
+        //    {
+        //        if (child.DocumentTypeAlias == "Articulate")
+        //        {
+        //            found.Add(child);
+        //        }
+        //        else
+        //        {
+        //            FindArticulateRoots(child, found);
+        //        }            
+        //    }
+        //}
 
         public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache, UrlProvider umbracoUrlProvider)
         {
             //find all articulate root nodes
-            var articulateNodes = FindArticulateRoots(umbracoCache);
+            var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
