@@ -17,25 +17,37 @@
 
         @if (!string.IsNullOrEmpty(feedUrl))
         {
-            var result = JsonFeedHelper.GetResult(
-                ApplicationContext.ApplicationCache.RuntimeCache,
-                feedUrl)
-                //NOTE: You can adjust the number of results here (delicious returns a max of 10)
-                .Take(10);
-
-            foreach (var item in result)
+            try
             {
-                <div class="alert">
-                    <div class="time">
-                        <time datetime="@item["dt"]" is="relative-time">
-                            @DateTime.Parse(item["dt"].ToString()).ToString("MMM dd, yyyy")
-                        </time>
+                var result = JsonFeedHelper.GetResult(
+                   ApplicationContext.ApplicationCache.RuntimeCache,
+                   feedUrl)
+                   //NOTE: You can adjust the number of results here (delicious returns a max of 10)
+                   .Take(10);
+
+                foreach (var item in result)
+                {
+                    if (item["result"] != null && item["result"]["code"] != null && item["result"]["code"].Value<int>() == 1000)
+                    {
+                        continue;
+                    }
+                    <div class="alert">
+                        <div class="time">
+                            <time datetime="@item["dt"]" is="relative-time">
+                                @DateTime.Parse(item["dt"].ToString()).ToString("MMM dd, yyyy")
+                            </time>
+                        </div>
+                        <div class="title">
+                            <a href="@item["u"]" target="_blank">@item["d"]</a>
+                        </div>
                     </div>
-                    <div class="title">
-                        <a href="@item["u"]" target="_blank">@item["d"]</a>
-                    </div>
-                </div>
+                }
             }
+            catch (Exception)
+            {
+                //do nothing
+            }
+
         }
         else
         {

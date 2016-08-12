@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 using System.Web.Routing;
 using Articulate.Models;
 using Umbraco.Core;
@@ -72,7 +73,7 @@ namespace Articulate
         {
             var urlAndPageName = _urlsAndPageNames.Single(x => x.NodeId == baseContent.Id);
 
-            var tag = requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString();
+            var tag = HttpUtility.UrlDecode(requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString());
             var actionName = requestContext.RouteData.GetRequiredString("action");
             var rootUrl = baseContent.Url;
             var urlName = actionName.InvariantEquals("tags") ? urlAndPageName.TagsUrlName : urlAndPageName.CategoriesUrlName;

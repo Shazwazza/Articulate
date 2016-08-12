@@ -1,3 +1,4 @@
+@using Articulate.Models
 @model Articulate.Models.PostModel
 
 <div class="post-comment">
@@ -22,7 +23,7 @@
 
                 /** DO NOT MODIFY BELOW THIS LINE **/
 
-                var disqus_identifier = '@Model.Id';
+                var disqus_identifier = '@Model.GetContentKey()';
                 var disqus_url = '@Model.UrlWithDomain()';
 
                 (function () {

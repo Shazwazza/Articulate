@@ -1,4 +1,5 @@
 @using Articulate
+@using Articulate.Models
 @inherits UmbracoViewPage<Articulate.Models.IMasterModel>
 
 @{
@@ -29,7 +30,7 @@
 
                     <a href="@post.Url">@post.Name</a>
                     <div>
-                        <a data-disqus-identifier="@Model.GetKey()" class="comment-count" href="@post.Url#disqus_thread"></a>
+                        <a data-disqus-identifier="@post.GetContentKey()" class="comment-count" href="@post.Url#disqus_thread"></a>
                     </div>
                 </li>
             }

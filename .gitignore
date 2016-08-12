@@ -35,3 +35,5 @@ src/Articulate.sln.DotSettings.user
 build/Releases/*
 build/Releases/*
 build/nuget.exe
+src/Articulate/App_Data/NuGetBackup/*
+src/.Articulate.boltdata/*

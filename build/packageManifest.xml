@@ -92,72 +92,157 @@
       <orgName>PostTags.cshtml</orgName>
     </file>
     <file>
+      <guid>styles.css</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Assets/css</orgPath>
+      <orgName>styles.css</orgName>
+    </file>
+    <file>
+      <guid>8c5fd43a-2af4-445c-b75f-b45a0f9d077c_List.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views</orgPath>
+      <orgName>List.cshtml</orgName>
+    </file>
+    <file>
+      <guid>149362de-c040-41e9-b478-bfe912f6dbc2_Master.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views</orgPath>
+      <orgName>Master.cshtml</orgName>
+    </file>
+    <file>
+      <guid>b952bb65-73d4-4b0f-a406-aee1d3da6568_Post.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views</orgPath>
+      <orgName>Post.cshtml</orgName>
+    </file>
+    <file>
+      <guid>Tags.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views</orgPath>
+      <orgName>Tags.cshtml</orgName>
+    </file>
+    <file>
+      <guid>d38f51eb-05b8-472c-92ce-70a4fa449526_Web.config</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views</orgPath>
+      <orgName>Web.config</orgName>
+    </file>
+    <file>
+      <guid>AuthorInfo.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>AuthorInfo.cshtml</orgName>
+    </file>
+    <file>
+      <guid>CommentsDisqus.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>CommentsDisqus.cshtml</orgName>
+    </file>
+    <file>
+      <guid>CommentsFacebook.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>CommentsFacebook.cshtml</orgName>
+    </file>
+    <file>
+      <guid>CommentsGooglePlus.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>CommentsGooglePlus.cshtml</orgName>
+    </file>
+    <file>
+      <guid>Footer.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>Footer.cshtml</orgName>
+    </file>
+    <file>
+      <guid>Menu.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>Menu.cshtml</orgName>
+    </file>
+    <file>
+      <guid>e46ceb18-df39-4b03-8e41-883200d4cfc0_Pager.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>Pager.cshtml</orgName>
+    </file>
+    <file>
+      <guid>PostImageHeader.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>PostImageHeader.cshtml</orgName>
+    </file>
+    <file>
+      <guid>781c76df-9c76-4990-8590-bdcbaccc5ede_PostTags.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>PostTags.cshtml</orgName>
+    </file>
+    <file>
+      <guid>SearchBox.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>SearchBox.cshtml</orgName>
+    </file>
+    <file>
+      <guid>TitleTile.cshtml</guid>
+      <orgPath>~/App_Plugins/Articulate/Themes/Material/Views/Partials</orgPath>
+      <orgName>TitleTile.cshtml</orgName>
+    </file>
+    <file>
       <guid>base.css</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Assets/css</orgPath>
       <orgName>base.css</orgName>
     </file>
     <file>
-      <guid>55ea0caa-c678-4fc1-8226-0db2a13ae900_style.css</guid>
+      <guid>b74113d6-59b3-4768-b4ac-8c1ef81cfe6f_style.css</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Assets/css</orgPath>
       <orgName>style.css</orgName>
     </file>
     <file>
-      <guid>56ab2247-4377-4d0e-a637-cb388df4e41a_List.cshtml</guid>
+      <guid>1f450498-c3f9-4545-93b7-597829f7b753_List.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views</orgPath>
       <orgName>List.cshtml</orgName>
     </file>
     <file>
-      <guid>08d0b6e6-6c20-40d0-b58a-3d8eea7a484b_Master.cshtml</guid>
+      <guid>d5286111-0b4a-4d82-8061-0fc629b441b0_Master.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views</orgPath>
       <orgName>Master.cshtml</orgName>
     </file>
     <file>
-      <guid>eae0cfbc-c49d-4ba3-b792-fcd26ca46186_Post.cshtml</guid>
+      <guid>1a61d6e8-c3b5-4770-bc64-353268ba041c_Post.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views</orgPath>
       <orgName>Post.cshtml</orgName>
     </file>
     <file>
-      <guid>7c727a8a-18fd-485a-8569-2bd5d7fc72e9_Web.config</guid>
+      <guid>4b83a61b-7d8d-4745-9e3e-1cff3eb409ef_Web.config</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views</orgPath>
       <orgName>Web.config</orgName>
     </file>
     <file>
-      <guid>CommentsDisqus.cshtml</guid>
+      <guid>75f9ee10-9eb6-4bb5-9e0e-e45e43a2c550_CommentsDisqus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>CommentsDisqus.cshtml</orgName>
     </file>
     <file>
-      <guid>CommentsFacebook.cshtml</guid>
+      <guid>85a2a038-eb0f-45d1-8bb0-d18c74efc3f3_CommentsFacebook.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>CommentsFacebook.cshtml</orgName>
     </file>
     <file>
-      <guid>CommentsGooglePlus.cshtml</guid>
+      <guid>56ee2848-5cfc-4cb6-b2e0-f9d068bec192_CommentsGooglePlus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>CommentsGooglePlus.cshtml</orgName>
     </file>
     <file>
-      <guid>Footer.cshtml</guid>
+      <guid>8a134977-37df-4a1a-a509-7f4fc0d319a4_Footer.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>Footer.cshtml</orgName>
     </file>
     <file>
-      <guid>5501ab14-8b42-44f6-a521-4ec757a04a41_Header.cshtml</guid>
+      <guid>07cb6911-dd4a-40bd-ac61-bdc4bde02371_Header.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>Header.cshtml</orgName>
     </file>
     <file>
-      <guid>Menu.cshtml</guid>
+      <guid>753c8422-a6e7-4cfa-afdd-4ddaf6cae030_Menu.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>Menu.cshtml</orgName>
     </file>
     <file>
-      <guid>53fdc7bf-8d0b-4cd6-bc3a-a5f962eaa1eb_Pager.cshtml</guid>
+      <guid>95707ca2-ca1b-45c5-b4b0-95099c967d69_Pager.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>Pager.cshtml</orgName>
     </file>
     <file>
-      <guid>3f089b20-5c3c-4a49-bf12-5c1729d6766b_PostTags.cshtml</guid>
+      <guid>9ee6db05-4339-4a12-8cbb-56f6379ec9c3_PostTags.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Mini/Views/Partials</orgPath>
       <orgName>PostTags.cshtml</orgName>
     </file>
@@ -167,7 +252,7 @@
       <orgName>Share.cshtml</orgName>
     </file>
     <file>
-      <guid>c439444e-07e2-4867-b982-a96b910044de_normalize.css</guid>
+      <guid>75a839d1-6c38-4138-aa7e-14908b671109_normalize.css</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Assets/css</orgPath>
       <orgName>normalize.css</orgName>
     </file>
@@ -202,57 +287,57 @@
       <orgName>phantom.woff</orgName>
     </file>
     <file>
-      <guid>d69a3623-3d17-44d6-ab5b-378703d2512d_List.cshtml</guid>
+      <guid>9b57d156-93b2-463b-922e-29d3fabfb160_List.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views</orgPath>
       <orgName>List.cshtml</orgName>
     </file>
     <file>
-      <guid>82edba33-d632-46fc-ac4c-d0476c9e30ff_Master.cshtml</guid>
+      <guid>7c6c3f67-fc54-449c-830c-e4c4f57c28e6_Master.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views</orgPath>
       <orgName>Master.cshtml</orgName>
     </file>
     <file>
-      <guid>305665c9-0d00-4590-965e-6d10e1fb5e10_Post.cshtml</guid>
+      <guid>83044772-df18-4198-966d-fe33cf146187_Post.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views</orgPath>
       <orgName>Post.cshtml</orgName>
     </file>
     <file>
-      <guid>161eb058-bf22-4254-819d-6c3f05743628_Web.config</guid>
+      <guid>5cf5839d-ed30-401f-b90d-96ed099cfd47_Web.config</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views</orgPath>
       <orgName>Web.config</orgName>
     </file>
     <file>
-      <guid>ba14c5f4-299d-4055-bfe1-ff09da53e038_CommentsDisqus.cshtml</guid>
+      <guid>23d0b7b3-0a70-42f6-8039-e3579f4cc2f4_CommentsDisqus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>CommentsDisqus.cshtml</orgName>
     </file>
     <file>
-      <guid>cca87322-abab-415e-9229-e7ab8a1ddb5d_CommentsFacebook.cshtml</guid>
+      <guid>39738635-abc8-4d6b-9249-03d211338dd2_CommentsFacebook.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>CommentsFacebook.cshtml</orgName>
     </file>
     <file>
-      <guid>f546757f-3798-4e29-8a64-40737a4c473e_CommentsGooglePlus.cshtml</guid>
+      <guid>85bc61fe-a9ce-4b26-82d0-8a324f45f8b7_CommentsGooglePlus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>CommentsGooglePlus.cshtml</orgName>
     </file>
     <file>
-      <guid>063cbb7d-ef06-42c4-ad38-7f13be79d188_Menu.cshtml</guid>
+      <guid>45ec033e-4dc6-48ef-9420-f3466041d5f1_Menu.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>Menu.cshtml</orgName>
     </file>
     <file>
-      <guid>9e3816dd-4d5f-4bea-9ee6-4e2952375514_Pager.cshtml</guid>
+      <guid>3299360c-caec-49bb-ac5e-c5077dfe72db_Pager.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>Pager.cshtml</orgName>
     </file>
     <file>
-      <guid>b4fe5daf-ec2d-4c1c-b04d-75d647a0083e_PostTags.cshtml</guid>
+      <guid>d647b905-3b74-447d-9fca-a1183f6a2a5b_PostTags.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>PostTags.cshtml</orgName>
     </file>
     <file>
-      <guid>SearchBox.cshtml</guid>
+      <guid>96362e2c-92bc-49f3-b570-b79d11528cfc_SearchBox.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Phantom/Views/Partials</orgPath>
       <orgName>SearchBox.cshtml</orgName>
     </file>
@@ -267,7 +352,7 @@
       <orgName>responsive.min.css</orgName>
     </file>
     <file>
-      <guid>90f31cf4-3bf3-4595-858c-86384a80577f_style.css</guid>
+      <guid>5b30a488-b51c-40d0-ab2e-01d4e02264a1_style.css</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Assets/css</orgPath>
       <orgName>style.css</orgName>
     </file>
@@ -337,27 +422,27 @@
       <orgName>responsive.ie10mobilefix.min.js</orgName>
     </file>
     <file>
-      <guid>008cc99d-89b9-430d-8faa-ce25a94db831_List.cshtml</guid>
+      <guid>1a7660fa-7b94-4f25-a3df-81d8b2752e57_List.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views</orgPath>
       <orgName>List.cshtml</orgName>
     </file>
     <file>
-      <guid>e987bb7d-f775-477e-a3f5-1044f7bd08be_Master.cshtml</guid>
+      <guid>66f7784c-6e17-4c9b-9eba-d77e93436012_Master.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views</orgPath>
       <orgName>Master.cshtml</orgName>
     </file>
     <file>
-      <guid>177b451d-7b62-483d-83bb-65c95ddd590e_Post.cshtml</guid>
+      <guid>62711a0a-0847-4fd8-b9e5-bb6f593b3769_Post.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views</orgPath>
       <orgName>Post.cshtml</orgName>
     </file>
     <file>
-      <guid>Tags.cshtml</guid>
+      <guid>8da9143e-9eb6-453a-9d48-da340d4d00f9_Tags.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views</orgPath>
       <orgName>Tags.cshtml</orgName>
     </file>
     <file>
-      <guid>42feb632-7882-47fb-9558-7ebd62208e53_Web.config</guid>
+      <guid>70226d92-4c84-4b64-aeb3-9401db30f8b1_Web.config</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views</orgPath>
       <orgName>Web.config</orgName>
     </file>
@@ -367,17 +452,17 @@
       <orgName>Categories.cshtml</orgName>
     </file>
     <file>
-      <guid>6b10e03b-8830-4a70-a350-6ac305c0c1ae_CommentsDisqus.cshtml</guid>
+      <guid>fd8948e4-dcb4-4405-9375-380855e7a81e_CommentsDisqus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>CommentsDisqus.cshtml</orgName>
     </file>
     <file>
-      <guid>fd001a82-3abb-4428-b575-077a6a4fcf00_CommentsFacebook.cshtml</guid>
+      <guid>793a9a75-3d4b-4ce6-b0bd-53a0fe291d27_CommentsFacebook.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>CommentsFacebook.cshtml</orgName>
     </file>
     <file>
-      <guid>990deed0-b349-4d3e-bb52-0837c4797f49_CommentsGooglePlus.cshtml</guid>
+      <guid>0823b911-d773-4203-bc65-12ed49a50162_CommentsGooglePlus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>CommentsGooglePlus.cshtml</orgName>
     </file>
@@ -397,24 +482,19 @@
       <orgName>Follow.cshtml</orgName>
     </file>
     <file>
-      <guid>3a7475a7-37f2-4392-a756-3d649a90ffa5_Menu.cshtml</guid>
+      <guid>fc88a0ae-a9ad-46e7-a8c2-1534df914c44_Menu.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>Menu.cshtml</orgName>
     </file>
     <file>
-      <guid>fba6c098-d19b-46ae-8341-4ff8c7929dad_Pager.cshtml</guid>
+      <guid>91d5c9a5-c410-4c11-a943-84f5f66e3c2e_Pager.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>Pager.cshtml</orgName>
     </file>
     <file>
-      <guid>659c1021-0ce1-4598-980e-c59c942d0cbc_Post.cshtml</guid>
+      <guid>9da697b9-f1e5-450a-9794-ec062ef4d14a_Post.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>Post.cshtml</orgName>
-    </file>
-    <file>
-      <guid>ad63d62c-9ceb-48be-8a6b-4f673438721d_PostTags.cshtml</guid>
-      <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
-      <orgName>PostTags.cshtml</orgName>
     </file>
     <file>
       <guid>Recent.cshtml</guid>
@@ -422,7 +502,7 @@
       <orgName>Recent.cshtml</orgName>
     </file>
     <file>
-      <guid>011273a9-4ed4-461f-a512-7d3a8b2f4578_SearchBox.cshtml</guid>
+      <guid>5493d808-0116-4d1c-8c8a-f8b7d54731e2_SearchBox.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/Shazwazza/Views/Partials</orgPath>
       <orgName>SearchBox.cshtml</orgName>
     </file>
@@ -442,7 +522,7 @@
       <orgName>TagCloud.cshtml</orgName>
     </file>
     <file>
-      <guid>7723b59c-1cb6-4bca-81a4-d638e2e9fe11_normalize.css</guid>
+      <guid>ad8f2642-04d6-44da-b9e2-fb85745b6b9d_normalize.css</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Assets/css</orgPath>
       <orgName>normalize.css</orgName>
     </file>
@@ -472,42 +552,42 @@
       <orgName>icons.woff</orgName>
     </file>
     <file>
-      <guid>d81dd647-c9fa-42f9-96df-82871801e1f7_List.cshtml</guid>
+      <guid>4a694964-f752-4243-803f-d9f4ee6a31aa_List.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views</orgPath>
       <orgName>List.cshtml</orgName>
     </file>
     <file>
-      <guid>c17b77c9-448f-4882-811a-c8b51d3f5366_Master.cshtml</guid>
+      <guid>6aa64e00-9e59-4529-b0f5-d18221178710_Master.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views</orgPath>
       <orgName>Master.cshtml</orgName>
     </file>
     <file>
-      <guid>26a7bdf2-56e2-4240-8026-2e7714b7a8da_Post.cshtml</guid>
+      <guid>c1f095d6-91b2-4da4-90a3-0b4d064184d9_Post.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views</orgPath>
       <orgName>Post.cshtml</orgName>
     </file>
     <file>
-      <guid>2e51a293-5397-47b7-b42a-5a61dcbc5a4c_Tags.cshtml</guid>
+      <guid>d8066fac-3d6f-4d10-9531-94f3d3203221_Tags.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views</orgPath>
       <orgName>Tags.cshtml</orgName>
     </file>
     <file>
-      <guid>cc623ac5-e155-4a96-9843-66a539d1e3dd_Web.config</guid>
+      <guid>df5eb7be-22f3-4eed-804c-a6ad1aeb6828_Web.config</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views</orgPath>
       <orgName>Web.config</orgName>
     </file>
     <file>
-      <guid>36d294d6-95e0-44e5-937a-286aced0ef14_CommentsDisqus.cshtml</guid>
+      <guid>ca0ae9fc-c6b5-4ce8-ac97-ac9fd6abb928_CommentsDisqus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>CommentsDisqus.cshtml</orgName>
     </file>
     <file>
-      <guid>5660c95a-482d-40a8-b357-9200318e00da_CommentsFacebook.cshtml</guid>
+      <guid>61f9e904-e0c5-4624-8b29-39efb262748a_CommentsFacebook.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>CommentsFacebook.cshtml</orgName>
     </file>
     <file>
-      <guid>891973ab-fed8-47ab-9cc9-bd66b5681011_CommentsGooglePlus.cshtml</guid>
+      <guid>4553672f-1dad-4272-8a53-c42d64e15da7_CommentsGooglePlus.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>CommentsGooglePlus.cshtml</orgName>
     </file>
@@ -522,22 +602,22 @@
       <orgName>HeaderDescription.cshtml</orgName>
     </file>
     <file>
-      <guid>51e8a47e-d887-42e3-af94-7d73091d13b6_Menu.cshtml</guid>
+      <guid>4d4752b6-e795-41d5-aafb-66e9c073c46c_Menu.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>Menu.cshtml</orgName>
     </file>
     <file>
-      <guid>9d2d7dae-808c-49f9-aea3-0c54e0bc970b_Pager.cshtml</guid>
+      <guid>6890919d-fa3f-4d97-b825-e406e185b80f_Pager.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>Pager.cshtml</orgName>
     </file>
     <file>
-      <guid>78b910bc-f79e-4809-93c3-acfc29202a45_PostTags.cshtml</guid>
+      <guid>39f79e7c-c1b0-4017-9391-c8f48cbeb445_PostTags.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>PostTags.cshtml</orgName>
     </file>
     <file>
-      <guid>c4733103-0644-4949-b4fd-6d5576e4bdfd_SearchBox.cshtml</guid>
+      <guid>234785d8-f4f0-4732-ae4e-a5fb91a49375_SearchBox.cshtml</guid>
       <orgPath>~/App_Plugins/Articulate/Themes/VAPOR/Views/Partials</orgPath>
       <orgName>SearchBox.cshtml</orgName>
     </file>
@@ -547,7 +627,7 @@
       <orgName>MarkdownEditor.cshtml</orgName>
     </file>
     <file>
-      <guid>87130356-c1f1-4e50-a42d-2a3b23240020_Web.config</guid>
+      <guid>9af069f9-3938-44d2-96dc-361c4370bf85_Web.config</guid>
       <orgPath>~/App_Plugins/Articulate/Views</orgPath>
       <orgName>Web.config</orgName>
     </file>
@@ -583,21 +663,21 @@
     </file>
     <file>
       <guid>random-mask.jpg</guid>
-      <orgPath>~/media/articulate</orgPath>
+      <orgPath>~/media/articulate/default</orgPath>
       <orgName>random-mask.jpg</orgName>
     </file>
     <file>
       <guid>capture3.png</guid>
-      <orgPath>~/media/articulate</orgPath>
+      <orgPath>~/media/articulate/default</orgPath>
       <orgName>capture3.png</orgName>
     </file>
     <file>
       <guid>7406981406_1aff1cb527_o.jpg</guid>
-      <orgPath>/media/articulate</orgPath>
+      <orgPath>/media/articulate/default</orgPath>
       <orgName>7406981406_1aff1cb527_o.jpg</orgName>
     </file>
     <file>
-      <guid>3a51c2b0-ca5f-4785-a56b-34afa45e2202_Installer.ascx</guid>
+      <guid>d2c7b71c-12d2-4dbf-a872-8e0e3189187f_Installer.ascx</guid>
       <orgPath>~/App_Plugins/Articulate/BackOffice</orgPath>
       <orgName>Installer.ascx</orgName>
     </file>
@@ -605,7 +685,7 @@
   <info>
     <package>
       <name>Articulate</name>
-      <version>1.0.9</version>
+      <version>2.0.2</version>
       <license url="http://opensource.org/licenses/MIT">MIT License</license>
       <url>https://github.com/Shandem/Articulate/</url>
       <requirements>
@@ -618,7 +698,8 @@
       <name>Shannon Deminick</name>
       <website>http://shazwazza.com</website>
     </author>
-    <readme><![CDATA[Blogging built on Umbraco
+    <readme>
+      <![CDATA[Blogging built on Umbraco
 
 Supporting all the features you'd want in a blogging platform:
 
@@ -635,7 +716,8 @@ Supporting all the features you'd want in a blogging platform:
 ** Built in or custom feed
 ** Feeds per category/tag
 * Customizable urls
-* Author profiles]]></readme>
+* Author profiles]]>
+    </readme>
   </info>
   <DocumentTypes>
     <DocumentType>
@@ -657,6 +739,26 @@ Supporting all the features you'd want in a blogging platform:
       </Structure>
       <GenericProperties>
         <GenericProperty>
+          <Name>Blog Description</Name>
+          <Alias>blogDescription</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Custom RSS Feed Url</Name>
+          <Alias>customRssFeedUrl</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Optional custom rss feed URL (i.e. if you use feedburner, etc...)]]></Description>
+        </GenericProperty>
+        <GenericProperty>
           <Name>Blog Title</Name>
           <Alias>blogTitle</Alias>
           <Type>Umbraco.Textbox</Type>
@@ -667,10 +769,10 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Blog Description</Name>
-          <Alias>blogDescription</Alias>
-          <Type>Umbraco.TextboxMultiple</Type>
-          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Name>Disqus Shortname</Name>
+          <Alias>disqusShortname</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
           <Tab>Blog</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
@@ -697,50 +799,20 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[The site name associated with your Google Analytics (i.e. mysite.com )]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Disqus Shortname</Name>
-          <Alias>disqusShortname</Alias>
+          <Name>Search Url Name</Name>
+          <Alias>searchUrlName</Alias>
           <Type>Umbraco.Textbox</Type>
           <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Blog</Tab>
+          <Tab>Customize</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
           <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Custom RSS Feed Url</Name>
-          <Alias>customRssFeedUrl</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Blog</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[Optional custom rss feed URL (i.e. if you use feedburner, etc...)]]></Description>
         </GenericProperty>
         <GenericProperty>
           <Name>PageSize</Name>
           <Alias>pageSize</Alias>
           <Type>Umbraco.Integer</Type>
           <Definition>2e6d3631-066e-44b8-aec4-96f09099b2b5</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>True</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Categories Page Name</Name>
-          <Alias>categoriesPageName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[The page title for the categories listing]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Categories Url Name</Name>
-          <Alias>categoriesUrlName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
           <Tab>Customize</Tab>
           <Mandatory>True</Mandatory>
           <Validation />
@@ -757,8 +829,28 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[The page title for the tags listing]]></Description>
         </GenericProperty>
         <GenericProperty>
+          <Name>Categories Page Name</Name>
+          <Alias>categoriesPageName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The page title for the categories listing]]></Description>
+        </GenericProperty>
+        <GenericProperty>
           <Name>Tags Url Name</Name>
           <Alias>tagsUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Categories Url Name</Name>
+          <Alias>categoriesUrlName</Alias>
           <Type>Umbraco.Textbox</Type>
           <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
           <Tab>Customize</Tab>
@@ -777,24 +869,14 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[The page title for the search results]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Search Url Name</Name>
-          <Alias>searchUrlName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Theme</Name>
-          <Alias>theme</Alias>
-          <Type>ArticulateThemePicker</Type>
-          <Definition>8b57d00e-5593-45d3-affe-24203b239bd3</Definition>
+          <Name>Blog Banner</Name>
+          <Alias>blogBanner</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
           <Tab>Style</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
-          <Description><![CDATA[]]></Description>
+          <Description><![CDATA[Optional blog banner]]></Description>
         </GenericProperty>
         <GenericProperty>
           <Name>Blog Logo</Name>
@@ -807,25 +889,25 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[Optional logo]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Blog Banner</Name>
-          <Alias>blogBanner</Alias>
-          <Type>Umbraco.ImageCropper</Type>
-          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Name>Theme</Name>
+          <Alias>theme</Alias>
+          <Type>ArticulateThemePicker</Type>
+          <Definition>8b57d00e-5593-45d3-affe-24203b239bd3</Definition>
           <Tab>Style</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
-          <Description><![CDATA[Optional blog banner]]></Description>
+          <Description><![CDATA[]]></Description>
         </GenericProperty>
-		  <GenericProperty>
-			  <Name>Extract First Image to Property</Name>
-			  <Alias>extractFirstImage</Alias>
-			  <Type>Umbraco.TrueFalse</Type>
-			  <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
-			  <Tab>MetaWeblog options</Tab>
-			  <Mandatory>False</Mandatory>
-			  <Validation />
-			  <Description><![CDATA[When Windows Live Writer (or compatible WebBlog API tool) is used to create blog posts, with this option enabled it will set the first image found in the blog post to the blog's image property if one is found.]]></Description>
-		  </GenericProperty>
+        <GenericProperty>
+          <Name>Extract First Image to Property</Name>
+          <Alias>extractFirstImage</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab>MetaWeblog options</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[When Windows Live Writer (or compatible WebBlog API tool) is used to create blog posts, with this option enabled it will set the first image found in the blog post to the blog's image property if one is found.]]></Description>
+        </GenericProperty>
       </GenericProperties>
       <Tabs>
         <Tab>
@@ -843,11 +925,11 @@ Supporting all the features you'd want in a blogging platform:
           <Caption>Style</Caption>
           <SortOrder>2</SortOrder>
         </Tab>
-		<Tab>
-			 <Id>15</Id>
-			 <Caption>MetaWeblog options</Caption>
-			 <SortOrder>3</SortOrder>
-		 </Tab>
+        <Tab>
+          <Id>21</Id>
+          <Caption>MetaWeblog options</Caption>
+          <SortOrder>3</SortOrder>
+        </Tab>
       </Tabs>
     </DocumentType>
     <DocumentType>
@@ -897,14 +979,14 @@ Supporting all the features you'd want in a blogging platform:
       <Structure />
       <GenericProperties>
         <GenericProperty>
-          <Name>Author Bio</Name>
-          <Alias>authorBio</Alias>
-          <Type>Umbraco.TextboxMultiple</Type>
-          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Name>Author Image</Name>
+          <Alias>authorImage</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
           <Tab>Author info</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
-          <Description><![CDATA[Description of the author]]></Description>
+          <Description><![CDATA[]]></Description>
         </GenericProperty>
         <GenericProperty>
           <Name>Author Url</Name>
@@ -917,19 +999,19 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[A url to link to the author's website]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Author Image</Name>
-          <Alias>authorImage</Alias>
-          <Type>Umbraco.ImageCropper</Type>
-          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Name>Author Bio</Name>
+          <Alias>authorBio</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
           <Tab>Author info</Tab>
           <Mandatory>False</Mandatory>
           <Validation />
-          <Description><![CDATA[]]></Description>
+          <Description><![CDATA[Description of the author]]></Description>
         </GenericProperty>
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>16</Id>
+          <Id>15</Id>
           <Caption>Author info</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -970,16 +1052,6 @@ Supporting all the features you'd want in a blogging platform:
       <Structure />
       <GenericProperties>
         <GenericProperty>
-          <Name>Import Id</Name>
-          <Alias>importId</Alias>
-          <Type>Umbraco.NoEdit</Type>
-          <Definition>f0bc4bfb-b499-40d6-ba86-058885a5178c</Definition>
-          <Tab />
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[Used during a blogml import process to ensure that re-importing does not create duplicate posts.]]></Description>
-        </GenericProperty>
-        <GenericProperty>
           <Name>umbracoUrlAlias</Name>
           <Alias>umbracoUrlAlias</Alias>
           <Type>Umbraco.Textbox</Type>
@@ -990,34 +1062,14 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Author</Name>
-          <Alias>author</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Post Attributes</Tab>
-          <Mandatory>True</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Excerpt</Name>
-          <Alias>excerpt</Alias>
-          <Type>Umbraco.TextboxMultiple</Type>
-          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
-          <Tab>Post Attributes</Tab>
+          <Name>Import Id</Name>
+          <Alias>importId</Alias>
+          <Type>Umbraco.NoEdit</Type>
+          <Definition>f0bc4bfb-b499-40d6-ba86-058885a5178c</Definition>
+          <Tab />
           <Mandatory>False</Mandatory>
           <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Categories</Name>
-          <Alias>categories</Alias>
-          <Type>Umbraco.Tags</Type>
-          <Definition>a72aeb12-5b28-4a47-b99a-fde14d49c1ac</Definition>
-          <Tab>Post Attributes</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
+          <Description><![CDATA[Used during a blogml import process to ensure that re-importing does not create duplicate posts.]]></Description>
         </GenericProperty>
         <GenericProperty>
           <Name>Tags</Name>
@@ -1040,6 +1092,36 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[If left blank then umbraco will auto-generate the URL name based on the node name]]></Description>
         </GenericProperty>
         <GenericProperty>
+          <Name>Categories</Name>
+          <Alias>categories</Alias>
+          <Type>Umbraco.Tags</Type>
+          <Definition>a72aeb12-5b28-4a47-b99a-fde14d49c1ac</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Excerpt</Name>
+          <Alias>excerpt</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Author</Name>
+          <Alias>author</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
           <Name>Published Date</Name>
           <Alias>publishedDate</Alias>
           <Type>Umbraco.DateTime</Type>
@@ -1059,12 +1141,32 @@ Supporting all the features you'd want in a blogging platform:
           <Validation />
           <Description><![CDATA[]]></Description>
         </GenericProperty>
+        <GenericProperty>
+          <Name>Post Image</Name>
+          <Alias>postImage</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Tab>Image</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[An optional image for your blog post]]></Description>
+        </GenericProperty>
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>17</Id>
+          <Id>16</Id>
           <Caption>Post Attributes</Caption>
           <SortOrder>0</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>19</Id>
+          <Caption>Content</Caption>
+          <SortOrder>1</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>20</Id>
+          <Caption>Image</Caption>
+          <SortOrder>2</SortOrder>
         </Tab>
       </Tabs>
     </DocumentType>
@@ -1099,7 +1201,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>18</Id>
+          <Id>17</Id>
           <Caption>Content</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -1136,7 +1238,7 @@ Supporting all the features you'd want in a blogging platform:
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>19</Id>
+          <Id>18</Id>
           <Caption>Content</Caption>
           <SortOrder>0</SortOrder>
         </Tab>
@@ -1151,29 +1253,29 @@ Supporting all the features you'd want in a blogging platform:
   <DataTypes>
     <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar">
       <PreValues>
-        <PreValue Id="6" Value="ArticulateCategories" Alias="group" />
+        <PreValue Id="6" Value="ArticulateCategories" Alias="group" SortOrder="0" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext">
       <PreValues>
-        <PreValue Id="7" Value="[]" Alias="crops" />
+        <PreValue Id="16" Value="[&#xD;&#xA;  {&#xD;&#xA;    &quot;alias&quot;: &quot;blogPost&quot;,&#xD;&#xA;    &quot;width&quot;: 200,&#xD;&#xA;    &quot;height&quot;: 200&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;alias&quot;: &quot;thumbnail&quot;,&#xD;&#xA;    &quot;width&quot;: 50,&#xD;&#xA;    &quot;height&quot;: 50&#xD;&#xA;  }&#xD;&#xA;]" Alias="crops" SortOrder="0" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Markdown" Id="Articulate.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext">
       <PreValues>
-        <PreValue Id="8" Value="1" Alias="preview" />
-        <PreValue Id="9" Value="" Alias="defaultValue" />
+        <PreValue Id="8" Value="1" Alias="preview" SortOrder="0" />
+        <PreValue Id="9" Value="" Alias="defaultValue" SortOrder="1" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCEv3" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext">
       <PreValues>
-        <PreValue Id="10" Value="{&#xD;&#xA;  &quot;toolbar&quot;: [&#xD;&#xA;    &quot;code&quot;,&#xD;&#xA;    &quot;bold&quot;,&#xD;&#xA;    &quot;italic&quot;,&#xD;&#xA;    &quot;underline&quot;,&#xD;&#xA;    &quot;strikethrough&quot;,&#xD;&#xA;    &quot;alignleft&quot;,&#xD;&#xA;    &quot;aligncenter&quot;,&#xD;&#xA;    &quot;alignright&quot;,&#xD;&#xA;    &quot;bullist&quot;,&#xD;&#xA;    &quot;numlist&quot;,&#xD;&#xA;    &quot;link&quot;,&#xD;&#xA;    &quot;unlink&quot;,&#xD;&#xA;    &quot;anchor&quot;,&#xD;&#xA;    &quot;umbmediapicker&quot;,&#xD;&#xA;    &quot;umbembeddialog&quot;,&#xD;&#xA;    &quot;hr&quot;&#xD;&#xA;  ],&#xD;&#xA;  &quot;stylesheets&quot;: [],&#xD;&#xA;  &quot;dimensions&quot;: {&#xD;&#xA;    &quot;height&quot;: 500&#xD;&#xA;  }&#xD;&#xA;}" Alias="editor" />
-        <PreValue Id="11" Value="1" Alias="hideLabel" />
+        <PreValue Id="10" Value="{&#xD;&#xA;  &quot;toolbar&quot;: [&#xD;&#xA;    &quot;code&quot;,&#xD;&#xA;    &quot;bold&quot;,&#xD;&#xA;    &quot;italic&quot;,&#xD;&#xA;    &quot;underline&quot;,&#xD;&#xA;    &quot;strikethrough&quot;,&#xD;&#xA;    &quot;alignleft&quot;,&#xD;&#xA;    &quot;aligncenter&quot;,&#xD;&#xA;    &quot;alignright&quot;,&#xD;&#xA;    &quot;bullist&quot;,&#xD;&#xA;    &quot;numlist&quot;,&#xD;&#xA;    &quot;link&quot;,&#xD;&#xA;    &quot;unlink&quot;,&#xD;&#xA;    &quot;anchor&quot;,&#xD;&#xA;    &quot;umbmediapicker&quot;,&#xD;&#xA;    &quot;umbembeddialog&quot;,&#xD;&#xA;    &quot;hr&quot;&#xD;&#xA;  ],&#xD;&#xA;  &quot;stylesheets&quot;: [],&#xD;&#xA;  &quot;dimensions&quot;: {&#xD;&#xA;    &quot;height&quot;: 500&#xD;&#xA;  }&#xD;&#xA;}" Alias="editor" SortOrder="0" />
+        <PreValue Id="11" Value="1" Alias="hideLabel" SortOrder="1" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar">
       <PreValues>
-        <PreValue Id="12" Value="ArticulateTags" Alias="group" />
+        <PreValue Id="12" Value="ArticulateTags" Alias="group" SortOrder="0" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar">
@@ -1189,8 +1291,8 @@ Supporting all the features you'd want in a blogging platform:
         </areas>
         <tab caption="Articulate Importer">
           <control showOnce="false" addPanel="true" panelCaption="">
-              ~/App_Plugins/Articulate/BackOffice/Dashboards/BlogImporter.html
-            </control>
+            ~/App_Plugins/Articulate/BackOffice/Dashboards/BlogImporter.html
+          </control>
         </tab>
       </section>
     </Action>

@@ -1,48 +1,75 @@
 ﻿<div ng-controller="Articulate.Dashboard.BlogImporter">
-    <h3>Articulate BlogMl importer</h3>
-    <form name="articulateImportForm" ng-submit="submit()" novalidate val-form-manager>
-        <umb-control-group alias="articulateNodeId" description="Enter the Articulate blog node Id to import to"
-                           label="Articulate blog node Id">
-            <input type="number" ng-model="$parent.articulateNodeId" name="articulateNodeId" required no-dirty-check />
-            <span class="help-inline" val-msg-for="articulateNodeId" val-toggle-msg="required">Required</span>
-        </umb-control-group>
+    <h3>Articulate BlogML Import/Export</h3>
+    
+    <label class="checkbox inline">
+        <input type="radio" id="articulateImportCheckBox" value="i"  name="dataAction" ng-model="dataAction"> Import
+    </label>
+    <label class="checkbox inline">
+        <input type="radio" id="articulateExportCheckBox" value="e" name="dataAction" ng-model="dataAction"> Export
+    </label>
+    
+    <form name="articulateExportForm" ng-submit="submitExport()" novalidate val-form-manager>
+        <umb-pane ng-show="dataAction==='e'">
+            <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to export from"
+                               label="Articulate blog node">
+                <umb-editor model="contentPickerExportModel" ng-model="$parent.$parent.articulateExportNodeId" name="articulateExportNodeId" no-dirty-check></umb-editor>
 
-        <umb-control-group alias="blogMlXmlFile" description="Select BlogMl xml file to import"
-                           label="BlogMl import file">
-            <input type="file" class="" umb-file-upload name="blogMlXmlFile" required-file accept="text/xml" ng-model="blogMlXmlFile" no-dirty-check />
-            <span class="help-inline" val-msg-for="blogMlXmlFile" val-toggle-msg="required">Required</span>
-        </umb-control-group>
+            </umb-control-group>
 
-        <umb-control-group alias="overwrite" description="Check if you want to overwrite posts already imported"
-                           label="Overwrite imported posts?">
-            <input type="checkbox" class="" name="overwrite" ng-model="$parent.overwrite" no-dirty-check />
-        </umb-control-group>
+            <umb-control-group>
+                <p><input type="submit" ng-if="!submitting" /></p>
+                <p class="alert" ng-bind-html="status" ng-if="status != null || status != undefined" ng-class="{'alert-success': status == 'Finished!', 'alert-info' : status != 'Finished!'}"></p>
+                <p ng-if="status === 'Finished!'">Click <a href='{{downloadLink}}' target='_blank'>here</a> to download the exported BlogML file</p>
+            </umb-control-group>
+        </umb-pane>
+    </form>
+    
+    <form name="articulateImportForm" ng-submit="submitImport()" novalidate val-form-manager>
+        <umb-pane ng-show="dataAction==='i'">
+            <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to import to"
+                               label="Articulate blog node">
+                <umb-editor model="contentPickerImportModel" ng-model="$parent.$parent.articulateImportNodeId" name="articulateImportNodeId" no-dirty-check></umb-editor>
+                
+            </umb-control-group>
 
-        <umb-control-group alias="publish" description="Check if you want all imported posts to be published"
-                           label="Publish all posts?">
-            <input type="checkbox" class="" name="publish" ng-model="$parent.publish" no-dirty-check />
-        </umb-control-group>
+            <umb-control-group alias="blogMlXmlFile" description="Select BlogMl xml file to import"
+                               label="BlogMl import file">
+                <input type="file" class="" umb-file-upload name="blogMlXmlFile" required-file accept="text/xml" ng-model="blogMlXmlFile" no-dirty-check />
+                <span class="help-inline" val-msg-for="blogMlXmlFile" val-toggle-msg="required">Required</span>
+            </umb-control-group>
 
-        <umb-control-group alias="regexMatch" description="Regex statement used to match content in the blog post to be replaced by the match statement"
-                           label="Regex match expression">
-            <input type="text" class="" name="regexMatch" ng-model="$parent.regexMatch" no-dirty-check />
-        </umb-control-group>
+            <umb-control-group alias="overwrite" description="Check if you want to overwrite posts already imported"
+                               label="Overwrite imported posts?">
+                <input type="checkbox" class="" name="overwrite" ng-model="$parent.$parent.overwrite" no-dirty-check />
+            </umb-control-group>
 
-        <umb-control-group alias="regexReplace" description="Replacement statement used with the above match statement"
-                           label="Regex replacement statement">
-            <input type="text" class="" name="regexReplace" ng-model="$parent.regexReplace" no-dirty-check />
-        </umb-control-group>
-        
-        <umb-control-group alias="exportDisqusXml" description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
-                           label="Export Disqus Xml">
-            <input type="checkbox" class="" name="exportDisqusXml" ng-model="$parent.exportDisqusXml" no-dirty-check />
-        </umb-control-group>
+            <umb-control-group alias="publish" description="Check if you want all imported posts to be published"
+                               label="Publish all posts?">
+                <input type="checkbox" class="" name="publish" ng-model="$parent.$parent.publish" no-dirty-check />
+            </umb-control-group>
 
-        <umb-control-group>
-            <p><input type="submit" ng-if="!submitting" /></p>
-            <p class="alert" ng-bind-html="status" ng-if="status != null || status != undefined" ng-class="{'alert-success': status == 'Finished!', 'alert-info' : status != 'Finished!'}"></p>
-            <p ng-if="status === 'Finished!'" ng-show="$parent.exportDisqusXml == 1">Click <a href='/media/articulate/DisqusXmlExport.xml' target='_blank'>here</a> to download the exported Disqus Xml file</p>
-        </umb-control-group>
+            <umb-control-group alias="regexMatch" description="Regex statement used to match content in the blog post to be replaced by the match statement"
+                               label="Regex match expression">
+                <input type="text" class="" name="regexMatch" ng-model="$parent.$parent.regexMatch" no-dirty-check />
+            </umb-control-group>
 
+            <umb-control-group alias="regexReplace" description="Replacement statement used with the above match statement"
+                               label="Regex replacement statement">
+                <input type="text" class="" name="regexReplace" ng-model="$parent.$parent.regexReplace" no-dirty-check />
+            </umb-control-group>
+
+            <umb-control-group alias="exportDisqusXml" description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
+                               label="Export Disqus Xml">
+                <input type="checkbox" class="" name="exportDisqusXml" ng-model="$parent.$parent.exportDisqusXml" no-dirty-check />
+            </umb-control-group>
+
+            <umb-control-group>
+                <p><input type="submit" ng-if="!submitting" /></p>
+                <p class="alert" ng-bind-html="status" ng-if="status != null || status != undefined" ng-class="{'alert-success': status == 'Finished!', 'alert-info' : status != 'Finished!'}"></p>
+                <p ng-if="status === 'Finished!'" ng-show="$parent.$parent.exportDisqusXml == 1">Click <a href='{{downloadLink}}' target='_blank'>here</a> to download the exported Disqus Xml file</p>
+            </umb-control-group>
+
+
+        </umb-pane>
     </form>
 </div>

@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Web.Mvc;
 using Articulate.Models;
-using Examine;
-using Examine.LuceneEngine.SearchCriteria;
-using Examine.SearchCriteria;
 using Umbraco.Core;
 using Umbraco.Core.Models;
-using Umbraco.Core.Persistence;
-using Umbraco.Web.Media.EmbedProviders.Settings;
+using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
@@ -22,6 +15,29 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateSearchController : RenderMvcController
     {
+        private IArticulateSearcher _articulateSearcher;
+
+        public ArticulateSearchController()
+        {            
+        }
+        
+        public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
+        {
+            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
+            _articulateSearcher = articulateSearcher;
+        }
+
+        public ArticulateSearchController(UmbracoContext umbracoContext, IArticulateSearcher articulateSearcher) : base(umbracoContext)
+        {
+            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
+            _articulateSearcher = articulateSearcher;
+        }
+
+        protected IArticulateSearcher ArticulateSearcher
+        {
+            get { return _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco)); }
+        }
+
         /// <summary>
         /// Used to render the search result listing (virtual node)
         /// </summary>
@@ -62,59 +78,7 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            
-
-            var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);            
-            
-            //The fields to search on and their 'weight' (importance)
-            var fields = new Dictionary<string, int>
-            {
-                {"markdown", 2},
-                {"richText", 2},
-                {"nodeName", 3},
-                {"tags", 1},
-                {"categories", 1},
-                {"umbracoUrlName", 3}
-            };
-
-            //The multipliers for match types
-            const int exactMatch = 5;
-            const int termMatch = 2;
-
-            var fieldQuery = new StringBuilder();
-            //build field query
-            foreach (var field in fields)
-            {
-                //full exact match (which has a higher boost)
-                fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, "\"" + term + "\"", field.Value * exactMatch));
-                fieldQuery.Append(" ");
-                //NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
-                // API like ComplexPhraseWildcardSomethingOrOther...
-                //split match
-                foreach (var s in splitSearch)
-                {
-                    //match on each term, no wildcard, higher boost
-                    fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, s, field.Value * termMatch));
-                    fieldQuery.Append(" ");
-
-                    //match on each term, with wildcard 
-                    fieldQuery.Append(string.Format("{0}:{1}*", field.Key, s));
-                    fieldQuery.Append(" ");
-                }
-            }
-
-            var criteria = provider == null
-                ? ExamineManager.Instance.CreateSearchCriteria()
-                : ExamineManager.Instance.SearchProviderCollection[provider].CreateSearchCriteria();
-
-            criteria.RawQuery(string.Format("+parentID:{0} +({1})", rootPageModel.BlogArchiveNode.Id, fieldQuery));
-
-            var searchProvider = provider == null
-                ? ExamineManager.Instance.DefaultSearchProvider
-                : ExamineManager.Instance.SearchProviderCollection[provider];
-
-
-            var searchResult = Umbraco.TypedSearch(criteria, searchProvider).ToArray();
+            var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id);
 
             //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
             // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
@@ -143,6 +107,5 @@ namespace Articulate.Controllers
 
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
-
     }
 }
