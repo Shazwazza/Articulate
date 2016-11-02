@@ -1,14 +1,13 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
-using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -19,10 +18,10 @@ namespace Articulate
     /// </summary>
     internal class DisqusImporter
     {
-        private readonly string _accessToken;
+        //private readonly string _accessToken;
         private readonly string _publicKey;
-        private readonly string _privateKey;
 
+        //private readonly string _privateKey;
 
         public DisqusImporter(string publicKey/*, string privateKey, string accessToken*/)
         {
@@ -60,13 +59,13 @@ namespace Articulate
             request.Method = "POST";
             request.ContentType = "application/json";
             request.ContentLength = byteArray.Length;
-            
+
             //important! need referrer header for white list on disqus
             request.Referer = "http://articulate.dev/umbraco/umbracoapi/backoffice/ArticulateBlogImport/PostImportBlogMl";
 
             using (var dataStream = await request.GetRequestStreamAsync())
             {
-                dataStream.Write(byteArray, 0, byteArray.Length);   
+                dataStream.Write(byteArray, 0, byteArray.Length);
             }
 
             try
@@ -87,25 +86,19 @@ namespace Articulate
             catch (WebException ex)
             {
                 var stream = ex.Response.GetResponseStream();
-                if (stream != null)
-                {
-                    using (var resp = new StreamReader(stream))
-                    {
-                        var result = resp.ReadToEnd();
+                if (stream == null)
+                    throw;
 
-                        LogHelper.Error<BlogMlImporter>("Importing comment failed", new Exception(result));
-
-                        var obj = (JObject)JsonConvert.DeserializeObject(result);
-                        throw;
-                    }
-                }
-                else
+                using (var resp = new StreamReader(stream))
                 {
+                    var result = resp.ReadToEnd();
+
+                    LogHelper.Error<BlogMlImporter>("Importing comment failed", new Exception(result));
+
+                    var obj = (JObject)JsonConvert.DeserializeObject(result);
                     throw;
                 }
-                
             }
-            
         }
     }
 }

@@ -1,5 +1,6 @@
+using Articulate.Models;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -7,11 +8,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Routing;
-using System.Web.UI.WebControls;
-using Articulate.Models;
-using Newtonsoft.Json.Linq;
-using umbraco.BusinessLogic;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Web;
@@ -21,7 +17,6 @@ namespace Articulate.Controllers
 {
     public class ArticulateBlogImportController : UmbracoAuthorizedApiController
     {
-
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())
@@ -56,7 +51,6 @@ namespace Articulate.Controllers
             {
                 throw new InvalidOperationException("Not blogml file was found in the request");
             }
-
         }
 
         public ImportModel PostExportBlogMl(ExportBlogMlModel model)
@@ -142,6 +136,5 @@ namespace Articulate.Controllers
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
             return result;
         }
-
     }
 }

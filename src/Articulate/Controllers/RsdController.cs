@@ -1,16 +1,7 @@
-﻿using System;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Web.Mvc;
-using System.Xml;
+﻿using System.Web.Mvc;
 using System.Xml.Linq;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Web;
-using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
@@ -66,12 +57,12 @@ namespace Articulate.Controllers
         /// <param name="context">The controller context for the current request.</param>
         public override void ExecuteResult(ControllerContext context)
         {
-            if (_xDocument != null)
-            {
-                context.HttpContext.Response.Clear();
-                context.HttpContext.Response.ContentType = "text/xml";
-                context.HttpContext.Response.Output.Write(_xDocument.ToString());
-            }
+            if (_xDocument == null)
+                return;
+
+            context.HttpContext.Response.Clear();
+            context.HttpContext.Response.ContentType = "text/xml";
+            context.HttpContext.Response.Output.Write(_xDocument.ToString());
         }
     }
 }

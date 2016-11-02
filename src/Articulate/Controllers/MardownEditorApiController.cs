@@ -1,3 +1,5 @@
+using Articulate.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,10 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.Compilation;
 using System.Web.Http;
-using Articulate.Models;
-using Newtonsoft.Json;
 using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
 using Umbraco.Core.IO;
@@ -36,7 +35,7 @@ namespace Articulate.Controllers
             var provider = new MultipartFormDataStreamProvider(str);
 
             var multiPartRequest = await Request.Content.ReadAsMultipartAsync(provider);
-            
+
             if (multiPartRequest.FormData["model"] == null)
             {
                 CleanFiles(multiPartRequest);
@@ -56,7 +55,7 @@ namespace Articulate.Controllers
                 CleanFiles(multiPartRequest);
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
-            
+
             var articulateNode = Services.ContentService.GetById(model.ArticulateNodeId.Value);
             if (articulateNode == null)
             {
@@ -64,22 +63,22 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate node found with the specified id"));
             }
             var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
-                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals((string) "ArticulateArchive"));
+                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals((string)"ArticulateArchive"));
             if (archive == null)
             {
                 CleanFiles(multiPartRequest);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate Archive node found for the specified id"));
             }
 
-            var list = new List<char> {ActionNew.Instance.Letter, ActionUpdate.Instance.Letter};
+            var list = new List<char> { ActionNew.Instance.Letter, ActionUpdate.Instance.Letter };
             var hasPermission = CheckPermissions(Security.CurrentUser, Services.UserService, list.ToArray(), archive);
             if (hasPermission == false)
             {
                 CleanFiles(multiPartRequest);
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "Cannot create content at this level"));   
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "Cannot create content at this level"));
             }
 
-            //parse out the images, we may be posting more than is in the body            
+            //parse out the images, we may be posting more than is in the body
             model.Body = ParseImages(model.Body, multiPartRequest);
 
             var content = Services.ContentService.CreateContent(
@@ -93,10 +92,10 @@ namespace Articulate.Controllers
             {
                 content.SetValue("excerpt", model.Excerpt);
             }
-            
+
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
-                var tags = model.Tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+                var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
                 content.SetTags("tags", tags, true, "ArticulateTags");
             }
 
@@ -110,7 +109,7 @@ namespace Articulate.Controllers
             {
                 content.SetValue("umbracoUrlName", model.Slug);
             }
-            
+
             var status = Services.ContentService.SaveAndPublishWithStatus(content, Security.GetUserId());
             if (status.Success == false)
             {
@@ -120,7 +119,7 @@ namespace Articulate.Controllers
                 //probably  need to send back more info than that...
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
-            
+
             var published = Umbraco.TypedContent(content.Id);
 
             CleanFiles(multiPartRequest);
@@ -130,7 +129,7 @@ namespace Articulate.Controllers
             return response;
         }
 
-        private void CleanFiles(MultipartFileStreamProvider multiPartRequest)
+        private static void CleanFiles(MultipartFileStreamProvider multiPartRequest)
         {
             foreach (var f in multiPartRequest.FileData)
             {
@@ -138,7 +137,7 @@ namespace Articulate.Controllers
             }
         }
 
-        private string ParseImages(string body, MultipartFileStreamProvider multiPartRequest)
+        private static string ParseImages(string body, MultipartFileStreamProvider multiPartRequest)
         {
             return Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
             {
@@ -172,7 +171,7 @@ namespace Articulate.Controllers
         {
             if (permissionsToCheck == null || !permissionsToCheck.Any()) return true;
 
-            var entityPermission = userService.GetPermissions(user, new[] {contentItem.Id}).FirstOrDefault();
+            var entityPermission = userService.GetPermissions(user, new[] { contentItem.Id }).FirstOrDefault();
 
             var flag = true;
             foreach (var ch in permissionsToCheck)

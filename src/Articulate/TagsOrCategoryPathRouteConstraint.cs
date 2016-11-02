@@ -29,12 +29,12 @@ namespace Articulate
 
         public TagsOrCategoryPathRouteConstraint(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
         {
-            if (itemsForRoute == null) throw new ArgumentNullException("itemsForRoute");
+            if (itemsForRoute == null) throw new ArgumentNullException(nameof(itemsForRoute));
 
             foreach (var node in itemsForRoute)
             {
                 var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, node);
-                
+
                 foreach (var url in allUrls)
                 {
                     //if there is a double slash, it will have a domain
@@ -65,7 +65,6 @@ namespace Articulate
         {
             //if this is an articulate root path, then we cannot match!
 
-
             //determine if it's for a particular domain
             UrlNames urlNames;
             if (_urlNames.Count == 1)
@@ -76,7 +75,7 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
-                    //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
+                                                  //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
                     : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
