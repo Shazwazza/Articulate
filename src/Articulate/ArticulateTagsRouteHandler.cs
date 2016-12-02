@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Web;
@@ -8,6 +9,7 @@ using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -22,14 +24,22 @@ namespace Articulate
             public string CategoriesPageName { get; set; }
         }
 
-        private readonly List<UrlAndPageNames> _urlsAndPageNames = new List<UrlAndPageNames>(); 
+        private readonly List<UrlAndPageNames> _urlsAndPageNames = new List<UrlAndPageNames>();
+
+        [Obsolete("Use the ctor with all dependencies instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public ArticulateTagsRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
+            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
+        {
+        }
+
 
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
         /// <param name="itemsForRoute"></param>
-        public ArticulateTagsRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
-            : base(itemsForRoute)
+        public ArticulateTagsRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(umbracoUrlProvider, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {
@@ -44,14 +54,7 @@ namespace Articulate
             }
         }
 
-        /// <summary>
-        /// Constructor used to create a new handler for only one id and no domain
-        /// </summary>
-        /// <param name="realNodeId"></param>
-        /// <param name="tagsUrlName"></param>
-        /// <param name="tagsPageName"></param>
-        /// <param name="categoriesUrlName"></param>
-        /// <param name="categoriesPageName"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ArticulateTagsRouteHandler(int realNodeId,
             string tagsUrlName,
             string tagsPageName,

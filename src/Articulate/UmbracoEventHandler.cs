@@ -46,7 +46,7 @@ namespace Articulate
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
             //map routes
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
 
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
@@ -55,6 +55,13 @@ namespace Articulate
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
             PageCacheRefresher.CacheUpdated += PageCacheRefresher_CacheUpdated;
+            DomainCacheRefresher.CacheUpdated += DomainCacheRefresher_CacheUpdated;
+        }
+
+        private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
+        {
+            //ensure routes are rebuilt
+            ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
         }
 
         /// <summary>
@@ -82,7 +89,7 @@ namespace Articulate
             if (ApplicationContext.Current == null) return;
             if (ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes") == null) return;
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache);
+            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
         }
 
         /// <summary>
@@ -105,7 +112,7 @@ namespace Articulate
                     var item = UmbracoContext.Current.ContentCache.GetById((int) e.MessageObject);
                     if (item != null && item.DocumentTypeAlias.InvariantEquals("Articulate"))
                     {
-                        //add the unpublished entities to the request cache
+                        //ensure routes are rebuilt
                         ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
@@ -115,7 +122,7 @@ namespace Articulate
                     if (content == null) return;
                     if (content.ContentType.Alias.InvariantEquals("Articulate"))
                     {
-                        //add the unpublished entities to the request cache
+                        //ensure routes are rebuilt
                         UmbracoContext.Current.Application.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;                

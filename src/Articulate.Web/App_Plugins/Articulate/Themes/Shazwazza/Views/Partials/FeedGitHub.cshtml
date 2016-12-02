@@ -28,8 +28,11 @@
             <div class="news public_news">
                 @foreach (var item in result)
                 {
-                    <div class="alert">
-                        @Html.Raw(item)
+                    <div class="alert push">
+                        <div class="body">
+                            @Html.Raw(item)
+                        </div>
+
                     </div>
                 }
             </div>

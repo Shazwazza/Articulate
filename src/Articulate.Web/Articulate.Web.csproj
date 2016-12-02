@@ -16,7 +16,7 @@
     <AssemblyName>Articulate.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -55,6 +55,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.3.0.0\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
@@ -63,7 +67,6 @@
     </Reference>
     <Reference Include="businesslogic, Version=1.0.5820.25374, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\UmbracoCms.Core.7.3.4\lib\businesslogic.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="ClientDependency.Core, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -324,6 +327,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\css\site.css" />
     <Content Include="App_Plugins\Articulate\Themes\Phantom\Assets\fonts\phantom.svg" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\githubfeed.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\responsive.min.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\author.gif" />
@@ -341,6 +345,7 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
     <Content Include="App_Data\packages\created\createdPackages.config" />
+    <None Include="App_Plugins\Articulate\package.manifest" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="config\grid.editors.config.js" />
     <Content Include="config\Lang\cs-CZ.user.xml" />
@@ -361,20 +366,36 @@
     <Content Include="config\Lang\ru-RU.user.xml" />
     <Content Include="config\Lang\sv-SE.user.xml" />
     <Content Include="config\Lang\zh-CN.user.xml" />
+    <Content Include="config\splashes\booting.aspx" />
+    <Content Include="config\splashes\noNodes.aspx" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />
-    <Content Include="xslt\Web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="media\" />
-    <Folder Include="Models\" />
+    <Content Include="config\umbracoSettings.config" />
+    <Content Include="config\tinyMceConfig.config" />
+    <Content Include="config\metablogConfig.config" />
+    <Content Include="config\log4net.config" />
+    <Content Include="config\ExamineSettings.config" />
+    <Content Include="config\ExamineIndex.config" />
+    <Content Include="config\EmbeddedMedia.config" />
+    <Content Include="config\BaseRestExtensions.config" />
+    <Content Include="config\applications.config" />
+    <Content Include="config\404handlers.config" />
+    <Content Include="config\trees.config" />
+    <Content Include="Views\Partials\Grid\Editors\Textstring.cshtml" />
+    <Content Include="Views\Partials\Grid\Editors\Rte.cshtml" />
+    <Content Include="Views\Partials\Grid\Editors\Media.cshtml" />
+    <Content Include="Views\Partials\Grid\Editors\Macro.cshtml" />
+    <Content Include="Views\Partials\Grid\Editors\Embed.cshtml" />
+    <Content Include="Views\Partials\Grid\Editors\Base.cshtml" />
+    <Content Include="Views\Partials\Grid\Bootstrap3.cshtml" />
+    <Content Include="Views\Partials\Grid\Bootstrap2.cshtml" />
+    <Content Include="config\UrlRewriting.config" />
+    <Content Include="config\scripting.config" />
+    <Content Include="config\FileSystemProviders.config" />
+    <Content Include="config\feedProxy.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="config\ClientDependency.config">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.eot" />
@@ -433,7 +454,6 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\Recent.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\TagCloud.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SearchBox.cshtml" />
-    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedDelicious.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\FeedGitHub.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Partials\SideWidgets.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\List.cshtml" />
@@ -472,30 +492,7 @@
     <Content Include="packages.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="config\umbracoSettings.config" />
-    <Content Include="config\tinyMceConfig.config" />
-    <Content Include="config\metablogConfig.config" />
-    <Content Include="config\log4net.config" />
-    <Content Include="config\ExamineSettings.config" />
-    <Content Include="config\ExamineIndex.config" />
-    <Content Include="config\EmbeddedMedia.config" />
-    <Content Include="config\BaseRestExtensions.config" />
-    <Content Include="config\applications.config" />
-    <Content Include="config\404handlers.config" />
-    <Content Include="macroScripts\Web.config" />
-    <Content Include="config\trees.config" />
-    <Content Include="Views\Partials\Grid\Editors\Textstring.cshtml" />
-    <Content Include="Views\Partials\Grid\Editors\Rte.cshtml" />
-    <Content Include="Views\Partials\Grid\Editors\Media.cshtml" />
-    <Content Include="Views\Partials\Grid\Editors\Macro.cshtml" />
-    <Content Include="Views\Partials\Grid\Editors\Embed.cshtml" />
-    <Content Include="Views\Partials\Grid\Editors\Base.cshtml" />
-    <Content Include="Views\Partials\Grid\Bootstrap3.cshtml" />
-    <Content Include="Views\Partials\Grid\Bootstrap2.cshtml" />
-    <Content Include="config\UrlRewriting.config" />
-    <Content Include="config\scripting.config" />
-    <Content Include="config\FileSystemProviders.config" />
-    <Content Include="config\feedProxy.config" />
+    <Content Include="config\ClientDependency.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -523,11 +520,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>48919</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:48929</IISUrl>
+          <IISUrl>http://localhost:48999</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -537,17 +534,19 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
-  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
-    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
-    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
-  </Target>
   <Import Project="..\packages\UmbracoCms.7.3.4\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.7.3.4\build\UmbracoCms.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-  </Target> -->
+  </Target>
+  -->
 </Project>
-

@@ -8,6 +8,7 @@ using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -26,32 +27,36 @@ namespace Articulate
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
 
-        public TagsOrCategoryPathRouteConstraint(IEnumerable<IPublishedContent> itemsForRoute)
+        public TagsOrCategoryPathRouteConstraint(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException("itemsForRoute");
 
             foreach (var node in itemsForRoute)
             {
-                var url = node.Url;
-                //if there is a double slash, it will have a domain
-                if (url.Contains("//"))
+                var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, node);
+                
+                foreach (var url in allUrls)
                 {
-                    var uri = new Uri(url, UriKind.Absolute);
-                    _urlNames.Add(new UrlNames
+                    //if there is a double slash, it will have a domain
+                    if (url.Contains("//"))
                     {
-                        Host = uri.Host,
-                        CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                        TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
-                    });
-                }
-                else
-                {
-                    _urlNames.Add(new UrlNames
+                        var uri = new Uri(url, UriKind.Absolute);
+                        _urlNames.Add(new UrlNames
+                        {
+                            Host = uri.Host,
+                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
+                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                        });
+                    }
+                    else
                     {
-                        Host = string.Empty,
-                        CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                        TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
-                    });
+                        _urlNames.Add(new UrlNames
+                        {
+                            Host = string.Empty,
+                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
+                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                        });
+                    }
                 }
             }
         }
@@ -71,6 +76,7 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
+                    //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
                     : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
