@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Articulate.Models;
+using System;
 using System.Linq;
 using System.Web.Mvc;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -18,9 +18,9 @@ namespace Articulate.Controllers
         private IArticulateSearcher _articulateSearcher;
 
         public ArticulateSearchController()
-        {            
+        {
         }
-        
+
         public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
         {
             if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
@@ -33,10 +33,7 @@ namespace Articulate.Controllers
             _articulateSearcher = articulateSearcher;
         }
 
-        protected IArticulateSearcher ArticulateSearcher
-        {
-            get { return _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco)); }
-        }
+        protected IArticulateSearcher ArticulateSearcher => _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco));
 
         /// <summary>
         /// Used to render the search result listing (virtual node)
@@ -71,8 +68,8 @@ namespace Articulate.Controllers
             if (p != null && p.Value == 1)
             {
                 return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            } 
-            
+            }
+
             if (p == null || p.Value <= 0)
             {
                 p = 1;
@@ -80,14 +77,14 @@ namespace Articulate.Controllers
 
             var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id);
 
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
+            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts,
             // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
             // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
             // just for the sake of performance. Hrm.... Examine possibly too.
 
             var totalPosts = searchResult.Count();
             var pageSize = rootPageModel.PageSize;
-            
+
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages

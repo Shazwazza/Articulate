@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Xml;
+using umbraco.interfaces;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
-using umbraco.interfaces;
 
 namespace Articulate
 {
@@ -35,7 +35,7 @@ namespace Articulate
 
         public XmlNode SampleXml()
         {
-            var xml = "<Action runat=\"install\" undo=\"false\" alias=\"" + "ArcticulateInstaller" + "\" />";
+            const string xml = "<Action runat=\"install\" undo=\"false\" alias=\"" + "ArcticulateInstaller" + "\" />";
             var doc = new XmlDocument();
             doc.LoadXml(xml);
             return doc.DocumentElement;

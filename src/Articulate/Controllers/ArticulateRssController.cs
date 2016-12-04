@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web.Http.Results;
-using System.Web.Mvc;
-using System.Xml.Linq;
 using Articulate.Models;
 using Articulate.Options;
 using Articulate.Syndication;
+using System;
+using System.Linq;
+using System.Web.Mvc;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -27,9 +21,9 @@ namespace Articulate.Controllers
 #if (!DEBUG)
     [OutputCache(Duration = 300, VaryByHeader = "host")]
 #endif
+
     public class ArticulateRssController : RenderMvcController
     {
-
         //NonAction so it is not routed since we want to use an overload below
         [NonAction]
         public override ActionResult Index(RenderModel model)
@@ -37,10 +31,7 @@ namespace Articulate.Controllers
             return base.Index(model);
         }
 
-        protected IRssFeedGenerator FeedGenerator
-        {
-            get { return UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(UmbracoContext); }
-        }
+        protected IRssFeedGenerator FeedGenerator => UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(UmbracoContext);
 
         public ActionResult Index(RenderModel model, int? maxItems)
         {
@@ -62,8 +53,8 @@ namespace Articulate.Controllers
 
         public ActionResult Categories(RenderModel model, string tag, int? maxItems)
         {
-            if (model == null) throw new ArgumentNullException("model");
-            if (tag == null) throw new ArgumentNullException("tag");
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (tag == null) throw new ArgumentNullException(nameof(tag));
 
             if (!maxItems.HasValue) maxItems = 25;
 
@@ -72,8 +63,8 @@ namespace Articulate.Controllers
 
         public ActionResult Tags(RenderModel model, string tag, int? maxItems)
         {
-            if (model == null) throw new ArgumentNullException("model");
-            if (tag == null) throw new ArgumentNullException("tag");
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (tag == null) throw new ArgumentNullException(nameof(tag));
 
             if (!maxItems.HasValue) maxItems = 25;
 

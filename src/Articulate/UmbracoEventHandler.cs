@@ -1,25 +1,18 @@
-﻿using System;
-using System.CodeDom;
+﻿using Articulate.Controllers;
+using Articulate.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Articulate.Controllers;
-using Articulate.Models;
-using Articulate.Options;
-using umbraco;
 using Umbraco.Core;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Core.Sync;
-using umbraco.dialogs;
-using Umbraco.Core.Configuration;
 using Umbraco.Web;
 using Umbraco.Web.Cache;
 using Umbraco.Web.Routing;
@@ -50,7 +43,7 @@ namespace Articulate
 
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
-            ContentService.Saving += ContentService_Saving;            
+            ContentService.Saving += ContentService_Saving;
             ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
@@ -58,7 +51,7 @@ namespace Articulate
             DomainCacheRefresher.CacheUpdated += DomainCacheRefresher_CacheUpdated;
         }
 
-        private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
+        private static void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
         {
             //ensure routes are rebuilt
             ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
@@ -69,9 +62,9 @@ namespace Articulate
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void UmbracoApplicationBase_ApplicationInit(object sender, EventArgs e)
+        private void UmbracoApplicationBase_ApplicationInit(object sender, EventArgs e)
         {
-            var app = (UmbracoApplicationBase) sender;
+            var app = (UmbracoApplicationBase)sender;
             app.PostRequestHandlerExecute += UmbracoApplication_PostRequestHandlerExecute;
         }
 
@@ -84,7 +77,7 @@ namespace Articulate
         /// In some cases many articulate roots might be published at one time but we only want to rebuild the routes once so we'll do it once
         /// at the end of the request.
         /// </remarks>
-        void UmbracoApplication_PostRequestHandlerExecute(object sender, EventArgs e)
+        private static void UmbracoApplication_PostRequestHandlerExecute(object sender, EventArgs e)
         {
             if (ApplicationContext.Current == null) return;
             if (ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes") == null) return;
@@ -101,21 +94,22 @@ namespace Articulate
         /// <remarks>
         /// This will also work for load balanced scenarios since this event executes on all servers
         /// </remarks>
-        void PageCacheRefresher_CacheUpdated(PageCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
+        private static void PageCacheRefresher_CacheUpdated(PageCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
         {
-            if (UmbracoContext.Current == null) return;     
-            
+            if (UmbracoContext.Current == null) return;
+
             switch (e.MessageType)
-            {                
+            {
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
-                    var item = UmbracoContext.Current.ContentCache.GetById((int) e.MessageObject);
+                    var item = UmbracoContext.Current.ContentCache.GetById((int)e.MessageObject);
                     if (item != null && item.DocumentTypeAlias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
                         ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
+
                 case MessageType.RefreshByInstance:
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
@@ -125,7 +119,7 @@ namespace Articulate
                         //ensure routes are rebuilt
                         UmbracoContext.Current.Application.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
-                    break;                
+                    break;
             }
         }
 
@@ -134,7 +128,7 @@ namespace Articulate
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ContentService_Saved(IContentService sender, SaveEventArgs<IContent> e)
+        private static void ContentService_Saved(IContentService sender, SaveEventArgs<IContent> e)
         {
             foreach (var c in e.SavedEntities.Where(c => c.IsNewEntity() && c.ContentType.Alias.InvariantEquals("Articulate")))
             {
@@ -156,7 +150,7 @@ namespace Articulate
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ContentTypeService_SavingContentType(IContentTypeService sender, SaveEventArgs<IContentType> e)
+        private static void ContentTypeService_SavingContentType(IContentTypeService sender, SaveEventArgs<IContentType> e)
         {
             foreach (var c in e.SavedEntities
                 .Where(c => c.Alias.InvariantEquals("ArticulateArchive") || c.Alias.InvariantEquals("ArticulateAuthors"))
@@ -166,7 +160,7 @@ namespace Articulate
             }
         }
 
-        void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
+        private static void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
             if (UmbracoConfig.For.ArticulateOptions().AutoGenerateExcerpt)
             {
@@ -188,10 +182,9 @@ namespace Articulate
                     }
                 }
             }
-            
         }
 
-        static void ServerVariablesParser_Parsing(object sender, Dictionary<string, object> e)
+        private static void ServerVariablesParser_Parsing(object sender, Dictionary<string, object> e)
         {
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
@@ -205,7 +198,7 @@ namespace Articulate
             };
         }
 
-        static void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
+        private static void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
         {
             if (UmbracoContext.Current == null) return;
 
@@ -214,7 +207,7 @@ namespace Articulate
             {
                 if (UmbracoContext.Current.Security.CurrentUser != null)
                 {
-                    e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);    
+                    e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);
                 }
                 e.Entity.SetValue("publishedDate", DateTime.Now);
                 e.Entity.SetValue("enableComments", 1);

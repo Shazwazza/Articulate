@@ -1,14 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
-using System.Web.Http.Controllers;
+﻿using Articulate.Models;
+using System;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Argotic.Common;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -25,6 +18,7 @@ namespace Articulate.Controllers
 #if !DEBUG
     [OutputCache(Duration = 60, VaryByHeader = "host")]
 #endif
+
     public class ArticulateTagsController : RenderMvcController
     {
         /// <summary>
@@ -65,7 +59,7 @@ namespace Articulate.Controllers
             var tagurlName = model.Content.GetPropertyValue<string>("tagsUrlName");
 
             return tag.IsNullOrWhiteSpace()
-                ? RenderTagsOrCategories(model, "ArticulateTags", tagurlName) 
+                ? RenderTagsOrCategories(model, "ArticulateTags", tagurlName)
                 : RenderByTagOrCategory(model, p, "ArticulateTags", tagurlName);
         }
 
@@ -104,7 +98,7 @@ namespace Articulate.Controllers
 
             var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
 
-            //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-' 
+            //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
             // will replace them with '.' and do the lookup again
             if (contentByTag == null && tagPage.Name.Contains("-"))
@@ -124,14 +118,14 @@ namespace Articulate.Controllers
             if (p != null && p.Value == 1)
             {
                 return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            } 
-            
+            }
+
             if (p == null || p.Value <= 0)
             {
                 p = 1;
             }
 
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
+            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts,
             // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
             // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
             // just for the sake of performance. Hrm.... Examine possibly too.

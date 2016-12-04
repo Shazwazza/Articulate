@@ -9,9 +9,6 @@ namespace Articulate
             context.Response.StatusCode = 404;
         }
 
-        public bool IsReusable
-        {
-            get { return true; }
-        }
+        public bool IsReusable => true;
     }
 }
