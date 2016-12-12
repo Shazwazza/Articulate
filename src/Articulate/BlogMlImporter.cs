@@ -13,6 +13,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
+using System.Net;
 
 namespace Articulate
 {
@@ -224,8 +225,9 @@ namespace Articulate
                 //create it if it doesn't exist
                 if (postNode == null)
                 {
+                    var title = WebUtility.HtmlDecode(post.Title.Content);
                     postNode = _applicationContext.Services.ContentService.CreateContent(
-                        post.Title.Content, archiveNode, "ArticulateRichText");
+                        title, archiveNode, "ArticulateRichText");
                 }
 
                 postNode.SetValue("publishedDate", post.CreatedOn);
