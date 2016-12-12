@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Web.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using umbraco.BusinessLogic;
-using umbraco.cms.businesslogic.web;
+using System;
+using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
-using Umbraco.Core.Publishing;
 using Umbraco.Core.Services;
 
 namespace Articulate
@@ -34,7 +28,6 @@ namespace Articulate
         public IContent Execute()
         {
             var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
-            
 
             if (articulateContentType == null)
             {
@@ -48,7 +41,6 @@ namespace Articulate
             {
                 return Install();
             }
-            
 
             Upgrade();
             return root;
@@ -56,7 +48,7 @@ namespace Articulate
 
         private void Upgrade()
         {
-            //For v2.0 we need to manually add some pre-values to the Articulate Cropper, 
+            //For v2.0 we need to manually add some pre-values to the Articulate Cropper,
             // https://github.com/Shazwazza/Articulate/issues/80
             // https://github.com/Shazwazza/Articulate/issues/135
             // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
@@ -180,6 +172,5 @@ Enjoy!");
 
             return root;
         }
-
     }
 }

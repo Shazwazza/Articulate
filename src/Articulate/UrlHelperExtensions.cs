@@ -1,6 +1,6 @@
+using Articulate.Models;
 using System.Web;
 using System.Web.Mvc;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Web;
 
@@ -40,7 +40,6 @@ namespace Articulate
                 : model.RootBlogNode.Url.EnsureEndsWith('/') + "a-new/";
         }
 
-
         /// <summary>
         /// Returns an RSS feed URL specific to this tag
         /// </summary>
@@ -51,7 +50,7 @@ namespace Articulate
         {
             return model.TagUrl.EnsureEndsWith('/') + "rss";
         }
-        
+
         /// <summary>
         /// Get the search url without the 'term' query string
         /// </summary>
@@ -71,7 +70,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateRootUrl(this UrlHelper url, IMasterModel model)
         {
-            return model.RootBlogNode == null ? null : model.RootBlogNode.Url;
+            return model.RootBlogNode?.Url;
         }
 
         /// <summary>

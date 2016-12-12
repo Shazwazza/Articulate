@@ -1,10 +1,9 @@
+using Argotic.Syndication.Specialized;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Argotic.Syndication.Specialized;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -23,7 +22,7 @@ namespace Articulate
             var xChannel = new XElement("channel");
 
             var xDoc = new XDocument(
-                new XElement("rss", 
+                new XElement("rss",
                     new XAttribute("version", "2.0"),
                     new XAttribute(XNamespace.Xmlns + "content", nsContent),
                     new XAttribute(XNamespace.Xmlns + "dsq", nsDsq),
@@ -49,7 +48,7 @@ namespace Articulate
                 {
                     body = markDown.Transform(post.GetValue<string>("markdown"));
                 }
-                
+
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
                     new XElement("link", umbHelper.NiceUrlWithDomain(post.Id)),
@@ -64,7 +63,6 @@ namespace Articulate
 
                     if (comment.Content.ContentType == BlogMLContentType.Base64)
                         commentText = Encoding.UTF8.GetString(Convert.FromBase64String(comment.Content.Content));
-
 
                     var xComment = new XElement(nsWp + "comment",
                         new XElement(nsWp + "comment_id", comment.Id),

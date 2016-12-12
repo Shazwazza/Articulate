@@ -1,9 +1,9 @@
+using Argotic.Common;
+using Argotic.Syndication.Specialized;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Argotic.Common;
-using Argotic.Syndication.Specialized;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
@@ -18,7 +18,7 @@ namespace Articulate
         private readonly UmbracoContext _umbracoContext;
 
         public BlogMlExporter(UmbracoContext umbracoContext, IFileSystem fileSystem)
-        {            
+        {
             _umbracoContext = umbracoContext;
             _applicationContext = _umbracoContext.Application;
             _fileSystem = fileSystem;
@@ -68,14 +68,15 @@ namespace Articulate
             }
             var tagGroup = categoryDtPreVals.PreValuesAsDictionary["group"];
 
-
             //TODO: See: http://argotic.codeplex.com/wikipage?title=Generating%20portable%20web%20log%20content&referringTitle=Home
 
-            var blogMlDoc = new BlogMLDocument();
-            blogMlDoc.RootUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute);
-            blogMlDoc.GeneratedOn = DateTime.Now;
-            blogMlDoc.Title = new BlogMLTextConstruct(root.GetValue<string>("blogTitle"));
-            blogMlDoc.Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"));
+            var blogMlDoc = new BlogMLDocument
+            {
+                RootUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
+                GeneratedOn = DateTime.Now,
+                Title = new BlogMLTextConstruct(root.GetValue<string>("blogTitle")),
+                Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
+            };
 
             AddBlogAuthors(authorsNode, blogMlDoc);
             AddBlogCategories(blogMlDoc, tagGroup.Value);
@@ -108,11 +109,11 @@ namespace Articulate
                 blogMlCategory.Id = category.Id.ToString();
                 blogMlCategory.CreatedOn = category.CreateDate;
                 blogMlCategory.LastModifiedOn = category.UpdateDate;
-                blogMlCategory.ApprovalStatus = BlogMLApprovalStatus.Approved;                
+                blogMlCategory.ApprovalStatus = BlogMLApprovalStatus.Approved;
                 blogMlCategory.ParentId = "0";
                 blogMlCategory.Title = new BlogMLTextConstruct(category.Text);
                 blogMlDoc.Categories.Add(blogMlCategory);
-            }            
+            }
         }
 
         private void AddBlogAuthors(IContent authorsNode, BlogMLDocument blogMlDoc)
@@ -123,7 +124,7 @@ namespace Articulate
                 blogMlAuthor.Id = author.Key.ToString();
                 blogMlAuthor.CreatedOn = author.CreateDate;
                 blogMlAuthor.LastModifiedOn = author.UpdateDate;
-                blogMlAuthor.ApprovalStatus = BlogMLApprovalStatus.Approved;                
+                blogMlAuthor.ApprovalStatus = BlogMLApprovalStatus.Approved;
                 blogMlAuthor.Title = new BlogMLTextConstruct(author.Name);
                 blogMlDoc.Authors.Add(blogMlAuthor);
             }
@@ -148,7 +149,7 @@ namespace Articulate
                         content = child.GetValue<string>("richText");
                     }
                     else if (child.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
-                    {                        
+                    {
                         content = child.GetValue<string>("markdown");
                         var markdown = new MarkdownDeep.Markdown();
                         content = markdown.Transform(content);

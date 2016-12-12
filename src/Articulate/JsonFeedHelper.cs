@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Umbraco.Core.Cache;
 
 namespace Articulate
@@ -21,7 +19,6 @@ namespace Articulate
                     return JsonConvert.DeserializeObject<JArray>(result.Result);
                 }
             });
-
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Articulate
             var propertyInfo = GetPropertyInfo(type, propertyName, filter);
             if (propertyInfo == null)
                 throw new ArgumentOutOfRangeException("propertyName",
-                    string.Format("Couldn't find property {0} in type {1}", propertyName, type.FullName));
+                    $"Couldn't find property {propertyName} in type {type.FullName}");
             return propertyInfo.GetValue(null, null);
         }
 
@@ -21,7 +21,7 @@ namespace Articulate
             var methodInfo = GetMethodInfo(type, methodName);
             if (methodInfo == null)
                 throw new ArgumentOutOfRangeException("methodName",
-                    string.Format("Couldn't find method {0} in type {1}", methodName, type.FullName));
+                    $"Couldn't find method {methodName} in type {type.FullName}");
             return methodInfo.Invoke(null, parameters);
         }
 
@@ -33,7 +33,7 @@ namespace Articulate
             var methodInfo = GetMethodInfo(type, methodName);
             if (methodInfo == null)
                 throw new ArgumentOutOfRangeException("methodName",
-                    string.Format("Couldn't find method {0} in type {1}", methodName, type.FullName));
+                    $"Couldn't find method {methodName} in type {type.FullName}");
             return methodInfo.Invoke(obj, parameters);
         }
 
@@ -45,13 +45,13 @@ namespace Articulate
             var methodInfo = GetMethodInfo(type, methodName, filter);
             if (methodInfo == null)
                 throw new ArgumentOutOfRangeException("methodName",
-                    string.Format("Couldn't find method {0} in type {1}", methodName, type.FullName));
+                    $"Couldn't find method {methodName} in type {type.FullName}");
             return methodInfo.Invoke(obj, parameters);
         }
 
         private static MethodInfo GetMethodInfo(Type type, string methodName, Func<IEnumerable<MethodInfo>, MethodInfo> filter = null)
         {
-            MethodInfo methodInfo = null;
+            MethodInfo methodInfo;
             do
             {
                 try
@@ -75,7 +75,7 @@ namespace Articulate
 
         private static PropertyInfo GetPropertyInfo(Type type, string propertyName, Func<IEnumerable<PropertyInfo>, PropertyInfo> filter = null)
         {
-            PropertyInfo propInfo = null;
+            PropertyInfo propInfo;
             do
             {
                 try
@@ -103,8 +103,8 @@ namespace Articulate
             Type objType = obj.GetType();
             PropertyInfo propInfo = GetPropertyInfo(objType, propertyName);
             if (propInfo == null)
-                throw new ArgumentOutOfRangeException("propertyName",
-                    string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
+                throw new ArgumentOutOfRangeException(nameof(propertyName),
+                    $"Couldn't find property {propertyName} in type {objType.FullName}");
             return propInfo.GetValue(obj, null);
         }
 
@@ -115,8 +115,8 @@ namespace Articulate
             Type objType = obj.GetType();
             PropertyInfo propInfo = GetPropertyInfo(objType, propertyName);
             if (propInfo == null)
-                throw new ArgumentOutOfRangeException("propertyName",
-                    string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
+                throw new ArgumentOutOfRangeException(nameof(propertyName),
+                    $"Couldn't find property {propertyName} in type {objType.FullName}");
             propInfo.SetValue(obj, val, null);
         }
     }

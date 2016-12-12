@@ -1,17 +1,12 @@
-﻿using System;
+﻿using Argotic.Syndication.Specialized;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
-using System.Xml.XPath;
-using Argotic.Syndication.Specialized;
-using Newtonsoft.Json.Serialization;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
@@ -150,7 +145,7 @@ namespace Articulate
                     //nope not found so create a node for this user name
                     if (authorNode == null)
                     {
-                        //create an author with the same name as the user - we'll need to wire up that 
+                        //create an author with the same name as the user - we'll need to wire up that
                         // name to posts later on
                         authorNode = _applicationContext.Services.ContentService.CreateContent(
                             found.Name, authorsNode, "ArticulateAuthor");
@@ -158,7 +153,6 @@ namespace Articulate
                     }
 
                     result.Add(author.Id, authorNode.Name);
-
                 }
                 else
                 {
@@ -179,12 +173,10 @@ namespace Articulate
             }
 
             return result;
-
         }
 
         private async Task<IEnumerable<IContent>> ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
         {
-
             var result = new List<IContent>();
 
             var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
@@ -210,7 +202,6 @@ namespace Articulate
             foreach (var post in posts)
             {
                 //check if one exists
-
 
                 IContent postNode;
 
@@ -305,7 +296,6 @@ namespace Articulate
         //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
         //    string publicKey/*, string privateKey, string accessToken*/)
         //{
-
         //    var importer = new DisqusImporter(publicKey);
 
         //    foreach (var comment in post.Comments)
@@ -327,7 +317,7 @@ namespace Articulate
         //            postNode.SetValue("disqusCommentsImported", 1);
         //            //just save it, we don't need to publish it (if publish = true then its already published), we just need
         //            // this for reference.
-        //            _applicationContext.Services.ContentService.Save(postNode, userId);    
+        //            _applicationContext.Services.ContentService.Save(postNode, userId);
         //        }
         //    }
         //}
@@ -352,6 +342,5 @@ namespace Articulate
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
             postNode.SetTags("tags", tags, true, "ArticulateTags");
         }
-
     }
 }

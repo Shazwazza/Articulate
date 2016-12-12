@@ -26,6 +26,7 @@ namespace Articulate
             {
                 case RouteDirection.IncomingRequest:
                     return httpContext.Request.RawUrl.InvariantContains("/metaweblog/");
+
                 case RouteDirection.UrlGeneration:
                 default:
                     return false;

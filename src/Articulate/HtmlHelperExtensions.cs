@@ -1,21 +1,16 @@
-﻿using System;
+﻿using Articulate.Models;
+using ClientDependency.Core.Mvc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
-using System.Web.Routing;
 using System.Web.WebPages;
-using Articulate.Models;
-using ClientDependency.Core.Mvc;
 using umbraco;
 using Umbraco.Core;
-using Umbraco.Core.Models;
 using Umbraco.Web;
-using Umbraco.Web.Models;
 
 namespace Articulate
 {
@@ -28,8 +23,7 @@ namespace Articulate
                 : model.CustomRssFeed;
 
             return new HtmlString(
-                string.Format(@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{0}"" />",
-                    url));
+                $@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{url}"" />");
         }
 
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
@@ -39,9 +33,9 @@ namespace Articulate
 
             return new HtmlString(
                 string.Concat(
-                    string.Format(@"<link type=""application/rsd+xml"" rel=""edituri"" title=""RSD"" href=""{0}"" />", rsdUrl),
+                    $@"<link type=""application/rsd+xml"" rel=""edituri"" title=""RSD"" href=""{rsdUrl}"" />",
                     Environment.NewLine,
-                    string.Format(@"<link rel=""wlwmanifest"" type=""application/wlwmanifest+xml"" href=""{0}"" />", manifestUrl)));
+                    $@"<link rel=""wlwmanifest"" type=""application/wlwmanifest+xml"" href=""{manifestUrl}"" />"));
         }
 
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
@@ -73,7 +67,7 @@ namespace Articulate
 
         public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
         {
-            return html.RequiresFolder(PathHelper.GetThemePath(model) + "Assets/css", 
+            return html.RequiresFolder(PathHelper.GetThemePath(model) + "Assets/css",
                 100, "*.css", (absPath, pri) => html.RequiresCss(absPath, pri));
 
             //TODO: As per below, when latest CDF is releaesd and bundled we don't have to do this
@@ -142,7 +136,7 @@ namespace Articulate
 
         public static IHtmlString TagCloud(this HtmlHelper html, PostTagCollection model, decimal maxWeight, int maxResults)
         {
-            var tagsAndWeight = model.Select(x => new {tag = x, weight = model.GetTagWeight(x, maxWeight)})
+            var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
                 .OrderByDescending(x => x.weight)
                 .Take(maxResults)
                 .RandomOrder();
@@ -188,7 +182,6 @@ namespace Articulate
                     }
                 }
             });
-
         }
 
         /// <summary>
@@ -229,7 +222,7 @@ namespace Articulate
                 {
                     throw new InvalidOperationException("The number of cell templates must equal the number of columns defined");
                 }
-                
+
                 var tagBuilder = new TagBuilder("table");
                 if (htmlAttributes != null)
                 {
@@ -237,12 +230,12 @@ namespace Articulate
                     tagBuilder.MergeAttributes(atts);
                 }
                 writer.Write(tagBuilder.ToString(TagRenderMode.StartTag));
-                
+
                 writer.Write("<thead>");
                 writer.Write("<tr>");
                 for (int i = 0; i < cols; i++)
                 {
-                    writer.Write("<th class='{0}'>", (cssClasses.Length-1) >= 1 ? cssClasses[i] : "");
+                    writer.Write("<th class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[i] : "");
                     writer.Write(headers[i]);
                     writer.Write("</th>");
                 }
@@ -266,7 +259,5 @@ namespace Articulate
                 writer.Write("</table>");
             });
         }
-
-
     }
 }
