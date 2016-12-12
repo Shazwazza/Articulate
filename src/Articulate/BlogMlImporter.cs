@@ -254,9 +254,23 @@ namespace Articulate
 
                 if (post.Url != null && !string.IsNullOrWhiteSpace(post.Url.OriginalString))
                 {
-                    //we're only going to use the last url segment
-                    var slug = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    postNode.SetValue("umbracoUrlName", slug[slug.Length - 1].Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                    var slug = string.Empty;
+                    //we take the post-name BlogML element as slug for the post
+                    if (post.Name != null)
+                        slug = post.Name.Content;
+                    //If post-name is not available we take the URL and remove the extension
+                    else 
+                    {
+                        var slugArray = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                        var fileNameAndQuery = slugArray[slugArray.Length - 1];
+                        var fileNameAndQueryArray = fileNameAndQuery.Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries);
+                        var fileName = fileNameAndQueryArray[fileNameAndQueryArray.Length - 1];
+                        var fileNameArray = fileName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                        var ext = fileNameArray[fileNameArray.Length - 1];
+                        slug = fileName.TrimEnd("." + ext);
+                    }
+
+                    postNode.SetValue("umbracoUrlName", slug);
                 }
 
                 if (post.Authors.Count > 0)
