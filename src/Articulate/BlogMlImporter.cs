@@ -232,7 +232,12 @@ namespace Articulate
 
                 if (post.Excerpt != null && post.Excerpt.Content.IsNullOrWhiteSpace() == false)
                 {
-                    postNode.SetValue("excerpt", post.Excerpt.Content);
+                    var excerpt = post.Excerpt.Content;
+
+                    if (post.Excerpt.ContentType == BlogMLContentType.Base64)
+                        excerpt = Encoding.UTF8.GetString(Convert.FromBase64String(post.Excerpt.Content));
+
+                    postNode.SetValue("excerpt", excerpt);
                 }
 
                 postNode.SetValue("importId", post.Id);
