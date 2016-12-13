@@ -400,6 +400,13 @@ ul.recentComments li {
     margin-bottom: 3px;
 }
 
+.widget.feed {
+    min-height: 100px;
+    background-image: url("../img/spin.svg");
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
 /* footer */
 #footer {
     margin-top: 30px;

@@ -39,6 +39,11 @@ namespace Articulate
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
             //map routes
+            RouteTable.Routes.MapRoute(
+                "ArticulateFeeds",
+                "ArticulateFeeds/{action}/{id}",
+                new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
+            );
             ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
 
             //umbraco event subscriptions

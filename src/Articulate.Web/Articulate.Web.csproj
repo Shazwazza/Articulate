@@ -16,7 +16,7 @@
     <AssemblyName>Articulate.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -338,7 +338,9 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\comments.gif" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\favicon.ico" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\quote.gif" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\spin.svg" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\timeicon.gif" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\feeds.js" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\responsive.ie10mobilefix.min.js" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />

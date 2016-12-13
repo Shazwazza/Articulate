@@ -18,8 +18,9 @@
 @*Render different content if it's the homepage*@
 @if (Model.DocumentTypeAlias == "ArticulateArchive")
 {
-    Html.RequiresCss("https://cdnjs.cloudflare.com/ajax/libs/octicons/2.1.2/octicons.css");
-    
+    Html.RequiresCss("https://cdnjs.cloudflare.com/ajax/libs/octicons/2.1.2/octicons.css")
+        .RequiresJs("https://code.jquery.com/jquery-3.1.1.min.js", 0, ClientDependency.Core.Constants.DefaultGroup, new { integrity = "sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=", crossorigin = "anonymous" });
+
     <div class="row box">
         <div class="col-xs-12 col-s-12 col-m-12 col-l-12">
             <div class="headline box-inner post visible-s visible-m visible-l"
@@ -29,7 +30,7 @@
             </div>
         </div>        
     </div>
-    <div class="row">
+    <div class="row" id="feeds">
         <div class="col-s-6">
             <div class="row widget sidenav">
                 
@@ -37,8 +38,7 @@
             </div>                        
         </div>
         <div class="col-s-6">
-            <div class="row widget">
-                @Html.ThemedPartial(Model, "FeedGitHub")
+            <div class="row widget feed" data-feed-base-url="@Context.Request.ApplicationPath" data-feed-action="RenderGitHub" data-feed-id="@Model.Id">
             </div>
         </div>
     </div>
