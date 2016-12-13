@@ -1,21 +1,15 @@
-﻿using System;
-using System.Globalization;
-using System.Text;
-using System.Web;
-using System.Web.Routing;
-using System.Xml;
-using Articulate.Models;
+﻿using Articulate.Models;
 using Articulate.Models.MetaWeblog;
 using CookComputing.XmlRpc;
-using System.Collections.Generic;
-using System.Configuration;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
+using System.Web.Routing;
 using System.Web.Security;
-using Articulate.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
@@ -23,7 +17,6 @@ using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Web;
-using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -232,7 +225,6 @@ namespace Articulate
 
         private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
-
             content.Name = post.Title;
             content.SetValue("author", user.Name);
             if (content.HasProperty("richText"))
@@ -275,7 +267,7 @@ namespace Articulate
                 content.SetValue("richText", contentToSave);
 
                 if (extractFirstImageAsProperty
-                    && content.HasProperty("postImage") 
+                    && content.HasProperty("postImage")
                     && !firstImage.IsNullOrWhiteSpace())
                 {
                     content.SetValue("postImage", firstImage);
@@ -411,8 +403,5 @@ namespace Articulate
         {
             return this;
         }
-
     }
-
 }
-

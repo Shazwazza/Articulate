@@ -1,10 +1,9 @@
+using Articulate.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Web.Routing;
-using Articulate.Models;
-using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -26,7 +25,7 @@ namespace Articulate
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ArticulateSearchRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
             : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
-        {            
+        {
         }
 
         public ArticulateSearchRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
