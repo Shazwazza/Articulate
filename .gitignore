@@ -39,3 +39,4 @@ src/Articulate/App_Data/NuGetBackup/*
 src/.Articulate.boltdata/*
 src/Articulate.Web/App_Plugins/Grid/*
 src/Articulate.Web/scripts/*
+src/.vs/*
