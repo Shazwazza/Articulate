@@ -33,9 +33,9 @@
 
 
     @{ Html
-           .RequiresJs("http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
-           .RequiresCss("http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")           
-           .RequiresCss("http://fonts.googleapis.com/css?family=Roboto:400,300,100,500")
+           .RequiresJs("https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
+           .RequiresCss("https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")           
+           .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:400,300,100,500")
          //This loads all Css found in the current theme's js folder: /Assets/js
            .RequiresThemedCssFolder(Model)
          //This loads all JS found in the current theme's js folder: /Assets/js
@@ -104,7 +104,7 @@
         (function () {
             var s = document.createElement('script'); s.async = true;
             s.type = 'text/javascript';
-            s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
             (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
         }());
     </script>
