@@ -6,6 +6,10 @@
     ViewBag.CssBodyClass = "post-template";
 }
 
+@section description{
+    <meta name="description" content="@Model.Excerpt" />
+}
+
 <!--- TEMPLATE FOR BLOG POST --->
 
 <div class="container">
