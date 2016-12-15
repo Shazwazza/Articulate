@@ -6,11 +6,12 @@ using System.Linq;
 using System.Web.Routing;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 
 namespace Articulate
 {
-    public class ArticulateSearchRouteHandler : UmbracoVirtualNodeByIdRouteHandler
+    public class ArticulateSearchRouteHandler : ArticulateVirtualNodeByIdRouteHandler
     {
         private struct UrlNames
         {
@@ -20,13 +21,6 @@ namespace Articulate
         }
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
-
-        [Obsolete("Use the ctor with all dependencies instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ArticulateSearchRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
-            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
-        {
-        }
 
         public ArticulateSearchRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
             : base(umbracoUrlProvider, itemsForRoute)
@@ -40,21 +34,7 @@ namespace Articulate
                     SearchPageName = node.GetPropertyValue<string>("searchPageName")
                 });
             }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ArticulateSearchRouteHandler(int realNodeId,
-            string searchUrlName,
-            string searchPageName)
-            : base(realNodeId)
-        {
-            _urlNames.Add(new UrlNames
-            {
-                NodeId = realNodeId,
-                SearchPageName = searchPageName,
-                SearchUrlName = searchUrlName
-            });
-        }
+        }        
 
         protected override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {

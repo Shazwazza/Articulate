@@ -14,27 +14,21 @@ using Umbraco.Core.Configuration;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 
 namespace Articulate
 {
-    public class UmbracoVirtualNodeByIdRouteHandler : UmbracoVirtualNodeRouteHandler
+    public class ArticulateVirtualNodeByIdRouteHandler : UmbracoVirtualNodeRouteHandler
     {
         private readonly List<Tuple<string, int>> _hostsAndIds = new List<Tuple<string, int>>();
-
-        [Obsolete("Use the ctor with all dependencies instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public UmbracoVirtualNodeByIdRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
-            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
-        {
-        }
-
+        
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
         /// <param name="umbracoUrlProvider"></param>
         /// <param name="itemsForRoute"></param>
-        public UmbracoVirtualNodeByIdRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
+        public ArticulateVirtualNodeByIdRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
         {
             foreach (var publishedContent in itemsForRoute)
             {
@@ -53,7 +47,7 @@ namespace Articulate
                         _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
                     }
                 }
-                LogHelper.Debug<UmbracoVirtualNodeByIdRouteHandler>(() => $"Hosts/IDs map for node {publishedContent.Id}. Values: {DebugHostIdsCollection()}");
+                LogHelper.Debug<ArticulateVirtualNodeByIdRouteHandler>(() => $"Hosts/IDs map for node {publishedContent.Id}. Values: {DebugHostIdsCollection()}");
             }
         }
 
@@ -61,11 +55,11 @@ namespace Articulate
         /// Constructor used to create a new handler for only one id and no domain
         /// </summary>
         /// <param name="realNodeId"></param>
-        public UmbracoVirtualNodeByIdRouteHandler(int realNodeId)
+        public ArticulateVirtualNodeByIdRouteHandler(int realNodeId)
         {
             _hostsAndIds.Add(new Tuple<string, int>(string.Empty, realNodeId));
         }
-        
+
         protected sealed override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext)
         {
             //determine if it's for a particular domain
@@ -85,11 +79,11 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
+                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
                         return null;
                     }
                 }
-                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost") 
+                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
                     && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes)
                 {
                     //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
@@ -101,7 +95,7 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: " + DebugHostIdsCollection());
+                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: " + DebugHostIdsCollection());
                         return null;
                     }
                 }
@@ -114,10 +108,10 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<UmbracoVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of " + requestContext.HttpContext.Request.Url.Host + ". Values: " + DebugHostIdsCollection());
+                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of " + requestContext.HttpContext.Request.Url.Host + ". Values: " + DebugHostIdsCollection());
                         return null;
                     }
-                }                
+                }
             }
 
             var byId = umbracoContext.ContentCache.GetById(realNodeId);
@@ -140,20 +134,6 @@ namespace Articulate
         {
             return baseContent;
         }
-
-        //NOTE: This is the manual way we could assign culture this but I think there's more logic for edge case scenarios in Umbraco's Prepare method.
-        // I've just left this code here as an example
-        protected override void PreparePublishedContentRequest(PublishedContentRequest publishedContentRequest)
-        {
-            //if (_hostsAndIds.Any(x => x.Item2 == publishedContentRequest.PublishedContent.Parent.Id))
-            //{
-            //    var hostAndId = _hostsAndIds.Single(x => x.Item2 == publishedContentRequest.PublishedContent.Parent.Id);
-            //    var domain = Domain.GetDomain(hostAndId.Item1);
-            //    publishedContentRequest.Culture = new CultureInfo(domain.Language.CultureAlias);
-            //}
-
-            base.PreparePublishedContentRequest(publishedContentRequest);          
-            
-        }
+        
     }
 }

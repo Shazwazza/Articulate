@@ -18,13 +18,7 @@ namespace Articulate
             if (services == null) throw new ArgumentNullException(nameof(services));
             _services = services;
         }
-
-        [Obsolete("Use the ctor with all dependencies instead")]
-        public ArticulateDataInstaller()
-            : this(ApplicationContext.Current.Services)
-        {
-        }
-
+        
         public IContent Execute()
         {
             var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");

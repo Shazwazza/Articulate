@@ -13,7 +13,7 @@ using Umbraco.Web.Routing;
 
 namespace Articulate
 {
-    public class ArticulateTagsRouteHandler : UmbracoVirtualNodeByIdRouteHandler
+    public class ArticulateTagsRouteHandler : ArticulateVirtualNodeByIdRouteHandler
     {
         private struct UrlAndPageNames
         {
@@ -25,14 +25,6 @@ namespace Articulate
         }
 
         private readonly List<UrlAndPageNames> _urlsAndPageNames = new List<UrlAndPageNames>();
-
-        [Obsolete("Use the ctor with all dependencies instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ArticulateTagsRouteHandler(IEnumerable<IPublishedContent> itemsForRoute)
-            : this(UmbracoContext.Current.UrlProvider, itemsForRoute)
-        {
-        }
-
 
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
@@ -52,25 +44,7 @@ namespace Articulate
                     CategoriesPageName = node.GetPropertyValue<string>("categoriesPageName")
                 });
             }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ArticulateTagsRouteHandler(int realNodeId,
-            string tagsUrlName,
-            string tagsPageName,
-            string categoriesUrlName,
-            string categoriesPageName)
-            : base(realNodeId)
-        {
-            _urlsAndPageNames.Add(new UrlAndPageNames
-            {
-                CategoriesPageName = categoriesPageName,
-                CategoriesUrlName = categoriesUrlName,
-                NodeId = realNodeId,
-                TagsPageName = tagsPageName,
-                TagsUrlName = tagsUrlName
-            });
-        }
+        }        
 
         protected override IPublishedContent FindContent(RequestContext requestContext, UmbracoContext umbracoContext, IPublishedContent baseContent)
         {

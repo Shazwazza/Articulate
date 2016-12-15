@@ -162,7 +162,7 @@ namespace Articulate
                     controller = "MarkdownEditor",
                     action = "NewPost"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
         }
 
         private static void MapRssRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -178,7 +178,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "Index"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
 
             routes.MapUmbracoRoute(
                 "articulate_rss_xslt_" + routeHash,
@@ -188,7 +188,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "FeedXslt"
                 },
-                new UmbracoVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
         }
 
         private static void MapTagsAndCategoriesRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)

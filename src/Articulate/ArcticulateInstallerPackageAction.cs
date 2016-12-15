@@ -17,7 +17,7 @@ namespace Articulate
     {
         public bool Execute(string packageName, XmlNode xmlData)
         {
-            var dataInstaller = new ArticulateDataInstaller();
+            var dataInstaller = new ArticulateDataInstaller(ApplicationContext.Current.Services);
             var root = dataInstaller.Execute();
 
             return true;

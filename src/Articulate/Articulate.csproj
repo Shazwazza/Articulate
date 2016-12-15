@@ -369,8 +369,7 @@
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="UmbracoEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UmbracoVirtualNodeByIdRouteHandler.cs" />
-    <Compile Include="UmbracoVirtualNodeRouteHandler.cs" />
+    <Compile Include="ArticulateVirtualNodeByIdRouteHandler.cs" />
     <Compile Include="UrlHelperExtensions.cs" />
     <Compile Include="VirtualNodeUrlProvider.cs" />
   </ItemGroup>
