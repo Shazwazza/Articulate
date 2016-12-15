@@ -54,6 +54,14 @@ namespace Articulate.Syndication
 
         protected virtual SyndicationItem GetFeedItem(IMasterModel model, PostModel post, string rootUrl)
         {
+            var posturl = post.UrlWithDomain();
+
+            //Cannot continue if the url cannot be resolved - probably has publishing issues
+            if (posturl.StartsWith("#"))
+            {
+                return null;
+            }
+
             var content = _relativeMediaHref.Replace(GetPostContent(post), match =>
             {
                 if (match.Groups.Count == 2)
@@ -73,12 +81,12 @@ namespace Articulate.Syndication
                            "\"";
                 }
                 return null;
-            });
+            });            
 
             var item = new SyndicationItem(
                 post.Name,
                 new TextSyndicationContent(content, TextSyndicationContentKind.Html),
-                new Uri(post.UrlWithDomain()),
+                new Uri(posturl),
                 post.Id.ToString(CultureInfo.InvariantCulture),
                 post.PublishedDate)
             {
@@ -102,7 +110,7 @@ namespace Articulate.Syndication
         private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
             var rootUrl = model.RootBlogNode.UrlWithDomain();
-            return posts.Select(post => GetFeedItem(model, post, rootUrl)).ToList();
+            return posts.Select(post => GetFeedItem(model, post, rootUrl)).WhereNotNull().ToList();
         }
 
         protected virtual Uri GetBlogImage(IMasterModel rootPageModel)
