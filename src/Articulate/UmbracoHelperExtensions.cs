@@ -9,6 +9,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Core.Services;
+using Umbraco.Core.Cache;
 using Umbraco.Web;
 
 namespace Articulate
@@ -36,16 +37,26 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Returns a list of all categories
+        /// Returns a list of all categories belonging to this articualte root
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="masterModel"></param>
         /// <returns></returns>
         public static IEnumerable<string> GetAllCategories(this UmbracoHelper helper, IMasterModel masterModel)
         {
-            //TODO: Make this somehow only lookup tag categories that are relavent to posts underneath the current Articulate root node!
+            //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
 
-            return helper.TagQuery.GetAllContentTags("ArticulateCategories").Select(x => x.Text).OrderBy(x => x);
+            var appContext = helper.UmbracoContext.Application;
+            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+
+            var sql = GetTagQuery("cmsTags.id, cmsTags.tag, cmsTags.[group], Count(*) as NodeCount", masterModel, sqlSyntax)
+                .Where("cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                {
+                    tagGroup = "ArticulateCategories"
+                })
+                .GroupBy("cmsTags.id", "cmsTags.tag", "cmsTags." + sqlSyntax.GetQuotedColumnName("group") + @"");
+
+            return appContext.DatabaseContext.Database.Fetch<TagDto>(sql).Select(x => x.Tag).WhereNotNull().OrderBy(x => x);
         }
 
         /// <summary>
@@ -67,56 +78,21 @@ namespace Articulate
             var rootPageModel = new ListModel(listNode, new PagerModel(count, 0, 1));
             return rootPageModel.Children<PostModel>();
         }
-     
-        internal static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
+
+        /// <summary>
+        /// Gets the basic tag SQL used to retrieve tags for a given articulate root node
+        /// </summary>
+        /// <param name="selectCols"></param>
+        /// <param name="masterModel"></param>
+        /// <param name="sqlSyntax"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// TODO: We won't need this when this is fixed http://issues.umbraco.org/issue/U4-9290
+        /// </remarks>
+        private static Sql GetTagQuery(string selectCols, IMasterModel masterModel, ISqlSyntaxProvider sqlSyntax)
         {
-            var tags = helper.TagQuery.GetAllContentTags(tagGroup).ToArray();
-            if (!tags.Any())
-            {
-                return Enumerable.Empty<PostsByTagModel>();
-            }
-
-            //TODO: Use the new 7.1.2 tags API to do this
-
-            //TODO: This query will also cause problems if/when a site ends up with thousands of tags! It will fail.
-
             var sql = new Sql()
-                .Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
-                .From("cmsTags")
-                .InnerJoin("cmsTagRelationship")
-                .On("cmsTagRelationship.tagId = cmsTags.id")
-                .InnerJoin("cmsContent")
-                .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
-                .InnerJoin("umbracoNode")
-                .On("umbracoNode.id = cmsContent.nodeId")
-                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
-                //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" })
-                .Where("tagId IN (@tagIds) AND cmsTags." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("group") + " = @tagGroup", new
-                {
-                    tagIds = tags.Select(x => x.Id).ToArray(),
-                    tagGroup = tagGroup
-                });
-
-            var taggedContent = ApplicationContext.Current.DatabaseContext.Database.Fetch<TagDto>(sql);
-            return taggedContent.GroupBy(x => x.TagId)
-                .Select(x => new PostsByTagModel(
-                    helper.TypedContent(
-                        x.Select(t => t.NodeId).Distinct())
-                        .WhereNotNull()
-                        .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
-                    x.First().Tag,
-                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
-                .OrderBy(x => x.TagName);
-        }
-
-
-        internal static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
-        {
-            //TODO: Use the new 7.1.2 tags API to do this
-
-            var sql = new Sql()
-                .Select("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag")
+                .Select(selectCols)
                 .From("cmsTags")
                 .InnerJoin("cmsTagRelationship")
                 .On("cmsTagRelationship.tagId = cmsTags.id")
@@ -126,24 +102,115 @@ namespace Articulate
                 .On("umbracoNode.id = cmsContent.nodeId")
                 .Where("umbracoNode.nodeObjectType = @nodeObjectType", new {nodeObjectType = Constants.ObjectTypes.Document})
                 //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("path") + " LIKE @path", new {path = masterModel.RootBlogNode.Path + ",%"})
-                .Where("cmsTags.tag = @tagName AND cmsTags." + SqlSyntaxContext.SqlSyntaxProvider.GetQuotedColumnName("group") + " = @tagGroup", new
-                {
-                    tagName = tag,
-                    tagGroup = tagGroup
-                });
+                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new {path = masterModel.RootBlogNode.Path + ",%"});
+            return sql;
+        }
 
-            var taggedContent = ApplicationContext.Current.DatabaseContext.Database.Fetch<TagDto>(sql);
-            
-            return taggedContent.GroupBy(x => x.TagId)
-                .Select(x => new PostsByTagModel(
-                    helper.TypedContent(
-                        x.Select(t => t.NodeId).Distinct())
-                        .WhereNotNull()
-                        .Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
-                    x.First().Tag,
-                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + x.First().Tag.ToLowerInvariant()))
-                .FirstOrDefault();
+        internal static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
+        {
+            var tags = helper.TagQuery.GetAllContentTags(tagGroup).ToArray();
+            if (!tags.Any())
+            {
+                return Enumerable.Empty<PostsByTagModel>();
+            }
+
+            //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
+
+            var appContext = helper.UmbracoContext.Application;
+            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+
+            Func<IEnumerable<PostsByTagModel>> getResult = () =>
+            {
+                var taggedContent = new List<TagDto>();
+
+                //process in groups to not exceed the max SQL params
+                foreach (var tagBatch in tags.InGroupsOf(2000))
+                {
+                    var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax)
+                        .Where("tagId IN (@tagIds) AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                        {
+                            tagIds = tagBatch.Select(x => x.Id).ToArray(),
+                            tagGroup = tagGroup
+                        });
+                    taggedContent.AddRange(appContext.DatabaseContext.Database.Fetch<TagDto>(sql));
+                }
+
+                var result = new List<PostsByTagModel>();
+                foreach (var groupedTags in taggedContent.GroupBy(x => x.TagId))
+                {
+                    //will be the same tag name for all of these tag Ids
+                    var tagName = groupedTags.First().Tag;
+
+                    var publishedContent = helper.TypedContent(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
+
+                    var model = new PostsByTagModel(
+                        publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
+                        tagName,
+                        masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tagName.ToLowerInvariant());
+
+                    result.Add(model);
+                }
+
+                return result.OrderBy(x => x.TagName).ToArray();
+            };
+
+#if DEBUG
+            return getResult();
+#else
+            //cache this result for a short amount of time
+            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<IEnumerable<PostsByTagModel>>(
+                string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
+                getResult, TimeSpan.FromSeconds(30));
+#endif
+
+        }
+
+
+        internal static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
+        {
+            //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
+
+            var appContext = helper.UmbracoContext.Application;
+            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+
+            Func<PostsByTagModel> getResult = () =>
+            {
+                var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax)
+                    .Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                    {
+                        tagName = tag,
+                        tagGroup = tagGroup
+                    });
+
+                var taggedContent = appContext.DatabaseContext.Database.Fetch<TagDto>(sql);
+
+                var result = new List<PostsByTagModel>();
+                foreach (var groupedTags in taggedContent.GroupBy(x => x.TagId))
+                {
+                    //will be the same tag name for all of these tag Ids
+                    var tagName = groupedTags.First().Tag;
+
+                    var publishedContent = helper.TypedContent(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
+
+                    var model = new PostsByTagModel(
+                        publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
+                        tagName,
+                        masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tagName.ToLowerInvariant());
+
+                    result.Add(model);
+                }
+
+                return result.FirstOrDefault();
+            };
+
+#if DEBUG
+            return getResult();
+#else
+            //cache this result for a short amount of time
+            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<PostsByTagModel>(
+                string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup),
+                getResult, TimeSpan.FromSeconds(30));
+#endif
         }
 
         private class TagDto
