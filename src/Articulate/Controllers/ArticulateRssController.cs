@@ -4,6 +4,7 @@ using Articulate.Syndication;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.Xml.XPath;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Web;
@@ -44,8 +45,12 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            var rootPageModel = new ListModel(listNode, new PagerModel(maxItems.Value, 0, 1));
+            var pager = new PagerModel(maxItems.Value, 0, 1);
 
+            var listItems = Umbraco.GetPostsSortedByPublishedDate(listNode.Id, pager);
+
+            var rootPageModel = new ListModel(listNode, listItems, pager);
+            
             var feed = FeedGenerator.GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
 
             return new RssResult(feed, rootPageModel);
@@ -80,7 +85,7 @@ namespace Articulate.Controllers
             }
 
             //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
+            var rootPageModel = new MasterModel(model.Content.Parent);
 
             var contentByTag = Umbraco.GetContentByTag(
                 rootPageModel,

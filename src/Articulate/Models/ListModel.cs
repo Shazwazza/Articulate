@@ -11,9 +11,8 @@ namespace Articulate.Models
     public class ListModel : MasterModel
     {
         private readonly IEnumerable<IPublishedContent> _listItems;
-        private IEnumerable<PostModel> _resolvedList;
+        private PostModel[] _resolvedList;
         private readonly PagerModel _pager;
-        private readonly bool _disableSort = false;
 
         /// <summary>
         /// Constructor accepting an explicit list of child items
@@ -28,40 +27,18 @@ namespace Articulate.Models
         public ListModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager)
             : base(content)
         {
-            if (listItems == null) throw new ArgumentNullException("listItems");
-            if (pager == null) throw new ArgumentNullException("pager");            
+            if (content == null) throw new ArgumentNullException(nameof(content));
+            if (listItems == null) throw new ArgumentNullException(nameof(listItems));
+            if (pager == null) throw new ArgumentNullException(nameof(pager));
+            
             _pager = pager;
-            _disableSort = true;
             _listItems = listItems;
         }
-
-        public ListModel(IPublishedContent content, PagerModel pager)
-            : base(content)
-        {
-            if (pager == null) throw new ArgumentNullException("pager");
-            _pager = pager;
-        }
-
-        public ListModel(IPublishedContent content)
-            : base(content)
-        {
-            _listItems = base.Children;
-        }
-
+        
         /// <summary>
         /// The pager model
         /// </summary>
-        public PagerModel Pages
-        {
-            get
-            {
-                if (_pager == null)
-                {
-                    throw new NullReferenceException("The constructor to set the pager was not used for this instance");
-                }
-                return _pager;
-            }
-        }
+        public PagerModel Pages => _pager;
 
         /// <summary>
         /// The list of blog posts
@@ -75,27 +52,12 @@ namespace Articulate.Models
                     return _resolvedList;
                 }
 
-                if (_listItems == null)
-                {
-                    //we'll get the result from the base children
-                    _resolvedList = base.Children
-                        .Select(x => new PostModel(x));
-                    if (!_disableSort)
-                    {
-                        _resolvedList = _resolvedList.OrderByDescending(x => x.PublishedDate);
-                    }
-                    _resolvedList = _resolvedList.Skip(_pager.CurrentPageIndex*_pager.PageSize).Take(_pager.PageSize).ToArray();
-                }
-                else
-                {
-                    _resolvedList = _listItems
-                        .Select(x => new PostModel(x));
-                    if (!_disableSort)
-                    {
-                        _resolvedList = _resolvedList.OrderByDescending(x => x.PublishedDate);
-                    }
-                    _resolvedList = _resolvedList.Skip(_pager.CurrentPageIndex*_pager.PageSize).Take(_pager.PageSize).ToArray();
-                }
+                _resolvedList = _listItems           
+                    //We'll skip take here just in case but the list passed to the ctor should ideally already be filtered         
+                    .Skip(_pager.CurrentPageIndex * _pager.PageSize)
+                    .Take(_pager.PageSize)
+                    .Select(x => new PostModel(x))
+                    .ToArray();
 
                 return _resolvedList;
             }

@@ -11,35 +11,27 @@ namespace Articulate.Models
     {
         public PostsByTagModel(IEnumerable<PostModel> posts, string tagName, string tagUrl)
         {
-            if (posts == null) throw new ArgumentNullException("posts");
-            if (tagName == null) throw new ArgumentNullException("tagName");
-            if (tagUrl == null) throw new ArgumentNullException("tagUrl");
+            if (posts == null) throw new ArgumentNullException(nameof(posts));
+            if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+            if (tagUrl == null) throw new ArgumentNullException(nameof(tagUrl));
 
-            //resolve to array so it doesn't double lookup
-            Posts = posts.ToArray();
+            _posts = posts;
             TagName = tagName;
-
             var safeEncoded = tagUrl.SafeEncodeUrlSegments();
-
             TagUrl = safeEncoded.Contains("//") ? safeEncoded : safeEncoded.EnsureStartsWith('/');
         }
 
-        public IEnumerable<PostModel> Posts { get; private set; }
+        private PostModel[] _resolvedPosts;
+        /// <summary>
+        /// Lazily resolves the posts to an array
+        /// </summary>
+        private PostModel[] ResolvedPosts => _resolvedPosts ?? (_resolvedPosts = _posts.ToArray());
+        private readonly IEnumerable<PostModel> _posts;
+
+        public IEnumerable<PostModel> Posts => ResolvedPosts;
         public string TagName { get; private set; }
         public string TagUrl { get; private set; }
-
-        private int? _count;
-        public int PostCount
-        {
-            get
-            {
-                if (_count.HasValue == false)
-                {
-                    _count = Posts.Count();
-                }
-                return _count.Value;
-            }
-        }
+        public int PostCount => ResolvedPosts.Length;
     }
 
 }

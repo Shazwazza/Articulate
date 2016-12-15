@@ -56,7 +56,7 @@ namespace Articulate.Controllers
             }
 
             //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
+            var rootPageModel = new MasterModel(model.Content.Parent);
 
             if (term == null)
             {
@@ -75,14 +75,9 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id);
-
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts,
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var totalPosts = searchResult.Count();
+            int totalPosts;
+            var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id, rootPageModel.PageSize, p.Value - 1, out totalPosts);
+            
             var pageSize = rootPageModel.PageSize;
 
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));

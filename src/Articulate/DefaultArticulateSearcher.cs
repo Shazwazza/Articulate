@@ -18,7 +18,7 @@ namespace Articulate
             _umbracoHelper = umbracoHelper;
         }
 
-        public IEnumerable<IPublishedContent> Search(string term, string provider, int blogArchiveNodeId)
+        public IEnumerable<IPublishedContent> Search(string term, string provider, int blogArchiveNodeId, int pageSize, int pageIndex, out int totalResults)
         {
             var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -42,7 +42,7 @@ namespace Articulate
             foreach (var field in fields)
             {
                 //full exact match (which has a higher boost)
-                fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, "\"" + term + "\"", field.Value * exactMatch));
+                fieldQuery.Append($"{field.Key}:{"\"" + term + "\""}^{field.Value*exactMatch}");
                 fieldQuery.Append(" ");
                 //NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
                 // API like ComplexPhraseWildcardSomethingOrOther...
@@ -50,11 +50,11 @@ namespace Articulate
                 foreach (var s in splitSearch)
                 {
                     //match on each term, no wildcard, higher boost
-                    fieldQuery.Append(string.Format("{0}:{1}^{2}", field.Key, s, field.Value * termMatch));
+                    fieldQuery.Append($"{field.Key}:{s}^{field.Value*termMatch}");
                     fieldQuery.Append(" ");
 
                     //match on each term, with wildcard 
-                    fieldQuery.Append(string.Format("{0}:{1}*", field.Key, s));
+                    fieldQuery.Append($"{field.Key}:{s}*");
                     fieldQuery.Append(" ");
                 }
             }
@@ -63,13 +63,27 @@ namespace Articulate
                 ? ExamineManager.Instance.CreateSearchCriteria()
                 : ExamineManager.Instance.SearchProviderCollection[provider].CreateSearchCriteria();
 
-            criteria.RawQuery(string.Format("+parentID:{0} +({1})", blogArchiveNodeId, fieldQuery));
+            criteria.RawQuery($"+parentID:{blogArchiveNodeId} +({fieldQuery})");
 
             var searchProvider = provider == null
                 ? ExamineManager.Instance.DefaultSearchProvider
                 : ExamineManager.Instance.SearchProviderCollection[provider];
 
-            return _umbracoHelper.TypedSearch(criteria, searchProvider).ToArray();
+            var searchResult = searchProvider.Search(criteria, 
+                //don't return more results than we need for the paging
+                pageSize*(pageIndex + 1));
+
+            //TODO: Wait until Umbraco 7.5.7 is out so this is public, for now we'll use reflection
+
+            var examineExtensionsType = typeof(UmbracoContext).Assembly.GetType("Umbraco.Web.ExamineExtensions");
+            var result = (IEnumerable<IPublishedContent>)examineExtensionsType.CallStaticMethod(
+                "ConvertSearchResultToPublishedContent", 
+                searchResult.Skip(pageIndex*pageSize),
+                _umbracoHelper.UmbracoContext.ContentCache);
+
+            totalResults = searchResult.TotalItemCount;
+
+            return result;
         }
     }
 }

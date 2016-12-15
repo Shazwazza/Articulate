@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.Xml.XPath;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Web.Models;
@@ -54,14 +55,11 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            var rootPageModel = new ListModel(model.Content);
+            var rootPageModel = new MasterModel(model.Content);
+            
+            //get the count with XPath, this will be the fastest
+            var totalPosts = Umbraco.GetPostCount(listNode.Id);
 
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var totalPosts = listNode.Children.Count();
             var pageSize = rootPageModel.PageSize;
             var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
 
@@ -78,7 +76,9 @@ namespace Articulate.Controllers
                 totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
                 p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
 
-            var listModel = new ListModel(listNode, pager);
+            var listItems = Umbraco.GetPostsSortedByPublishedDate(listNode.Id, pager);
+
+            var listModel = new ListModel(listNode, listItems, pager);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }

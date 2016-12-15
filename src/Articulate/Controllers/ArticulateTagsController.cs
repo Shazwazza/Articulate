@@ -72,7 +72,7 @@ namespace Articulate.Controllers
             }
 
             //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
+            var rootPageModel = new MasterModel(model.Content.Parent);
 
             var contentByTags = Umbraco.GetContentByTags(rootPageModel, tagGroup, baseUrl);
 
@@ -85,7 +85,7 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 
-        private ActionResult RenderByTagOrCategory(RenderModel model, int? p, string tagGroup, string baseUrl)
+        private ActionResult RenderByTagOrCategory(IRenderModel model, int? p, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -94,7 +94,7 @@ namespace Articulate.Controllers
             }
 
             //create a blog model of the main page
-            var rootPageModel = new ListModel(model.Content.Parent);
+            var rootPageModel = new MasterModel(model.Content.Parent);
 
             var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
 

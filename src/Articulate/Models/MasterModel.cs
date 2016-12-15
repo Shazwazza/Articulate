@@ -8,9 +8,12 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public abstract class MasterModel : PublishedContentWrapped, IMasterModel
+    /// <summary>
+    /// The basic model for all articulate objects
+    /// </summary>
+    public class MasterModel : PublishedContentWrapped, IMasterModel
     {
-        protected MasterModel(IPublishedContent content)
+        public MasterModel(IPublishedContent content)
             : base(content)
         {
         }

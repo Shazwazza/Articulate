@@ -22,7 +22,7 @@ namespace Articulate.Controllers
             var content = Umbraco.TypedContent(id);
             if (content == null) return HttpNotFound();
 
-            var articulateModel = new ListModel(content);
+            var articulateModel = new MasterModel(content);
             var viewPath = PathHelper.GetThemePartialViewPath(articulateModel, "FeedGitHub");
             
             return Content(RenderViewToString(this, viewPath, null, true));

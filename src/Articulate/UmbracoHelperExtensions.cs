@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
@@ -17,6 +18,58 @@ namespace Articulate
 
     public static class UmbracoHelperExtensions
     {
+        /// <summary>
+        /// A method that will return the posts sorted by published date in an efficient way
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="articulateArchiveId"></param>
+        /// <returns></returns>
+        public static int GetPostCount(this UmbracoHelper helper, int articulateArchiveId)
+        {
+            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
+            var xPathChildren = $"//* [@id={articulateArchiveId}]/*[@isDoc]";
+            //get the count with XPath, this will be the fastest
+            var totalPosts = xPathNavigator
+                .Select(xPathChildren)
+                .Count;
+            return totalPosts;
+        }
+
+        /// <summary>
+        /// A method that will return the posts sorted by published date in an efficient way
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="articulateArchiveId"></param>
+        /// <param name="pager"></param>
+        /// <returns></returns>
+        public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(this UmbracoHelper helper, int articulateArchiveId, PagerModel pager)
+        {
+            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
+            var xPathChildren = $"//* [@id={articulateArchiveId}]/*[@isDoc]";
+
+            //Filter/Sort the children we're looking for with XML
+            var xmlListItems = xPathNavigator.Select(xPathChildren)
+                .Cast<XPathNavigator>()
+                .OrderByDescending(x =>
+                {
+                    var publishedDate = DateTime.MinValue;
+
+                    var xmlNode = x.SelectSingleNode("publishedDate [not(@isDoc)]");
+                    if (xmlNode == null)
+                        return publishedDate;
+
+                    publishedDate = xmlNode.ValueAsDateTime;
+                    return publishedDate;
+                })
+                .Skip(pager.CurrentPageIndex * pager.PageSize)
+                .Take(pager.PageSize);
+
+            //Now we can select the IPublishedContent instances by Id
+            var listItems = helper.TypedContent(xmlListItems.Select(x => int.Parse(x.GetAttribute("id", ""))));
+
+            return listItems;
+        }
+
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
             var listNode = masterModel.RootBlogNode.Children
@@ -27,7 +80,7 @@ namespace Articulate
             }
 
             //create a blog model of the main page
-            var rootPageModel = new ListModel(listNode);
+            var rootPageModel = new MasterModel(listNode);
 
             var tagsBaseUrl = masterModel.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
 
@@ -75,7 +128,11 @@ namespace Articulate
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            var rootPageModel = new ListModel(listNode, new PagerModel(count, 0, 1));
+            var pager = new PagerModel(count, 0, 1);
+
+            var listItems = helper.GetPostsSortedByPublishedDate(listNode.Id, pager);
+
+            var rootPageModel = new ListModel(listNode, listItems, pager);
             return rootPageModel.Children<PostModel>();
         }
 

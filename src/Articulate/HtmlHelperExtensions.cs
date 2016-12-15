@@ -66,33 +66,8 @@ namespace Articulate
         }
 
         public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
-        {
-            return html.RequiresFolder(PathHelper.GetThemePath(model) + "Assets/css",
-                100, "*.css", (absPath, pri) => html.RequiresCss(absPath, pri));
-
-            //TODO: As per below, when latest CDF is releaesd and bundled we don't have to do this
-            //return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
-        }
-
-        //TODO: This is only here as a hack until CDF 1.8.0 is released and shipped that fixes a bug
-        private static HtmlHelper RequiresFolder(this HtmlHelper html, string folderPath, int priority, string fileSearch, Action<string, int> requiresAction)
-        {
-            var httpContext = html.ViewContext.HttpContext;
-            var systemRootPath = httpContext.Server.MapPath("~/");
-            var folderMappedPath = httpContext.Server.MapPath(folderPath);
-
-            if (folderMappedPath.StartsWith(systemRootPath))
-            {
-                var files = Directory.GetFiles(folderMappedPath, fileSearch, SearchOption.TopDirectoryOnly);
-                foreach (var file in files)
-                {
-                    var absoluteFilePath = "~/" + file.Substring(systemRootPath.Length).Replace("\\", "/");
-                    requiresAction(absoluteFilePath, priority);
-                    html.RequiresJs(absoluteFilePath, priority);
-                }
-            }
-
-            return html;
+        {            
+            return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
         }
 
         public static HtmlHelper RequiresThemedJsFolder(this HtmlHelper html, IMasterModel model)
