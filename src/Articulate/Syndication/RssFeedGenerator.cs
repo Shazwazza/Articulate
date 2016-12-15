@@ -62,13 +62,15 @@ namespace Articulate.Syndication
                 return null;
             }
 
+            var appPath = _umbracoContext.HttpContext.Request.ApplicationPath;
+            var rootUri = new Uri(rootUrl);
+            var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
+
             var content = _relativeMediaHref.Replace(GetPostContent(post), match =>
             {
                 if (match.Groups.Count == 2)
                 {
-                    return " href=\"" +
-                           rootUrl.TrimEnd('/') + match.Groups[1].Value.EnsureStartsWith('/') +
-                           "\"";
+                    return $" href=\"{rootUrl.TrimEnd('/')}{match.Groups[1].Value.EnsureStartsWith('/')}\"";
                 }
                 return null;
             });
@@ -76,9 +78,7 @@ namespace Articulate.Syndication
             {
                 if (match.Groups.Count == 2)
                 {
-                    return " src=\"" +
-                           rootUrl.TrimEnd('/') + match.Groups[1].Value.EnsureStartsWith('/') +
-                           "\"";
+                    return $" src=\"{mediaRoot}{match.Groups[1].Value.EnsureStartsWith('/')}\"";
                 }
                 return null;
             });            
