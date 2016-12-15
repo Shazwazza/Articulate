@@ -13,6 +13,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
+using System.Net;
 
 namespace Articulate
 {
@@ -224,15 +225,21 @@ namespace Articulate
                 //create it if it doesn't exist
                 if (postNode == null)
                 {
+                    var title = WebUtility.HtmlDecode(post.Title.Content);
                     postNode = _applicationContext.Services.ContentService.CreateContent(
-                        post.Title.Content, archiveNode, "ArticulateRichText");
+                        title, archiveNode, "ArticulateRichText");
                 }
 
                 postNode.SetValue("publishedDate", post.CreatedOn);
 
                 if (post.Excerpt != null && post.Excerpt.Content.IsNullOrWhiteSpace() == false)
                 {
-                    postNode.SetValue("excerpt", post.Excerpt.Content);
+                    var excerpt = post.Excerpt.Content;
+
+                    if (post.Excerpt.ContentType == BlogMLContentType.Base64)
+                        excerpt = Encoding.UTF8.GetString(Convert.FromBase64String(post.Excerpt.Content));
+
+                    postNode.SetValue("excerpt", excerpt);
                 }
 
                 postNode.SetValue("importId", post.Id);

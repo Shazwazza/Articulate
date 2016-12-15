@@ -40,3 +40,4 @@ src/.Articulate.boltdata/*
 src/Articulate.Web/App_Plugins/Grid/*
 src/Articulate.Web/scripts/*
 src/Articulate.Web/App_Plugins/ModelsBuilder/*
+src/.vs/*
