@@ -97,7 +97,7 @@ namespace Articulate
             LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = _services.ContentService.CreateContent(
                 "Blog", -1, "Articulate");
-            root.SetValue("theme", "Shazwazza");
+            root.SetValue("theme", "VAPOR");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("extractFirstImage", true);
