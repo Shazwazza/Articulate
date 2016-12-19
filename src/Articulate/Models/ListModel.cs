@@ -33,6 +33,8 @@ namespace Articulate.Models
             
             _pager = pager;
             _listItems = listItems;
+            PageTitle = Name + " - " + BlogTitle;
+            PageTags = Name;
         }
         
         /// <summary>
