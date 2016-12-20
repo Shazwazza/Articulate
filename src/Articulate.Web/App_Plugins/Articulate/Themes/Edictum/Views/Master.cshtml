@@ -7,15 +7,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    @if (IsSectionDefined("title"))
-    {
-        @RenderSection("title")
-    }
-    else
-    {
-        <title>@Model.Name - @Model.BlogTitle</title>
-    }
-    <meta name="description" content="@Model.BlogDescription" />
+    <title>@Model.PageTitle</title>
+    @Html.MetaTags(Model);
+
     @Html.AdvertiseWeblogApi(Model)
     @Html.RssFeed(Model)
     <meta name="HandheldFriendly" content="True" />

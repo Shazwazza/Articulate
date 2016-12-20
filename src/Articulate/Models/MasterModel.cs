@@ -124,7 +124,7 @@ namespace Articulate.Models
 
         public string PageTitle
         {
-            get { return _pageTitle ?? (_pageTitle = BlogTitle + " - " + BlogDescription); }
+            get { return _pageTitle ?? (_pageTitle = Name + " - " + BlogTitle); }
             protected set { _pageTitle = value; }
         }
 

@@ -10,8 +10,7 @@
 
 
     <title>@Model.PageTitle</title>
-    <meta name="description" content="@Model.PageDescription" />
-    <meta name="tags" content="@Model.PageTags" />
+    @Html.MetaTags(Model);
 
 
     @Html.AdvertiseWeblogApi(Model)

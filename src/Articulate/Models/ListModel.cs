@@ -33,8 +33,10 @@ namespace Articulate.Models
             
             _pager = pager;
             _listItems = listItems;
-            PageTitle = Name + " - " + BlogTitle;
-            PageTags = Name;
+            if(content.DocumentTypeAlias.Equals("ArticulateArchive"))
+                PageTitle = BlogTitle + " - " + BlogDescription;
+            else
+                PageTags = Name;
         }
         
         /// <summary>
