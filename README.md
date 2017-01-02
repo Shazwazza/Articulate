@@ -2,7 +2,7 @@
 
 ==========
 
-> Blogging built on Umbraco
+> A wonderful Blog engine built on Umbraco
 
 ## Features
 
