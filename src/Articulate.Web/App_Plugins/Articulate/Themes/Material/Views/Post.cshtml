@@ -7,6 +7,9 @@
     ViewBag.CssWrapperClass = "demo-blog--blogpost";
 }
 
+@section description{
+    <meta name="description" content="@Model.Excerpt" />
+}
 
 <div class="demo-back">
     <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url" title="go back" role="button">

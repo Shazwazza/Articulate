@@ -6,6 +6,10 @@
     ViewBag.CssBodyClass = "post-template tag-sublime tag-javascript";
 }
 
+@section description{
+    <meta name="description" content="@Model.Excerpt" />
+}
+
 <article class="post tag-ghost-tag">
     
     <span class="post-meta">
