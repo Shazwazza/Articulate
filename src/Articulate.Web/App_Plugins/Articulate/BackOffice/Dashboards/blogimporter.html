@@ -45,7 +45,10 @@
 
             <umb-control-group alias="publish" description="Check if you want all imported posts to be published"
                                label="Publish all posts?">
-                <input type="checkbox" class="" name="publish" ng-model="$parent.$parent.publish" no-dirty-check />
+                <input type="checkbox" class="" name="publish"
+                       ng-required="$parent.$parent.exportDisqusXml"
+                       ng-model="$parent.$parent.publish" no-dirty-check />
+                <span class="help-inline" val-msg-for="publish" val-toggle-msg="required">Publishing is required when you want to export comments to Disqus.</span>
             </umb-control-group>
 
             <umb-control-group alias="regexMatch" description="Regex statement used to match content in the blog post to be replaced by the match statement"
