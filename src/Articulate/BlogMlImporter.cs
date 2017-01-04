@@ -358,6 +358,13 @@ namespace Articulate
             var xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                 .SingleOrDefault(x => ((string)x.Attribute("id")) == post.Id);
 
+            if (xmlPost == null) {
+                xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
+                                .SingleOrDefault(x => x.Descendants(XName.Get("post-name", xdoc.Root.Name.NamespaceName))
+                                .SingleOrDefault(s => s.Value==post.Name.Content)!=null
+                                );
+            };
+
             if (xmlPost == null) return;
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
