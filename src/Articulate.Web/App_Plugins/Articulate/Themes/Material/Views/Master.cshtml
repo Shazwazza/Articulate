@@ -32,7 +32,14 @@
     }
     else
     {
-        <title>@Model.Name - @Model.BlogTitle</title>
+        if (Model.DocumentTypeAlias == "ArticulateArchive")
+        {
+            <title>@Model.BlogTitle - @Model.BlogDescription</title>
+        }
+        else
+        {
+            <title>@Model.Name - @Model.BlogTitle</title>
+        }
     }
 
     @Html.AdvertiseWeblogApi(Model)
