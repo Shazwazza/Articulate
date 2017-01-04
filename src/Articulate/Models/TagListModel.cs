@@ -26,6 +26,7 @@ namespace Articulate.Models
             BlogLogo = masterModel.BlogLogo;
             DisqusShortName = masterModel.DisqusShortName;
             CustomRssFeed = masterModel.CustomRssFeed;
+            PageTitle = Name + " - " + BlogTitle;
         }
 
         public PostTagCollection Tags { get; private set; }

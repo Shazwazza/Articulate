@@ -38,6 +38,20 @@ namespace Articulate
                     $@"<link rel=""wlwmanifest"" type=""application/wlwmanifest+xml"" href=""{manifestUrl}"" />"));
         }
 
+        public static IHtmlString MetaTags(this HtmlHelper html, IMasterModel model)
+        {
+            var metaTags = $@"<meta name=""description"" content=""{ model.PageDescription }"" />";
+
+            if(!string.IsNullOrWhiteSpace(model.PageTags))
+                metaTags= string.Concat(
+                   metaTags,
+                    Environment.NewLine,
+                    $@"<meta name=""tags"" content=""{ model.PageTags }"" />"
+                    );
+
+            return new HtmlString(metaTags);
+        }
+
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
         {
             if (model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false

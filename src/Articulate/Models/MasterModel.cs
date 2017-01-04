@@ -53,6 +53,10 @@ namespace Articulate.Models
         private string _disqusShortName;
         private string _customRssFeed;
 
+        private string _pageTitle;
+        private string _pageDescription;
+        private string _pageTags;
+
         public IPublishedContent BlogArchiveNode
         {
             get
@@ -116,5 +120,22 @@ namespace Articulate.Models
             }
             protected set { _pageSize = value; }
         }
+
+
+        public string PageTitle
+        {
+            get { return _pageTitle ?? (_pageTitle = Name + " - " + BlogTitle); }
+            protected set { _pageTitle = value; }
+        }
+
+        public string PageDescription
+        {
+            get { return _pageDescription ?? (_pageDescription = BlogDescription); }
+            protected set { _pageDescription = value; }
+        }
+
+        public string PageTags { get; protected set; }
+
+
     }
 }

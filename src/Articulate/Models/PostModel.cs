@@ -24,6 +24,9 @@ namespace Articulate.Models
         public PostModel(IPublishedContent content)
             : base(content)
         {
+            PageTitle = Name + " - " + BlogTitle;
+            PageDescription = Excerpt;
+            PageTags = string.Join(",", Tags);
         }
 
         public IEnumerable<string> Tags

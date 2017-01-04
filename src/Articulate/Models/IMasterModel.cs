@@ -18,5 +18,8 @@ namespace Articulate.Models
         string DisqusShortName { get; }
         string CustomRssFeed { get; }
 
+        string PageTitle { get; }
+        string PageDescription { get; }
+        string PageTags { get; }
     }
 }
