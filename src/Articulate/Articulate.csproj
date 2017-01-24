@@ -303,6 +303,7 @@
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
+    <Compile Include="Controllers\ListControllerBase.cs" />
     <Compile Include="Controllers\MardownEditorApiController.cs" />
     <Compile Include="Controllers\MarkdownEditorController.cs" />
     <Compile Include="Controllers\Resources.Designer.cs">
