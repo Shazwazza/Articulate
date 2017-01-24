@@ -1,16 +1,12 @@
-﻿using System;
+﻿using Articulate.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.XPath;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
-using Umbraco.Core.Services;
-using Umbraco.Core.Cache;
 using Umbraco.Web;
 
 namespace Articulate

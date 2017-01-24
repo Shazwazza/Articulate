@@ -326,7 +326,6 @@
     <Compile Include="Models\ImportModel.cs" />
     <Compile Include="DefaultArticulateSearcher.cs" />
     <Compile Include="IArticulateSearcher.cs" />
-    <Compile Include="Models\PostAuthorCollection.cs" />
     <Compile Include="Models\PostAuthorModel.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
