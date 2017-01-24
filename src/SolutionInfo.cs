@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2016")]
+[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2017")]
 
 [assembly: AssemblyCompany("Shannon Deminick")]
 

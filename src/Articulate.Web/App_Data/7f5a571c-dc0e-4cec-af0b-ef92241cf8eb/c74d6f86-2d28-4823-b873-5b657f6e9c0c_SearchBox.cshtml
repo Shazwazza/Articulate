@@ -1,0 +1,23 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<div class="searchBar">
+
+    <form method="get" action="@Url.ArticulateSearchUrl(Model)">
+        <fieldset>
+            <div class="row">
+                <div class="col-s-9">
+                    <input type="text" class="" name="term" placeholder="Enter search term..." />
+                </div>
+                <div class="col-s-3">
+                    <button type="submit" class="btn btn-inline">
+                        <span class="fa fa-search"></span>
+                        Search
+                    </button>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+
+</div>

@@ -1,0 +1,39 @@
+@using Articulate
+@using Articulate.Models
+@inherits UmbracoViewPage<Articulate.Models.IMasterModel>
+
+@{
+    var recent = Umbraco.GetRecentPosts(Model, 5);
+}
+
+<div class="widget recentposts">
+    <h4>Recent posts</h4>
+
+    <div class="content">
+        <ul class="recentPosts" id="recentPosts">
+            @foreach (var post in recent)
+            {
+                <li>
+                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    {
+                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
+                        if (!thumbnail.IsNullOrWhiteSpace())
+                        {
+                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                        }
+                    }
+                    <div class="time">
+                        <time datetime="@post.PublishedDate">
+                            @post.PublishedDate.ToString("MMM d, yyyy HH:mm")
+                        </time>
+                    </div>
+
+                    <a href="@post.Url">@post.Name</a>
+                    <div>
+                        <a data-disqus-identifier="@post.GetContentKey()" class="comment-count" href="@post.Url#disqus_thread"></a>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

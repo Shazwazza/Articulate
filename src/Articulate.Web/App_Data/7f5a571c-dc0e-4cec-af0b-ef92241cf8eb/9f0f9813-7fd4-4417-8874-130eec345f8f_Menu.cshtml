@@ -1,0 +1,32 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+@*
+
+    INSTRUCTIONS: Update the links with your username, add/remove any link types that are relevant to you
+
+*@
+
+@{
+    var rss = Model.CustomRssFeed.IsNullOrWhiteSpace()
+                ? Model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                : Model.CustomRssFeed;
+}
+
+<div class="links push-right box-inner ">
+
+    <a href="@Url.ArticulateCategoriesUrl(Model)">Archive</a>
+    <a href="@Url.ArticulateSearchUrl(Model)">Search</a>
+    <br class="visible-xs" />
+    <a href="@rss" target="_blank" class="icon fa fa-rss" title="Rss feed"><span>Rss feed</span></a>
+
+    @*TODO: Update the links with your username, add/remove any link types that are relevant to you*@
+
+    <a href="https://github.com/SomeGuy" target="_blank" class="icon fa fa-github" title="GitHub"><span>GitHub</span></a>
+    <a href="http://twitter.com/SomeGuy" target="_blank" class="icon fa fa-twitter" title="Twitter"><span>Twitter</span></a>
+    <a href="https://delicious.com/SomeGuy" target="_blank" class="icon fa fa-delicious" title="Delicious"><span>Delicious</span></a>
+    <a href="https://www.linkedin.com/in/SomeGuy" target="_blank" class="icon fa fa-linkedin-square" title="LinkedIn"><span>LinkedIn</span></a>
+    <a href="https://bitbucket.org/SomeGuy" target="_blank" class="icon fa fa-bitbucket" title="BitBucket"><span>BitBucket</span></a>
+    <a href="http://soundcloud.com/SomeGuy" target="_blank" class="icon fa fa-soundcloud" title="SoundCloud"><span>SoundCloud</span></a>
+
+</div>

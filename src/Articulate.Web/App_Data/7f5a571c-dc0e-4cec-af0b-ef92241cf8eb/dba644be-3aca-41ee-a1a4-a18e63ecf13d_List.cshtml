@@ -1,0 +1,51 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Core
+@using Umbraco.Web
+@model Articulate.Models.ListModel
+@{
+    Layout = "Master.cshtml";
+}
+
+<main class="content" role="main">
+    
+    @if (!Model.Children.Any())
+    {
+        <article>No blog posts found</article>        
+    }
+    else
+    {
+        foreach (var post in Model.Children<PostModel>())
+        {
+            <article class="preview">
+                <header>
+                    <h1 class="post-title"><a href="@post.Url">@post.Name</a></h1>
+                    <div class="post-meta">
+                        <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
+                            @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                        </time>
+                    </div>
+                </header>
+                <section class="post-excerpt">
+                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    {
+                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
+                        if (!thumbnail.IsNullOrWhiteSpace())
+                        {
+                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                        }
+                    }
+                    <p>
+                        @post.Excerpt&hellip;
+                    </p>
+                    <p class="readmore">
+                        <a href="@post.Url">Read this article <i class="fa fa-chevron-circle-right"></i></a>
+                    </p>
+                </section>
+            </article>
+        }
+    
+        @Html.ThemedPartial(Model, "Pager", Model.Pages)   
+    }
+    
+</main>

@@ -1,0 +1,47 @@
+@using Articulate
+@using Newtonsoft.Json.Linq
+@inherits UmbracoViewPage<dynamic>
+
+@{
+
+    //TODO: Update your github feed URL!
+    //EXAMPLE: var feedUrl = "https://github.com/Shazwazza.atom";
+
+    var feedUrl = "";
+}
+
+<div class="widget feedgithub">
+    <h4>GitHub activity</h4>
+
+    <div class="content">
+
+        @if (!string.IsNullOrEmpty(feedUrl))
+        {
+            var feedResult = new GitHubFeed(
+                ApplicationContext.ApplicationCache.RuntimeCache,
+                feedUrl,
+                //NOTE: You can adjust the number of results here
+                maxResults: 10);
+
+            var result = feedResult.GetResult();
+
+            <div class="news public_news">
+                @foreach (var item in result)
+                {
+                    <div class="alert push">
+                        <div class="body">
+                            @Html.Raw(item)
+                        </div>
+
+                    </div>
+                }
+            </div>
+
+        }
+        else
+        {
+            <p>Edit this file: <br/><br/> ~/App_Plugins /Articulate /Themes /Shazwazza /Views /Partials /FeedGitHub.cshtml</p>
+        }
+
+    </div>
+</div>
