@@ -299,6 +299,7 @@
     <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlExporter.cs" />
     <Compile Include="BlogMlImporter.cs" />
+    <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />
@@ -323,6 +324,9 @@
     <Compile Include="Models\ImportModel.cs" />
     <Compile Include="DefaultArticulateSearcher.cs" />
     <Compile Include="IArticulateSearcher.cs" />
+    <Compile Include="Models\PostAuthorModel.cs" />
+    <Compile Include="Models\PostsByAuthorModel.cs" />
+    <Compile Include="Models\PostsByModelBase.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />

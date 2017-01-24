@@ -592,6 +592,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\PostImageHeader.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\Footer.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Views\Partials\TitleTile.cshtml" />
+    <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Views\Author.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsDisqus.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsFacebook.cshtml" />
     <None Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\CommentsGooglePlus.cshtml" />

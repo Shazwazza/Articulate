@@ -1,13 +1,37 @@
-﻿namespace Articulate.Models
+﻿using Umbraco.Core;
+using Umbraco.Core.Models;
+using Umbraco.Web;
+using Umbraco.Web.Models;
+
+namespace Articulate.Models
 {
-    public class AuthorModel
+    public class AuthorModel : MasterModel
     {
-        public string Name { get; set; }
+        public AuthorModel(IPublishedContent content)
+            : base(content)
+        {
+        }
 
-        public string Bio { get; set; }
+        public string Bio
+        {
+            get { return this.GetPropertyValue<string>("authorBio"); }
+        }
 
-        public string Url { get; set; }
+        public string AuthorUrl
+        {
+            get { return this.GetPropertyValue<string>("authorUrl"); }
+        }
 
-        public string Image { get; set; }
+        public string Image
+        {
+            get
+            {
+                var imageVal = this.GetPropertyValue<string>("authorImage");
+                return !imageVal.IsNullOrWhiteSpace()
+                    ? this.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max)
+                    : null;
+            }
+        }
     }
+
 }
