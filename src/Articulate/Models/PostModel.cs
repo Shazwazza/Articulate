@@ -82,6 +82,8 @@ namespace Articulate.Models
                             _author.Image = !imageVal.IsNullOrWhiteSpace()
                                 ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
                                 : null;
+
+                            _author.BlogUrl = authorNode.Url;
                         }
                     }
                 }
