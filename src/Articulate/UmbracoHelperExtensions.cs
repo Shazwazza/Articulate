@@ -72,12 +72,7 @@ namespace Articulate
 
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
-            var listNode = masterModel.RootBlogNode.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
-            {
-                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
-            }
+            var listNode = GetListNode(masterModel);
 
             //create a blog model of the main page
             var rootPageModel = new MasterModel(listNode);
@@ -121,12 +116,7 @@ namespace Articulate
         /// <returns></returns>
         public static IEnumerable<PostModel> GetRecentPosts(this UmbracoHelper helper, IMasterModel masterModel, int count)
         {
-            var listNode = masterModel.RootBlogNode.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
-            {
-                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
-            }
+            var listNode = GetListNode(masterModel);
 
             var pager = new PagerModel(count, 0, 1);
 
@@ -268,6 +258,35 @@ namespace Articulate
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup),
                 getResult, TimeSpan.FromSeconds(30));
 #endif
+        }
+
+        internal static IEnumerable<PostModel> GetContentByAuthor(this UmbracoHelper helper, AuthorModel author)
+        {
+            var listNode = GetListNode(author);
+
+            var posts = listNode.Children
+                .Where(
+                    c =>
+                        string.Equals(c.GetPropertyValue<string>("author"), author.Name.Replace("-", " "),
+                            StringComparison.InvariantCultureIgnoreCase))
+                .Select(c => new PostModel(c))
+                .OrderByDescending(c => c.PublishedDate)
+                .ToList();
+
+            return posts;
+        }
+
+        private static IPublishedContent GetListNode(IMasterModel masterModel)
+        {
+            var listNode = masterModel.RootBlogNode.Children
+                .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
+            if (listNode == null)
+            {
+                throw new InvalidOperationException(
+                    "An ArticulateArchive document must exist under the root Articulate document");
+            }
+
+            return listNode;
         }
 
         private class TagDto

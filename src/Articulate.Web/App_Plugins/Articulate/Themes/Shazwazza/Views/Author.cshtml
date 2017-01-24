@@ -33,7 +33,7 @@
                     {
                         foreach (var post in Model.Posts)
                         {
-                            @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true }, { "HideAuthorCitation", true }  })
+                            @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true }, { "HideAuthorCitation", true } })
                         }
                     }
                 </div>
