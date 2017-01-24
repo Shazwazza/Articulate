@@ -13,6 +13,11 @@ namespace Articulate.Models
         {
         }
 
+        public AuthorModel(IPublishedContent content, IEnumerable<PostModel> posts) : base(content)
+        {
+            Posts = posts;
+        }
+
         public string Bio
         {
             get { return this.GetPropertyValue<string>("authorBio"); }

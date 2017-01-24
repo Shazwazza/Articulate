@@ -289,6 +289,39 @@ namespace Articulate
             return listNode;
         }
 
+        internal static IEnumerable<AuthorModel> GetContentByAuthors(this UmbracoHelper helper, AuthorListModel authorList)
+        {
+            var listNode = GetListNode(authorList);
+            var authorsNode = GetAuthorsNode(authorList);
+
+            var authors = authorsNode.Children.ToList();
+
+            var postsWithAuthors = listNode.Children
+                .Where(x => authors.Select(a => a.Name).Contains(x.GetPropertyValue<string>("author")))
+                .Select(c => new PostModel(c))
+                .ToList();
+
+            return postsWithAuthors.GroupBy(x => x.Author.Name)
+                .Select(x => new AuthorModel(
+                    authors
+                        .FirstOrDefault(a => a.Name == x.Key),
+                    postsWithAuthors.OrderByDescending(c => c.PublishedDate)))
+                .OrderBy(x => x.Name);
+        }
+
+        private static IPublishedContent GetAuthorsNode(IMasterModel masterModel)
+        {
+            var authorsNode = masterModel.RootBlogNode.Children
+                .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateAuthors"));
+            if (authorsNode == null)
+            {
+                throw new InvalidOperationException(
+                    "An ArticulateAuthors document must exist under the root Articulate document");
+            }
+
+            return authorsNode;
+        }
+
         private class TagDto
         {
             public int NodeId { get; set; }
