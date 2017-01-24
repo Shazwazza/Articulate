@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -40,6 +42,35 @@ namespace Articulate.Models
         }
 
         public IEnumerable<PostModel> Posts { get; set; }
+
+        public int PostCount
+        {
+            get
+            {
+                if (Posts != null)
+                {
+                    return Posts.Count();
+                }
+
+                return 0;
+            }
+        }
+
+        public DateTime? LastPostDate
+        {
+            get
+            {
+                if (Posts != null)
+                {
+                    return Posts
+                        .OrderByDescending(c => c.PublishedDate)
+                        .First()
+                        .PublishedDate;
+                }
+
+                return null;
+            }
+        }
     }
 
 }
