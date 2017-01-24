@@ -5,7 +5,9 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
+#if !DEBUG
     [OutputCache(Duration = 60, VaryByHeader = "host")]
+#endif
     public class ArticulateAuthorsController : RenderMvcController
     {
         public override ActionResult Index(RenderModel model)

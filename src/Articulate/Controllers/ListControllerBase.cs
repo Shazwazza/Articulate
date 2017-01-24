@@ -42,8 +42,7 @@ namespace Articulate.Controllers
         /// </summary>
         protected ActionResult GetPagedListView(IRenderModel model, IPublishedContent publishedContent, IEnumerable<IPublishedContent> listItems, int totalPosts, int? p)
         {
-            // AA: Revist - ListModel overload issue
-            var rootPageModel = new ListModel(model.Content, null, null);
+            var rootPageModel = new ListModel(model.Content);
 
             if (p == null || p.Value <= 0)
             {
@@ -70,11 +69,10 @@ namespace Articulate.Controllers
                 totalPages,
                 totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
                 p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
-
-            // AA: Revist - ListModel overload issue
+            
             var listModel = listItems != null
                 ? new ListModel(publishedContent, listItems, pager)
-                : new ListModel(publishedContent, null, pager);
+                : new ListModel(publishedContent, pager);
 
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }

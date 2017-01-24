@@ -30,15 +30,28 @@ namespace Articulate.Models
             if (content == null) throw new ArgumentNullException(nameof(content));
             if (listItems == null) throw new ArgumentNullException(nameof(listItems));
             if (pager == null) throw new ArgumentNullException(nameof(pager));
-            
+
             _pager = pager;
             _listItems = listItems;
-            if(content.DocumentTypeAlias.Equals("ArticulateArchive"))
+            if (content.DocumentTypeAlias.Equals("ArticulateArchive"))
                 PageTitle = BlogTitle + " - " + BlogDescription;
             else
                 PageTags = Name;
         }
-        
+
+        public ListModel(IPublishedContent content, PagerModel pager)
+            : base(content)
+        {
+            if (pager == null) throw new ArgumentNullException("pager");
+            _pager = pager;
+        }
+
+        public ListModel(IPublishedContent content)
+            : base(content)
+        {
+            _listItems = base.Children;
+        }
+
         /// <summary>
         /// The pager model
         /// </summary>
@@ -56,12 +69,19 @@ namespace Articulate.Models
                     return _resolvedList;
                 }
 
-                _resolvedList = _listItems           
-                    //We'll skip take here just in case but the list passed to the ctor should ideally already be filtered         
-                    .Skip(_pager.CurrentPageIndex * _pager.PageSize)
-                    .Take(_pager.PageSize)
-                    .Select(x => new PostModel(x))
-                    .ToArray();
+                if (_listItems != null && _pager != null)
+                {
+                    _resolvedList = _listItems
+                        //We'll skip take here just in case but the list passed to the ctor should ideally already be filtered         
+                        .Skip(_pager.CurrentPageIndex * _pager.PageSize)
+                        .Take(_pager.PageSize)
+                        .Select(x => new PostModel(x))
+                        .ToArray();
+                }
+                else
+                {
+                    _resolvedList = new PostModel[0];
+                }
 
                 return _resolvedList;
             }
