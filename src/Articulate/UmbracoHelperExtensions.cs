@@ -232,13 +232,28 @@ namespace Articulate
 
             Func<PostsByTagModel> getResult = () =>
             {
-                var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax)
-                    .Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax);
+
+                if (sqlSyntax is MySqlSyntaxProvider)
+                {
+                    sql.Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                     {
                         tagName = tag,
                         tagGroup = tagGroup
                     });
+                }
+                else
+                {
+                    //For whatever reason, SQLCE and even SQL SERVER are not willing to lookup 
+                    //tags with hyphens in them, it's super strange, so we force the tag column to be - what it already is!! what tha.
 
+                    sql.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                    {
+                        tagName = tag,
+                        tagGroup = tagGroup
+                    });
+                }
+                
                 var taggedContent = appContext.DatabaseContext.Database.Fetch<TagDto>(sql);
 
                 var result = new List<PostsByTagModel>();
