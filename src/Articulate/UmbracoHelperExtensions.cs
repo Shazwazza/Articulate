@@ -143,9 +143,9 @@ namespace Articulate
                 .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
                 .InnerJoin("umbracoNode")
                 .On("umbracoNode.id = cmsContent.nodeId")
-                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new {nodeObjectType = Constants.ObjectTypes.Document})
+                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
                 //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new {path = masterModel.RootBlogNode.Path + ",%"});
+                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
             return sql;
         }
 
@@ -201,7 +201,7 @@ namespace Articulate
             return getResult();
 #else
             //cache this result for a short amount of time
-            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<IEnumerable<PostsByTagModel>>(
+            return (IEnumerable<PostsByTagModel>)appContext.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
                 getResult, TimeSpan.FromSeconds(30));
 #endif
@@ -250,7 +250,8 @@ namespace Articulate
             return getResult();
 #else
             //cache this result for a short amount of time
-            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<PostsByTagModel>(
+            
+            return (PostsByTagModel) appContext.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup),
                 getResult, TimeSpan.FromSeconds(30));
 #endif
