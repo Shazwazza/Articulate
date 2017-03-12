@@ -108,6 +108,14 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<string>("postImage"); }
         }
 
+        /// <summary>
+        /// Social Meta Description
+        /// </summary>
+        public string SocialMetaDescription
+        {
+            get { return this.GetPropertyValue<string>("socialDescription"); }
+        }
+
         public IHtmlString Body
         {
             get

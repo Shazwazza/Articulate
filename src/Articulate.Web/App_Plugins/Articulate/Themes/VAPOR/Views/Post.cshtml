@@ -4,6 +4,30 @@
 @{
     Layout = "Master.cshtml";
     ViewBag.CssBodyClass = "post-template";
+    string imageCropUrl = null;
+
+    if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+    {
+        imageCropUrl = Model.GetCropUrl("postImage", "blogPost");
+    }
+}
+
+@section socialMetaTags {
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" value="summary">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="@Model.Name" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="@Model.UrlAbsolute()" />
+    @if (!imageCropUrl.IsNullOrWhiteSpace())
+    {
+        <meta property="og:image" content="@Html.Raw(PathHelper.GetDomain() + imageCropUrl)" />
+    }
+    @if (!Model.SocialMetaDescription.IsNullOrWhiteSpace())
+    {
+        <meta property="og:description" content="@Model.SocialMetaDescription" />
+    }
 }
 
 <main class="content" role="main">
@@ -22,13 +46,9 @@
 
         <section class="post-content">
 
-            @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+            @if (!imageCropUrl.IsNullOrWhiteSpace())
             {
-                var cropUrl = Model.GetCropUrl("postImage", "blogPost");
-                if (!cropUrl.IsNullOrWhiteSpace())
-                {
-                    <img class="postImage" alt="@Model.Name" src="@cropUrl" />
-                }
+                <img class="postImage" alt="@Model.Name" src="@imageCropUrl" />
             }
 
             @Model.Body
