@@ -274,6 +274,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="ArticulateAddDashboardPackageAction.cs" />
     <Compile Include="ArticulateTagsRouteHandler.cs" />
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />

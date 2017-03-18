@@ -1279,7 +1279,7 @@ Supporting all the features you'd want in a blogging platform:
   </DataTypes>
   <control>~/App_Plugins/Articulate/BackOffice/Installer.ascx</control>
   <Actions>
-    <Action runat="install" undo="true" alias="addDashboardSection" dashboardAlias="ArticulateDashboard">
+    <Action runat="install" undo="true" alias="articulateAddDashboardSection" dashboardAlias="ArticulateDashboard">
       <section alias="Articulate Management">
         <areas>
           <area>developer</area>
