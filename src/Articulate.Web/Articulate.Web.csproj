@@ -322,6 +322,12 @@
   <ItemGroup>
     <Content Include="App_Plugins\Articulate\Assets\md-editor.js" />
     <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\datainstaller.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\datainstaller.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\articulatemgmt.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\articulatemgmt.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
@@ -355,7 +361,6 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
     <Content Include="App_Data\packages\created\createdPackages.config" />
-    <None Include="App_Plugins\Articulate\package.manifest" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.controller.js" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.htm" />

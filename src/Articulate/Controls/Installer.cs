@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Web.UI.WebControls;
 using Umbraco.Core.Logging;
 using Umbraco.Web.UI.Controls;
 
@@ -13,7 +14,7 @@ namespace Articulate.Controls
         {
             base.OnInit(e);
 
-            var dataInstaller = new ArticulateDataInstaller(Services);
+            var dataInstaller = new ArticulateDataInstaller(Services, Security.CurrentUser.Id);
             var root = dataInstaller.Execute();
 
             if (root != null)

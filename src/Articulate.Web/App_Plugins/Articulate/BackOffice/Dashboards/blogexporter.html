@@ -1,0 +1,19 @@
+﻿<div ng-controller="Articulate.Dashboard.BlogExporter">
+    
+    <form name="articulateExportForm" ng-submit="submitExport()" novalidate val-form-manager>
+        <umb-pane>
+            <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to export from"
+                               label="Articulate blog node">
+                <umb-editor model="contentPickerExportModel" ng-model="$parent.$parent.articulateExportNodeId" name="articulateExportNodeId" no-dirty-check></umb-editor>
+
+            </umb-control-group>
+
+            <umb-control-group>
+                <p><input type="submit" ng-if="!submitting" /></p>
+                <p class="alert" ng-bind-html="status" ng-if="status != null || status != undefined" ng-class="{'alert-success': status == 'Finished!', 'alert-info' : status != 'Finished!'}"></p>
+                <p ng-if="status === 'Finished!'">Click <a href='{{downloadLink}}' target='_blank'>here</a> to download the exported BlogML file</p>
+            </umb-control-group>
+        </umb-pane>
+    </form>
+    
+</div>

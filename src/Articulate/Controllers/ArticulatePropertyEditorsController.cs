@@ -6,7 +6,7 @@ using Umbraco.Web.WebApi;
 
 namespace Articulate.Controllers
 {
-    public class ArticulatePropertyEditorsController : UmbracoApiController
+    public class ArticulatePropertyEditorsController : UmbracoAuthorizedApiController
     {
         public IEnumerable<string> GetThemes()
         {

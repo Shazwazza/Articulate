@@ -274,7 +274,6 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="ArcticulateInstallerPackageAction.cs" />
     <Compile Include="ArticulateTagsRouteHandler.cs" />
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />
@@ -304,6 +303,11 @@
     <Compile Include="DefaultArticulateSearcher.cs" />
     <Compile Include="IArticulateSearcher.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
+    <Compile Include="Resources\ArticulateResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ArticulateResources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
@@ -365,8 +369,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ArticulateResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ArticulateResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\build\packageManifest.xml">
+      <Link>Resources\packageManifest.xml</Link>
+    </EmbeddedResource>
     <Content Include="Controllers\FeedXslt.xslt">
       <SubType>Designer</SubType>
     </Content>

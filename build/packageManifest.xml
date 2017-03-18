@@ -683,10 +683,10 @@
       <version>2.0.2</version>
       <license url="http://opensource.org/licenses/MIT">MIT License</license>
       <url>https://github.com/Shandem/Articulate/</url>
-      <requirements>
-        <major>3</major>
-        <minor>0</minor>
-        <patch>0</patch>
+      <requirements type="strict">
+        <major>7</major>
+        <minor>5</minor>
+        <patch>11</patch>
       </requirements>
     </package>
     <author>
@@ -1279,14 +1279,14 @@ Supporting all the features you'd want in a blogging platform:
   </DataTypes>
   <control>~/App_Plugins/Articulate/BackOffice/Installer.ascx</control>
   <Actions>
-    <Action runat="install" undo="true" alias="addDashboardSection" dashboardAlias="ArticulateImportDashboard">
-      <section alias="ArticulateBlogImporterSection">
+    <Action runat="install" undo="true" alias="addDashboardSection" dashboardAlias="ArticulateDashboard">
+      <section alias="Articulate Management">
         <areas>
           <area>developer</area>
         </areas>
-        <tab caption="Articulate Importer">
+        <tab caption="Articulate Management">
           <control showOnce="false" addPanel="true" panelCaption="">
-            ~/App_Plugins/Articulate/BackOffice/Dashboards/BlogImporter.html
+            ~/App_Plugins/Articulate/BackOffice/Dashboards/ArticulateMgmt.html
           </control>
         </tab>
       </section>

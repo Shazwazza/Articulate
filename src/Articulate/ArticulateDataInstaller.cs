@@ -1,8 +1,13 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using System.Linq;
+using Articulate.Resources;
+using umbraco.cms.businesslogic.packager;
 using Umbraco.Core;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
@@ -12,86 +17,120 @@ namespace Articulate
     public class ArticulateDataInstaller
     {
         private readonly ServiceContext _services;
+        private readonly int _userId;
 
-        public ArticulateDataInstaller(ServiceContext services)
+        public ArticulateDataInstaller(ServiceContext services, int userId)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             _services = services;
+            _userId = userId;
         }
         
         public IContent Execute()
         {
+            InstallPackage();
+
             var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
 
             if (articulateContentType == null)
             {
                 //this should not happen!
-                LogHelper.Warn<ArticulateDataInstaller>("Could not find the Articulate content type");
-                return null;
+                throw new InvalidOperationException("Could not find the Articulate content type");
             }
 
             var root = _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
             if (root == null)
             {
-                return Install();
+                return InstallContent();
             }
 
-            Upgrade();
-            return root;
+            return null;
         }
 
-        private void Upgrade()
+        private void InstallPackage()
         {
-            //For v2.0 we need to manually add some pre-values to the Articulate Cropper,
-            // https://github.com/Shazwazza/Articulate/issues/80
-            // https://github.com/Shazwazza/Articulate/issues/135
-            // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
+            //check if it's already installed
+            //var allInstalled = InstalledPackage.GetAllInstalledPackages();
 
-            var cropperDt = _services.DataTypeService.GetDataTypeDefinitionByName("Articulate Cropper");
-            if (cropperDt != null)
+            //need to save the package manifest to a temp folder since that is how this package installer logic works
+            var tempFile = Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "package.xml");
+            var tempDir = Path.GetDirectoryName(tempFile);
+            Directory.CreateDirectory(tempDir);
+
+            try
             {
-                if (cropperDt.PropertyEditorAlias.InvariantEquals("Umbraco.ImageCropper"))
-                {
-                    var preVals = _services.DataTypeService.GetPreValuesCollectionByDataTypeId(cropperDt.Id);
-                    if (preVals != null)
-                    {
-                        if (!HasPrevalues(preVals))
-                        {
-                            //need to add the crops
-                            var crops = new[]
-                            {
-                                new {alias = "blogPost", width = 200, height=200},
-                                new {alias = "thumbnail", width = 50, height=50}
-                            };
-                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(crops));
+                System.IO.File.WriteAllText(tempFile, ArticulateResources.packageManifest);
+                var ins = new global::umbraco.cms.businesslogic.packager.Installer(_userId);
+                
+                ins.LoadConfig(tempDir);
 
-                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
-                        }
+                int packageId;
+                bool sameVersion;
+                if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
+                {
+                    //if it's the same version, we don't need to install anything
+                    if (!sameVersion)
+                    {
+                        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+                        ins.InstallBusinessLogic(pckId, tempDir);
                     }
+                }
+                else
+                {
+                    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+                    ins.InstallBusinessLogic(pckId, tempDir);
+                }
+            }
+            finally
+            {
+                if (System.IO.File.Exists(tempFile))
+                {
+                    System.IO.File.Delete(tempFile);
+                }
+                if (System.IO.Directory.Exists(tempDir))
+                {
+                    System.IO.Directory.Delete(tempDir, true);
                 }
             }
         }
 
-        private bool HasPrevalues(PreValueCollection preVals)
+        //borrowed from Core
+        private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
         {
-            if (preVals.PreValuesAsDictionary["crops"] == null
-                || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
+            var allInstalled = InstalledPackage.GetAllInstalledPackages();
+            var found = allInstalled.Where(x => x.Data.Name == name).ToArray();
+            sameVersion = false;
+
+            if (found.Length  > 0)
             {
-                return false;
+                var foundVersion = found.FirstOrDefault(x =>
+                {
+                    //match the exact version
+                    if (x.Data.Version == version)
+                    {
+                        return true;
+                    }
+                    //now try to compare the versions
+                    if (Version.TryParse(x.Data.Version, out Version installed) && Version.TryParse(version, out Version selected))
+                    {
+                        if (installed >= selected)
+                            return true;
+                    }
+                    return false;
+                });
+
+                sameVersion = foundVersion != null;
+
+                //this package is already installed, find the highest package id for this package name that is installed
+                packageId = found.Max(x => x.Data.Id);
+                return true;
             }
 
-            try
-            {
-                var array = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
-                return array.Count > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            packageId = -1;
+            return false;
         }
 
-        private IContent Install()
+        private IContent InstallContent()
         {
             //Create the root node - this will automatically create the authors and archive nodes
             LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
