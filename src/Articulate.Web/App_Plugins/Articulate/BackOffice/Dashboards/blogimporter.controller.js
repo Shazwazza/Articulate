@@ -36,29 +36,12 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
                     }),
                 'Failed to import blog posts');
         }
-
-        function postExport() {
-            return umbRequestHelper.resourcePromise(
-                $http.post(
-                    Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostExportBlogMl", {
-                        articulateNode: $scope.contentPickerExportModel.value
-                    }),
-                'Failed to export blog posts');
-        }
+        
 
         var file = null;
-
-        $scope.dataAction = "i";
-
+        
         $scope.submitting = false;
-
-        $scope.contentPickerExportModel = {
-            view: "contentpicker",
-            config: {
-                minNumber: 1
-            }
-        };
-
+        
         $scope.contentPickerImportModel = {
             view: "contentpicker",
             config: {
@@ -69,28 +52,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
         $scope.$on("filesSelected", function (e, args) {
             file = args.files[0];
         });
-
-        $scope.submitExport = function () {
-
-            $scope.status = "";
-
-            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateExportForm })) {
-
-                formHelper.resetForm({ scope: $scope });
-
-                $scope.submitting = true;
-                $scope.status = "Please wait...";
-
-                postExport()
-                    .then(function (data) {
-
-                        $scope.downloadLink = data.downloadUrl;
-
-                        $scope.status = "Finished!";
-                        $scope.submitting = false;
-                    });
-            }
-        }
+        
 
         $scope.submitImport = function () {
 

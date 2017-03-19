@@ -41,3 +41,7 @@ src/Articulate.Web/App_Plugins/Grid/*
 src/Articulate.Web/scripts/*
 src/Articulate.Web/App_Plugins/ModelsBuilder/*
 src/.vs/*
+src/_ReSharper.Caches/*
+src/Articulate.Web/config/imageprocessor/cache.config
+src/Articulate.Web/config/imageprocessor/processing.config
+src/Articulate.Web/config/imageprocessor/security.config
