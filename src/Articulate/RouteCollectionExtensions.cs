@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Web.Mvc;
@@ -65,6 +66,21 @@ namespace Articulate
             Uri result;
             return Uri.TryCreate(routePath, UriKind.Absolute, out result) 
                 ? result.PathAndQuery.TrimStart('/')
+                : routePath.TrimStart('/');
+        }
+
+        internal static string VirtualControllerRoutePathForHomeNode(string routePath)
+        {
+            var virtualPath = VirtualPathUtility.ToAbsolute("~/");
+
+            if (routePath == virtualPath)
+                return String.Empty;
+
+            if (virtualPath == "/")
+                return routePath.TrimStart('/');
+
+            return routePath.StartsWith(virtualPath)
+                ? routePath.Replace(virtualPath, "")
                 : routePath.TrimStart('/');
         }
     }
