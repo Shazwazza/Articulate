@@ -109,6 +109,19 @@ namespace Articulate.Models
         }
 
         /// <summary>
+        /// Cropped version of the PostImageUrl
+        /// </summary>
+        public string CroppedPostImageUrl
+        {
+            get
+            {
+                return !PostImageUrl.IsNullOrWhiteSpace() 
+                    ? this.GetCropUrl("postImage", "blogPost") 
+                    : null;
+            }
+        }
+
+        /// <summary>
         /// Social Meta Description
         /// </summary>
         public string SocialMetaDescription

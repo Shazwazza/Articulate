@@ -20,7 +20,7 @@ namespace Articulate
         public BlogMlExporter(UmbracoContext umbracoContext, IFileSystem fileSystem)
         {
             _umbracoContext = umbracoContext;
-            _applicationContext = ApplicationContext.Current;
+            _applicationContext = _umbracoContext.Application;
             _fileSystem = fileSystem;
         }
 

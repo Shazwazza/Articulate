@@ -43,11 +43,11 @@ namespace Articulate
         /// <summary>
         /// Get the full domain of the current page
         /// </summary>
-        public static string GetDomain()
+        public static string GetDomain(Uri requestUrl)
         {
-            return HttpContext.Current.Request.Url.Scheme +
+            return requestUrl.Scheme +
                 System.Uri.SchemeDelimiter +
-                HttpContext.Current.Request.Url.Authority;
+                requestUrl.Authority;
         }
     }
 }

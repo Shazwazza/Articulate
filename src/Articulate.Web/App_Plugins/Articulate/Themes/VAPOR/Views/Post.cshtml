@@ -4,12 +4,6 @@
 @{
     Layout = "Master.cshtml";
     ViewBag.CssBodyClass = "post-template";
-    string imageCropUrl = null;
-
-    if (!Model.PostImageUrl.IsNullOrWhiteSpace())
-    {
-        imageCropUrl = Model.GetCropUrl("postImage", "blogPost");
-    }
 }
 
 @section socialMetaTags {
@@ -20,9 +14,9 @@
     <meta property="og:title" content="@Model.Name" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="@Model.UrlAbsolute()" />
-    @if (!imageCropUrl.IsNullOrWhiteSpace())
+    @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
     {
-        <meta property="og:image" content="@Html.Raw(PathHelper.GetDomain() + imageCropUrl)" />
+        <meta property="og:image" content="@Html.Raw(PathHelper.GetDomain(Request.Url) + Model.CroppedPostImageUrl)" />
     }
     @if (!Model.SocialMetaDescription.IsNullOrWhiteSpace())
     {
@@ -46,9 +40,9 @@
 
         <section class="post-content">
 
-            @if (!imageCropUrl.IsNullOrWhiteSpace())
+            @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
             {
-                <img class="postImage" alt="@Model.Name" src="@imageCropUrl" />
+                <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
             }
 
             @Model.Body
