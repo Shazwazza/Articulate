@@ -24,7 +24,7 @@
 
     @Html.AdvertiseWeblogApi(Model)
     @Html.RssFeed(Model)
-
+    @Html.RenderOpenSearch(Model)
 
     @{ Html
            .RequiresJs("https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js")
@@ -37,7 +37,6 @@
     }
 
     @Html.RenderCssHere()
-
 </head>
 <body>
     

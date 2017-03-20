@@ -56,12 +56,15 @@ namespace Articulate
         /// </summary>
         /// <param name="url"></param>
         /// <param name="model"></param>
+        /// <param name="includeDomain"></param>
         /// <returns></returns>
-        public static string ArticulateSearchUrl(this UrlHelper url, IMasterModel model)
+        public static string ArticulateSearchUrl(this UrlHelper url, IMasterModel model, bool includeDomain = false)
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                : (includeDomain
+                      ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/')
+                      : model.RootBlogNode.Url.EnsureEndsWith('/')) +
                   model.RootBlogNode.GetPropertyValue<string>("searchUrlName");
         }
 

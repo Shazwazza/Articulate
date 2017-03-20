@@ -16,6 +16,14 @@ namespace Articulate
 {
     public static class HtmlHelperExtensions
     {
+        public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
+        {            
+            var openSearchUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
+            var tag = $@"<link rel=""search"" type=""application/opensearchdescription+xml"" href=""{openSearchUrl}"" title=""Search {model.RootBlogNode.Name}"" >";
+
+            return new HtmlString(tag);
+        }
+
         public static IHtmlString RssFeed(this HtmlHelper html, IMasterModel model)
         {
             var url = model.CustomRssFeed.IsNullOrWhiteSpace()

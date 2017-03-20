@@ -111,7 +111,8 @@ namespace Articulate
                     {
                         MapMetaWeblogRoute(routes, grouping.Key, content);
                         MapManifestRoute(routes, grouping.Key, content);
-                        MapRsdRoute(routes, grouping.Key, content);                          
+                        MapRsdRoute(routes, grouping.Key, content);
+                        MapOpenSearchRoute(routes, grouping.Key, content);
                     }
 
                 }
@@ -246,6 +247,21 @@ namespace Articulate
                 new
                 {
                     controller = "Rsd",
+                    action = "Index",
+                    id = node.Id
+                }).AddRouteNameToken(name);
+        }
+
+        private static void MapOpenSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        {
+            var routePath = (nodeRoutePath.EnsureEndsWith('/') + "opensearch/" + node.Id).TrimStart('/');
+
+            var name = "articulate_opensearch_" + node.Id;
+            routes.MapRoute(name,
+                routePath,
+                new
+                {
+                    controller = "OpenSearch",
                     action = "Index",
                     id = node.Id
                 }).AddRouteNameToken(name);
