@@ -15,7 +15,7 @@ namespace Articulate.Controls
             base.OnInit(e);
 
             var dataInstaller = new ArticulateDataInstaller(Services, Security.CurrentUser.Id);
-            var root = dataInstaller.Execute();
+            var root = dataInstaller.Execute(out bool packageInstalled);
 
             if (root != null)
             {

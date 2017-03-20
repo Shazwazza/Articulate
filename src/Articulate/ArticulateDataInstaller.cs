@@ -26,9 +26,12 @@ namespace Articulate
             _userId = userId;
         }
         
-        public IContent Execute()
+        public IContent Execute(out bool packageInstalled)
         {
-            InstallPackage();
+            packageInstalled = InstallPackage();
+
+            //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
+            // the number of crops required. 
 
             var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
 
@@ -47,7 +50,7 @@ namespace Articulate
             return null;
         }
 
-        private void InstallPackage()
+        private bool InstallPackage()
         {
             //check if it's already installed
             //var allInstalled = InstalledPackage.GetAllInstalledPackages();
@@ -73,12 +76,15 @@ namespace Articulate
                     {
                         var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
                         ins.InstallBusinessLogic(pckId, tempDir);
+                        return true;
                     }
+                    return false;
                 }
                 else
                 {
                     var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
                     ins.InstallBusinessLogic(pckId, tempDir);
+                    return true;
                 }
             }
             finally

@@ -12,7 +12,9 @@ namespace Articulate.Controllers
         public IHttpActionResult PostInstall()
         {
             var dataInstaller = new ArticulateDataInstaller(Services, Security.CurrentUser.Id);
-            var root = dataInstaller.Execute();
+
+            //TODO: indicate that it's already installed and no changes have been made
+            var root = dataInstaller.Execute(out bool packageInstalled);
 
             string blogUrl;
 
