@@ -57,8 +57,8 @@ namespace Articulate.Models
                 }
 
                 _resolvedList = _listItems           
-                    //We'll skip take here just in case but the list passed to the ctor should ideally already be filtered         
-                    .Skip(_pager.CurrentPageIndex * _pager.PageSize)
+                    // Commenting out Skip due to list items already being filtered by page. Leaving Take just in case.
+                    //.Skip(_pager.CurrentPageIndex * _pager.PageSize)
                     .Take(_pager.PageSize)
                     .Select(x => new PostModel(x))
                     .ToArray();
