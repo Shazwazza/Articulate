@@ -94,7 +94,7 @@ namespace Articulate
                 // So what we need to do in these cases is use a special route handler that takes
                 // into account the domain assigned to the route.
                 var groups = articulateNodes
-                    .GroupBy(x => RouteCollectionExtensions.VirtualControllerRoutePathForHomeNode(x.Url))
+                    .GroupBy(x => RouteCollectionExtensions.RoutePathFromNodeUrl(x.Url))
                     //This is required to ensure that we create routes that are more specific first
                     // before creating routes that are less specific
                     .OrderByDescending(x => x.Key.Split('/').Length);
