@@ -146,6 +146,7 @@ namespace Articulate
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("extractFirstImage", true);
+            root.SetValue("redirectArchive", true);
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 

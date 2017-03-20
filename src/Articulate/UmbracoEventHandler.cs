@@ -224,6 +224,7 @@ namespace Articulate
                 e.Entity.SetValue("pageSize", 10);
                 e.Entity.SetValue("categoriesUrlName", "categories");
                 e.Entity.SetValue("tagsUrlName", "tags");
+                e.Entity.SetValue("redirectArchive", true);
                 e.Entity.SetValue("searchUrlName", "search");
                 e.Entity.SetValue("categoriesPageName", "Categories");
                 e.Entity.SetValue("tagsPageName", "Tags");

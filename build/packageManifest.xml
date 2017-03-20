@@ -680,7 +680,7 @@
   <info>
     <package>
       <name>Articulate</name>
-      <version>2.0.2</version>
+      <version>3.0.0</version>
       <license url="http://opensource.org/licenses/MIT">MIT License</license>
       <url>https://github.com/Shandem/Articulate/</url>
       <requirements type="strict">
@@ -793,21 +793,33 @@ Supporting all the features you'd want in a blogging platform:
           <Validation />
           <Description><![CDATA[The site name associated with your Google Analytics (i.e. mysite.com )]]></Description>
         </GenericProperty>
-        <GenericProperty>
-          <Name>Search Url Name</Name>
-          <Alias>searchUrlName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
+        
         <GenericProperty>
           <Name>PageSize</Name>
           <Alias>pageSize</Alias>
           <Type>Umbraco.Integer</Type>
           <Definition>2e6d3631-066e-44b8-aec4-96f09099b2b5</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        
+        <GenericProperty>
+          <Name>Categories Page Name</Name>
+          <Alias>categoriesPageName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The page title for the categories listing]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Categories Url Name</Name>
+          <Alias>categoriesUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
           <Tab>Customize</Tab>
           <Mandatory>True</Mandatory>
           <Validation />
@@ -824,16 +836,6 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[The page title for the tags listing]]></Description>
         </GenericProperty>
         <GenericProperty>
-          <Name>Categories Page Name</Name>
-          <Alias>categoriesPageName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>False</Mandatory>
-          <Validation />
-          <Description><![CDATA[The page title for the categories listing]]></Description>
-        </GenericProperty>
-        <GenericProperty>
           <Name>Tags Url Name</Name>
           <Alias>tagsUrlName</Alias>
           <Type>Umbraco.Textbox</Type>
@@ -842,17 +844,7 @@ Supporting all the features you'd want in a blogging platform:
           <Mandatory>True</Mandatory>
           <Validation />
           <Description><![CDATA[]]></Description>
-        </GenericProperty>
-        <GenericProperty>
-          <Name>Categories Url Name</Name>
-          <Alias>categoriesUrlName</Alias>
-          <Type>Umbraco.Textbox</Type>
-          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
-          <Tab>Customize</Tab>
-          <Mandatory>True</Mandatory>
-          <Validation />
-          <Description><![CDATA[]]></Description>
-        </GenericProperty>
+        </GenericProperty>        
         <GenericProperty>
           <Name>Search Page Name</Name>
           <Alias>searchPageName</Alias>
@@ -862,6 +854,26 @@ Supporting all the features you'd want in a blogging platform:
           <Mandatory>False</Mandatory>
           <Validation />
           <Description><![CDATA[The page title for the search results]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Search Url Name</Name>
+          <Alias>searchUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Redirect Archive</Name>
+          <Alias>redirectArchive</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[If specified this will redirect the Archive blog post container URL to this Articulate blog root]]></Description>
         </GenericProperty>
         <GenericProperty>
           <Name>Blog Banner</Name>
