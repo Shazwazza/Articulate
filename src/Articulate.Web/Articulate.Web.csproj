@@ -335,6 +335,7 @@
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\js\modernizr.js" />
+    <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\styles_custom.css" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\styles.css" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\base.css" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\style.css" />
