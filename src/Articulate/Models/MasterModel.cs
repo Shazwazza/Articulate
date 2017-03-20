@@ -55,7 +55,6 @@ namespace Articulate.Models
 
         private string _pageTitle;
         private string _pageDescription;
-        private string _pageTags;
 
         public IPublishedContent BlogArchiveNode
         {

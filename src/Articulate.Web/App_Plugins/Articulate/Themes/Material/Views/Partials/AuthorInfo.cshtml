@@ -5,7 +5,7 @@
 
 @if (!Model.Author.Image.IsNullOrWhiteSpace())
 {
-<div class="minilogo" style="background: url(@GetAuthorThumbnail(Model))"></div>
+<div class="minilogo" style="background: url(@Html.Raw(GetAuthorThumbnail(Model)))"></div>
 }
 <div>
     <strong>@Model.Author.Name</strong>

@@ -1,0 +1,88 @@
+﻿/*This is used to customize the default material design blog template so upgrading is easier */
+
+.mdl-layout__container {
+    top: 0;
+    left: 0;
+}
+
+.demo-blog .title-banner .mdl-card__media img {
+    width: 100%;
+    height: 100%;
+}
+
+.demo-blog .mdl-card h3 a, .demo-blog .mdl-card h4 a {
+    text-decoration: none;
+}
+
+.demo-blog .mdl-card h4 a {
+    font-weight: inherit;
+}
+
+.demo-blog--blogpost .comments {
+    background-color: inherit;
+}
+
+.demo-blog .demo-back {
+    display: none;
+}
+
+.demo-blog--blogpost .demo-back {
+    display: block;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    color: white;
+    z-index: 9999;
+}
+
+.demo-blog .mdl-card__title {
+    background-color: #263238;
+}
+
+a.social-btn {
+    display: inline-block;
+}
+
+.demo-blog .mdl-menu .mdl-menu__item a {
+    display: block;
+    text-decoration: inherit;
+    color: inherit;
+    font-weight: inherit;
+}
+
+.full-box-width {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+th.date {
+    width: 100px;
+}
+
+.floatinglist li {
+    float: left; 
+       /* or */ 
+    display: inline-block;
+
+    margin: 10px 10px;
+}
+
+.demo-blog--blogpost .meta .post-tags {
+    
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: initial;
+    align-items: flex-start;
+
+    margin-left: 15px;
+}
+.demo-blog--blogpost .meta .post-tags a {       
+    font-weight: inherit;
+    text-decoration: none;
+}
