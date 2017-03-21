@@ -122,7 +122,7 @@ namespace Articulate
                     if (content.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
-                        UmbracoContext.Current.Application.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
             }

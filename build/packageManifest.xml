@@ -1158,6 +1158,16 @@ Supporting all the features you'd want in a blogging platform:
           <Validation />
           <Description><![CDATA[An optional image for your blog post]]></Description>
         </GenericProperty>
+        <GenericProperty>
+          <Name>Social Description</Name>
+          <Alias>socialDescription</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>cf59b608-c3ac-4016-bf67-41d72a1dbac5</Definition>
+          <Tab>Meta Tags</Tab>
+          <SortOrder>0</SortOrder>
+          <Mandatory>False</Mandatory>
+          <Description><![CDATA[Open Graph Description - Describe the article in one or two lines.]]></Description>
+        </GenericProperty>
       </GenericProperties>
       <Tabs>
         <Tab>

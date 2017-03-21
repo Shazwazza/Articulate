@@ -178,6 +178,7 @@ namespace Articulate
             post.SetTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
             post.SetTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
             post.SetValue("publishedDate", DateTime.Now);
+            post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
 
 This is a fully functional blog engine supporting many features:

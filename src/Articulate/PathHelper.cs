@@ -1,5 +1,6 @@
-﻿using System;
-using Articulate.Models;
+﻿using Articulate.Models;
+using System;
+using System.Web;
 using Umbraco.Core;
 
 namespace Articulate
@@ -37,6 +38,16 @@ namespace Articulate
 
             var path = "~/App_Plugins/Articulate/Themes/{0}/Views/Partials/{1}.cshtml";
             return string.Format(path, model.Theme, viewName);
+        }
+
+        /// <summary>
+        /// Get the full domain of the current page
+        /// </summary>
+        public static string GetDomain(Uri requestUrl)
+        {
+            return requestUrl.Scheme +
+                System.Uri.SchemeDelimiter +
+                requestUrl.Authority;
         }
     }
 }

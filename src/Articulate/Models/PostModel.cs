@@ -108,6 +108,27 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<string>("postImage"); }
         }
 
+        /// <summary>
+        /// Cropped version of the PostImageUrl
+        /// </summary>
+        public string CroppedPostImageUrl
+        {
+            get
+            {
+                return !PostImageUrl.IsNullOrWhiteSpace() 
+                    ? this.GetCropUrl("postImage", "blogPost") 
+                    : null;
+            }
+        }
+
+        /// <summary>
+        /// Social Meta Description
+        /// </summary>
+        public string SocialMetaDescription
+        {
+            get { return this.GetPropertyValue<string>("socialDescription"); }
+        }
+
         public IHtmlString Body
         {
             get
