@@ -1,7 +1,5 @@
 ![Articulate](assets/Logo.png?raw=true)
 
-==========
-
 > A wonderful Blog engine built on Umbraco
 
 ## Features
