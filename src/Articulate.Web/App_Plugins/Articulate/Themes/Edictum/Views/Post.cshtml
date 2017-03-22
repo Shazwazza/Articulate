@@ -18,15 +18,13 @@
         </a>
 
         <h2 class="subtitulo-articulo">@Model.Excerpt</h2>
-        <div class="texto">
-            @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
-            {
-                var thumbnail = Model.GetCropUrl("postImage", "blogPost");
-                if (!thumbnail.IsNullOrWhiteSpace())
-                {
-                    <img class="thumb" src="@thumbnail" alt="@Model.Name" />
-                }
-            }
+        @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+        {
+            <div class="postImageWrapper">
+                <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />    
+            </div>
+        }
+        <div class="texto">            
             @Model.Body
         </div>
     </article>

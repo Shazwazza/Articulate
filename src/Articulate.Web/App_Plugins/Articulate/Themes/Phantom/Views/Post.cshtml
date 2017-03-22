@@ -18,13 +18,9 @@
     <h1 class="post-title">@Model.Name</h1>
 
     <section class="post-content">
-        @if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+        @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
         {
-            var cropUrl = Model.GetCropUrl("postImage", "blogPost");
-            if (!cropUrl.IsNullOrWhiteSpace())
-            {
-                <img class="postImage" alt="@Model.Name" src="@cropUrl" />
-            }
+            <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
         }
         @Model.Body
     </section>

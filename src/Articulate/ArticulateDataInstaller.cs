@@ -198,25 +198,6 @@ namespace Articulate
             }
         }
 
-        private bool HasPrevalues(PreValueCollection preVals)
-        {
-            if (preVals.PreValuesAsDictionary["crops"] == null
-                || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
-            {
-                return false;
-            }
-
-            try
-            {
-                var array = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
-                return array.Count > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         private IContent InstallContent()
         {
             //Create the root node - this will automatically create the authors and archive nodes

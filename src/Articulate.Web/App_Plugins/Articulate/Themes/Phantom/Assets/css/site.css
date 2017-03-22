@@ -455,6 +455,7 @@ a:hover {
 .postImage {
     float: left; 
     padding: 10px 25px 10px 0px;
+    max-width: 100%;
 }
 
 img.thumb {

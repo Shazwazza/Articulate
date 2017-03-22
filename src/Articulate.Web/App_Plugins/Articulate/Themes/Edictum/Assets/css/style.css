@@ -190,6 +190,12 @@ article:last-child {
     padding-right: 5px;
 }
 
+.postImageWrapper {
+    width: 850px;
+    margin: 0px auto;
+    margin-top: 40px;
+}
+
 blockquote p {
     font-family: 'Merriweather', serif;
     font-size: 2rem;
@@ -307,7 +313,8 @@ footer .footer2 {
 
 .postImage {
     float: left; 
-    padding: 10px 25px 10px 0px;
+    padding: 10px 25px 20px 0px;
+    max-width: 100%;
 }
 
 img.thumb {
@@ -364,6 +371,11 @@ img.thumb {
 
     .texto img {
         width: 100%;
+    }
+
+    .postImageWrapper {
+        width: 90%;
+        max-width: 450px;
     }
 }
 

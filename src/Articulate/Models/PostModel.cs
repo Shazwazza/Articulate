@@ -116,7 +116,7 @@ namespace Articulate.Models
             get
             {
                 return !PostImageUrl.IsNullOrWhiteSpace() 
-                    ? this.GetCropUrl("postImage", "blogPost") 
+                    ? this.GetCropUrl("postImage", "wide") 
                     : null;
             }
         }
