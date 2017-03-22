@@ -4,20 +4,103 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.WebPages;
 using umbraco;
 using Umbraco.Core;
+using Umbraco.Core.Models;
 using Umbraco.Web;
 
 namespace Articulate
 {
     public static class HtmlHelperExtensions
     {
+        /// <summary>
+        /// Adds generic social meta tags
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>        
+        public static IHtmlString SocialMetaTags(this HtmlHelper html, IMasterModel model)
+        {
+            var builder = new StringBuilder();
+            SocialMetaTags(model, builder);
+
+            var postModel = model as PostModel;
+            if (postModel != null)
+            {
+                SocialMetaTags(html, postModel, builder);
+            }
+
+            return MvcHtmlString.Create(builder.ToString());
+        }
+
+        /// <summary>
+        /// Adds blog post social meta tags
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Would be nice to add the Standard Template but need to get more author info in there
+        /// </remarks>
+        public static IHtmlString SocialMetaTags(this HtmlHelper html, PostModel model)
+        {
+            var builder = new StringBuilder();
+
+            SocialMetaTags(model, builder);
+            SocialMetaTags(html, model, builder);
+
+            return MvcHtmlString.Create(builder.ToString());
+        }
+
+        private static void SocialMetaTags(HtmlHelper html, PostModel model, StringBuilder builder)
+        {
+            if (!model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+            {
+                var openGraphImage = new TagBuilder("meta");
+                openGraphImage.Attributes["property"] = "og:image";
+                openGraphImage.Attributes["content"] = PathHelper.GetDomain(html.ViewContext.RequestContext.HttpContext.Request.Url) + model.CroppedPostImageUrl;
+                builder.AppendLine(openGraphImage.ToString(TagRenderMode.SelfClosing));
+            }
+
+            if (!model.SocialMetaDescription.IsNullOrWhiteSpace() || !model.Excerpt.IsNullOrWhiteSpace())
+            {
+                var openGraphDesc = new TagBuilder("meta");
+                openGraphDesc.Attributes["property"] = "og:description";
+                openGraphDesc.Attributes["content"] = model.SocialMetaDescription.IsNullOrWhiteSpace() ? model.Excerpt : model.SocialMetaDescription;
+                builder.AppendLine(openGraphDesc.ToString(TagRenderMode.SelfClosing));
+            }
+        }
+
+        private static void SocialMetaTags(IPublishedContent model, StringBuilder builder)
+        {
+            var twitterTag = new TagBuilder("meta");
+            twitterTag.Attributes["name"] = "twitter:card";
+            twitterTag.Attributes["value"] = "summary";
+            builder.AppendLine(twitterTag.ToString(TagRenderMode.StartTag)); //non-closing since that's just the way it is
+
+            var openGraphTitle = new TagBuilder("meta");
+            openGraphTitle.Attributes["property"] = "og:title";
+            openGraphTitle.Attributes["content"] = model.Name;
+            builder.AppendLine(openGraphTitle.ToString(TagRenderMode.SelfClosing));
+
+            var openGraphType = new TagBuilder("meta");
+            openGraphType.Attributes["property"] = "og:type";
+            openGraphType.Attributes["content"] = "article";
+            builder.AppendLine(openGraphType.ToString(TagRenderMode.SelfClosing));
+
+            var openGraphUrl = new TagBuilder("meta");
+            openGraphUrl.Attributes["property"] = "og:url";
+            openGraphUrl.Attributes["content"] = model.UrlWithDomain();
+            builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));            
+        }
+
         public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
-        {            
+        {
             var openSearchUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
             var tag = $@"<link rel=""search"" type=""application/opensearchdescription+xml"" href=""{openSearchUrl}"" title=""Search {model.RootBlogNode.Name}"" >";
 
@@ -50,8 +133,8 @@ namespace Articulate
         {
             var metaTags = $@"<meta name=""description"" content=""{ model.PageDescription }"" />";
 
-            if(!string.IsNullOrWhiteSpace(model.PageTags))
-                metaTags= string.Concat(
+            if (!string.IsNullOrWhiteSpace(model.PageTags))
+                metaTags = string.Concat(
                    metaTags,
                     Environment.NewLine,
                     $@"<meta name=""tags"" content=""{ model.PageTags }"" />"
@@ -88,7 +171,7 @@ namespace Articulate
         }
 
         public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
-        {            
+        {
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
         }
 

@@ -170,20 +170,29 @@ namespace Articulate
             if (UmbracoConfig.For.ArticulateOptions().AutoGenerateExcerpt)
             {
                 foreach (var c in e.SavedEntities
-                .Where(c => c.ContentType.Alias.InvariantEquals("ArticulateRichText") || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
-                .Where(c => c.GetValue<string>("excerpt").IsNullOrWhiteSpace()))
+                    .Where(c => c.ContentType.Alias.InvariantEquals("ArticulateRichText") || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown")))
                 {
-                    if (c.HasProperty("richText"))
+                    //fill in the excerpt if it is empty
+                    if (c.GetValue<string>("excerpt").IsNullOrWhiteSpace())
                     {
-                        var val = c.GetValue<string>("richText");
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
-                    }
-                    else
+                        if (c.HasProperty("richText"))
+                        {
+                            var val = c.GetValue<string>("richText");
+                            c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
+                        }
+                        else
+                        {
+                            var val = c.GetValue<string>("markdown");
+                            var md = new MarkdownDeep.Markdown();
+                            val = md.Transform(val);
+                            c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
+                        }
+                    }     
+                    
+                    //now fill in the social description if it is empty with the excerpt
+                    if (c.GetValue<string>("socialDescription").IsNullOrWhiteSpace())
                     {
-                        var val = c.GetValue<string>("markdown");
-                        var md = new MarkdownDeep.Markdown();
-                        val = md.Transform(val);
-                        c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
+                        c.SetValue("socialDescription", c.GetValue<string>("excerpt"));
                     }
                 }
             }

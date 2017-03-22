@@ -20,8 +20,7 @@
 
     <title>@Model.PageTitle</title>
     @Html.MetaTags(Model);
-
-
+    @Html.SocialMetaTags(Model)
     @Html.AdvertiseWeblogApi(Model)
     @Html.RssFeed(Model)
     @Html.RenderOpenSearch(Model)

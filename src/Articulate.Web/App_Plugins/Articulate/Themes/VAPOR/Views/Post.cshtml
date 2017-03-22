@@ -6,24 +6,6 @@
     ViewBag.CssBodyClass = "post-template";
 }
 
-@section socialMetaTags {
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" value="summary">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="@Model.Name" />
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content="@Model.UrlAbsolute()" />
-    @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
-    {
-        <meta property="og:image" content="@Html.Raw(PathHelper.GetDomain(Request.Url) + Model.CroppedPostImageUrl)" />
-    }
-    @if (!Model.SocialMetaDescription.IsNullOrWhiteSpace())
-    {
-        <meta property="og:description" content="@Model.SocialMetaDescription" />
-    }
-}
-
 <main class="content" role="main">
 
     <article class="post">
