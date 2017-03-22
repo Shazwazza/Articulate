@@ -22,12 +22,13 @@ namespace Articulate
         /// A method that will return the posts sorted by published date in an efficient way
         /// </summary>
         /// <param name="helper"></param>
-        /// <param name="articulateArchiveId"></param>
+        /// <param name="articulateArchiveIds"></param>
         /// <returns></returns>
-        public static int GetPostCount(this UmbracoHelper helper, int articulateArchiveId)
+        public static int GetPostCount(this UmbracoHelper helper, params int[] articulateArchiveIds)
         {
             var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
-            var xPathChildren = $"//* [@id={articulateArchiveId}]/*[@isDoc]";
+            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
+            var xPathChildren = $"//* [{ids}]/*[@isDoc]";
             //get the count with XPath, this will be the fastest
             var totalPosts = xPathNavigator
                 .Select(xPathChildren)
@@ -39,13 +40,14 @@ namespace Articulate
         /// A method that will return the posts sorted by published date in an efficient way
         /// </summary>
         /// <param name="helper"></param>
-        /// <param name="articulateArchiveId"></param>
+        /// <param name="articulateArchiveIds"></param>
         /// <param name="pager"></param>
         /// <returns></returns>
-        public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(this UmbracoHelper helper, int articulateArchiveId, PagerModel pager)
+        public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(this UmbracoHelper helper, PagerModel pager, params int[] articulateArchiveIds)
         {
             var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
-            var xPathChildren = $"//* [@id={articulateArchiveId}]/*[@isDoc]";
+            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
+            var xPathChildren = $"//* [{ids}]/*[@isDoc]";
 
             //Filter/Sort the children we're looking for with XML
             var xmlListItems = xPathNavigator.Select(xPathChildren)
@@ -72,19 +74,15 @@ namespace Articulate
 
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
-            var listNode = masterModel.RootBlogNode.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
+            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
-
-            //create a blog model of the main page
-            var rootPageModel = new MasterModel(listNode);
-
+            
             var tagsBaseUrl = masterModel.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
-
-            var contentByTags = helper.GetContentByTags(rootPageModel, "ArticulateTags", tagsBaseUrl);
+            
+            var contentByTags = helper.GetContentByTags(masterModel, "ArticulateTags", tagsBaseUrl);
 
             return new PostTagCollection(contentByTags);
         }
@@ -121,18 +119,19 @@ namespace Articulate
         /// <returns></returns>
         public static IEnumerable<PostModel> GetRecentPosts(this UmbracoHelper helper, IMasterModel masterModel, int count)
         {
-            var listNode = masterModel.RootBlogNode.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
+            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
             var pager = new PagerModel(count, 0, 1);
 
-            var listItems = helper.GetPostsSortedByPublishedDate(listNode.Id, pager);
+            var listItems = helper.GetPostsSortedByPublishedDate(pager, listNodeIds);
 
-            var rootPageModel = new ListModel(listNode, listItems, pager);
+            var rootPageModel = new ListModel(listNodes[0], listItems, pager);
             return rootPageModel.Children<PostModel>();
         }
 

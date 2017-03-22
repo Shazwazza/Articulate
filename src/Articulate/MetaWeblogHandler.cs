@@ -40,7 +40,7 @@ namespace Articulate
         {
             var user = ValidateUser(username, password);
 
-            var node = BlogRoot().Children(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
+            var node = BlogRoot().Children("ArticulateArchive").FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -77,7 +77,7 @@ namespace Articulate
                 return false;
             }
 
-            var node = BlogRoot().Children(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
+            var node = BlogRoot().Children("ArticulateArchive").FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -147,7 +147,7 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            var node = BlogRoot().Children(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
+            var node = BlogRoot().Children("ArticulateArchive").FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");

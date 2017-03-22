@@ -63,7 +63,7 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate node found with the specified id"));
             }
             var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
-                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals((string)"ArticulateArchive"));
+                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             if (archive == null)
             {
                 CleanFiles(multiPartRequest);

@@ -217,8 +217,8 @@ namespace Articulate
             //get the authors and archive nodes and publish them
             LogHelper.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
             var children = root.Children().ToArray();
-            var authors = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
-            var archive = children.Single(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
+            var authors = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
+            var archive = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             _services.ContentService.SaveAndPublishWithStatus(authors);
             _services.ContentService.SaveAndPublishWithStatus(archive);
 

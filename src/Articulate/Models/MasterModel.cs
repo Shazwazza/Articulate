@@ -56,11 +56,17 @@ namespace Articulate.Models
         private string _pageTitle;
         private string _pageDescription;
 
+        /// <summary>
+        /// This will return the first archive node found under the blog root
+        /// </summary>
+        /// <remarks>
+        /// We can support multiple archive nodes - TODO: Should we change this method to return an array of archive nodes?
+        /// </remarks>
         public IPublishedContent BlogArchiveNode
         {
             get
             {
-                var list = RootBlogNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateArchive")).FirstOrDefault();
+                var list = RootBlogNode.Children("ArticulateArchive").FirstOrDefault();
                 if (list == null)
                 {
                     throw new InvalidOperationException("Could not find the ArticulateArchive document for the current rendered page");

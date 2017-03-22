@@ -46,13 +46,13 @@ namespace Articulate
 
             var children = root.Children().ToArray();
 
-            var archiveNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            var authorsNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
-            if (archiveNode == null)
+            var archiveNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive")).ToArray();
+            var authorsNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors")).ToArray();
+            if (archiveNodes.Length == 0)
             {
                 throw new InvalidOperationException("No ArticulateArchive found under the blog root node");
             }
-            if (authorsNode == null)
+            if (authorsNodes.Length == 0)
             {
                 throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
             }
@@ -78,10 +78,15 @@ namespace Articulate
                 Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
             };
 
-            AddBlogAuthors(authorsNode, blogMlDoc);
+            foreach (var authorsNode in authorsNodes)
+            {
+                AddBlogAuthors(authorsNode, blogMlDoc);
+            }
             AddBlogCategories(blogMlDoc, tagGroup.Value);
-            AddBlogPosts(archiveNode, blogMlDoc, tagGroup.Value);
-
+            foreach (var archiveNode in archiveNodes)
+            {
+                AddBlogPosts(archiveNode, blogMlDoc, tagGroup.Value);
+            }
             WriteFile(blogMlDoc);
         }
 

@@ -38,9 +38,10 @@ namespace Articulate.Controllers
 
         private ActionResult RenderView(IRenderModel model, int? p = null)
         {
-            var listNode = model.Content.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
+            var listNodes = model.Content.Children
+               .Where(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"))
+               .ToArray();
+            if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
@@ -55,10 +56,12 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
             var rootPageModel = new MasterModel(model.Content);
-            
+
             //get the count with XPath, this will be the fastest
-            var totalPosts = Umbraco.GetPostCount(listNode.Id);
+            var totalPosts = Umbraco.GetPostCount(listNodeIds);
 
             var pageSize = rootPageModel.PageSize;
             var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
@@ -76,9 +79,9 @@ namespace Articulate.Controllers
                 totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
                 p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
 
-            var listItems = Umbraco.GetPostsSortedByPublishedDate(listNode.Id, pager);
+            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, listNodeIds);
 
-            var listModel = new ListModel(listNode, listItems, pager);
+            var listModel = new ListModel(listNodes[0], listItems, pager);
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }

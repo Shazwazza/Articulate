@@ -38,18 +38,21 @@ namespace Articulate.Controllers
         {
             if (!maxItems.HasValue) maxItems = 25;
 
-            var listNode = model.Content.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
+            var listNodes = model.Content.Children
+                .Where(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"))
+                .ToArray();
+            if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
             var pager = new PagerModel(maxItems.Value, 0, 1);
 
-            var listItems = Umbraco.GetPostsSortedByPublishedDate(listNode.Id, pager);
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
-            var rootPageModel = new ListModel(listNode, listItems, pager);
+            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, listNodeIds);
+
+            var rootPageModel = new ListModel(listNodes[0], listItems, pager);
             
             var feed = FeedGenerator.GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
 
