@@ -53,12 +53,23 @@ If you would like to contribute to the Articulate project, you'll need some info
 6. This will run the Umbraco installer, install as per normal
 7. Open a powershell command line at the /build folder
 8. Execute build.ps1
-9. This will prompt you for a version, enter the latest Articulate version, currently this is "2.0.5"
+9. This will prompt you for a version, enter the latest Articulate version (at the time of writing this is "3.0.0")
 10. It will prompt your for a pre-release value, just press Enter to skip this
 11. Once the build has completed, it will have created the Articulate Umbraco package at /build/Releases/2.0.5/Articulate.zip
 12. Install this package in the Umbraco back office
 
 Now you're all set! Any source changes you wish to make just do that in Visual Studio, build the solution when you need to and the changes will be reflected in the website.
+
+### Changing Umbraco Articulate schema elements
+
+What I mean by 'schema' elements here are things like Document Types, Property Types, Data Types, etc... 
+If you wish to make changes to these, like adding a property to the Blog Post Document Type, you'll must make this change in the xml file: `/buid/packagemanifest.xml`
+
+### Updating to latest committed changes
+
+If you are developing on this project and someone has made changes to any schema elements and you need to sync your environment to the latest changes, you can now use the Articulate dashboard installer and run the installer. This will essentially re-install the package business logic will will add any missing schema elements that are missing.
+
+If you wish to re-force the package installation, you can remove the Articulate `<package>` element from the file  `/App_Data/packages/intalled/installedPackages.config` for the current Articulate vesion you are working with. Then you can run the dashboard installer and it will re-sync the data.
 
 ## Copyright & Licence
 
