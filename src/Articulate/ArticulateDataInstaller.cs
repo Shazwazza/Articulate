@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Articulate.Resources;
@@ -40,6 +41,8 @@ namespace Articulate
                 //this should not happen!
                 throw new InvalidOperationException("Could not find the Articulate content type");
             }
+
+            Upgrade();
 
             var root = _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
             if (root == null)
@@ -134,6 +137,84 @@ namespace Articulate
 
             packageId = -1;
             return false;
+        }
+
+        private void Upgrade()
+        {
+            //For v2.0 we need to manually add some pre-values to the Articulate Cropper,
+            // https://github.com/Shazwazza/Articulate/issues/80
+            // https://github.com/Shazwazza/Articulate/issues/135
+            // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
+            //For v3.0 we need to manually add some pre-values to the Articulate Cropper,
+            // https://github.com/Shazwazza/Articulate/issues/202
+
+            var cropperDt = _services.DataTypeService.GetDataTypeDefinitionByName("Articulate Cropper");
+            if (cropperDt != null)
+            {
+                if (cropperDt.PropertyEditorAlias.InvariantEquals("Umbraco.ImageCropper"))
+                {
+                    var preVals = _services.DataTypeService.GetPreValuesCollectionByDataTypeId(cropperDt.Id);
+                    if (preVals != null)
+                    {
+                        var crops = new[]
+                        {
+                            new {alias = "square", width = 480, height = 480},
+                            new {alias = "thumbnail", width = 50, height = 50},
+                            new {alias = "wide", width = 1024, height = 512}
+                        };
+
+                        if (preVals.PreValuesAsDictionary["crops"] == null
+                            || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
+                        {
+                            //there aren't any so we need to add them all                                                        
+                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(crops));
+
+                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
+                        }
+                        else
+                        {
+                            //we should merge them since the developer may have added their own
+                            var json = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
+                            var required = crops.ToDictionary(crop => crop.alias, crop => false);
+                            foreach (var prop in json.Children<JObject>().SelectMany(x => x.Property("alias")))
+                            {
+                                var val = prop.Value<string>();
+                                if (required.ContainsKey(prop.Value<string>()))
+                                    required[val] = true;
+                            }
+                            //fill in the missing
+                            foreach (var req in required)
+                            {
+                                if (!req.Value)
+                                    json.Add(JObject.FromObject(crops.First(x => x.alias == req.Key)));
+                            }
+
+                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(json));
+
+                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
+                        }                        
+                    }
+                }
+            }
+        }
+
+        private bool HasPrevalues(PreValueCollection preVals)
+        {
+            if (preVals.PreValuesAsDictionary["crops"] == null
+                || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
+            {
+                return false;
+            }
+
+            try
+            {
+                var array = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
+                return array.Count > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private IContent InstallContent()
