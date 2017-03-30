@@ -78,7 +78,7 @@ namespace Articulate.Controllers
             int totalPosts;
             var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id, rootPageModel.PageSize, p.Value - 1, out totalPosts);
 
-            return GetPagedListView(model, searchPage, searchResult, searchResult.Count(), p);
+            return GetPagedListView(model, searchPage, searchResult, totalPosts, p);
         }
     }
 }
