@@ -1,16 +1,13 @@
-﻿using System;
+﻿using Articulate.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.XPath;
-using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
-using Umbraco.Core.Services;
-using Umbraco.Core.Cache;
 using Umbraco.Web;
 
 namespace Articulate
@@ -42,8 +39,13 @@ namespace Articulate
         /// <param name="helper"></param>
         /// <param name="articulateArchiveIds"></param>
         /// <param name="pager"></param>
+        /// <param name="filter"></param>
         /// <returns></returns>
-        public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(this UmbracoHelper helper, PagerModel pager, params int[] articulateArchiveIds)
+        public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(
+            this UmbracoHelper helper, 
+            PagerModel pager,
+            Func<XPathNavigator, bool> filter,
+            params int[] articulateArchiveIds)
         {
             var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
             var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
@@ -51,8 +53,16 @@ namespace Articulate
 
             //Filter/Sort the children we're looking for with XML
             var xmlListItems = xPathNavigator.Select(xPathChildren)
-                .Cast<XPathNavigator>()
-                .OrderByDescending(x =>
+                .Cast<XPathNavigator>();
+
+            //apply a filter if there is one
+            if (filter != null)
+            {
+                xmlListItems = xmlListItems.Where(filter);
+            }
+
+            //now do the ordering
+            xmlListItems = xmlListItems.OrderByDescending(x =>
                 {
                     var publishedDate = DateTime.MinValue;
 
@@ -74,14 +84,8 @@ namespace Articulate
 
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
-            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
-            if (listNodes.Length == 0)
-            {
-                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
-            }
-            
             var tagsBaseUrl = masterModel.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
-            
+
             var contentByTags = helper.GetContentByTags(masterModel, "ArticulateTags", tagsBaseUrl);
 
             return new PostTagCollection(contentByTags);
@@ -119,17 +123,13 @@ namespace Articulate
         /// <returns></returns>
         public static IEnumerable<PostModel> GetRecentPosts(this UmbracoHelper helper, IMasterModel masterModel, int count)
         {
-            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
-            if (listNodes.Length == 0)
-            {
-                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
-            }
+            var listNodes = GetListNodes(masterModel);
 
             var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
             var pager = new PagerModel(count, 0, 1);
 
-            var listItems = helper.GetPostsSortedByPublishedDate(pager, listNodeIds);
+            var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
             var rootPageModel = new ListModel(listNodes[0], listItems, pager);
             return rootPageModel.Children<PostModel>();
@@ -156,9 +156,9 @@ namespace Articulate
                 .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
                 .InnerJoin("umbracoNode")
                 .On("umbracoNode.id = cmsContent.nodeId")
-                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new {nodeObjectType = Constants.ObjectTypes.Document})
+                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
                 //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new {path = masterModel.RootBlogNode.Path + ",%"});
+                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
             return sql;
         }
 
@@ -214,7 +214,7 @@ namespace Articulate
             return getResult();
 #else
             //cache this result for a short amount of time
-            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<IEnumerable<PostsByTagModel>>(
+            return (IEnumerable<PostsByTagModel>)appContext.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
                 getResult, TimeSpan.FromSeconds(30));
 #endif
@@ -278,10 +278,113 @@ namespace Articulate
             return getResult();
 #else
             //cache this result for a short amount of time
-            return appContext.ApplicationCache.RuntimeCache.GetCacheItem<PostsByTagModel>(
+            
+            return (PostsByTagModel) appContext.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup),
                 getResult, TimeSpan.FromSeconds(30));
 #endif
+        }
+
+        internal static IEnumerable<PostModel> GetContentByAuthor(this UmbracoHelper helper, AuthorModel authorModel)
+        {
+            var listNodes = GetListNodes(authorModel);
+
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
+            //TODO: Should we have a paged result instead of returning everything?
+            var pager = new PagerModel(int.MaxValue, 0, 1);
+
+            var postWithAuthor = helper.GetPostsSortedByPublishedDate(pager, x =>
+            {
+                //filter by author
+                var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
+                return xmlNode != null && string.Equals(xmlNode.Value, authorModel.Name.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase);
+            }, listNodeIds);
+
+            var rootPageModel = new ListModel(listNodes[0], postWithAuthor, pager);
+            return rootPageModel.Children<PostModel>();
+        }
+
+        private static IPublishedContent[] GetListNodes(IMasterModel masterModel)
+        {
+            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            if (listNodes.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "An ArticulateArchive document must exist under the root Articulate document");
+            }
+            return listNodes;
+        }
+
+        internal static IEnumerable<AuthorModel> GetContentByAuthors(this UmbracoHelper helper, IMasterModel masterModel)
+        {
+            var listNodes = GetListNodes(masterModel);
+            var authorsNode = GetAuthorsNode(masterModel);
+            var authors = authorsNode.Children.ToList();
+            var authorNames = authors.Select(x => x.Name).ToArray();
+
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
+            //TODO: Should we have a paged result instead of returning everything?
+            var pager = new PagerModel(int.MaxValue, 0, 1);
+
+            //this will track author names to document ids
+            var postsWithAuthors = new Dictionary<int, Tuple<string, IPublishedContent>>();
+
+            var posts = helper.GetPostsSortedByPublishedDate(pager, x =>
+            {
+                //ensure there's an author and one that matches someone in the author list
+                var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
+                var hasName = xmlNode != null && authorNames.Contains(xmlNode.Value);
+                if (hasName)
+                {
+                    postsWithAuthors[int.Parse(x.GetAttribute("id", ""))] = Tuple.Create(xmlNode.Value, authors.First(a => a.Name == xmlNode.Value));
+                }
+                return hasName;
+            }, listNodeIds);
+
+            //this tracks all documents to an author name/author content
+            var authorPosts = new Dictionary<string, Tuple<IPublishedContent, List<IPublishedContent>>>();
+
+            //read forward
+            foreach (var post in posts)
+            {
+                var authorInfo = postsWithAuthors[post.Id];
+                var authorName = authorInfo.Item1;
+                var authorContent = authorInfo.Item2;
+                if (authorPosts.ContainsKey(authorName))
+                {
+                    authorPosts[authorName].Item2.Add(post);
+                }
+                else
+                {
+                    authorPosts.Add(authorName, Tuple.Create(authorContent, new List<IPublishedContent> {post}));
+                }
+            }
+
+            return authorPosts.OrderBy(x => x.Key)
+                .Select(x => new AuthorModel(x.Value.Item1, x.Value.Item2.Select(y => new PostModel(y))));            
+        }
+
+        private static IPublishedContent GetAuthorsNode(IMasterModel masterModel)
+        {
+            var authorsNode = masterModel.RootBlogNode.Children
+                .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateAuthors"));
+            if (authorsNode == null)
+            {
+                throw new InvalidOperationException(
+                    "An ArticulateAuthors document must exist under the root Articulate document");
+            }
+
+            return authorsNode;
+        }
+
+        private class AuthorPostCollection : KeyedCollection<string, AuthorModel>
+        {
+            protected override string GetKeyForItem(AuthorModel item)
+            {
+                return item.Name;
+            }
         }
 
         private class TagDto

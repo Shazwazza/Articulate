@@ -1,0 +1,46 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.AuthorModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template";
+}
+
+<div class="row">
+    <div class="col-s-9">
+
+        <div class="row main">
+            <div class="mainContent box">
+                <div class="box-inner xfolkentry">
+                    <h1>@Model.Name</h1>
+                    @if (!Model.Image.IsNullOrWhiteSpace())
+                    {
+                        <img src="@Model.Image" />
+                    }
+                    <p>@Model.Bio</p>
+                    @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+                    {
+                        <p>Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a></p>    
+                    }
+
+                    <h2>Posts by @Model.Name</h2>
+
+                    @if (!Model.Posts.Any())
+                    {
+                        <div class="box-inner xfolkentry">No blog posts found</div>
+                    }
+                    else
+                    {
+                        foreach (var post in Model.Posts)
+                        {
+                            @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true }, { "HideAuthorCitation", true } })
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @Html.ThemedPartial(Model, "SideWidgets")
+</div>

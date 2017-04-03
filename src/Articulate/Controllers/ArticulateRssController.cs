@@ -50,7 +50,7 @@ namespace Articulate.Controllers
 
             var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
-            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, listNodeIds);
+            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
             var rootPageModel = new ListModel(listNodes[0], listItems, pager);
             

@@ -19,7 +19,7 @@ namespace Articulate.Controllers
     [OutputCache(Duration = 60, VaryByHeader = "host")]
 #endif
 
-    public class ArticulateTagsController : RenderMvcController
+    public class ArticulateTagsController : ListControllerBase
     {
         /// <summary>
         /// Sets a custom action invoker so that the correct action is executed based on the specified tag/category url defined on the articulate root
@@ -115,41 +115,7 @@ namespace Articulate.Controllers
                 return new HttpNotFoundResult();
             }
 
-            if (p != null && p.Value == 1)
-            {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            }
-
-            if (p == null || p.Value <= 0)
-            {
-                p = 1;
-            }
-
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts,
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var totalPosts = contentByTag.PostCount;
-            var pageSize = rootPageModel.PageSize;
-            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
-
-            //Invalid page, redirect without pages
-            if (totalPages < p)
-            {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
-            }
-
-            var pager = new PagerModel(
-                pageSize,
-                p.Value - 1,
-                totalPages,
-                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
-
-            var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
-
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return GetPagedListView(model, tagPage, contentByTag.Posts, contentByTag.PostCount, p);
         }
     }
 }

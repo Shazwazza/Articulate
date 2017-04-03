@@ -19,6 +19,36 @@ namespace Articulate
     public static class HtmlHelperExtensions
     {
         /// <summary>
+        /// Renders the Post date with Author details if author details are supplied
+        /// </summary>
+        /// <param name="html"></param>        
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static IHtmlString AuthorCitation(this HtmlHelper html, PostModel model)
+        {
+            var sb = new StringBuilder();            
+            if (model.Author != null)
+            {
+                sb.Append("<span>");
+                sb.Append("By ");
+
+                //TODO: Check if the current theme has an Author.cshtml theme file otherwise don't render a link!
+                //In that case we should have a 'ThemeSupport' class that will check to see what a theme supports.
+                if (model.Author.BlogUrl.IsNullOrWhiteSpace())
+                {
+                    sb.Append(model.Author.Name);
+                }
+                else
+                {
+                    sb.Append($@"<a href=""{model.Author.BlogUrl}"">{model.Author.Name}</a>");
+                }
+                sb.Append("&nbsp;on&nbsp;");
+                sb.Append("</span>");
+            }
+            return new HtmlString(sb.ToString());
+        }
+
+        /// <summary>
         /// Adds generic social meta tags
         /// </summary>
         /// <param name="html"></param>

@@ -11,7 +11,7 @@
     
     <article>
         <small class="fecha">
-            @Model.PublishedDate.ToString("dddd, dd MMMM, yyyy")
+            @Html.AuthorCitation(Model)<span>@Model.PublishedDate.ToString("dddd, dd MMMM, yyyy")</span>
         </small>
         <a class="title" href="@Model.Url">
             <h1 class="titulo-articulo">@Model.Name</h1>
