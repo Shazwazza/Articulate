@@ -641,13 +641,22 @@ img.thumb {
 
 .authorlist {
     display: block;
-    height: 60px;
+}
+
+.authorname {
+    clear: left;
+    margin-bottom: 3px;
+}
+
+.authorinfo {
+    margin-bottom: 10px;
+    height: 50px;
 }
 
 .authorlist img {
     clear: left;
     width: 55px;
-    height: 50px;
+    height: 50px;    
 }
 
 @media (max-width: 47.99em) {

@@ -22,7 +22,19 @@
                         {
                             <li class="authorlist">
                                 
-                                <div>
+                                <div class="authorname">
+                                    @if (!asArray[i].Url.IsNullOrWhiteSpace())
+                                    {
+                                        <a href="#author-@i">@asArray[i].Name</a>
+                                    }
+                                    else
+                                    {
+                                        @asArray[i].Name
+                                    }
+                                </div>
+
+                                <div class="authorinfo">
+
                                     @if (!asArray[i].Image.IsNullOrWhiteSpace())
                                     {
                                         var thumbnail = asArray[i].GetCropUrl("authorImage", "thumbnail");
@@ -33,19 +45,16 @@
                                     }
                                     else
                                     {
-                                        <img src="//style.anu.edu.au/_anu/4/images/placeholders/person.png" class="thumb" />
+                                        <img src="//style.anu.edu.au/_anu/4/images/placeholders/person.png" class="thumb"/>
                                     }
-                                    <div>
-                                        @if (!asArray[i].Url.IsNullOrWhiteSpace())
-                                        {
-                                            <a href="@asArray[i].Url">@asArray[i].Name</a>
-                                        }
-                                        else
-                                        {
-                                            @asArray[i].Name
-                                        }
+
+                                    <div class="hidden-xs">
+                                        Total posts: @asArray[i].PostCount
+                                        <br/>
+                                        Last post: @(asArray[i].LastPostDate.HasValue ? asArray[i].LastPostDate.Value.ToString("MMMM d, yyyy HH:mm") : "n/a")
                                     </div>
-                                    <div class="hidden-xs"><a href="#author-@i">Posts</a>: Number of posts: @asArray[i].PostCount, Last post: @(asArray[i].LastPostDate.HasValue ? asArray[i].LastPostDate.Value.ToString("MMMM d, yyyy HH:mm") : "n/a")</div>
+                                    
+                                    
                                 </div>                                
                             </li>
                         }

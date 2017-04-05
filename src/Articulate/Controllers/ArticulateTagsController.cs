@@ -63,7 +63,7 @@ namespace Articulate.Controllers
                 : RenderByTagOrCategory(model, p, "ArticulateTags", tagurlName);
         }
 
-        public ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
+        private ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -93,10 +93,10 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
-            //create a blog model of the main page
-            var rootPageModel = new MasterModel(model.Content.Parent);
+            //create a master model
+            var masterModel = new MasterModel(model.Content);
 
-            var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
+            var contentByTag = Umbraco.GetContentByTag(masterModel, tagPage.Name, tagGroup, baseUrl);
 
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
@@ -104,7 +104,7 @@ namespace Articulate.Controllers
             if (contentByTag == null && tagPage.Name.Contains("-"))
             {
                 contentByTag = Umbraco.GetContentByTag(
-                    rootPageModel,
+                    masterModel,
                     tagPage.Name.Replace('-', '.'),
                     tagGroup,
                     baseUrl);
@@ -115,7 +115,7 @@ namespace Articulate.Controllers
                 return new HttpNotFoundResult();
             }
 
-            return GetPagedListView(model, tagPage, contentByTag.Posts, contentByTag.PostCount, p);
+            return GetPagedListView(masterModel, tagPage, contentByTag.Posts, contentByTag.PostCount, p);
         }
     }
 }

@@ -55,13 +55,13 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
-            //create a blog model of the main page
-            var rootPageModel = new MasterModel(model.Content.Parent);
+            //create a master model
+            var masterModel = new MasterModel(model.Content);
 
             if (term == null)
             {
                 //nothing to search, just render the view
-                var emptyList = new ListModel(searchPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(rootPageModel.PageSize, 0, 0));
+                var emptyList = new ListModel(searchPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(masterModel.PageSize, 0, 0));
                 return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
             }
 
@@ -76,9 +76,9 @@ namespace Articulate.Controllers
             }
 
             int totalPosts;
-            var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id, rootPageModel.PageSize, p.Value - 1, out totalPosts);
+            var searchResult = ArticulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out totalPosts);
 
-            return GetPagedListView(model, searchPage, searchResult, totalPosts, p);
+            return GetPagedListView(masterModel, searchPage, searchResult, totalPosts, p);
         }
     }
 }

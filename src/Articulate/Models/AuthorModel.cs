@@ -8,32 +8,15 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class AuthorModel : MasterModel
-    {
-        private readonly UmbracoHelper _umbracoHelper;
-
-        /// <summary>
-        /// Constructor specifying specific posts for the author
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="posts"></param>
-        public AuthorModel(IPublishedContent content, IEnumerable<PostModel> posts) 
-            : base(content)
+    public class AuthorModel : ListModel
+    {        
+        private DateTime? _lastPostDate;
+        
+        public AuthorModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager, int postCount) 
+            : base(content, listItems, pager)
         {
-            _posts = posts;
-        }
-
-        /// <summary>
-        /// Constructor that will force the lazy resolution of an author's posts
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="umbracoHelper"></param>
-        public AuthorModel(IPublishedContent content, UmbracoHelper umbracoHelper)
-            : base(content)
-        {            
-            if (umbracoHelper == null) throw new ArgumentNullException(nameof(umbracoHelper));
-            _umbracoHelper = umbracoHelper;
-        }
+            PostCount = postCount;
+        }        
 
         public string Bio => this.GetPropertyValue<string>("authorBio");
 
@@ -54,35 +37,17 @@ namespace Articulate.Models
                 return _image;
             }
         }
+        
+        public int PostCount { get; }
 
-        public IEnumerable<PostModel> Posts
-        {
-            get
-            {
-                if (_posts != null) return _posts;
-                if (_umbracoHelper == null) return Enumerable.Empty<PostModel>();
-                _posts = _umbracoHelper.GetContentByAuthor(this);
-                return _posts;
-            }
-        }
-
-        private int? _postCount;
-        public int PostCount
-        {
-            get
-            {
-                if (_postCount.HasValue) return _postCount.Value;
-                _postCount = Posts?.Count();
-                return _postCount ?? 0;
-            }
-        }
-
-        private DateTime? _lastPostDate;
-        private IEnumerable<PostModel> _posts;
 
         public DateTime? LastPostDate
         {
-            get { return _lastPostDate ?? (_lastPostDate = Posts?.OrderByDescending(c => c.PublishedDate).FirstOrDefault()?.PublishedDate); }
+            get
+            {
+                //We know the list of posts passed in is already ordered descending so get the first
+                return _lastPostDate ?? (_lastPostDate = Children.FirstOrDefault()?.GetPropertyValue<DateTime>("publishedDate"));
+            }
         }
     }
 

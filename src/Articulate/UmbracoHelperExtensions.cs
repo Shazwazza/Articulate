@@ -1,5 +1,6 @@
 ﻿using Articulate.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Articulate
     public static class UmbracoHelperExtensions
     {
         /// <summary>
-        /// A method that will return the posts sorted by published date in an efficient way
+        /// A method that will return number of posts in an efficient way
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="articulateArchiveIds"></param>
@@ -26,6 +27,25 @@ namespace Articulate
             var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
             var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
             var xPathChildren = $"//* [{ids}]/*[@isDoc]";
+            //get the count with XPath, this will be the fastest
+            var totalPosts = xPathNavigator
+                .Select(xPathChildren)
+                .Count;
+            return totalPosts;
+        }
+
+        /// <summary>
+        /// A method that will return number of posts in an efficient way
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="authorName"></param>
+        /// <param name="articulateArchiveIds"></param>
+        /// <returns></returns>
+        public static int GetPostCount(this UmbracoHelper helper, string authorName, params int[] articulateArchiveIds)
+        {
+            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
+            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
+            var xPathChildren = $"//* [{ids}]/*[@isDoc and author = '{authorName}']";
             //get the count with XPath, this will be the fastest
             var totalPosts = xPathNavigator
                 .Select(xPathChildren)
@@ -132,7 +152,7 @@ namespace Articulate
             var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
             var rootPageModel = new ListModel(listNodes[0], listItems, pager);
-            return rootPageModel.Children<PostModel>();
+            return rootPageModel.Posts;
         }
 
         /// <summary>
@@ -285,24 +305,19 @@ namespace Articulate
 #endif
         }
 
-        internal static IEnumerable<PostModel> GetContentByAuthor(this UmbracoHelper helper, AuthorModel authorModel)
-        {
-            var listNodes = GetListNodes(authorModel);
-
-            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
-
-            //TODO: Should we have a paged result instead of returning everything?
-            var pager = new PagerModel(int.MaxValue, 0, 1);
+        internal static IEnumerable<IPublishedContent> GetContentByAuthor(this UmbracoHelper helper, IPublishedContent[] listNodes, string authorName, PagerModel pager)
+        {            
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();           
 
             var postWithAuthor = helper.GetPostsSortedByPublishedDate(pager, x =>
             {
                 //filter by author
                 var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
-                return xmlNode != null && string.Equals(xmlNode.Value, authorModel.Name.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase);
+                return xmlNode != null && string.Equals(xmlNode.Value, authorName.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase);
             }, listNodeIds);
 
             var rootPageModel = new ListModel(listNodes[0], postWithAuthor, pager);
-            return rootPageModel.Children<PostModel>();
+            return rootPageModel.Posts;
         }
 
         private static IPublishedContent[] GetListNodes(IMasterModel masterModel)
@@ -317,53 +332,83 @@ namespace Articulate
         }
 
         internal static IEnumerable<AuthorModel> GetContentByAuthors(this UmbracoHelper helper, IMasterModel masterModel)
-        {
-            var listNodes = GetListNodes(masterModel);
+        {            
             var authorsNode = GetAuthorsNode(masterModel);
             var authors = authorsNode.Children.ToList();
-            var authorNames = authors.Select(x => x.Name).ToArray();
-
-            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
             //TODO: Should we have a paged result instead of returning everything?
             var pager = new PagerModel(int.MaxValue, 0, 1);
 
-            //this will track author names to document ids
-            var postsWithAuthors = new Dictionary<int, Tuple<string, IPublishedContent>>();
+            var listNodes = GetListNodes(masterModel);
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
-            var posts = helper.GetPostsSortedByPublishedDate(pager, x =>
+            //used to lazily retrieve posts by author - as it turns out however this extra work to do this lazily in case the 
+            //Children property of the AuthorModel is not used is a waste because as soon as we get the latest post date for an author it will
+            //iterate. Oh well, it's still lazy just in case.
+            var lazyAuthorPosts = new Lazy<Dictionary<string, Tuple<IPublishedContent, List<IPublishedContent>>>>(() =>
             {
-                //ensure there's an author and one that matches someone in the author list
-                var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
-                var hasName = xmlNode != null && authorNames.Contains(xmlNode.Value);
-                if (hasName)
+                var authorNames = authors.Select(x => x.Name).ToArray();
+
+                //this will track author names to document ids
+                var postsWithAuthors = new Dictionary<int, Tuple<string, IPublishedContent>>();
+
+                var posts = helper.GetPostsSortedByPublishedDate(pager, x =>
                 {
-                    postsWithAuthors[int.Parse(x.GetAttribute("id", ""))] = Tuple.Create(xmlNode.Value, authors.First(a => a.Name == xmlNode.Value));
+                    //ensure there's an author and one that matches someone in the author list
+                    var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
+                    var hasName = xmlNode != null && authorNames.Contains(xmlNode.Value);
+                    if (hasName)
+                    {
+                        postsWithAuthors[int.Parse(x.GetAttribute("id", ""))] = Tuple.Create(xmlNode.Value, authors.First(a => a.Name == xmlNode.Value));
+                    }
+                    return hasName;
+                }, listNodeIds);
+
+                //this tracks all documents to an author name/author content
+                var authorPosts = new Dictionary<string, Tuple<IPublishedContent, List<IPublishedContent>>>();
+
+                //read forward
+                foreach (var post in posts)
+                {
+                    var authorInfo = postsWithAuthors[post.Id];
+                    var authorName = authorInfo.Item1;
+                    var authorContent = authorInfo.Item2;
+                    if (authorPosts.ContainsKey(authorName))
+                    {
+                        authorPosts[authorName].Item2.Add(post);
+                    }
+                    else
+                    {
+                        authorPosts.Add(authorName, Tuple.Create(authorContent, new List<IPublishedContent> {post}));
+                    }
                 }
-                return hasName;
-            }, listNodeIds);
+                return authorPosts;
+            });
+            
+            return authors.OrderBy(x => x.Name)
+                .Select(x => new AuthorModel(x, GetLazyAuthorPosts(x, lazyAuthorPosts), pager, GetPostCount(helper, x.Name, listNodeIds)));
+        }
 
-            //this tracks all documents to an author name/author content
-            var authorPosts = new Dictionary<string, Tuple<IPublishedContent, List<IPublishedContent>>>();
-
-            //read forward
-            foreach (var post in posts)
+        /// <summary>
+        /// Used to lazily retrieve posts by author
+        /// </summary>
+        /// <param name="author"></param>
+        /// <param name="lazyAuthorPosts"></param>
+        /// <returns></returns>
+        private static IEnumerable<IPublishedContent> GetLazyAuthorPosts(
+            IPublishedContent author, 
+            Lazy<Dictionary<string, Tuple<IPublishedContent, List<IPublishedContent>>>> lazyAuthorPosts)
+        {
+            foreach (var authorPost in lazyAuthorPosts.Value)
             {
-                var authorInfo = postsWithAuthors[post.Id];
-                var authorName = authorInfo.Item1;
-                var authorContent = authorInfo.Item2;
-                if (authorPosts.ContainsKey(authorName))
+                if (authorPost.Value.Item1.Id == author.Id)
                 {
-                    authorPosts[authorName].Item2.Add(post);
-                }
-                else
-                {
-                    authorPosts.Add(authorName, Tuple.Create(authorContent, new List<IPublishedContent> {post}));
-                }
+                    foreach (var post in authorPost.Value.Item2)
+                    {
+                        yield return post;
+                    }
+                }                                
             }
-
-            return authorPosts.OrderBy(x => x.Key)
-                .Select(x => new AuthorModel(x.Value.Item1, x.Value.Item2.Select(y => new PostModel(y))));            
         }
 
         private static IPublishedContent GetAuthorsNode(IMasterModel masterModel)
@@ -378,15 +423,7 @@ namespace Articulate
 
             return authorsNode;
         }
-
-        private class AuthorPostCollection : KeyedCollection<string, AuthorModel>
-        {
-            protected override string GetKeyForItem(AuthorModel item)
-            {
-                return item.Name;
-            }
-        }
-
+        
         private class TagDto
         {
             public int NodeId { get; set; }

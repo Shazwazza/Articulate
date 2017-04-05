@@ -27,54 +27,53 @@ namespace Articulate.Controllers
         protected ListControllerBase(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper)
             : base(umbracoContext, umbracoHelper)
         {
-        }
+        }        
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
         /// </summary>
-        protected ActionResult GetPagedListView(IRenderModel model, IPublishedContent publishedContent, int totalPosts, int? p)
+        protected ActionResult GetPagedListView(IMasterModel masterModel, IPublishedContent pageNode, IEnumerable<IPublishedContent> listItems, int totalPosts, int? p)
         {
-            return GetPagedListView(model, publishedContent, null, totalPosts, p);
+            if (masterModel == null) throw new ArgumentNullException(nameof(masterModel));
+            if (pageNode == null) throw new ArgumentNullException(nameof(pageNode));
+            if (listItems == null) throw new ArgumentNullException(nameof(listItems));
+
+            PagerModel pager;
+            if (!GetPagerModel(masterModel, totalPosts, p, out pager))
+            {
+                return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContext);
+            }
+
+            var listModel = new ListModel(pageNode, listItems, pager);
+
+            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
 
-        /// <summary>
-        /// Gets a paged list view for a given posts by author/tags/categories model
-        /// </summary>
-        protected ActionResult GetPagedListView(IRenderModel model, IPublishedContent publishedContent, IEnumerable<IPublishedContent> listItems, int totalPosts, int? p)
+        protected bool GetPagerModel(IMasterModel masterModel, int totalPosts, int? p, out PagerModel pager)
         {
-            var rootPageModel = new ListModel(model.Content);
-
             if (p == null || p.Value <= 0)
             {
                 p = 1;
             }
-
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts, 
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var pageSize = rootPageModel.PageSize;
+            
+            var pageSize = masterModel.PageSize;
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
             //Invalid page, redirect without pages
             if (totalPages < p)
             {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
+                pager = null;
+                return false;
             }
 
-            var pager = new PagerModel(
+            pager = new PagerModel(
                 pageSize,
                 p.Value - 1,
                 totalPages,
-                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
-            
-            var listModel = listItems != null
-                ? new ListModel(publishedContent, listItems, pager)
-                : new ListModel(publishedContent, pager);
+                totalPages > p ? masterModel.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
+                p > 2 ? masterModel.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? masterModel.Url : null);
 
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return true;
         }
     }
 }

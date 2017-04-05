@@ -9,7 +9,7 @@ namespace Articulate.Models
     {
         public PostsByTagModel(IEnumerable<PostModel> posts, string tagName, string tagUrl)
         {
-            if (posts == null) throw new ArgumentNullException("posts");
+            if (posts == null) throw new ArgumentNullException(nameof(posts));
             if (tagName == null) throw new ArgumentNullException(nameof(tagName));
             if (tagUrl == null) throw new ArgumentNullException(nameof(tagUrl));
 
@@ -20,7 +20,7 @@ namespace Articulate.Models
             TagUrl = safeEncoded.Contains("//") ? safeEncoded : safeEncoded.EnsureStartsWith('/');
         }
 
-        public IEnumerable<PostModel> Posts { get; private set; }
+        public IEnumerable<PostModel> Posts { get; }
         public string TagName { get; private set; }
         public string TagUrl { get; private set; }
 

@@ -17,26 +17,46 @@
                     {
                         <img src="@Model.Image" />
                     }
-                    <p>@Model.Bio</p>
+
+                    <p>@Model.Bio</p>                    
+
                     @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
                     {
                         <p>Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a></p>    
                     }
+                    
+                    <hr />
 
-                    <h2>Posts by @Model.Name</h2>
+                    <p>
+                        Total posts: @Model.PostCount
+                        <br />
+                        Last post: @(Model.LastPostDate.HasValue ? Model.LastPostDate.Value.ToString("MMMM d, yyyy HH:mm") : "n/a")
+                    </p>
 
-                    @if (!Model.Posts.Any())
-                    {
-                        <div class="box-inner xfolkentry">No blog posts found</div>
-                    }
-                    else
-                    {
-                        foreach (var post in Model.Posts)
-                        {
-                            @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true }, { "HideAuthorCitation", true } })
-                        }
-                    }
+                                        
+                    
                 </div>
+                
+                <div class="mainContent box small">
+                    <div class="posts" role="main">
+
+                        @if (Model.PostCount == 0)
+                        {
+                            <div class="box-inner xfolkentry">No blog posts found</div>
+                        }
+                        else
+                        {
+                            foreach (var post in Model.Posts)
+                            {
+                                @Html.ThemedPartial(Model, "Post", post, new ViewDataDictionary { { "IsListView", true }, { "HideAuthorCitation", true } })
+                            }
+
+                            @Html.ThemedPartial(Model, "Pager", Model.Pages)
+                        }
+
+                    </div>
+                </div>
+
             </div>
         </div>
 

@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Xml.XPath;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
@@ -38,14 +39,18 @@ namespace Articulate.Controllers
 
         private ActionResult RenderView(IRenderModel model, int? p = null)
         {
-            var listNode = model.Content.Children
-               .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"));
-            if (listNode == null)
+            var listNodes = model.Content.Children("ArticulateArchive").ToArray();
+            if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            return GetPagedListView(model, listNode, listNode.Children.Count(), p);
+            var master = new MasterModel(model.Content);
+
+            //Get post count by xpath is much faster than iterating all children to get a count
+            var count = Umbraco.GetPostCount(listNodes.Select(x => x.Id).ToArray());
+
+            return GetPagedListView(master, listNodes[0], listNodes[0].Children, count, p);
 
         }
     }
