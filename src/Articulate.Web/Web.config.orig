@@ -65,7 +65,11 @@
   </appSettings>
   <connectionStrings>
     <remove name="umbracoDbDSN" />
+<<<<<<< master
+  </connectionStrings>
+=======
   <add name="umbracoDbDSN" connectionString="Data Source=|DataDirectory|\Umbraco.sdf;Flush Interval=1;" providerName="System.Data.SqlServerCe.4.0" /></connectionStrings>
+>>>>>>> local
 
   <system.data>
     <DbProviderFactories>
