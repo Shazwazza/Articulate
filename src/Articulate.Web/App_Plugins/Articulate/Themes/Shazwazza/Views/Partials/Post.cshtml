@@ -3,7 +3,7 @@
 @using Umbraco.Core
 @inherits Umbraco.Web.Mvc.UmbracoViewPage<Articulate.Models.PostModel>
 
-@*This partial accepts view data parameters to modify how it is displayed - IsListView*@
+@*This partial accepts view data parameters to modify how it is displayed - IsListView, HideAuthorCitation*@
 
 <div class="box-inner post xfolkentry">
 
@@ -12,7 +12,8 @@
     @if (Model.Parent.Name != "Pages") 
     {
         <div class="descr">
-            @Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")      
+            @Html.AuthorCitation(Model)
+            <span>@Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")</span>
         </div>
 
         @Html.ThemedPartial(Model, "Sharing")

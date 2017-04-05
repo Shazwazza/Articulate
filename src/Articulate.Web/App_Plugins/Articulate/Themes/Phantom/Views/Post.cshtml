@@ -9,9 +9,8 @@
 <article class="post tag-ghost-tag">
     
     <span class="post-meta">
-        <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">
-            @Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")
-        </time>        
+        @Html.AuthorCitation(Model)
+        <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">@Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")</time>
         @Html.ThemedPartial(Model, "PostTags")
     </span>
     

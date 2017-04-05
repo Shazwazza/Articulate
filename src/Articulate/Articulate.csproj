@@ -280,11 +280,14 @@
     <Compile Include="ArticulateSearchRouteHandler.cs" />
     <Compile Include="BlogMlExporter.cs" />
     <Compile Include="BlogMlImporter.cs" />
+    <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
+    <Compile Include="Controllers\ArticulateAuthorsController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
+    <Compile Include="Controllers\ListControllerBase.cs" />
     <Compile Include="Controllers\MardownEditorApiController.cs" />
     <Compile Include="Controllers\MarkdownEditorController.cs" />
     <Compile Include="Controllers\OpenSearchController.cs" />
@@ -302,10 +305,12 @@
     <Compile Include="Controllers\ArticulateMarkdownController.cs" />
     <Compile Include="Controllers\ArticulateRichTextController.cs" />
     <Compile Include="Controllers\UmbracoNotFoundResult.cs" />
+    <Compile Include="Models\AuthorListModel.cs" />
     <Compile Include="Models\ExportBlogMlModel.cs" />
     <Compile Include="Models\ImportModel.cs" />
     <Compile Include="DefaultArticulateSearcher.cs" />
     <Compile Include="IArticulateSearcher.cs" />
+    <Compile Include="Models\PostAuthorModel.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
     <Compile Include="Resources\ArticulateResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -381,6 +386,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\..\build\packageManifest.xml">
       <Link>Resources\packageManifest.xml</Link>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="Controllers\FeedXslt.xslt">
       <SubType>Designer</SubType>

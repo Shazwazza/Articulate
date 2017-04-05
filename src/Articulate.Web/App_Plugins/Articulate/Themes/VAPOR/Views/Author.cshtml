@@ -2,16 +2,39 @@
 @using Articulate.Models
 @using Umbraco.Core
 @using Umbraco.Web
-@model Articulate.Models.ListModel
+@model Articulate.Models.AuthorModel
 @{
     Layout = "Master.cshtml";
 }
 
 <main class="content" role="main">
+
     
-    @if (!Model.Children.Any())
+    <article class="post">
+
+        <header>
+            <h1 class="post-title">@Model.Name</h1>            
+        </header>
+        <section class="post-content">
+            @if (!Model.Image.IsNullOrWhiteSpace())
+            {
+                <img class="postImage" src="@Model.Image" />
+            }
+            <p>@Model.Bio</p>
+            @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+            {
+                <p>Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+                </p>
+            }
+            
+        </section>
+        
+        <hr />
+    </article>
+    
+    @if (Model.PostCount == 0)
     {
-        <article>No blog posts found</article>        
+        <article>No blog posts found</article>
     }
     else
     {
@@ -44,8 +67,8 @@
                 </section>
             </article>
         }
-    
-        @Html.ThemedPartial(Model, "Pager", Model.Pages)   
+
+        @Html.ThemedPartial(Model, "Pager", Model.Pages)
     }
-    
+
 </main>

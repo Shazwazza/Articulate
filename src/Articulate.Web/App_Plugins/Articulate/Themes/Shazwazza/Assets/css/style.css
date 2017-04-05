@@ -639,6 +639,26 @@ img.thumb {
     padding: 0px 10px 0px 0px;
 }
 
+.authorlist {
+    display: block;
+}
+
+.authorname {
+    clear: left;
+    margin-bottom: 3px;
+}
+
+.authorinfo {
+    margin-bottom: 10px;
+    height: 50px;
+}
+
+.authorlist img {
+    clear: left;
+    width: 55px;
+    height: 50px;    
+}
+
 @media (max-width: 47.99em) {
     .header {
         margin: 0;        

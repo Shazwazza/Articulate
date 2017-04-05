@@ -45,6 +45,7 @@ namespace Articulate.Models
         private IPublishedContent _rootBlogNode;
         private string _theme;
         private IPublishedContent _blogListNode;
+        private IPublishedContent _blogAuthorsNode;
         private int? _pageSize;
         private string _blogTitle;
         private string _blogDescription;
@@ -73,6 +74,24 @@ namespace Articulate.Models
                 }
                 _blogListNode = list;
                 return _blogListNode;
+            }
+            protected set { _blogListNode = value; }
+        }
+
+        /// <summary>
+        /// This will return the first archive node found under the blog root
+        /// </summary>
+        public IPublishedContent BlogAuthorsNode
+        {
+            get
+            {
+                var authors = RootBlogNode.Children("ArticulateAuthors").FirstOrDefault();
+                if (authors == null)
+                {
+                    throw new InvalidOperationException("Could not find the ArticulateAuthors document for the current rendered page");
+                }
+                _blogAuthorsNode = authors;
+                return _blogAuthorsNode;
             }
             protected set { _blogListNode = value; }
         }
@@ -119,7 +138,7 @@ namespace Articulate.Models
             {
                 if (_pageSize.HasValue == false)
                 {
-                    _pageSize = Content.GetPropertyValue<int>("pageSize", 10);
+                    _pageSize = Content.GetPropertyValue<int>("pageSize", true, 10);
                 }
                 return _pageSize.Value;
             }

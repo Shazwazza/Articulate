@@ -1,3 +1,4 @@
+using System.Linq;
 using Articulate.Models;
 using System.Web;
 using System.Web.Mvc;
@@ -52,6 +53,17 @@ namespace Articulate
         }
 
         /// <summary>
+        /// Returns an RSS feed URL specific to this author
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string ArticulateAuthorRssUrl(this UrlHelper url, AuthorModel model)
+        {
+            return model.Url.EnsureEndsWith('/') + "rss";
+        }
+
+        /// <summary>
         /// Get the search url without the 'term' query string
         /// </summary>
         /// <param name="url"></param>
@@ -85,6 +97,14 @@ namespace Articulate
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') +
                   model.RootBlogNode.GetPropertyValue<string>("categoriesUrlName");
+        }
+
+        /// <summary>
+        /// Returns the authors list URL
+        /// </summary>
+        public static string ArticulateAuthorsUrl(this UrlHelper url, IMasterModel model)
+        {
+            return model.RootBlogNode?.Children("ArticulateAuthors").FirstOrDefault()?.Url;
         }
 
         /// <summary>

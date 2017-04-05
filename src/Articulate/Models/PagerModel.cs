@@ -21,14 +21,8 @@ namespace Articulate.Models
 
         public string PreviousUrl { get; private set; }
 
-        public bool HasNext
-        {
-            get { return NextUrl != null; }
-        }
+        public bool HasNext => NextUrl != null;
 
-        public bool HasPrevious
-        {
-            get { return PreviousUrl != null; }
-        }
+        public bool HasPrevious => PreviousUrl != null;
     }
 }

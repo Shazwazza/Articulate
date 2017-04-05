@@ -57,9 +57,9 @@
                     }
                     <p class="attr">Author</p>
                     <h4>
-                        @if (!Model.Author.Url.IsNullOrWhiteSpace())
+                        @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
                         {
-                            <a href="@Model.Author.Url">@Model.Author.Name</a>
+                            <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
                         }
                         else
                         {

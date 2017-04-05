@@ -13,7 +13,6 @@ namespace Articulate.Models
     internal class ArticulateVirtualPage : PublishedContentWrapped
     {
         private readonly string _pageName;
-        private readonly string _pageTypeAlias;
         private readonly string _urlPath;
 
         public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias, string urlPath = null)
@@ -22,7 +21,7 @@ namespace Articulate.Models
             if (pageName == null) throw new ArgumentNullException("pageName");
             if (pageTypeAlias == null) throw new ArgumentNullException("pageTypeAlias");
             _pageName = pageName;
-            _pageTypeAlias = pageTypeAlias;
+            DocumentTypeAlias = pageTypeAlias;
 
             if (urlPath != null)
             {
@@ -31,52 +30,25 @@ namespace Articulate.Models
             
         }
         
-        public override string Url
-        {
-            get { return base.Url.EnsureEndsWith('/') + (_urlPath ?? UrlName); }
-        }
+        public override string Url => base.Url.EnsureEndsWith('/') + (_urlPath ?? UrlName);
 
         /// <summary>
         /// Returns the content that was used to create this virtual node - we'll assume this virtual node's parent is based on the real node that created it
         /// </summary>
-        public override IPublishedContent Parent
-        {
-            get { return Content; }
-        }
+        public override IPublishedContent Parent => Content;
 
-        public override int Id
-        {
-            get { return int.MaxValue - Parent.Id; }
-        }
+        public override int Id => int.MaxValue - Parent.Id;
 
-        public override string Name
-        {
-            get { return _pageName; }
-        }
+        public override string Name => _pageName;
 
-        public override string UrlName
-        {
-            get { return _pageName.ToLowerInvariant(); }
-        }
+        public override string UrlName => _pageName.ToLowerInvariant();
 
-        public override string DocumentTypeAlias
-        {
-            get { return _pageTypeAlias; }
-        }
+        public override string DocumentTypeAlias { get; }
 
-        public override int DocumentTypeId
-        {
-            get { return int.MaxValue - Parent.DocumentTypeId; }
-        }
+        public override int DocumentTypeId => int.MaxValue - Parent.DocumentTypeId;
 
-        public override string Path
-        {
-            get { return Content.Path.EnsureEndsWith(',') + Id; }
-        }
+        public override string Path => Content.Path.EnsureEndsWith(',') + Id;
 
-        public override int Level
-        {
-            get { return Content.Level + 1; }
-        }
+        public override int Level => Content.Level + 1;
     }
 }

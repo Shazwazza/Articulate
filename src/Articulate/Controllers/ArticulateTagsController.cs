@@ -19,7 +19,7 @@ namespace Articulate.Controllers
     [OutputCache(Duration = 60, VaryByHeader = "host")]
 #endif
 
-    public class ArticulateTagsController : RenderMvcController
+    public class ArticulateTagsController : ListControllerBase
     {
         /// <summary>
         /// Sets a custom action invoker so that the correct action is executed based on the specified tag/category url defined on the articulate root
@@ -63,7 +63,7 @@ namespace Articulate.Controllers
                 : RenderByTagOrCategory(model, p, "ArticulateTags", tagurlName);
         }
 
-        public ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
+        private ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -93,10 +93,10 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
-            //create a blog model of the main page
-            var rootPageModel = new MasterModel(model.Content.Parent);
+            //create a master model
+            var masterModel = new MasterModel(model.Content);
 
-            var contentByTag = Umbraco.GetContentByTag(rootPageModel, tagPage.Name, tagGroup, baseUrl);
+            var contentByTag = Umbraco.GetContentByTag(masterModel, tagPage.Name, tagGroup, baseUrl);
 
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
@@ -104,7 +104,7 @@ namespace Articulate.Controllers
             if (contentByTag == null && tagPage.Name.Contains("-"))
             {
                 contentByTag = Umbraco.GetContentByTag(
-                    rootPageModel,
+                    masterModel,
                     tagPage.Name.Replace('-', '.'),
                     tagGroup,
                     baseUrl);
@@ -115,41 +115,7 @@ namespace Articulate.Controllers
                 return new HttpNotFoundResult();
             }
 
-            if (p != null && p.Value == 1)
-            {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            }
-
-            if (p == null || p.Value <= 0)
-            {
-                p = 1;
-            }
-
-            //TODO: I wonder about the performance of this - when we end up with thousands of blog posts,
-            // this will probably not be so efficient. I wonder if using an XPath lookup for batches of children
-            // would work? The children count could be cached. I'd rather not put blog posts under 'month' nodes
-            // just for the sake of performance. Hrm.... Examine possibly too.
-
-            var totalPosts = contentByTag.PostCount;
-            var pageSize = rootPageModel.PageSize;
-            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
-
-            //Invalid page, redirect without pages
-            if (totalPages < p)
-            {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
-            }
-
-            var pager = new PagerModel(
-                pageSize,
-                p.Value - 1,
-                totalPages,
-                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
-
-            var listModel = new ListModel(tagPage, contentByTag.Posts, pager);
-
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return GetPagedListView(masterModel, tagPage, contentByTag.Posts, contentByTag.PostCount, p);
         }
     }
 }

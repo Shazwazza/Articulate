@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Xml.XPath;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
@@ -12,7 +13,7 @@ namespace Articulate.Controllers
     /// <summary>
     /// Renders the Articulate root node as the main blog post list by date
     /// </summary>
-    public class ArticulateController : RenderMvcController
+    public class ArticulateController : ListControllerBase
     {
         /// <summary>
         /// Declare new Index action with optional page number
@@ -38,51 +39,19 @@ namespace Articulate.Controllers
 
         private ActionResult RenderView(IRenderModel model, int? p = null)
         {
-            var listNodes = model.Content.Children
-               .Where(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"))
-               .ToArray();
+            var listNodes = model.Content.Children("ArticulateArchive").ToArray();
             if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            if (p != null && p.Value == 1)
-            {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            }
-            
-            if (p == null || p.Value <= 0)
-            {
-                p = 1;
-            }
+            var master = new MasterModel(model.Content);
 
-            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+            //Get post count by xpath is much faster than iterating all children to get a count
+            var count = Umbraco.GetPostCount(listNodes.Select(x => x.Id).ToArray());
 
-            var rootPageModel = new MasterModel(model.Content);
+            return GetPagedListView(master, listNodes[0], listNodes[0].Children, count, p);
 
-            //get the count with XPath, this will be the fastest
-            var totalPosts = Umbraco.GetPostCount(listNodeIds);
-
-            var pageSize = rootPageModel.PageSize;
-            var totalPages = Convert.ToInt32(Math.Ceiling((double)totalPosts/pageSize));
-
-            //Invalid page, redirect without pages
-            if (totalPages > 0 && totalPages < p)
-            {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
-            }
-
-            var pager = new PagerModel(
-                pageSize,
-                p.Value - 1,
-                totalPages,
-                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? model.Content.Url : null);
-
-            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, listNodeIds);
-
-            var listModel = new ListModel(listNodes[0], listItems, pager);
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
     }
 }

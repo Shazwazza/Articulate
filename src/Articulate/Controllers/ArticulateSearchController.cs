@@ -13,7 +13,7 @@ namespace Articulate.Controllers
     /// <summary>
     /// Renders search results
     /// </summary>
-    public class ArticulateSearchController : RenderMvcController
+    public class ArticulateSearchController : ListControllerBase
     {
         private IArticulateSearcher _articulateSearcher;
 
@@ -49,19 +49,19 @@ namespace Articulate.Controllers
         /// <returns></returns>
         public ActionResult Search(RenderModel model, string term, string provider = null, int? p = null)
         {
-            var tagPage = model.Content as ArticulateVirtualPage;
-            if (tagPage == null)
+            var searchPage = model.Content as ArticulateVirtualPage;
+            if (searchPage == null)
             {
                 throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
-            //create a blog model of the main page
-            var rootPageModel = new MasterModel(model.Content.Parent);
+            //create a master model
+            var masterModel = new MasterModel(model.Content);
 
             if (term == null)
             {
                 //nothing to search, just render the view
-                var emptyList = new ListModel(tagPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(rootPageModel.PageSize, 0, 0));
+                var emptyList = new ListModel(searchPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(masterModel.PageSize, 0, 0));
                 return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
             }
 
@@ -76,28 +76,9 @@ namespace Articulate.Controllers
             }
 
             int totalPosts;
-            var searchResult = ArticulateSearcher.Search(term, provider, rootPageModel.BlogArchiveNode.Id, rootPageModel.PageSize, p.Value - 1, out totalPosts);
-            
-            var pageSize = rootPageModel.PageSize;
+            var searchResult = ArticulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out totalPosts);
 
-            var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
-
-            //Invalid page, redirect without pages
-            if (totalPages < p)
-            {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
-            }
-
-            var pager = new PagerModel(
-                pageSize,
-                p.Value - 1,
-                totalPages,
-                totalPages > p ? model.Content.Url.EnsureEndsWith('?') + "term=" + term + "&p=" + (p + 1) : null,
-                p > 2 ? model.Content.Url.EnsureEndsWith('?') + "term=" + term + "&p=" + (p - 1) : p > 1 ? model.Content.Url.EnsureEndsWith('?') + "term=" + term : null);
-
-            var listModel = new ListModel(tagPage, searchResult, pager);
-
-            return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
+            return GetPagedListView(masterModel, searchPage, searchResult, totalPosts, p);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Articulate.Models
 {
     public class PostModel : MasterModel
     {
-        private AuthorModel _author;
+        private PostAuthorModel _author;
 
         public PostModel(IPublishedContent content)
             : base(content)
@@ -52,7 +52,7 @@ namespace Articulate.Models
             get { return Content.GetPropertyValue<bool>("enableComments", true); }
         }
 
-        public AuthorModel Author
+        public PostAuthorModel Author
         {
             get
             {
@@ -61,7 +61,7 @@ namespace Articulate.Models
                     return _author;
                 }
 
-                _author = new AuthorModel
+                _author = new PostAuthorModel
                 {
                     Name = Content.GetPropertyValue<string>("author", true)
                 };
@@ -82,6 +82,8 @@ namespace Articulate.Models
                             _author.Image = !imageVal.IsNullOrWhiteSpace()
                                 ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
                                 : null;
+
+                            _author.BlogUrl = authorNode.Url;
                         }
                     }
                 }
@@ -146,6 +148,11 @@ namespace Articulate.Models
                 }
                 
             }
+        }
+
+        public string ExternalUrl
+        {
+            get { return this.GetPropertyValue<string>("externalUrl"); }
         }
     }
 

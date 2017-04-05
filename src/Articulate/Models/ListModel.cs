@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core.Models;
+using Umbraco.Web;
 
 namespace Articulate.Models
 {
@@ -11,7 +12,7 @@ namespace Articulate.Models
     public class ListModel : MasterModel
     {
         private readonly IEnumerable<IPublishedContent> _listItems;
-        private PostModel[] _resolvedList;
+        private IEnumerable<PostModel> _resolvedList;
         private readonly PagerModel _pager;
 
         /// <summary>
@@ -27,16 +28,22 @@ namespace Articulate.Models
         public ListModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager)
             : base(content)
         {
+            
             if (content == null) throw new ArgumentNullException(nameof(content));
             if (listItems == null) throw new ArgumentNullException(nameof(listItems));
             if (pager == null) throw new ArgumentNullException(nameof(pager));
-            
+
             _pager = pager;
             _listItems = listItems;
-            if(content.DocumentTypeAlias.Equals("ArticulateArchive"))
+            if (content.DocumentTypeAlias.Equals("ArticulateArchive"))
                 PageTitle = BlogTitle + " - " + BlogDescription;
             else
                 PageTags = Name;
+        }        
+
+        public ListModel(IPublishedContent content)
+            : base(content)
+        {
         }
         
         /// <summary>
@@ -45,26 +52,43 @@ namespace Articulate.Models
         public PagerModel Pages => _pager;
 
         /// <summary>
-        /// The list of blog posts
+        /// Strongly typed access to the list of blog posts
         /// </summary>
-        public override IEnumerable<IPublishedContent> Children
+        public IEnumerable<PostModel> Posts
         {
             get
             {
+
                 if (_resolvedList != null)
+                    return _resolvedList;
+
+                if (_listItems == null)
                 {
+                    _resolvedList = base.Children.Select(x => new PostModel(x)).ToArray();
                     return _resolvedList;
                 }
 
-                _resolvedList = _listItems           
-                    // Commenting out Skip due to list items already being filtered by page. Leaving Take just in case.
-                    //.Skip(_pager.CurrentPageIndex * _pager.PageSize)
-                    .Take(_pager.PageSize)
-                    .Select(x => new PostModel(x))
-                    .ToArray();
+
+                if (_listItems != null && _pager != null)
+                {
+                    _resolvedList = _listItems
+                    //Skip will already be done in this case, but we'll take again anyways just to be safe                    
+                        .Take(_pager.PageSize)
+                        .Select(x => new PostModel(x))
+                        .ToArray();
+                }
+                else
+                {
+                    _resolvedList = Enumerable.Empty<PostModel>();
+                }
 
                 return _resolvedList;
             }
         }
+
+        /// <summary>
+        /// The list of blog posts
+        /// </summary>
+        public override IEnumerable<IPublishedContent> Children => Posts;
     }
 }

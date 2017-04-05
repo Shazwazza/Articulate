@@ -36,7 +36,7 @@
     else
     {
         var doneFirst = false;
-        foreach (var post in Model.Children<PostModel>())
+        foreach (var post in Model.Posts)
         {
             if (!doneFirst && Model.DocumentTypeAlias == "ArticulateArchive")
             {

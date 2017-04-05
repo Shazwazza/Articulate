@@ -1,13 +1,54 @@
-﻿namespace Articulate.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Umbraco.Core;
+using Umbraco.Core.Models;
+using Umbraco.Web;
+using Umbraco.Web.Models;
+
+namespace Articulate.Models
 {
-    public class AuthorModel
-    {
-        public string Name { get; set; }
+    public class AuthorModel : ListModel
+    {        
+        private DateTime? _lastPostDate;
+        
+        public AuthorModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager, int postCount) 
+            : base(content, listItems, pager)
+        {
+            PostCount = postCount;
+        }        
 
-        public string Bio { get; set; }
+        public string Bio => this.GetPropertyValue<string>("authorBio");
 
-        public string Url { get; set; }
+        public string AuthorUrl => this.GetPropertyValue<string>("authorUrl");
 
-        public string Image { get; set; }
+        private string _image;
+        public string Image
+        {
+            get
+            {
+                if (_image != null) return _image;
+
+                var imageVal = this.GetPropertyValue<string>("authorImage");
+                _image =  !imageVal.IsNullOrWhiteSpace()
+                    ? this.GetCropUrl("authorImage", "wide")
+                    : null;
+
+                return _image;
+            }
+        }
+        
+        public int PostCount { get; }
+
+
+        public DateTime? LastPostDate
+        {
+            get
+            {
+                //We know the list of posts passed in is already ordered descending so get the first
+                return _lastPostDate ?? (_lastPostDate = Children.FirstOrDefault()?.GetPropertyValue<DateTime>("publishedDate"));
+            }
+        }
     }
+
 }
