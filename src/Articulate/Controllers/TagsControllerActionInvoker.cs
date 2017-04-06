@@ -5,6 +5,7 @@ using System.Web.Mvc.Async;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Models;
 
 namespace Articulate.Controllers
 {
@@ -22,20 +23,20 @@ namespace Articulate.Controllers
             //now we need to check if it exists, if not we need to return the Index by default
             if (ad == null)
             {
-                if (controllerContext.RouteData.DataTokens.ContainsKey("__virtualnodefinder__"))
+                if (controllerContext.RouteData.DataTokens.ContainsKey("umbraco"))
                 {
-                    var virtualNode = controllerContext.RouteData.DataTokens["__virtualnodefinder__"] as IPublishedContent;
+                    var virtualNode = controllerContext.RouteData.DataTokens["umbraco"] as RenderModel;
                     if (virtualNode != null)
                     {
                         var action = controllerContext.RouteData.GetRequiredString("action");
                         
-                        var categoryUrl = virtualNode.GetPropertyValue<string>("categoriesUrlName");
+                        var categoryUrl = virtualNode.Content.GetPropertyValue<string>("categoriesUrlName");
                         if (action.InvariantEquals(categoryUrl))
                         {
                             return GetActionDescriptor(controllerContext, controllerDescriptor, "Categories");                            
                         }
 
-                        var tagsUrl = virtualNode.GetPropertyValue<string>("tagsUrlName");
+                        var tagsUrl = virtualNode.Content.GetPropertyValue<string>("tagsUrlName");
                         if (action.InvariantEquals(tagsUrl))
                         {
                             return GetActionDescriptor(controllerContext, controllerDescriptor, "Tags"); 

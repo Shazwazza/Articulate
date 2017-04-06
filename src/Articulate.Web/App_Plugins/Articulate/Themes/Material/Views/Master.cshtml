@@ -43,14 +43,19 @@
     }
 
     @Html.RenderCssHere()
-
-    <style >
+    @{
+        var blogBanner = Model.BlogBanner;
+    }
+    @if (!blogBanner.IsNullOrWhiteSpace())
+    {
+        <style>
         body::before {
             background-image: url('@Html.Raw(Model.BlogBanner)');
             background-size: cover;
             background-attachment: fixed;
         }
-    </style>
+        </style>
+    }
 
 </head>
 <body>

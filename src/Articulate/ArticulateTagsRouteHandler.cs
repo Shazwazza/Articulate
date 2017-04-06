@@ -52,9 +52,8 @@ namespace Articulate
 
             var tag = HttpUtility.UrlDecode(requestContext.RouteData.Values["tag"] == null ? null : requestContext.RouteData.Values["tag"].ToString());
             var actionName = requestContext.RouteData.GetRequiredString("action");
-            var rootUrl = baseContent.Url;
-            var urlName = actionName.InvariantEquals("tags") ? urlAndPageName.TagsUrlName : urlAndPageName.CategoriesUrlName;
-            var pageName = actionName.InvariantEquals("tags") ? urlAndPageName.TagsPageName : urlAndPageName.CategoriesPageName;
+            var urlName = actionName;
+            var pageName = actionName.InvariantEquals(urlAndPageName.TagsUrlName) ? urlAndPageName.TagsPageName : urlAndPageName.CategoriesPageName;
 
             return new ArticulateVirtualPage(
                 baseContent,

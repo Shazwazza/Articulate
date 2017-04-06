@@ -40,7 +40,7 @@
                                         var thumbnail = asArray[i].GetCropUrl("authorImage", "thumbnail");
                                         if (!thumbnail.IsNullOrWhiteSpace())
                                         {
-                                            <img class="thumb" src="@thumbnail" alt="@asArray[i].Name"/>
+                                            <a href="#author-@i"><img class="thumb" src="@thumbnail" alt="@asArray[i].Name" /></a>
                                         }
                                     }
                                     else
