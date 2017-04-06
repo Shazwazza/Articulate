@@ -18,55 +18,6 @@ namespace Articulate
     /// </summary>
     public static class ArticulateRoutes
     {
-        ///// <summary>
-        ///// This is used to indicate the max search depth of the tree to find Articulate roots
-        ///// </summary>
-        //public static int MaxSearchDepth = 5;
-
-        ///// <summary>
-        ///// Finds the articulate roots in the project without iterating over every single node
-        ///// </summary>
-        ///// <param name="umbracoCache"></param>
-        ///// <returns></returns>
-        //public static IEnumerable<IPublishedContent> FindArticulateRoots(ContextualPublishedCache umbracoCache)
-        //{
-        //    var found = new HashSet<IPublishedContent>();
-        //    foreach (var child in umbracoCache.GetAtRoot())
-        //    {
-        //        if (child.DocumentTypeAlias == "Articulate")
-        //        {
-        //            found.Add(child);
-        //        }
-        //        else
-        //        {
-        //            FindArticulateRoots(child, found);
-        //        }
-        //    }
-        //    return found;
-        //}
-
-        ///// <summary>
-        ///// Used to recursively search through the children
-        ///// </summary>
-        ///// <param name="current"></param>
-        ///// <param name="found"></param>
-        //private static void FindArticulateRoots(IPublishedContent current, ISet<IPublishedContent> found)
-        //{
-        //    //stop searching here if it's too deep
-        //    if (current.Level > MaxSearchDepth) return;
-
-        //    foreach (var child in current.Children)
-        //    {
-        //        if (child.DocumentTypeAlias == "Articulate")
-        //        {
-        //            found.Add(child);
-        //        }
-        //        else
-        //        {
-        //            FindArticulateRoots(child, found);
-        //        }            
-        //    }
-        //}
 
         public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache, UrlProvider umbracoUrlProvider)
         {
@@ -93,26 +44,29 @@ namespace Articulate
                 // which already exists and is already assigned to a specific node ID.
                 // So what we need to do in these cases is use a special route handler that takes
                 // into account the domain assigned to the route.
-                var groups = articulateNodes
+                var articulateNodesGroupedByUriPath = articulateNodes
                     .GroupBy(x => RouteCollectionExtensions.RoutePathFromNodeUrl(x.Url))
                     //This is required to ensure that we create routes that are more specific first
                     // before creating routes that are less specific
                     .OrderByDescending(x => x.Key.Split('/').Length);
-                foreach (var grouping in groups)
+                foreach (var nodeByPathGroup in articulateNodesGroupedByUriPath)
                 {
-                    var nodesAsArray = grouping.ToArray();
+                    var nodesAsArray = nodeByPathGroup.ToArray();
 
-                    MapRssRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);
-                    MapSearchRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);                                        
-                    MapTagsAndCategoriesRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);
-                    MapMarkdownEditorRoute(routes, umbracoUrlProvider, grouping.Key, nodesAsArray);  
+                    var uriPath = nodeByPathGroup.Key;
 
-                    foreach (var content in grouping)
+                    MapRssRoute(routes, umbracoUrlProvider, uriPath, nodesAsArray);
+                    MapSearchRoute(routes, umbracoUrlProvider, uriPath, nodesAsArray);                                        
+                    MapTagsAndCategoriesRoute(routes, umbracoUrlProvider, uriPath, nodesAsArray);
+                    MapMarkdownEditorRoute(routes, umbracoUrlProvider, uriPath, nodesAsArray);
+                    MapAuthorsRssRoute(routes, umbracoUrlProvider, uriPath, nodesAsArray);
+
+                    foreach (var articulateRootNode in nodeByPathGroup)
                     {
-                        MapMetaWeblogRoute(routes, grouping.Key, content);
-                        MapManifestRoute(routes, grouping.Key, content);
-                        MapRsdRoute(routes, grouping.Key, content);
-                        MapOpenSearchRoute(routes, grouping.Key, content);
+                        MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
+                        MapManifestRoute(routes, uriPath, articulateRootNode);
+                        MapRsdRoute(routes, uriPath, articulateRootNode);
+                        MapOpenSearchRoute(routes, uriPath, articulateRootNode);
                     }
 
                 }
@@ -188,6 +142,22 @@ namespace Articulate
                 {
                     controller = "ArticulateRss",
                     action = "FeedXslt"
+                },
+                new ArticulateVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
+        }
+
+        private static void MapAuthorsRssRoute(RouteCollection routes, UrlProvider umbracoUrlProvider, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        {
+            var routeHash = nodeRoutePath.GetHashCode();
+            
+            //Create the routes for the RSS author feeds
+            routes.MapUmbracoRoute(
+                "articulate_author_rss_" + routeHash,
+                (nodeRoutePath.EnsureEndsWith('/') + "Author/{authorId}/rss").TrimStart('/'),
+                new
+                {
+                    controller = "ArticulateRss",
+                    action = "Author"
                 },
                 new ArticulateVirtualNodeByIdRouteHandler(umbracoUrlProvider, nodesWithPath));
         }

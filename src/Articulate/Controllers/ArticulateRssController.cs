@@ -59,6 +59,25 @@ namespace Articulate.Controllers
             return new RssResult(feed, rootPageModel);
         }
 
+        public ActionResult Author(RenderModel model, int authorId, int? maxItems)
+        {
+            var author = Umbraco.TypedContent(authorId);
+            if (author == null) throw new ArgumentNullException(nameof(author));
+
+            if (!maxItems.HasValue) maxItems = 25;
+
+            //create a master model
+            var masterModel = new MasterModel(author);
+
+            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+
+            var authorContenet = Umbraco.GetContentByAuthor(listNodes, author.Name, new PagerModel(maxItems.Value, 0, 1));
+
+            var feed = FeedGenerator.GetFeed(masterModel, authorContenet.Select(x => new PostModel(x)));
+
+            return new RssResult(feed, masterModel);
+        }
+
         public ActionResult Categories(RenderModel model, string tag, int? maxItems)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));

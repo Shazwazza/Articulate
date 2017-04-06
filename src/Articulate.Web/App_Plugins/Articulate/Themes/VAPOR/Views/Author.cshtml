@@ -7,6 +7,11 @@
     Layout = "Master.cshtml";
 }
 
+@section Header
+{
+    @Html.AuthorRssFeed(Model, Url)
+}
+
 <main class="content" role="main">
 
     

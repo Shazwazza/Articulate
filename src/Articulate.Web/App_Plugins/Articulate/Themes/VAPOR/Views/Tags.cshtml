@@ -12,14 +12,27 @@
 
     <article>
         <h1>@Model.Name</h1>
-        <ul>
-            @for (var i = 0; i < asArray.Length; i++)
-            {
-                <li>
-                    <a href="#tag-@i">@asArray[i].TagName</a> - (@asArray[i].PostCount)
-                </li>
-            }
-        </ul>
+        
+        @if (ViewContext.RouteData.Values["action"].ToString().Equals("Tags", StringComparison.OrdinalIgnoreCase))
+        {
+            <div class="tag-cloud-large">
+                @{
+                    var postTagCollection = new PostTagCollection(asArray);
+                }
+                @Html.TagCloud(postTagCollection, @<a href="#tag-@item.TagName">@item.TagName</a>, 5, 50)
+            </div>
+        }
+        else
+        {
+            <ul>
+                @for (var i = 0; i < asArray.Length; i++)
+                {
+                    <li>
+                        <a href="#tag-@asArray[i].TagName">@asArray[i].TagName</a> - (@asArray[i].PostCount)
+                    </li>
+                }
+            </ul>
+        }
 
         <hr />
 
@@ -28,7 +41,7 @@
             {
                 <h2>
                     <a href="@Url.ArticulateTagRssUrl(asArray[i])" class="fa fa-rss"><span>RSS</span></a>
-                    <a id="tag-@i" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
+                    <a id="tag-@asArray[i].TagName" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
                 </h2>
 
                 @Html.Table(

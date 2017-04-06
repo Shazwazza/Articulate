@@ -147,6 +147,14 @@ namespace Articulate
                 $@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{url}"" />");
         }
 
+        public static IHtmlString AuthorRssFeed(this HtmlHelper html, AuthorModel model, UrlHelper urlHelper)
+        {
+            var url = urlHelper.ArticulateAuthorRssUrl(model);
+
+            return new HtmlString(
+                $@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{url}"" />");
+        }
+
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
         {
             var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
@@ -265,6 +273,30 @@ namespace Articulate
                 ul.InnerHtml += li.ToString();
             }
             return MvcHtmlString.Create(ul.ToString());
+        }
+
+        public static HelperResult TagCloud(this HtmlHelper html, PostTagCollection model, Func<PostsByTagModel, HelperResult> tagLink, decimal maxWeight, int maxResults)
+        {
+            return new HelperResult(writer =>
+            {
+                var tagsAndWeight = model.Select(x => new {tag = x, weight = model.GetTagWeight(x, maxWeight)})
+                    .OrderByDescending(x => x.weight)
+                    .Take(maxResults)
+                    .RandomOrder();
+
+                var ul = new TagBuilder("ul");
+                ul.AddCssClass("tag-cloud");
+                foreach (var tag in tagsAndWeight)
+                {
+                    var li = new TagBuilder("li");
+                    li.AddCssClass("tag-cloud-" + tag.weight);
+
+                    li.InnerHtml = tagLink(tag.tag).ToString();
+                    ul.InnerHtml += li.ToString();
+                }
+
+                writer.Write(ul.ToString());                
+            });
         }
 
         public static HelperResult ListTags(this HtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")

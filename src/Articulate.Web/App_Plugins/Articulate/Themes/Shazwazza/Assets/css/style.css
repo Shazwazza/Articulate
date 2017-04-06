@@ -465,8 +465,16 @@ ul.recentComments li {
 				 Tag cloud
 ----------------------------*/
 
+.tag-cloud-large {
+    margin: 25px 0px 25px 0px;
+}
+
+.tag-cloud {
+    text-transform: capitalize;
+    padding: 0;
+}
+
 .tagcloud {
-    margin-bottom: 0px !important;
     white-space: normal;
 }
 
