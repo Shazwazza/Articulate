@@ -86,3 +86,7 @@ th.date {
     font-weight: inherit;
     text-decoration: none;
 }
+
+.demo-blog--blogpost .meta + .mdl-card__supporting-text img {
+    max-width: 100%;
+}
