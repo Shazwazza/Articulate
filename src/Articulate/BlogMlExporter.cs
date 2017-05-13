@@ -1,6 +1,7 @@
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -66,7 +67,19 @@ namespace Articulate
             {
                 throw new InvalidOperationException("No pre values for Articulate Categories data type found");
             }
-            var tagGroup = categoryDtPreVals.PreValuesAsDictionary["group"];
+            var categoryGroup = categoryDtPreVals.PreValuesAsDictionary["group"];
+
+            var tagDataType = _applicationContext.Services.DataTypeService.GetDataTypeDefinitionByName("Articulate Tags");
+            if (tagDataType == null)
+            {
+                throw new InvalidOperationException("No Articulate Tags data type found");
+            }
+            var tagDtPreVals = _applicationContext.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(tagDataType.Id);
+            if (tagDtPreVals == null)
+            {
+                throw new InvalidOperationException("No pre values for Articulate Tags data type found");
+            }
+            var tagGroup = tagDtPreVals.PreValuesAsDictionary["group"];
 
             //TODO: See: http://argotic.codeplex.com/wikipage?title=Generating%20portable%20web%20log%20content&referringTitle=Home
 
@@ -82,10 +95,10 @@ namespace Articulate
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
-            AddBlogCategories(blogMlDoc, tagGroup.Value);
+            AddBlogCategories(blogMlDoc, categoryGroup.Value);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, tagGroup.Value);
+                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup.Value, tagGroup.Value);
             }
             WriteFile(blogMlDoc);
         }
@@ -135,7 +148,7 @@ namespace Articulate
             }
         }
 
-        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string tagGroup)
+        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
         {
             const int pageSize = 1000;
             var pageIndex = 0;
@@ -180,13 +193,23 @@ namespace Articulate
                         blogMlPost.Authors.Add(author.Id);
                     }
 
-                    var categories = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
+                    var categories = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, categoryGroup);
                     foreach (var category in categories)
                     {
                         blogMlPost.Categories.Add(category.Id.ToString());
                     }
 
-                    //TODO: Tags isn't natively supported
+                    //TODO: Tags isn't natively supported, partial support via extension that matches current import
+                    var tags = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, tagGroup).Select(t =>t.Text).ToList();
+                    if (tags?.Any() == true)
+                    {
+                        // exporting as string value only, no Id or other attributes
+                        blogMlPost.AddExtension(
+                            new Syndication.BlogML.TagsSyndicationExtension()
+                            {
+                                Context = {Tags = new Collection<string>(tags)}
+                            });
+                    }
 
                     blogMlDoc.AddPost(blogMlPost);
                 }
