@@ -16,7 +16,7 @@ $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
 $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
-$MSBuild = "${Env:ProgramFiles(x86)}\MSBuild\14.0\Bin\MsBuild.exe";
+$MSBuild = "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe";
 
 
 if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
@@ -44,7 +44,7 @@ $SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
 	-replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
 	sc -Path $SolutionInfoPath -Encoding UTF8
 # Set the copyright
-$Copyright = "Copyright © Shannon Deminick " + (Get-Date).year;
+$Copyright = "Copyright Â© Shannon Deminick " + (Get-Date).year;
 (gc -Path $SolutionInfoPath) `
 	-replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
 	sc -Path $SolutionInfoPath -Encoding UTF8;
