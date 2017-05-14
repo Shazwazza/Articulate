@@ -50,7 +50,10 @@ namespace Articulate.Controllers
             //Get post count by xpath is much faster than iterating all children to get a count
             var count = Umbraco.GetPostCount(listNodes.Select(x => x.Id).ToArray());
 
-            return GetPagedListView(master, listNodes[0], listNodes[0].Children, count, p);
+            // Fixes #235
+            var posts = Umbraco.GetRecentPosts(master, count);
+
+            return GetPagedListView(master, listNodes[0], posts, count, p);
 
         }
     }
