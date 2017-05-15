@@ -199,11 +199,9 @@ namespace Articulate
                         blogMlPost.Categories.Add(category.Id.ToString());
                     }
 
-                    //TODO: Tags isn't natively supported, partial support via extension that matches current import
                     var tags = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, tagGroup).Select(t =>t.Text).ToList();
                     if (tags?.Any() == true)
                     {
-                        // exporting as string value only, no Id or other attributes
                         blogMlPost.AddExtension(
                             new Syndication.BlogML.TagsSyndicationExtension()
                             {
