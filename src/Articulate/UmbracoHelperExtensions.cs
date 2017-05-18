@@ -156,11 +156,33 @@ namespace Articulate
         }
 
         /// <summary>
+        /// Returns a list of the most recent posts
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="masterModel"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<PostModel> GetRecentPosts(this UmbracoHelper helper, IMasterModel masterModel, int page, int pageSize)
+        {
+            var listNodes = GetListNodes(masterModel);
+
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
+            var pager = new PagerModel(pageSize, page - 1, 1);
+
+            var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
+
+            var rootPageModel = new ListModel(listNodes[0], listItems, pager);
+            return rootPageModel.Posts;
+        }
+
+        /// <summary>
         /// Gets the basic tag SQL used to retrieve tags for a given articulate root node
         /// </summary>
         /// <param name="selectCols"></param>
         /// <param name="masterModel"></param>
-        /// <param name="sqlSyntax"></param>
+        /// <param name="sqlSyntax"></param>        
         /// <returns></returns>
         /// <remarks>
         /// TODO: We won't need this when this is fixed http://issues.umbraco.org/issue/U4-9290
@@ -182,6 +204,38 @@ namespace Articulate
             return sql;
         }
 
+        /// <summary>
+        /// Gets the tag SQL used to retrieve paged posts for particular tags for a given articulate root node
+        /// </summary>
+        /// <param name="selectCols"></param>
+        /// <param name="masterModel"></param>
+        /// <param name="sqlSyntax"></param>
+        /// <param name="publishedDatePropertyTypeId">
+        /// This is needed to perform the sorting on published date,  this is the PK of the property type for publishedDate on the ArticulatePost content type
+        /// </param>
+        /// <returns></returns>
+        /// <remarks>
+        /// TODO: We won't need this when this is fixed http://issues.umbraco.org/issue/U4-9290
+        /// </remarks>
+        private static Sql GetContentByTagQueryForPaging(string selectCols, IMasterModel masterModel, ISqlSyntaxProvider sqlSyntax, int publishedDatePropertyTypeId)
+        {
+            var sql = new Sql()
+                .Select(selectCols)                
+                .From("umbracoNode")
+                .InnerJoin("cmsDocument")
+                .On("cmsDocument.nodeId = umbracoNode.id")
+                .InnerJoin("cmsPropertyData")
+                .On("cmsPropertyData.versionId = cmsDocument.versionId")
+                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
+                //Must be published, this will ensure there's only one version selected
+                .Where("cmsDocument.published = 1")
+                //must only return rows with the publishedDate property data so we only get one row and so we can sort on `cmsPropertyData.dataDate` which will be the publishedDate
+                .Where("cmsPropertyData.propertytypeid = @propTypeId", new {propTypeId = publishedDatePropertyTypeId})
+                //only get nodes underneath the current articulate root
+                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
+            return sql;
+        }
+
         internal static IEnumerable<PostsByTagModel> GetContentByTags(this UmbracoHelper helper, IMasterModel masterModel, string tagGroup, string baseUrlName)
         {
             var tags = helper.TagQuery.GetAllContentTags(tagGroup).ToArray();
@@ -195,7 +249,7 @@ namespace Articulate
             var appContext = helper.UmbracoContext.Application;
             var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
 
-            Func<IEnumerable<PostsByTagModel>> getResult = () =>
+            IEnumerable<PostsByTagModel> GetResult()
             {
                 var taggedContent = new List<TagDto>();
 
@@ -220,18 +274,18 @@ namespace Articulate
                     var publishedContent = helper.TypedContent(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
 
                     var model = new PostsByTagModel(
-                        publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
-                        tagName,
+                        publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate), 
+                        tagName, 
                         masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tagName.ToLowerInvariant());
 
                     result.Add(model);
                 }
 
                 return result.OrderBy(x => x.TagName).ToArray();
-            };
+            }
 
 #if DEBUG
-            return getResult();
+            return GetResult();
 #else
             //cache this result for a short amount of time
             return (IEnumerable<PostsByTagModel>)appContext.ApplicationCache.RuntimeCache.GetCacheItem(
@@ -242,20 +296,19 @@ namespace Articulate
         }
 
 
-        internal static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName)
+        internal static PostsByTagModel GetContentByTag(this UmbracoHelper helper, IMasterModel masterModel, string tag, string tagGroup, string baseUrlName, long page, long pageSize)
         {
             //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
 
             var appContext = helper.UmbracoContext.Application;
             var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
 
-            Func<PostsByTagModel> getResult = () =>
+            PostsByTagModel GetResult()
             {
-                var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax);
-
+                var sqlTags = GetTagQuery("umbracoNode.id", masterModel, sqlSyntax);
                 if (sqlSyntax is MySqlSyntaxProvider)
                 {
-                    sql.Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                    sqlTags.Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                     {
                         tagName = tag,
                         tagGroup = tagGroup
@@ -266,36 +319,46 @@ namespace Articulate
                     //For whatever reason, SQLCE and even SQL SERVER are not willing to lookup 
                     //tags with hyphens in them, it's super strange, so we force the tag column to be - what it already is!! what tha.
 
-                    sql.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                    sqlTags.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                     {
                         tagName = tag,
                         tagGroup = tagGroup
                     });
-                }
+                }                
+
+                //get the publishedDate property type id on the ArticulatePost content type
+                var publishedDatePropertyTypeId = appContext.DatabaseContext.Database.ExecuteScalar<int>(@"SELECT cmsPropertyType.id FROM cmsContentType
+INNER JOIN cmsPropertyType ON cmsPropertyType.contentTypeId = cmsContentType.nodeId
+WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @propertyTypeAlias", new { contentTypeAlias = "ArticulatePost", propertyTypeAlias = "publishedDate" });
+
+                var sqlContent = GetContentByTagQueryForPaging("umbracoNode.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
+
+                sqlContent.Append("WHERE umbracoNode.id IN (").Append(sqlTags).Append(")");
+
+                //order by the dataDate field which will be the publishedDate 
+                sqlContent.OrderBy("cmsPropertyData.dataDate DESC");
+
+                //TODO: ARGH This still returns multiple non distinct Ids :(
                 
-                var taggedContent = appContext.DatabaseContext.Database.Fetch<TagDto>(sql);
+                var taggedContent = appContext.DatabaseContext.Database.Page<int>(page, pageSize, sqlContent);
 
-                var result = new List<PostsByTagModel>();
-                foreach (var groupedTags in taggedContent.GroupBy(x => x.TagId))
-                {
-                    //will be the same tag name for all of these tag Ids
-                    var tagName = groupedTags.First().Tag;
+                var result = new List<PostsByTagModel>();                
 
-                    var publishedContent = helper.TypedContent(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
+                var publishedContent = helper.TypedContent(taggedContent.Items).WhereNotNull();
 
-                    var model = new PostsByTagModel(
-                        publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate),
-                        tagName,
-                        masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tagName.ToLowerInvariant());
+                var model = new PostsByTagModel(
+                    publishedContent.Select(c => new PostModel(c)),
+                    tag,
+                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tag.ToLowerInvariant(),
+                    Convert.ToInt32(taggedContent.TotalItems));
 
-                    result.Add(model);
-                }
+                result.Add(model);
 
                 return result.FirstOrDefault();
-            };
+            }
 
 #if DEBUG
-            return getResult();
+            return GetResult();
 #else
             //cache this result for a short amount of time
             

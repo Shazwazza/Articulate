@@ -96,7 +96,7 @@ namespace Articulate.Controllers
             //create a master model
             var masterModel = new MasterModel(model.Content);
 
-            var contentByTag = Umbraco.GetContentByTag(masterModel, tagPage.Name, tagGroup, baseUrl);
+            var contentByTag = Umbraco.GetContentByTag(masterModel, tagPage.Name, tagGroup, baseUrl, p ?? 1, masterModel.PageSize);
 
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
@@ -107,7 +107,8 @@ namespace Articulate.Controllers
                     masterModel,
                     tagPage.Name.Replace('-', '.'),
                     tagGroup,
-                    baseUrl);
+                    baseUrl,
+                    p ?? 1, masterModel.PageSize);
             }
 
             if (contentByTag == null)

@@ -5,8 +5,6 @@ namespace Articulate.Models
 {
     public class TagListModel : MasterModel
     {
-        private readonly string _name;
-
         public TagListModel(
             IMasterModel masterModel, 
             string name, 
@@ -14,7 +12,7 @@ namespace Articulate.Models
             PostTagCollection tags)
             : base(masterModel.RootBlogNode)
         {
-            _name = name;
+            Name = name;
             Theme = masterModel.Theme;
             RootBlogNode = masterModel.RootBlogNode;
             BlogArchiveNode = masterModel.BlogArchiveNode;
@@ -29,11 +27,8 @@ namespace Articulate.Models
             PageTitle = Name + " - " + BlogTitle;
         }
 
-        public PostTagCollection Tags { get; private set; }
+        public PostTagCollection Tags { get; }
 
-        public override string Name
-        {
-            get { return _name; }
-        }
+        public override string Name { get; }
     }
 }

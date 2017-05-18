@@ -113,7 +113,8 @@ namespace Articulate.Controllers
                 rootPageModel,
                 tagPage.Name,
                 tagGroup,
-                baseUrl);
+                baseUrl,
+                1, maxItems);
 
             //super hack - but this is because we are replacing '.' with '-' in StringExtensions.EncodePath method
             // so if we get nothing, we'll retry with replacing back
@@ -123,7 +124,8 @@ namespace Articulate.Controllers
                     rootPageModel,
                     tagPage.Name.Replace('-', '.'),
                     tagGroup,
-                    baseUrl);
+                    baseUrl,
+                    1, maxItems);
             }
 
             if (contentByTag == null)
