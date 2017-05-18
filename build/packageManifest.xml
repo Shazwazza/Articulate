@@ -685,8 +685,8 @@
       <url>https://github.com/Shandem/Articulate/</url>
       <requirements type="strict">
         <major>7</major>
-        <minor>5</minor>
-        <patch>11</patch>
+        <minor>6</minor>
+        <patch>0</patch>
       </requirements>
     </package>
     <author>
