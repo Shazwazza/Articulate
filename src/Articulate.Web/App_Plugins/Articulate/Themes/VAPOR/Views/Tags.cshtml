@@ -16,10 +16,7 @@
         @if (ViewContext.RouteData.Values["action"].ToString().Equals("Tags", StringComparison.OrdinalIgnoreCase))
         {
             <div class="tag-cloud-large">
-                @{
-                    var postTagCollection = new PostTagCollection(asArray);
-                }
-                @Html.TagCloud(postTagCollection, @<a href="#tag-@item.TagName">@item.TagName</a>, 5, 50)
+                @Html.TagCloud(Model.Tags, @<a href="#tag-@item.TagName">@item.TagName</a>, 5, 50)
             </div>
         }
         else
