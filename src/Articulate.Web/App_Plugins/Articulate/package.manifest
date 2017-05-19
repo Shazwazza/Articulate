@@ -1,10 +1,11 @@
 {
-	propertyEditors: [],       
-    javascript: [
-		'~/App_Plugins/Articulate/BackOffice/Dashboards/articulatemgmt.controller.js',
-		'~/App_Plugins/Articulate/BackOffice/Dashboards/datainstaller.controller.js',
-        '~/App_Plugins/Articulate/BackOffice/Dashboards/blogimporter.controller.js',
-		'~/App_Plugins/Articulate/BackOffice/Dashboards/blogexporter.controller.js',
-		'~/App_Plugins/Articulate/BackOffice/PropertyEditors/themepicker.controller.js',
-    ]
+  "propertyEditors": [],
+  "javascript": [
+    "~/App_Plugins/Articulate/BackOffice/Dashboards/articulatemgmt.controller.js",
+    "~/App_Plugins/Articulate/BackOffice/Dashboards/datainstaller.controller.js",
+    "~/App_Plugins/Articulate/BackOffice/Dashboards/blogimporter.controller.js",
+    "~/App_Plugins/Articulate/BackOffice/Dashboards/blogexporter.controller.js",
+    "~/App_Plugins/Articulate/BackOffice/PropertyEditors/themepicker.controller.js",
+    "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/edit.controller.js"
+  ]
 }

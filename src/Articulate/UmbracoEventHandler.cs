@@ -54,6 +54,8 @@ namespace Articulate
             ContentTypeService.SavingContentType += ContentTypeService_SavingContentType;
             PageCacheRefresher.CacheUpdated += PageCacheRefresher_CacheUpdated;
             DomainCacheRefresher.CacheUpdated += DomainCacheRefresher_CacheUpdated;
+
+            
         }
 
         private static void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, Umbraco.Core.Cache.CacheRefresherEventArgs e)
@@ -211,6 +213,20 @@ namespace Articulate
                 {"articulateDataInstallerBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogDataInstallController>(controller => controller.PostInstall())},
                 {"articulatePropertyEditorsBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulatePropertyEditorsController>(controller => controller.GetThemes())}
             };
+
+            object found;
+            if (e.TryGetValue("umbracoUrls", out found))
+            {
+                var umbUrls = (Dictionary<string, object>) found;
+                umbUrls["articulateThemeEditorApiBaseUrl"] = urlHelper.GetUmbracoApiServiceBaseUrl<ThemeEditorController>(controller => controller.GetByPath(null));
+            }
+            else
+            {
+                e["umbracoUrls"] = new Dictionary<string, object>
+                {
+                    {"articulateThemeEditorApiBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ThemeEditorController>(controller => controller.GetByPath(null))}
+                };
+            }
         }
 
         private static void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)

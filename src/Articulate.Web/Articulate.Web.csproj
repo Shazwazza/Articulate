@@ -327,6 +327,8 @@
   <ItemGroup>
     <Content Include="App_Plugins\Articulate\Assets\md-editor.js" />
     <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\datainstaller.html" />

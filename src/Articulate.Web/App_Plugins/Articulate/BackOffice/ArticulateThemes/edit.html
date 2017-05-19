@@ -1,0 +1,49 @@
+﻿<div ng-controller="Articulate.Editors.ThemeEditController as vm">
+
+  <umb-load-indicator ng-if="vm.page.loading"></umb-load-indicator>
+
+  <form name="contentForm"
+        ng-submit="vm.save()"
+        novalidate
+        val-form-manager>
+
+    <umb-editor-view ng-if="!vm.page.loading">
+
+      <umb-editor-header name="vm.themeFile.name"
+                         hide-alias="true"
+                         description="vm.themeFile.virtualPath"
+                         menu="vm.page.menu"
+                         description-locked="true"
+                         hide-icon="true">
+      </umb-editor-header>
+
+      <umb-editor-container>
+
+        <div auto-scale="85"
+             umb-ace-editor="vm.aceOption"
+             model="vm.themeFile.content">
+        </div>
+
+
+      </umb-editor-container>
+
+      <umb-editor-footer>
+
+        <umb-editor-footer-content-right>
+
+          <umb-button type="submit"
+                      button-style="success"
+                      state="vm.page.saveButtonState"
+                      shortcut="ctrl+s"
+                      label="Save"
+                      label-key="buttons_save">
+          </umb-button>
+
+        </umb-editor-footer-content-right>
+
+      </umb-editor-footer>
+
+    </umb-editor-view>
+  </form>
+
+</div>
