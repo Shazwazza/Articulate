@@ -34,7 +34,6 @@ namespace Articulate
 
             UrlProviderResolver.Current.InsertTypeBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
             ContentFinderResolver.Current.InsertTypeBefore<ContentFinderByNiceUrl, DateFormattedPostContentFinder>();
-
         }
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
