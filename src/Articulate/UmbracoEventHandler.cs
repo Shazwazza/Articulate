@@ -31,6 +31,9 @@ namespace Articulate
             base.ApplicationStarting(umbracoApplication, applicationContext);
 
             UrlProviderResolver.Current.AddType<VirtualNodeUrlProvider>();
+
+            UrlProviderResolver.Current.InsertTypeBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
+            ContentFinderResolver.Current.InsertTypeBefore<ContentFinderByNiceUrl, DateFormattedPostContentFinder>();
         }
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
