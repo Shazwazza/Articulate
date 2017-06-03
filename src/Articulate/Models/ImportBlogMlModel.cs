@@ -28,5 +28,9 @@ namespace Articulate.Models
 
         [DataMember(Name = "exportDisqusXml")]
         public bool ExportDisqusXml { get; set; }
+
+        [DataMember(Name = "importFirstImage")]
+        public bool ImportFirstImage { get; set; }
+
     }
 }

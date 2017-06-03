@@ -32,7 +32,8 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
                         regexReplace: $scope.regexReplace,
                         publish: $scope.publish,
                         tempFile: tempFile,
-                        exportDisqusXml: $scope.exportDisqusXml
+                        exportDisqusXml: $scope.exportDisqusXml,
+                        importFirstImage: $scope.importFirstImage
                     }),
                 'Failed to import blog posts');
         }

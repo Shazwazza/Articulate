@@ -103,7 +103,8 @@ namespace Articulate.Controllers
                 model.RegexMatch,
                 model.RegexReplace,
                 model.Publish,
-                model.ExportDisqusXml);
+                model.ExportDisqusXml,
+                model.ImportFirstImage);
 
             //cleanup
             File.Delete(model.TempFile);

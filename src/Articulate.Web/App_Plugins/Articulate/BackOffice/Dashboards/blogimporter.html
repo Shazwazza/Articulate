@@ -22,9 +22,9 @@
             <umb-control-group alias="publish" description="Check if you want all imported posts to be published"
                                label="Publish all posts?">
                 <input type="checkbox" class="" name="publish"
-                       ng-required="$parent.$parent.exportDisqusXml"
+                       ng-required="$parent.$parent.exportDisqusXml || $parent.$parent.importFirstImage"
                        ng-model="$parent.$parent.publish" no-dirty-check />
-                <span class="help-inline" val-msg-for="publish" val-toggle-msg="required">Publishing is required when you want to export comments to Disqus.</span>
+                <span class="help-inline" val-msg-for="publish" val-toggle-msg="required">Publishing is required when you want to export comments to Disqus or Import First Image.</span>
             </umb-control-group>
 
             <umb-control-group alias="regexMatch" description="Regex statement used to match content in the blog post to be replaced by the match statement"
@@ -40,6 +40,11 @@
             <umb-control-group alias="exportDisqusXml" description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
                                label="Export Disqus Xml">
                 <input type="checkbox" class="" name="exportDisqusXml" ng-model="$parent.$parent.exportDisqusXml" no-dirty-check />
+            </umb-control-group>
+
+            <umb-control-group alias="importFirstImage" description="If you would like Articulate to try and import the first image url in the post attachements"
+                               label="Import First Image from Post Attachments">
+                <input type="checkbox" class="" name="importFirstImage" ng-model="$parent.$parent.importFirstImage" no-dirty-check />
             </umb-control-group>
 
             <umb-control-group>
