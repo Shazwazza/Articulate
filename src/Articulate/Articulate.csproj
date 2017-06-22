@@ -313,6 +313,8 @@
     <Compile Include="Controllers\ThemeEditorController.cs" />
     <Compile Include="Controllers\ThemeTreeController.cs" />
     <Compile Include="Controllers\UmbracoNotFoundResult.cs" />
+    <Compile Include="DateFormattedPostContentFinder.cs" />
+    <Compile Include="DateFormattedUrlProvider.cs" />
     <Compile Include="Models\AuthorListModel.cs" />
     <Compile Include="Models\ExportBlogMlModel.cs" />
     <Compile Include="Models\ImportModel.cs" />

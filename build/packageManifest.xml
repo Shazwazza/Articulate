@@ -876,6 +876,16 @@ Supporting all the features you'd want in a blogging platform:
           <Description><![CDATA[If specified this will redirect the Archive blog post container URL to this Articulate blog root]]></Description>
         </GenericProperty>
         <GenericProperty>
+          <Name>Use yyyy/mm/dd format for Url</Name>
+          <Alias>useDateFormatForUrl</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>762ca848-ade4-4d74-964c-81a3b1980cff</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[If specified, this will generate posts' urls in the /yyyy/mm/dd/slug format, ie 2017/06/09/codegarden-rocks]]></Description>
+        </GenericProperty>
+        <GenericProperty>
           <Name>Blog Banner</Name>
           <Alias>blogBanner</Alias>
           <Type>Umbraco.ImageCropper</Type>
