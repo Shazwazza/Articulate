@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Routing;
+using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Web.Editors;
@@ -18,7 +20,61 @@ namespace Articulate.Controllers
     [PluginController("Articulate")]    
     [UmbracoApplicationAuthorize(Constants.Applications.Settings)]
     public class ThemeEditorController : BackOfficeNotificationsController
-    {        
+    {
+        public Theme PostCopyTheme(string themeName, string copy)
+        {
+            if (Path.GetInvalidFileNameChars().ContainsAny(themeName.ToCharArray()))
+                throw new InvalidOperationException("Name cannot contain invalid file name characters");
+
+            var theme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
+                .FirstOrDefault(x => x.Name.InvariantEquals(copy));
+
+            if (theme == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            CopyDirectory(theme, new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath), themeName)));
+
+            return new Theme()
+            {
+                Name = themeName
+            };
+        }
+
+        private static void CopyDirectory(DirectoryInfo source, DirectoryInfo destination)
+        {
+            if (destination.Exists) throw new InvalidOperationException("Theme already exists");
+
+            destination.Create();
+
+            // Copy all files.
+            FileInfo[] files = source.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                file.CopyTo(Path.Combine(destination.FullName,
+                    file.Name));
+            }
+
+            // Process subdirectories.
+            DirectoryInfo[] dirs = source.GetDirectories();
+            foreach (DirectoryInfo dir in dirs)
+            {
+                // Get destination directory.
+                string destinationDir = Path.Combine(destination.FullName, dir.Name);
+
+                // Call CopyDirectory() recursively.
+                CopyDirectory(dir, new DirectoryInfo(destinationDir));
+            }
+        }
+
+        public IEnumerable<Theme> GetThemes()
+        {
+            var themes = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
+                .Select(x => new Theme
+                {
+                    Name = x.Name
+                });
+            return themes;
+        }
+
         public CodeFileDisplay GetByPath(string virtualPath)
         {
             if (string.IsNullOrWhiteSpace(virtualPath)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(virtualPath));

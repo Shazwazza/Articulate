@@ -327,6 +327,8 @@
   <ItemGroup>
     <Content Include="App_Plugins\Articulate\Assets\md-editor.js" />
     <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\create.html" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\create.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.html" />
@@ -337,6 +339,7 @@
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\articulatemgmt.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\theme.resource.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />

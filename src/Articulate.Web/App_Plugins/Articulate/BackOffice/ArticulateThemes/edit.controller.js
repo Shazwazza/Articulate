@@ -1,21 +1,5 @@
 ﻿(function () {
-    "use strict";
-
-    function articulateThemeResource(umbRequestHelper, $http) {
-      return {
-          
-        getByPath: function(virtualpath) {
-
-          return umbRequestHelper.resourcePromise(
-            $http.get(
-              umbRequestHelper.getApiUrl(
-                "articulateThemeEditorApiBaseUrl",
-                "GetByPath",
-                { virtualPath: virtualpath })),
-            "Failed to retrieve data from virtual path " + virtualpath);
-        }
-      }
-    }
+    "use strict";  
 
     function articulateThemeEditController($scope, $routeParams, articulateThemeResource, assetsService, notificationsService, editorState, navigationService, appState, macroService, angularHelper, $timeout, contentEditingHelper, localizationService, templateHelper, macroResource) {
 
@@ -213,9 +197,7 @@
 
     }
 
-    angular.module("umbraco")
-        .controller("Articulate.Editors.ThemeEditController", articulateThemeEditController)
-        .factory("articulateThemeResource", articulateThemeResource);
+    angular.module("umbraco").controller("Articulate.Editors.ThemeEditController", articulateThemeEditController);
 
 
 })();

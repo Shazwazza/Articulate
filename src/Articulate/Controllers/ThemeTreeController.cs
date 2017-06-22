@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Formatting;
 using AutoMapper;
+using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
+using Umbraco.Core.Services;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Web.Models.Trees;
@@ -26,9 +28,23 @@ namespace Articulate.Controllers
 
         protected override void OnRenderFileNode(ref TreeNode treeNode)
         {
-            base.OnRenderFileNode(ref treeNode);
+            base.OnRenderFileNode(ref treeNode);           
+        }
 
-            
+        protected override MenuItemCollection GetMenuForNode(string id, FormDataCollection queryStrings)
+        {
+            if (id == Constants.System.Root.ToString())
+            {
+                var rootMenu = base.GetMenuForNode(id, queryStrings);
+                //rootMenu.Items[0].LaunchDialogView("createtheme.html", "asdf");
+                rootMenu.Items[0].AdditionalData["dialogTitle"] = "Create Articulate theme";
+                //rootMenu.Items[0].AdditionalData["actionView"] = rootMenu.Items[0].AdditionalData["actionView"].ToString().Replace("/create.html", "createtheme.html");
+                return rootMenu;
+            }
+            else
+            {
+                return base.GetMenuForNode(id, queryStrings);
+            }
         }
 
         protected override TreeNode CreateRootNode(FormDataCollection queryStrings)

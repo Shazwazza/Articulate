@@ -322,6 +322,7 @@
     <Compile Include="IArticulateSearcher.cs" />
     <Compile Include="Models\PostAuthorModel.cs" />
     <Compile Include="Models\PublishedContentExtensions.cs" />
+    <Compile Include="Models\Theme.cs" />
     <Compile Include="Resources\ArticulateResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
