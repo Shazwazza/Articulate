@@ -290,7 +290,7 @@ namespace Articulate
             //cache this result for a short amount of time
             return (IEnumerable<PostsByTagModel>)appContext.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
-                getResult, TimeSpan.FromSeconds(30));
+                GetResult, TimeSpan.FromSeconds(30));
 #endif
 
         }
@@ -363,8 +363,8 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
             //cache this result for a short amount of time
             
             return (PostsByTagModel) appContext.ApplicationCache.RuntimeCache.GetCacheItem(
-                string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup),
-                getResult, TimeSpan.FromSeconds(30));
+                string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup, tag, page, pageSize),
+                GetResult, TimeSpan.FromSeconds(30));
 #endif
         }
 
