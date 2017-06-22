@@ -33,8 +33,16 @@ namespace Articulate.Models
         {
             get
             {
-                var tags = this.GetPropertyValue<string>("tags");
-                return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
+                {
+                    var tags = this.GetPropertyValue<string>("tags");
+                    return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                }
+                else
+                {
+                    var tags = this.GetPropertyValue<IEnumerable<string>>("tags");
+                    return tags ?? Enumerable.Empty<string>();
+                }
             }
         }
 
@@ -42,15 +50,20 @@ namespace Articulate.Models
         {
             get
             {
-                var tags = this.GetPropertyValue<string>("categories");
-                return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
+                {
+                    var tags = this.GetPropertyValue<string>("categories");
+                    return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                }
+                else
+                {
+                    var tags = this.GetPropertyValue<IEnumerable<string>>("categories");
+                    return tags ?? Enumerable.Empty<string>();
+                }
             }
         }
 
-        public bool EnableComments
-        {
-            get { return Content.GetPropertyValue<bool>("enableComments", true); }
-        }
+        public bool EnableComments => Content.GetPropertyValue<bool>("enableComments", true);
 
         public PostAuthorModel Author
         {
@@ -67,69 +80,45 @@ namespace Articulate.Models
                 };
 
                 //look up assocated author node if we can
-                if (RootBlogNode != null)
+                var authors = RootBlogNode?.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
+                var authorNode = authors?.Children(content => content.Name.InvariantEquals(_author.Name)).FirstOrDefault();
+                if (authorNode != null)
                 {
-                    var authors = RootBlogNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
-                    if (authors != null)
-                    {
-                        var authorNode = authors.Children(content => content.Name.InvariantEquals(_author.Name)).FirstOrDefault();
-                        if (authorNode != null)
-                        {
-                            _author.Bio = authorNode.GetPropertyValue<string>("authorBio");
-                            _author.Url = authorNode.GetPropertyValue<string>("authorUrl");
+                    _author.Bio = authorNode.GetPropertyValue<string>("authorBio");
+                    _author.Url = authorNode.GetPropertyValue<string>("authorUrl");
 
-                            var imageVal = authorNode.GetPropertyValue<string>("authorImage");
-                            _author.Image = !imageVal.IsNullOrWhiteSpace()
-                                ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
-                                : null;
+                    var imageVal = authorNode.GetPropertyValue<string>("authorImage");
+                    _author.Image = !imageVal.IsNullOrWhiteSpace()
+                        ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
+                        : null;
 
-                            _author.BlogUrl = authorNode.Url;
-                        }
-                    }
+                    _author.BlogUrl = authorNode.Url;
                 }
 
                 return _author;
             }
         }
 
-        public string Excerpt
-        {
-            get { return this.GetPropertyValue<string>("excerpt"); }
-        }
+        public string Excerpt => this.GetPropertyValue<string>("excerpt");
 
-        public DateTime PublishedDate
-        {
-            get { return Content.GetPropertyValue<DateTime>("publishedDate"); }
-        }
+        public DateTime PublishedDate => Content.GetPropertyValue<DateTime>("publishedDate");
 
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public string PostImageUrl
-        {
-            get { return Content.GetPropertyValue<string>("postImage"); }
-        }
+        public string PostImageUrl => Content.GetPropertyValue<string>("postImage");
 
         /// <summary>
         /// Cropped version of the PostImageUrl
         /// </summary>
-        public string CroppedPostImageUrl
-        {
-            get
-            {
-                return !PostImageUrl.IsNullOrWhiteSpace() 
-                    ? this.GetCropUrl("postImage", "wide") 
-                    : null;
-            }
-        }
+        public string CroppedPostImageUrl => !PostImageUrl.IsNullOrWhiteSpace() 
+            ? this.GetCropUrl("postImage", "wide") 
+            : null;
 
         /// <summary>
         /// Social Meta Description
         /// </summary>
-        public string SocialMetaDescription
-        {
-            get { return this.GetPropertyValue<string>("socialDescription"); }
-        }
+        public string SocialMetaDescription => this.GetPropertyValue<string>("socialDescription");
 
         public IHtmlString Body
         {
@@ -150,10 +139,7 @@ namespace Articulate.Models
             }
         }
 
-        public string ExternalUrl
-        {
-            get { return this.GetPropertyValue<string>("externalUrl"); }
-        }
+        public string ExternalUrl => this.GetPropertyValue<string>("externalUrl");
     }
 
 }
