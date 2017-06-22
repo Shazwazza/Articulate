@@ -16,16 +16,20 @@ $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
 $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
-
-$vswhere = .\vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
-if ($vswhere) {
-  $MSBuild = join-path $vswhere 'MSBuild\15.0\Bin\MSBuild.exe'
-  if (test-path $MSBuild) {
-     Write-Output $MSBuild
-  } else
-  {
-    Throw "Could not locate build tools for Visual Studio 2017 (MSBuild 15 required)"
-  }
+if ($BuildServer -eq 1) {
+	$MSBuild = "MSBuild.exe";
+}
+else {
+	$vswhere = .\vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+	if ($vswhere) {
+	  $MSBuild = join-path $vswhere 'MSBuild\15.0\Bin\MSBuild.exe'
+	  if (test-path $MSBuild) {
+		 Write-Output $MSBuild
+	  } 
+      else {
+		Throw "Could not locate build tools for Visual Studio 2017 (MSBuild 15 required)"
+	  }
+	}
 }
 
 if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
