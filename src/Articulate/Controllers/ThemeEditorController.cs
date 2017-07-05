@@ -14,6 +14,7 @@ using Umbraco.Core.IO;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
+using Umbraco.Web.WebApi;
 using Umbraco.Web.WebApi.Filters;
 
 namespace Articulate.Controllers
@@ -48,12 +49,19 @@ namespace Articulate.Controllers
             if (Path.GetInvalidFileNameChars().ContainsAny(themeName.ToCharArray()))
                 throw new InvalidOperationException("Name cannot contain invalid file name characters");
 
-            var theme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
+            var sourceTheme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
                 .FirstOrDefault(x => x.Name.InvariantEquals(copy));
+            if (sourceTheme == null) throw new HttpResponseException(HttpStatusCode.NotFound);
 
-            if (theme == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            var destTheme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
+                .FirstOrDefault(x => x.Name.InvariantEquals(themeName));
+            if (destTheme != null)
+            {
+                ModelState.AddModelError("value", "The theme " + themeName + " already exists");
+                throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
+            }
 
-            CopyDirectory(theme, new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath), themeName)));
+            CopyDirectory(sourceTheme, new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath), themeName)));
 
             return new Theme()
             {

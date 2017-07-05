@@ -6,7 +6,11 @@
 
 
                 <umb-control-group label="Enter a new theme name" hide-label="false">
-                    <input type="text" name="themeName" ng-model="vm.themeName" class="umb-textstring textstring input-block-level" required />
+                    <input type="text" name="themeName" ng-model="vm.themeName" class="umb-textstring textstring input-block-level"
+                           required
+                           val-server-field="value"/>
+                    <span class="help-inline" val-msg-for="themeName" val-toggle-msg="required"><localize key="general_required">Required</localize></span>
+                    <span class="help-inline" val-msg-for="themeName" val-toggle-msg="valServerField"></span>
                 </umb-control-group>
 
                 <h5>Duplicate Articulate theme from:</h5>
@@ -18,10 +22,6 @@
                         </a>
                     </li>
                 </ul>
-
-
-
-
             </div>
 
             <div class="umb-pane">
@@ -33,7 +33,8 @@
                                         button-style="success"
                                         action="vm.createTheme()"
                                         label="Create Theme"
-                                        disabled="vm.buttonState !== 'ready'">
+                                        state="vm.buttonState"
+                                        disabled="vm.isReady === false">
                             </umb-button>
                         </div>	
                     </div>
