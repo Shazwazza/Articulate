@@ -8,10 +8,10 @@ namespace Articulate
     public static class PathHelper
     {
         public const string ThemePath = "/App_Plugins/Articulate/Themes";
-        public const string VirtualThemePath = "~/" + ThemePath;
-        private const string VirtualThemePathToken = "~/" + ThemePath + "/{0}/";
-        private const string VirtualThemeViewPathToken = "~/" + ThemePath + "/{0}/Views/{1}.cshtml";
-        private const string VirtualThemePartialViewPathToken = "~/" + ThemePath + "/{0}/Views/Partials/{1}.cshtml";
+        public const string VirtualThemePath = "~" + ThemePath;
+        private const string VirtualThemePathToken = "~" + ThemePath + "/{0}/";
+        private const string VirtualThemeViewPathToken = "~" + ThemePath + "/{0}/Views/{1}.cshtml";
+        private const string VirtualThemePartialViewPathToken = "~" + ThemePath + "/{0}/Views/Partials/{1}.cshtml";
 
         public static string GetThemePath(IMasterModel model)
         {

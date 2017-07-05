@@ -1,5 +1,5 @@
 ﻿(function () {
-    "use strict";  
+    "use strict";
 
     function articulateThemeEditController($scope, $routeParams, articulateThemeResource, assetsService, notificationsService, editorState, navigationService, appState, macroService, angularHelper, $timeout, contentEditingHelper, localizationService, templateHelper, macroResource) {
 
@@ -26,7 +26,7 @@
 
             contentEditingHelper.contentEditorPerformSave({
                 statusMessage: localizeSaving,
-                saveMethod: articulateThemeResource.save,
+                saveMethod: articulateThemeResource.saveThemeFile,
                 scope: $scope,
                 content: vm.themeFile,
                 // We do not redirect on failure for partial view macros - this is because it is not possible to actually save the partial view
@@ -93,7 +93,7 @@
                 setFormState("pristine");
             }
 
-        }        
+        }
 
         /* Local functions */
 
@@ -103,13 +103,13 @@
 
             if ($routeParams.create) {
 
-                var snippet = "Empty";
+                var fileType = "cshtml";
 
-                if ($routeParams.snippet) {
-                    snippet = $routeParams.snippet;
+                if ($routeParams.filetype) {
+                    fileType = $routeParams.filetype;
                 }
 
-                articulateThemeResource.getScaffold($routeParams.id, snippet).then(function (themeFile) {
+                articulateThemeResource.getScaffold($routeParams.id, fileType).then(function (themeFile) {
                     if ($routeParams.name) {
                         themeFile.name = $routeParams.name;
                     }
@@ -140,8 +140,18 @@
             }
 
             // ace configuration
+
+            var fileext = themeFile.name.split('.').pop().toLowerCase();
+            var mode = fileext === "cshtml"
+                ? "razor"
+                : fileext === "css"
+                    ? "css"
+                    : fileext === "js"
+                        ? "javascript"
+                        : "razor";
+            
             vm.aceOption = {
-                mode: "razor",
+                mode: mode,
                 theme: "chrome",
                 showPrintMargin: false,
                 advanced: {
@@ -170,7 +180,7 @@
             }
 
         }
-        
+
         function persistCurrentLocation() {
             vm.currentPosition = vm.editor.getCursorPosition();
         }

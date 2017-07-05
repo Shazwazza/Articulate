@@ -20,7 +20,7 @@ namespace Articulate.Controllers
     [PluginController("Articulate")]
     public class ThemeTreeController : FileSystemTreeController
     {
-        protected override IFileSystem2 FileSystem { get; } = new PhysicalFileSystem("~/App_Plugins/Articulate/Themes");
+        protected override IFileSystem2 FileSystem { get; } = new PhysicalFileSystem(PathHelper.VirtualThemePath);
 
         private static readonly string[] ExtensionsStatic = { "cshtml", "js", "css" };
 

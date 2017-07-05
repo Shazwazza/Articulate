@@ -4,6 +4,16 @@
     function articulateThemeResource(umbRequestHelper, $http) {
         return {
 
+            saveThemeFile: function (themeFile) {
+
+                return umbRequestHelper.resourcePromise(
+                    $http.post(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "PostSaveThemeFile"), themeFile),
+                    "Failed to delete theme");
+            },
+
             deleteTheme: function (themeName) {
 
                 return umbRequestHelper.resourcePromise(
