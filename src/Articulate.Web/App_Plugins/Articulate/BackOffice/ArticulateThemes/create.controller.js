@@ -1,36 +1,61 @@
 ﻿(function () {
-  "use strict";
+    "use strict";
 
-  function articulateThemeCreateController($scope, articulateThemeResource, formHelper) {
+    function articulateThemeCreateController($scope, articulateThemeResource, formHelper, navigationService) {
 
-    var vm = this;
-    vm.themeName = "";
+        var vm = this;
+        vm.themeName = "";
+        vm.buttonState = "none";
 
-    articulateThemeResource.getThemes().then(function(data) {
-      vm.themes = data;
-    });
-
-    function init() {
-
-    }
-
-    function createTheme(themeName, copy) {
-      if (formHelper.submitForm({ scope: $scope })) {
-
-        articulateThemeResource.copyTheme(themeName, copy).then(function (data) {
-          alert("done!");
+        articulateThemeResource.getThemes().then(function (data) {
+            vm.themes = data;
         });
 
-      }
+        function init() {
+            $scope.$watch(function () {
+                return vm.themeName;
+            },
+                function (newVal, oldVal) {
+                    if (!newVal) {
+                        vm.buttonState = "none";
+                    }
+                    else if (vm.buttonState === "selected") {
+                        vm.buttonState = "ready";
+                    }
+                });
+        }
+
+        function selectTheme(theme) {
+            angular.forEach(vm.themes, function (t) {
+                t.selected = false;
+            });
+            theme.selected = true;
+            vm.buttonState = vm.themeName ? "ready" : "selected";
+        }
+
+        function createTheme() {
+            if (formHelper.submitForm({ scope: $scope })) {
+
+                var selected = _.find(vm.themes, function (t) {
+                    return t.selected === true;
+                });
+
+                articulateThemeResource.copyTheme(vm.themeName, selected.name).then(function (data) {
+                    $scope.nav.hideDialog();
+                    navigationService.syncTree({ tree: "articulatethemes", path: data.path, forceReload: true });
+                });
+
+            }
+        }
+
+        init();
+
+        vm.createTheme = createTheme;
+        vm.selectTheme = selectTheme;
+
     }
 
-    init();
-
-    vm.createTheme = createTheme;
-
-  }
-
-  angular.module("umbraco").controller("Articulate.Editors.ThemeCreateController", articulateThemeCreateController);
+    angular.module("umbraco").controller("Articulate.Editors.ThemeCreateController", articulateThemeCreateController);
 
 
 })();

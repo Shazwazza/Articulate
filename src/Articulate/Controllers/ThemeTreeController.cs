@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Formatting;
+﻿using System.Linq;
+using System.Net.Http.Formatting;
+using System.Web;
 using AutoMapper;
 using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
@@ -33,18 +35,26 @@ namespace Articulate.Controllers
 
         protected override MenuItemCollection GetMenuForNode(string id, FormDataCollection queryStrings)
         {
+            var menuItemCollection = new MenuItemCollection();
             if (id == Constants.System.Root.ToString())
             {
-                var rootMenu = base.GetMenuForNode(id, queryStrings);
-                //rootMenu.Items[0].LaunchDialogView("createtheme.html", "asdf");
-                rootMenu.Items[0].AdditionalData["dialogTitle"] = "Create Articulate theme";
-                //rootMenu.Items[0].AdditionalData["actionView"] = rootMenu.Items[0].AdditionalData["actionView"].ToString().Replace("/create.html", "createtheme.html");
-                return rootMenu;
+                menuItemCollection.DefaultMenuAlias = ActionNew.Instance.Alias;
+                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.Instance.Alias}"));
+                menuItemCollection.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize($"actions/{ActionRefresh.Instance.Alias}"));
+                return menuItemCollection;
             }
-            else
+            var path = string.IsNullOrEmpty(id) || id == Constants.System.Root.ToString() ? "" : HttpUtility.UrlDecode(id).TrimStart("/");
+            var flag = FileSystem.FileExists(path);
+            if (FileSystem.DirectoryExists(path))
             {
-                return base.GetMenuForNode(id, queryStrings);
+                menuItemCollection.DefaultMenuAlias = ActionNew.Instance.Alias;
+                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.Instance.Alias}"));                
+                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
+                menuItemCollection.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize($"actions/{ActionRefresh.Instance.Alias}"));
             }
+            else if (flag)
+                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
+            return menuItemCollection;
         }
 
         protected override TreeNode CreateRootNode(FormDataCollection queryStrings)

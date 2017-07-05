@@ -329,6 +329,8 @@
     <Content Include="App_Plugins\Articulate\Assets\md-editor.css" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\create.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\create.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\delete.controller.js" />
+    <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\delete.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\ArticulateThemes\edit.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogexporter.html" />

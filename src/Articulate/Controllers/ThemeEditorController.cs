@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Web;
 using System.Web.Http;
@@ -21,6 +22,27 @@ namespace Articulate.Controllers
     [UmbracoApplicationAuthorize(Constants.Applications.Settings)]
     public class ThemeEditorController : BackOfficeNotificationsController
     {
+        [HttpPost]
+        [HttpDelete]
+        public IHttpActionResult PostDeleteTheme(string themeName)
+        {
+            if (string.IsNullOrWhiteSpace(themeName))
+                return NotFound();
+
+            if (Path.GetInvalidFileNameChars().ContainsAny(themeName.ToCharArray()))
+                return NotFound();
+
+            var theme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
+                .FirstOrDefault(x => x.Name.InvariantEquals(themeName));
+
+            if (theme == null)
+                return NotFound();
+
+            theme.Delete(true);
+
+            return Ok();
+        }
+
         public Theme PostCopyTheme(string themeName, string copy)
         {
             if (Path.GetInvalidFileNameChars().ContainsAny(themeName.ToCharArray()))
@@ -35,7 +57,8 @@ namespace Articulate.Controllers
 
             return new Theme()
             {
-                Name = themeName
+                Name = themeName,
+                Path = "-1," + themeName 
             };
         }
 

@@ -1,43 +1,53 @@
 ﻿(function () {
-  "use strict";
+    "use strict";
 
-  function articulateThemeResource(umbRequestHelper, $http) {
-    return {
+    function articulateThemeResource(umbRequestHelper, $http) {
+        return {
 
-      copyTheme: function (themeName, copy) {
+            deleteTheme: function (themeName) {
 
-        return umbRequestHelper.resourcePromise(
-          $http.post(
-            umbRequestHelper.getApiUrl(
-              "articulateThemeEditorApiBaseUrl",
-              "PostCopyTheme", {themeName: themeName, copy: copy})),
-          "Failed to retrieve themes");
-      },
+                return umbRequestHelper.resourcePromise(
+                    $http.post(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "PostDeleteTheme", { themeName: themeName })),
+                    "Failed to delete theme");
+            },
 
-      getThemes: function (virtualpath) {
+            copyTheme: function (themeName, copy) {
 
-        return umbRequestHelper.resourcePromise(
-          $http.get(
-            umbRequestHelper.getApiUrl(
-              "articulateThemeEditorApiBaseUrl",
-              "GetThemes")),
-          "Failed to retrieve themes");
-      },
+                return umbRequestHelper.resourcePromise(
+                    $http.post(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "PostCopyTheme", { themeName: themeName, copy: copy })),
+                    "Failed to retrieve themes");
+            },
 
-      getByPath: function (virtualpath) {
+            getThemes: function (virtualpath) {
 
-        return umbRequestHelper.resourcePromise(
-          $http.get(
-            umbRequestHelper.getApiUrl(
-              "articulateThemeEditorApiBaseUrl",
-              "GetByPath",
-              { virtualPath: virtualpath })),
-          "Failed to retrieve data from virtual path " + virtualpath);
-      }
+                return umbRequestHelper.resourcePromise(
+                    $http.get(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "GetThemes")),
+                    "Failed to retrieve themes");
+            },
+
+            getByPath: function (virtualpath) {
+
+                return umbRequestHelper.resourcePromise(
+                    $http.get(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "GetByPath",
+                            { virtualPath: virtualpath })),
+                    "Failed to retrieve data from virtual path " + virtualpath);
+            }
+        }
     }
-  }
 
-  angular.module("umbraco").factory("articulateThemeResource", articulateThemeResource);
+    angular.module("umbraco").factory("articulateThemeResource", articulateThemeResource);
 
 
 })();
