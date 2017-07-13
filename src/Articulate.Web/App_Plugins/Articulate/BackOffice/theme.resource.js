@@ -34,6 +34,16 @@
                     "Failed to retrieve themes");
             },
 
+            createFile: function (parentId, fileName, type) {
+
+                return umbRequestHelper.resourcePromise(
+                    $http.post(
+                        umbRequestHelper.getApiUrl(
+                            "articulateThemeEditorApiBaseUrl",
+                            "PostCreateFile", { parentId, name: fileName, type: type })),
+                    "Failed to retrieve themes");
+            },
+
             getThemes: function (virtualpath) {
 
                 return umbRequestHelper.resourcePromise(

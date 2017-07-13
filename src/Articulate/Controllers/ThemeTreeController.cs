@@ -44,7 +44,7 @@ namespace Articulate.Controllers
                 return menuItemCollection;
             }
             var path = string.IsNullOrEmpty(id) || id == Constants.System.Root.ToString() ? "" : HttpUtility.UrlDecode(id).TrimStart("/");
-            var flag = FileSystem.FileExists(path);
+            var dirExists = FileSystem.FileExists(path);
             if (FileSystem.DirectoryExists(path))
             {
                 menuItemCollection.DefaultMenuAlias = ActionNew.Instance.Alias;
@@ -52,7 +52,7 @@ namespace Articulate.Controllers
                 menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
                 menuItemCollection.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize($"actions/{ActionRefresh.Instance.Alias}"));
             }
-            else if (flag)
+            else if (dirExists)
                 menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
             return menuItemCollection;
         }

@@ -31,10 +31,12 @@ namespace Articulate.Controllers
     {
         private readonly IFileSystem2 _themesFileSystem = new PhysicalFileSystem(PathHelper.VirtualThemePath);
 
-        public CodeFileDisplay PostCreateContainer(string parentId, string name)
+        public CodeFileDisplay PostCreateFile(string parentId, string name, string type)
         {
+            //todo: what about paths? we need to know where we are
             if (string.IsNullOrWhiteSpace(parentId)) throw new ArgumentException("Value cannot be null or whitespace.", "parentId");
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Value cannot be null or whitespace.", "name");                       
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+            if (string.IsNullOrWhiteSpace(type)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(type));
 
             // if the parentId is root (-1) then we just need an empty string as we are
             // creating the path below and we don't wan't -1 in the path
@@ -44,22 +46,46 @@ namespace Articulate.Controllers
             }
 
             name = HttpUtility.UrlDecode(name);
-
+            var virtualPath = name;
             if (parentId.IsNullOrWhiteSpace() == false)
             {
                 parentId = HttpUtility.UrlDecode(parentId);
-                name = parentId.EnsureEndsWith("/") + name;
+                virtualPath = parentId.EnsureEndsWith("/") + name;
             }
 
-            var virtualPath = NormalizeVirtualPath(name, PathHelper.VirtualThemePath);
-            _themesFileSystem.CreateFolder(virtualPath);
-
-            return new CodeFileDisplay
+            var codeFile = new CodeFileDisplay
             {
                 VirtualPath = virtualPath,
-                Path = Url.GetTreePathFromFilePath(virtualPath)
+                Name = name
             };
+
+            switch (type.ToLower())
+            {
+                case "javascript":
+                    CreateOrUpdateFile(".js", codeFile);                    
+                    break;
+                case "css":
+                    CreateOrUpdateFile(".css", codeFile);
+                    break;
+                case "razor":
+                    CreateOrUpdateFile(".cshtml", codeFile);
+                    break;
+                case "folder":
+                    virtualPath = NormalizeVirtualPath(virtualPath, PathHelper.VirtualThemePath);
+                    _themesFileSystem.CreateFolder(virtualPath);
+
+                    return new CodeFileDisplay
+                    {
+                        VirtualPath = virtualPath,
+                        Path = Url.GetTreePathFromFilePath(virtualPath)                       
+                    };
+                default:
+                    throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+            }
+
+            return MapFromVirtualPath(codeFile.VirtualPath);
         }
+
 
         private string NormalizeVirtualPath(string virtualPath, string systemDirectory)
         {
@@ -88,21 +114,23 @@ namespace Articulate.Controllers
             {
                 case "css":
                     CreateOrUpdateFile(".css", themeFile);
-                    return MapFromVirtualPath(themeFile.VirtualPath);
+                    break;
                 case "js":
                     CreateOrUpdateFile(".js", themeFile);
-                    return MapFromVirtualPath(themeFile.VirtualPath);
+                    break;
                 case "cshtml":
                     CreateOrUpdateFile(".cshtml", themeFile);
-                    return MapFromVirtualPath(themeFile.VirtualPath);
+                    break;
                 default:
                     throw new HttpResponseException(HttpStatusCode.NotFound);
             }
+
+            return MapFromVirtualPath(themeFile.VirtualPath);
         }
 
         private void CreateOrUpdateFile(string expectedExtension, CodeFileDisplay display)
         {
-            display.VirtualPath = NormalizeVirtualPath(display.VirtualPath, PathHelper.VirtualThemePath);
+            display.VirtualPath = EnsureCorrectFileExtension(NormalizeVirtualPath(display.VirtualPath, PathHelper.VirtualThemePath), expectedExtension);
             display.Name = EnsureCorrectFileExtension(display.Name, expectedExtension);
 
             //if the name has changed we need to delete and re-create
@@ -155,6 +183,7 @@ namespace Articulate.Controllers
 
             return Ok();
         }
+
 
         public Theme PostCopyTheme(string themeName, string copy)
         {

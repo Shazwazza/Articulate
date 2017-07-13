@@ -293,6 +293,7 @@
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
+    <Compile Include="Controllers\FileSystemExtensions.cs" />
     <Compile Include="Controllers\ListControllerBase.cs" />
     <Compile Include="Controllers\MardownEditorApiController.cs" />
     <Compile Include="Controllers\MarkdownEditorController.cs" />
@@ -313,6 +314,7 @@
     <Compile Include="Controllers\ThemeEditorController.cs" />
     <Compile Include="Controllers\ThemeTreeController.cs" />
     <Compile Include="Controllers\UmbracoNotFoundResult.cs" />
+    <Compile Include="Controllers\UrlHelperExtensions.cs" />
     <Compile Include="DateFormattedPostContentFinder.cs" />
     <Compile Include="DateFormattedUrlProvider.cs" />
     <Compile Include="Models\AuthorListModel.cs" />

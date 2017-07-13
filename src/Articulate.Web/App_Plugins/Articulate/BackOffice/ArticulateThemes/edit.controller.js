@@ -145,7 +145,7 @@
             var mode = fileext === "cshtml"
                 ? "razor"
                 : fileext === "css"
-                    ? "css"
+                    ? "text"
                     : fileext === "js"
                         ? "javascript"
                         : "razor";
