@@ -14,13 +14,13 @@
                     "Failed to delete theme");
             },
 
-            deleteTheme: function (themeName) {
+            deleteItem: function (id) {
 
                 return umbRequestHelper.resourcePromise(
                     $http.post(
                         umbRequestHelper.getApiUrl(
                             "articulateThemeEditorApiBaseUrl",
-                            "PostDeleteTheme", { themeName: themeName })),
+                            "PostDeleteItem", { id: id })),
                     "Failed to delete theme");
             },
 

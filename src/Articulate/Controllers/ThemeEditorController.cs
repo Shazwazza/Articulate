@@ -86,7 +86,6 @@ namespace Articulate.Controllers
             return MapFromVirtualPath(codeFile.VirtualPath);
         }
 
-
         private string NormalizeVirtualPath(string virtualPath, string systemDirectory)
         {
             if (virtualPath.IsNullOrWhiteSpace())
@@ -165,25 +164,39 @@ namespace Articulate.Controllers
 
         [HttpPost]
         [HttpDelete]
-        public IHttpActionResult PostDeleteTheme(string themeName)
+        public IHttpActionResult PostDeleteItem(string id)
         {
-            if (string.IsNullOrWhiteSpace(themeName))
+            if (string.IsNullOrWhiteSpace(id))
                 return NotFound();
+            
+            id = HttpUtility.UrlDecode(id);
+            var parts = id.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 
-            if (Path.GetInvalidFileNameChars().ContainsAny(themeName.ToCharArray()))
-                return NotFound();
+            foreach (var part in parts)
+            {
+                if (Path.GetInvalidFileNameChars().ContainsAny(part.ToCharArray()))
+                    return NotFound();
+            }
 
-            var theme = new DirectoryInfo(Path.Combine(IOHelper.MapPath(PathHelper.VirtualThemePath))).GetDirectories()
-                .FirstOrDefault(x => x.Name.InvariantEquals(themeName));
+            if (Path.GetExtension(id).IsNullOrWhiteSpace())
+            {
+                //delete folder
+                if (!_themesFileSystem.DirectoryExists(id))
+                    return NotFound();
 
-            if (theme == null)
-                return NotFound();
-
-            theme.Delete(true);
+                _themesFileSystem.DeleteDirectory(id, true);
+            }
+            else
+            {
+                //delete file
+                if (!_themesFileSystem.FileExists(id))
+                    return NotFound();
+                
+                _themesFileSystem.DeleteFile(id);                
+            }
 
             return Ok();
         }
-
 
         public Theme PostCopyTheme(string themeName, string copy)
         {
