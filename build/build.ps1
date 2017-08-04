@@ -57,7 +57,7 @@ $SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
 	-replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
 	sc -Path $SolutionInfoPath -Encoding UTF8
 # Set the copyright
-$Copyright = "Copyright Â© Shannon Deminick " + (Get-Date).year;
+$Copyright = "Copyright © Shannon Deminick " + (Get-Date).year;
 (gc -Path $SolutionInfoPath) `
 	-replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
 	sc -Path $SolutionInfoPath -Encoding UTF8;
