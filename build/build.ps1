@@ -16,18 +16,38 @@ $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
 $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
+
+# Go get nuget.exe if we don't hae it
+$NuGet = "$BuildFolder\nuget.exe"
+$FileExists = Test-Path $NuGet 
+If ($FileExists -eq $False) {
+	Write-Host "Retrieving nuget.exe..."
+	$SourceNugetExe = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
+}
+
 if ($BuildServer -eq 1) {
 	$MSBuild = "MSBuild.exe";
 }
 else {
-	$vswhere = .\vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
-	if ($vswhere) {
-	  $MSBuild = join-path $vswhere 'MSBuild\15.0\Bin\MSBuild.exe'
-	  if (test-path $MSBuild) {
-		 Write-Output $MSBuild
-	  } 
-      else {
-		Throw "Could not locate build tools for Visual Studio 2017 (MSBuild 15 required)"
+	# ensure we have vswhere
+	New-Item "$BuildFolder\vswhere" -type directory -force
+	$vswhere = "$BuildFolder\vswhere.exe"
+	if (-not (test-path $vswhere))
+	{
+	   Write-Host "Download VsWhere..."
+	   $path = "$BuildFolder\tmp"
+	   &$nuget install vswhere -OutputDirectory $path -Verbosity quiet
+	   $dir = ls "$path\vswhere.*" | sort -property Name -descending | select -first 1
+	   $file = ls -path "$dir" -name vswhere.exe -recurse
+	   mv "$dir\$file" $vswhere   
+	 }
+
+	$MSBuild = &$vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+	if ($MSBuild) {
+	  $MSBuild = join-path $MSBuild 'MSBuild\15.0\Bin\MSBuild.exe'
+	  if (-not (test-path $msbuild)) {
+		throw "MSBuild not found!"
 	  }
 	}
 }
@@ -39,14 +59,6 @@ if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 }
 
 ####### DO THE SLN BUILD PART #############
-
-# Go get nuget.exe if we don't hae it
-$NuGet = "$BuildFolder\nuget.exe"
-$FileExists = Test-Path $NuGet 
-If ($FileExists -eq $False) {
-	$SourceNugetExe = "http://nuget.org/nuget.exe"
-	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
-}
 
 # Set the version number in SolutionInfo.cs
 $SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
