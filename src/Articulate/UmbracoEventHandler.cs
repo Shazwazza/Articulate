@@ -192,12 +192,15 @@ namespace Articulate
                             val = md.Transform(val);
                             c.SetValue("excerpt", UmbracoConfig.For.ArticulateOptions().GenerateExcerpt(val));
                         }
-                    }     
-                    
+                    }
+
                     //now fill in the social description if it is empty with the excerpt
-                    if (c.GetValue<string>("socialDescription").IsNullOrWhiteSpace())
+                    if (c.HasProperty("socialDescription"))
                     {
-                        c.SetValue("socialDescription", c.GetValue<string>("excerpt"));
+                        if (c.GetValue<string>("socialDescription").IsNullOrWhiteSpace())
+                        {
+                            c.SetValue("socialDescription", c.GetValue<string>("excerpt"));
+                        }
                     }
                 }
             }
