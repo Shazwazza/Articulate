@@ -13,7 +13,7 @@ $PSScriptFilePath = Get-Item $MyInvocation.MyCommand.Path
 $RepoRoot = $PSScriptFilePath.Directory.Parent.FullName
 $BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
 $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
-$ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
+$ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Release";
 $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
 
@@ -76,6 +76,10 @@ $Copyright = "Copyright © Shannon Deminick " + (Get-Date).year;
 
 # Build the solution in release mode
 $SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Articulate.sln";
+
+#restore nuget packages
+Write-Host "Restoring nuget packages..."
+& $NuGet restore $SolutionPath
 
 # clean sln for all deploys
 & $MSBuild "$SolutionPath" /p:Configuration=Release /maxcpucount /t:Clean
@@ -161,7 +165,10 @@ foreach($FileXML in $CreatedPackagesConfigXML.packages.package.files.file)
 $PackageManifestXML.umbPackage.ReplaceChild($NewFilesXML, $PackageManifestXML.SelectSingleNode("/umbPackage/files")) | Out-Null
 $PackageManifestXML.Save($PackageManifest)
 
-#finally zip the package
+#zip the package
 $DestZIP = "$ReleaseFolder\Articulate.zip" 
 Add-Type -assembly "system.io.compression.filesystem"
 [io.compression.zipfile]::CreateFromDirectory($TempFolder, $DestZIP) 
+
+$nuSpec = Join-Path -Path $BuildFolder -ChildPath "Articulate.nuspec";
+& $NuGet pack $nuSpec -BasePath $WebProjFolder -OutputDirectory $ReleaseFolder -Version "$ReleaseVersionNumber$PreReleaseName" -Properties "copyright=$Copyright;buildFolder=$BuildFolder"

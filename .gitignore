@@ -47,3 +47,4 @@ src/Articulate.Web/config/imageprocessor/processing.config
 src/Articulate.Web/config/imageprocessor/security.config
 /build/tmp/*
 /build/vswhere.exe
+/build/Release/*

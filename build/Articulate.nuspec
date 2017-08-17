@@ -14,10 +14,15 @@
     <tags>blog umbraco oss tags markdown richtext</tags>
     <copyright>$copyright$</copyright>
     <dependencies>
-      
+      <dependency id="UmbracoCms.Core" version="7.6.1" />
+      <dependency id="Argotic.Core" version="2008.0.2" />
+      <dependency id="MarkdownDeep.NET" version="1.5" />
     </dependencies>
   </metadata>
   <files>
-    
+      <file src="bin\Articulate.dll" target="lib\net45\" />
+      <file src="App_Plugins\Articulate\**\*" target="content\App_Plugins\Articulate" />
+      <file src="media\articulate\**\*" target="content\media\articulate" />
+      <file src="$buildFolder$\dashboard.config.install.xdt" target="content\config\dashboard.config.install.xdt" />
   </files>
 </package>

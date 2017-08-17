@@ -6,7 +6,9 @@ angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateDataInstallerBaseUrl"] + "PostInstall"),
                 'Failed to install Articulate data');
-        }        
+        }
+
+        
 
         $scope.submitInstall = function () {
 
@@ -24,9 +26,8 @@ angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
 
                 postInstall()
                     .then(function (data) {
-
-                        //$scope.downloadLink = data.downloadUrl;
-
+                        
+                        $scope.blogUrl = JSON.parse(data);
                         $scope.status = "Finished!";
                         $scope.submitting = false;
                     });

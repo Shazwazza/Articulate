@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FCB54D07-0064-4BAC-803B-465AC9D4C134}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,8 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articulate", "Articulate\Ar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1-0587-41C4-BDD9-63FF3F8C73D7}"
 	ProjectSection(SolutionItems) = preProject
+		..\build\Articulate.nuspec = ..\build\Articulate.nuspec
 		..\build\build.ps1 = ..\build\build.ps1
 		..\build\createdPackages.config = ..\build\createdPackages.config
+		..\build\dashboard.config.install.xdt = ..\build\dashboard.config.install.xdt
 		..\build\packageManifest.xml = ..\build\packageManifest.xml
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection
@@ -43,5 +45,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB2C266E-594E-4B61-872B-0723C3F0906C}
 	EndGlobalSection
 EndGlobal
