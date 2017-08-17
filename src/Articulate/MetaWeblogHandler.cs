@@ -40,7 +40,9 @@ namespace Articulate
         {
             var user = ValidateUser(username, password);
 
-            var node = BlogRoot().Children("ArticulateArchive").FirstOrDefault();
+            var root = BlogRoot();
+
+            var node = root.Children("ArticulateArchive").FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -49,10 +51,10 @@ namespace Articulate
             var content = _applicationContext.Services.ContentService.CreateContent(
                 post.Title, node.Id, "ArticulateRichText", user.Id);
 
-            var extractFirstImageAsProperty = true;
-            if (node.HasProperty("extractFirstImage"))
+            var extractFirstImageAsProperty = false;
+            if (root.HasProperty("extractFirstImage"))
             {
-                extractFirstImageAsProperty = node.GetPropertyValue<bool>("extractFirstImage");
+                extractFirstImageAsProperty = root.GetPropertyValue<bool>("extractFirstImage");
             }
 
             AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);

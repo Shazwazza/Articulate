@@ -68,6 +68,13 @@ namespace Articulate.Controllers
                 CleanFiles(multiPartRequest);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate node found with the specified id"));
             }
+
+            var extractFirstImageAsProperty = true;
+            if (articulateNode.HasProperty("extractFirstImage"))
+            {
+                extractFirstImageAsProperty = articulateNode.GetValue<bool>("extractFirstImage");
+            }
+
             var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
                 .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             if (archive == null)
@@ -85,7 +92,7 @@ namespace Articulate.Controllers
             }
 
             //parse out the images, we may be posting more than is in the body
-            var parsedImageResponse = ParseImages(model.Body, multiPartRequest);
+            var parsedImageResponse = ParseImages(model.Body, multiPartRequest, extractFirstImageAsProperty);
 
             model.Body = parsedImageResponse.BodyText;
 
@@ -151,7 +158,7 @@ namespace Articulate.Controllers
             }
         }
 
-        private static ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest)
+        private static ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest, bool extractFirstImageAsProperty)
         {
             var firstImage = string.Empty;
             var bodyText = Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
@@ -172,11 +179,14 @@ namespace Articulate.Controllers
                         var result = string.Format("![{0}]({1})",
                             savedFile.Url,
                             savedFile.Url
-                            );
+                        );
 
-                        if (string.IsNullOrEmpty(firstImage))
+                        if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
                         {
                             firstImage = savedFile.Url;
+                            //in this case, we've extracted the image, we don't want it to be displayed
+                            // in the content too so don't return it.
+                            return string.Empty;
                         }
 
                         return result;
