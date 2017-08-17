@@ -25,6 +25,12 @@ namespace Articulate.Controllers
 {
     public class MardownEditorApiController : UmbracoAuthorizedApiController
     {
+        public class ParseImageResponse
+        {
+            public string BodyText { get; set; }
+            public string FirstImage { get; set; }
+        }
+
         public async Task<HttpResponseMessage> PostNew()
         {
             if (!Request.Content.IsMimeMultipartContent())
@@ -79,7 +85,9 @@ namespace Articulate.Controllers
             }
 
             //parse out the images, we may be posting more than is in the body
-            model.Body = ParseImages(model.Body, multiPartRequest);
+            var parsedImageResponse = ParseImages(model.Body, multiPartRequest);
+
+            model.Body = parsedImageResponse.BodyText;
 
             var content = Services.ContentService.CreateContent(
                 model.Title,
@@ -88,6 +96,12 @@ namespace Articulate.Controllers
                 Security.GetUserId());
 
             content.SetValue("markdown", model.Body);
+
+            if (!string.IsNullOrEmpty(parsedImageResponse.FirstImage))
+            {
+                content.SetValue("postImage", parsedImageResponse.FirstImage);
+            }
+
             if (model.Excerpt.IsNullOrWhiteSpace() == false)
             {
                 content.SetValue("excerpt", model.Excerpt);
@@ -137,9 +151,10 @@ namespace Articulate.Controllers
             }
         }
 
-        private static string ParseImages(string body, MultipartFileStreamProvider multiPartRequest)
+        private static ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest)
         {
-            return Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
+            var firstImage = string.Empty;
+            var bodyText = Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
             {
                 var index = m.Groups[1].Value.TryConvertTo<int>();
                 if (index)
@@ -159,12 +174,19 @@ namespace Articulate.Controllers
                             savedFile.Url
                             );
 
+                        if (string.IsNullOrEmpty(firstImage))
+                        {
+                            firstImage = savedFile.Url;
+                        }
+
                         return result;
                     }
                 }
 
                 return m.Value;
             });
+
+            return new ParseImageResponse { BodyText = bodyText, FirstImage = firstImage };
         }
 
         private static bool CheckPermissions(IUser user, IUserService userService, char[] permissionsToCheck, IContent contentItem)
