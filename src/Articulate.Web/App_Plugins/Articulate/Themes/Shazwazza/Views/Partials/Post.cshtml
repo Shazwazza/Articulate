@@ -15,13 +15,13 @@
             @Html.AuthorCitation(Model)
             <span>@Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")</span>
         </div>
-
-        @Html.ThemedPartial(Model, "Sharing")
-
+        
         if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
         {
             <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
         }
+
+        @Html.ThemedPartial(Model, "Sharing")
     }
 
     <div class="postcontent">        
