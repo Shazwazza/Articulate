@@ -9,42 +9,35 @@
 
     <h1><a class="postheader taggedlink" href="@Model.Url">@Model.Name</a></h1>
 
-    @if (Model.Parent.Name != "Pages") 
-    {
-        <div class="descr">
-            @Html.AuthorCitation(Model)
-            <span>@Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")</span>
-        </div>
+    <div class="descr">
+        @Html.AuthorCitation(Model)
+        <span>@Model.PublishedDate.ToString("MMMM d, yyyy HH:mm")</span>
+    </div>
         
-        if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
-        {
-            <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
-        }
-
-        @Html.ThemedPartial(Model, "Sharing")
+    if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+    {
+    <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
     }
+
+    @Html.ThemedPartial(Model, "Sharing")
 
     <div class="postcontent">        
         @Model.Body
     </div>
 
-    @if (Model.Parent.Name != "Pages") 
-    {
-        <div class="postfooter box-inner">
-            Tags:
-            @Html.ListTags(Model,
+    <div class="postfooter box-inner">
+        Tags:
+        @Html.ListTags(Model,
             @<a href="@Url.ArticulateTagUrl(Model, @item)">@item</a>)
-            <br />
-            Categories:
-            @Html.ListCategories(Model,
+        <br />
+        Categories:
+        @Html.ListCategories(Model,
             @<a href="@Url.ArticulateCategoryUrl(Model, @item)">@item</a>, " | ")
-            <br />
-            <img id="Img4" alt="comment" src="@Url.ThemedAsset(Model, "img/comments.gif")" />
-            <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.GetContentKey()"></a>
-        </div>
-    }
-    
-    
+        <br />
+        <img id="Img4" alt="comment" src="@Url.ThemedAsset(Model, "img/comments.gif")" />
+        <a rel="nofollow" href="@Model.Url#disqus_thread" data-disqus-identifier="@Model.GetContentKey()"></a>
+    </div>
+       
     @if ((ViewBag.IsListView == null || ViewBag.IsListView == false) && Model.EnableComments)
     {
         <br/>
