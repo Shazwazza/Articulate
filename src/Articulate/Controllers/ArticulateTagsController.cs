@@ -101,7 +101,7 @@ namespace Articulate.Controllers
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
             // will replace them with '.' and do the lookup again
-            if (contentByTag == null && tagPage.Name.Contains("-"))
+            if ((contentByTag == null || contentByTag.PostCount == 0) && tagPage.Name.Contains("-"))
             {
                 contentByTag = Umbraco.GetContentByTag(
                     masterModel,
