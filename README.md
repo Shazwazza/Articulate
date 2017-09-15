@@ -23,7 +23,7 @@ Supporting all the features you'd want in a blogging platform
 
 ## Minimum requirements
 
-Articulate version 2+ is only compatible with Umbraco 7.3+
+Articulate version 3+ is only compatible with Umbraco 7.6+
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 
@@ -55,7 +55,7 @@ If you would like to contribute to the Articulate project, you'll need some info
 8. Execute build.ps1
 9. This will prompt you for a version, enter the latest Articulate version (at the time of writing this is "3.0.0")
 10. It will prompt your for a pre-release value, just press Enter to skip this
-11. Once the build has completed, it will have created the Articulate Umbraco package at /build/Releases/2.0.5/Articulate.zip
+11. Once the build has completed, it will have created the Articulate Umbraco package at /build/Release/Articulate.zip
 12. Install this package in the Umbraco back office
 
 Now you're all set! Any source changes you wish to make just do that in Visual Studio, build the solution when you need to and the changes will be reflected in the website.
@@ -73,6 +73,6 @@ If you wish to re-force the package installation, you can remove the Articulate 
 
 ## Copyright & Licence
 
-&copy; 2016 by Shannon Deminick
+&copy; 2017 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
