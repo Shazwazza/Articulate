@@ -657,6 +657,11 @@
       <orgName>MarkdownDeep.dll</orgName>
     </file>
     <file>
+      <guid>CookComputing.XmlRpcV2.dll</guid>
+      <orgPath>~/bin</orgPath>
+      <orgName>CookComputing.XmlRpcV2.dll</orgName>
+    </file>
+    <file>
       <guid>random-mask.jpg</guid>
       <orgPath>~/media/articulate/default</orgPath>
       <orgName>random-mask.jpg</orgName>
