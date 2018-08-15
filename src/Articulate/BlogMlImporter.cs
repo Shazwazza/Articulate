@@ -44,7 +44,8 @@ namespace Articulate
             string regexMatch,
             string regexReplace,
             bool publishAll,
-            bool exportDisqusXml = false)
+            bool exportDisqusXml = false,
+            bool importFirstImage = false)
         {
             try
             {
@@ -73,7 +74,7 @@ namespace Articulate
 
                     var authorIdsToName = ImportAuthors(userId, root, document.Authors);
 
-                    var imported = await ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll);
+                    var imported = await ImportPosts(userId, xdoc, root, document.Posts, document.Authors.ToArray(), document.Categories.ToArray(), authorIdsToName, overwrite, regexMatch, regexReplace, publishAll, importFirstImage);
 
                     if (exportDisqusXml)
                     {
@@ -176,7 +177,7 @@ namespace Articulate
             return result;
         }
 
-        private async Task<IEnumerable<IContent>> ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll)
+        private async Task<IEnumerable<IContent>> ImportPosts(int userId, XDocument xdoc, IContent rootNode, IEnumerable<BlogMLPost> posts, BlogMLAuthor[] authors, BlogMLCategory[] categories, IDictionary<string, string> authorIdsToName, bool overwrite, string regexMatch, string regexReplace, bool publishAll, bool importFirstImage = false)
         {
             var result = new List<IContent>();
 
@@ -266,7 +267,7 @@ namespace Articulate
                     if (post.Name != null)
                         slug = post.Name.Content;
                     //If post-name is not available we take the URL and remove the extension
-                    else 
+                    else
                     {
                         var slugArray = post.Url.OriginalString.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                         var fileNameAndQuery = slugArray[slugArray.Length - 1];
@@ -293,6 +294,10 @@ namespace Articulate
 
                 ImportTags(xdoc, postNode, post);
                 ImportCategories(postNode, post, categories);
+                if (importFirstImage)
+                {
+                    ImportFirstImage(postNode, post);
+                }
 
                 if (publishAll)
                 {
@@ -312,6 +317,38 @@ namespace Articulate
             }
 
             return await Task.FromResult(result);
+        }
+
+        private void ImportFirstImage(IContent postNode, BlogMLPost post)
+        {
+
+            var imageMimeTypes = new List<string> { "image/jpeg", "image/gif", "image/png" };
+
+            var attachment = post.Attachments.FirstOrDefault(p => imageMimeTypes.Contains(p.MimeType));
+            if (attachment == null) return;
+            var path = attachment.Url.GetPath();
+
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+
+                    var array = client.DownloadData(attachment.Url);
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        stream.Write(array, 0, array.Length);
+                        postNode.SetValue("postImage", Path.GetFileName(path), stream);
+                    }
+                }
+            }
+            catch (WebException webException)
+            {
+                LogHelper.Error<BlogMlImporter>($"WebException retrieving {attachment.Url}; post {post.Id}", webException);
+            }
+            catch (Exception exception)
+            {
+                LogHelper.Error<BlogMlImporter>($"Exception retrieving {attachment.Url}; post {post.Id}", exception);
+            }
         }
 
         //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,

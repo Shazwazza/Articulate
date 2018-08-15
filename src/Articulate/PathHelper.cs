@@ -27,7 +27,7 @@ namespace Articulate
             if (model.Theme.IsNullOrWhiteSpace())
             {
                 throw new InvalidOperationException("No theme has been set for this Articulate root, republish the root with a selected theme");
-            }            
+            }
             return string.Format(VirtualThemeViewPathToken, model.Theme, viewName);
         }
 
@@ -36,7 +36,7 @@ namespace Articulate
             if (model.Theme.IsNullOrWhiteSpace())
             {
                 throw new InvalidOperationException("No theme has been set for this Articulate root, republish the root with a selected theme");
-            }            
+            }
             return string.Format(VirtualThemePartialViewPathToken, model.Theme, viewName);
         }
 
@@ -48,6 +48,11 @@ namespace Articulate
             return requestUrl.Scheme +
                 System.Uri.SchemeDelimiter +
                 requestUrl.Authority;
+        }
+
+        public static string GetPath(this Uri url)
+        {
+            return $"{url.Scheme}{Uri.SchemeDelimiter}{url.Authority}{url.AbsolutePath}";
         }
     }
 }
