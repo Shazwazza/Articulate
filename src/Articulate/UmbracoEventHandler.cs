@@ -124,6 +124,9 @@ namespace Articulate
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
                     if (content == null) return;
+                    //TODO: There is a case when there are URL conflicts with Articulate data that when the other data is unpublished
+                    // we'd want to rebuild articulate routes, but not sure how to handle that and we don't want to rebuild everytime
+                    // something is unpublished
                     if (content.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt

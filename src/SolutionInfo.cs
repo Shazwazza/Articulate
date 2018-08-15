@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2017")]
+[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2018")]
 
 [assembly: AssemblyCompany("Shannon Deminick")]
 
@@ -11,6 +11,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("3.0.1")]
-[assembly: AssemblyFileVersion("3.0.1")]
-[assembly: AssemblyInformationalVersion("3.0.1")]
+[assembly: AssemblyVersion("3.0.2")]
+[assembly: AssemblyFileVersion("3.0.2")]
+[assembly: AssemblyInformationalVersion("3.0.2")]

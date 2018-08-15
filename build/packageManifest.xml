@@ -1286,6 +1286,7 @@ Supporting all the features you'd want in a blogging platform:
     <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar">
       <PreValues>
         <PreValue Id="6" Value="ArticulateCategories" Alias="group" SortOrder="0" />
+        <PreValue Id="7" Value="Csv" Alias="storageType" SortOrder="1" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext">
@@ -1308,6 +1309,7 @@ Supporting all the features you'd want in a blogging platform:
     <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar">
       <PreValues>
         <PreValue Id="12" Value="ArticulateTags" Alias="group" SortOrder="0" />
+        <PreValue Id="13" Value="Csv" Alias="storageType" SortOrder="1" />
       </PreValues>
     </DataType>
     <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar">
