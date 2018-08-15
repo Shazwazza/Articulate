@@ -11,15 +11,15 @@ namespace Articulate.Models
             PreviousUrl = previousUrl;
         }
 
-        public int PageSize { get; private set; }
+        public int PageSize { get; }
 
-        public int TotalPages { get; private set; }
+        public int TotalPages { get; }
 
-        public int CurrentPageIndex { get; private set; }
+        public int CurrentPageIndex { get; }
 
-        public string NextUrl { get; private set; }
+        public string NextUrl { get; }
 
-        public string PreviousUrl { get; private set; }
+        public string PreviousUrl { get; }
 
         public bool HasNext => NextUrl != null;
 

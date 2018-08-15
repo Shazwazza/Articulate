@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
@@ -27,7 +28,7 @@ namespace Articulate.Controllers
         protected ListControllerBase(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper)
             : base(umbracoContext, umbracoHelper)
         {
-        }        
+        }
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
@@ -38,8 +39,7 @@ namespace Articulate.Controllers
             if (pageNode == null) throw new ArgumentNullException(nameof(pageNode));
             if (listItems == null) throw new ArgumentNullException(nameof(listItems));
 
-            PagerModel pager;
-            if (!GetPagerModel(masterModel, totalPosts, p, out pager))
+            if (!GetPagerModel(masterModel, totalPosts, p, out var pager))
             {
                 return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContext);
             }
@@ -55,7 +55,7 @@ namespace Articulate.Controllers
             {
                 p = 1;
             }
-            
+
             var pageSize = masterModel.PageSize;
             var totalPages = totalPosts == 0 ? 1 : Convert.ToInt32(Math.Ceiling((double)totalPosts / pageSize));
 
@@ -66,14 +66,40 @@ namespace Articulate.Controllers
                 return false;
             }
 
+            //maintain query strings
+            var queryStrings = new StringBuilder();
+            foreach (var key in Request.QueryString.AllKeys)
+            {
+                if (key == "p") continue;
+                var val = Request.QueryString.GetValues(key);
+                if (val == null) continue;
+                foreach (var v in val)
+                {
+                    queryStrings.Append($"&{key}={v}");
+                }
+            }
+
             pager = new PagerModel(
                 pageSize,
                 p.Value - 1,
                 totalPages,
-                totalPages > p ? masterModel.Url.EnsureEndsWith('?') + "p=" + (p + 1) : null,
-                p > 2 ? masterModel.Url.EnsureEndsWith('?') + "p=" + (p - 1) : p > 1 ? masterModel.Url : null);
+                totalPages > p
+                    ? GetPagedUrl(masterModel.Url, (p + 1), queryStrings.ToString())
+                    : null,
+                p > 2
+                    ? GetPagedUrl(masterModel.Url, (p - 1), queryStrings.ToString())
+                    : p > 1
+                        ? GetPagedUrl(masterModel.Url, null, queryStrings.ToString())
+                        : null);
 
             return true;
+        }
+
+        private string GetPagedUrl(string baseUrl, int? page, string queryStrings)
+        {
+            return page.HasValue
+                ? $"{baseUrl.EnsureEndsWith('?')}p={page}{queryStrings}"
+                : $"{baseUrl.EnsureEndsWith('?')}{queryStrings.TrimStart('&')}";
         }
     }
 }

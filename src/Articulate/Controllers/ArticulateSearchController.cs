@@ -75,8 +75,7 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            int totalPosts;
-            var searchResult = ArticulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out totalPosts);
+            var searchResult = ArticulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out var totalPosts);
 
             return GetPagedListView(masterModel, searchPage, searchResult, totalPosts, p);
         }
