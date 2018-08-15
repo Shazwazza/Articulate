@@ -1,7 +1,12 @@
 ﻿<div ng-controller="Articulate.Dashboard.BlogImporter">
    
+    <p>
+        <em>See documentation for importing BlogMl content: <a href="https://github.com/Shazwazza/Articulate/wiki/Importing" target="_blank">https://github.com/Shazwazza/Articulate/wiki/Importing</a></em>
+    </p>
+
     <form name="articulateImportForm" ng-submit="submitImport()" novalidate val-form-manager>
         <umb-pane>
+            
             <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to import to"
                                label="Articulate blog node">
                 <umb-editor model="contentPickerImportModel" ng-model="$parent.$parent.articulateImportNodeId" name="articulateImportNodeId" no-dirty-check></umb-editor>

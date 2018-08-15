@@ -4,10 +4,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Umbraco.Core;
 using Umbraco.Core.IO;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -142,8 +146,7 @@ namespace Articulate
             IContent[] posts;
             do
             {
-                long total;
-                posts = _applicationContext.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out total, "createDate").ToArray();
+                posts = _applicationContext.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _, "createDate").ToArray();
 
                 foreach (var child in posts)
                 {
@@ -160,6 +163,8 @@ namespace Articulate
                         content = markdown.Transform(content);
                     }
 
+                    var postUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
+                    var postAbsoluteUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(child.Id, UrlProviderMode.Absolute), UriKind.Absolute);
                     var blogMlPost = new BlogMLPost()
                     {
                         Id = child.Key.ToString(),
@@ -171,7 +176,7 @@ namespace Articulate
                         LastModifiedOn = child.UpdateDate,
                         Content = new BlogMLTextConstruct(content, BlogMLContentType.Html),
                         Excerpt = new BlogMLTextConstruct(child.GetValue<string>("excerpt")),
-                        Url = new Uri(_umbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute)
+                        Url = postUrl
                     };
 
                     var author = blogMlDoc.Authors.FirstOrDefault(x => x.Title != null && x.Title.Content.InvariantEquals(child.GetValue<string>("author")));
@@ -188,11 +193,59 @@ namespace Articulate
 
                     //TODO: Tags isn't natively supported
 
+                    //add the image attached if there is one
+                    if (child.HasProperty("postImage"))
+                    {
+                        try
+                        {
+                            var val = child.GetValue<string>("postImage");
+                            var json = JsonConvert.DeserializeObject<JObject>(val);
+                            var src = json.Value<string>("src");
+
+                            var mime = ImageMimeType(src);
+
+                            if (!mime.IsNullOrWhiteSpace())
+                            {
+                                var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + src.EnsureStartsWith('/'), UriKind.Absolute);
+                                blogMlPost.Attachments.Add(new BlogMLAttachment
+                                {
+                                    Content = string.Empty, //this is used for embedded resources
+                                    Url = imageUrl,
+                                    ExternalUri = imageUrl,
+                                    IsEmbedded = false,
+                                    MimeType = mime
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error<BlogMlExporter>("Could not add the file to the blogML post attachments", ex);
+                        }
+                    }
+
+                    
+
                     blogMlDoc.AddPost(blogMlPost);
                 }
 
                 pageIndex++;
             } while (posts.Length == pageSize);
+        }
+
+        private string ImageMimeType(string src)
+        {
+            var ext = Path.GetExtension(src)?.ToLowerInvariant();
+            switch (ext)
+            {
+                case ".jpg":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                case ".gif":
+                    return "image/gif";
+                default:
+                    return null;
+            }
         }
     }
 }

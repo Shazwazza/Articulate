@@ -14,6 +14,7 @@ using Umbraco.Core.Models;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
 using System.Net;
+using System.Net.Http;
 
 namespace Articulate
 {
@@ -296,7 +297,7 @@ namespace Articulate
                 ImportCategories(postNode, post, categories);
                 if (importFirstImage)
                 {
-                    ImportFirstImage(postNode, post);
+                    await ImportFirstImageAsync(postNode, post);
                 }
 
                 if (publishAll)
@@ -319,7 +320,7 @@ namespace Articulate
             return await Task.FromResult(result);
         }
 
-        private void ImportFirstImage(IContent postNode, BlogMLPost post)
+        private async Task ImportFirstImageAsync(IContentBase postNode, BlogMLPost post)
         {
 
             var imageMimeTypes = new List<string> { "image/jpeg", "image/gif", "image/png" };
@@ -330,20 +331,13 @@ namespace Articulate
 
             try
             {
-                using (WebClient client = new WebClient())
+                using (var client = new HttpClient())
                 {
-
-                    var array = client.DownloadData(attachment.Url);
-                    using (MemoryStream stream = new MemoryStream())
+                    using (var stream = await client.GetStreamAsync(attachment.Url))
                     {
-                        stream.Write(array, 0, array.Length);
                         postNode.SetValue("postImage", Path.GetFileName(path), stream);
                     }
                 }
-            }
-            catch (WebException webException)
-            {
-                LogHelper.Error<BlogMlImporter>($"WebException retrieving {attachment.Url}; post {post.Id}", webException);
             }
             catch (Exception exception)
             {
