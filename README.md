@@ -63,7 +63,7 @@ Now you're all set! Any source changes you wish to make just do that in Visual S
 ### Changing Umbraco Articulate schema elements
 
 What I mean by 'schema' elements here are things like Document Types, Property Types, Data Types, etc... 
-If you wish to make changes to these, like adding a property to the Blog Post Document Type, you'll must make this change in the xml file: `/buid/packagemanifest.xml`
+If you wish to make changes to these, like adding a property to the Blog Post Document Type, you must make the changes in the xml file: `/buid/packagemanifest.xml`
 
 ### Updating to latest committed changes
 
