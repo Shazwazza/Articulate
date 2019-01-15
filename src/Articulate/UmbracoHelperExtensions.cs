@@ -1,4 +1,5 @@
 ﻿using Articulate.Models;
+using NPoco;
 using System;
 using System.Collections;
 using System.Collections.Generic;
