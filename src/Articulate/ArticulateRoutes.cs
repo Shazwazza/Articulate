@@ -88,8 +88,10 @@ namespace Articulate
             var other = umbracoUrlProvider.GetOtherUrls(publishedContent.Id).ToArray();
             if (other.Length > 0)
             {
+                var urls = other.Where(x => x.IsUrl && string.IsNullOrEmpty(x.Text) == false).Select(x => x.Text);
+
                 //this means there are domains assigned
-                allUrls = new HashSet<string>(other)
+                allUrls = new HashSet<string>(urls)
                     {
                         umbracoUrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute)
                     };
