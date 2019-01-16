@@ -325,6 +325,7 @@
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
