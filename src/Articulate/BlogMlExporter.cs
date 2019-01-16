@@ -13,6 +13,7 @@ using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Services;
 
 namespace Articulate
 {
@@ -48,24 +49,29 @@ namespace Articulate
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
+            
+            var archiveContentType = Current.Services.ContentTypeService.Get("ArticulateArchive");
+            var archiveNodes = Current.Services.ContentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
 
-            var children = root.Children().ToArray();
+            var authorsContentType = Current.Services.ContentTypeService.Get("ArticulateAuthors");
+            var authorsNodes = Current.Services.ContentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
 
-            var archiveNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive")).ToArray();
-            var authorsNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors")).ToArray();
-            if (archiveNodes.Length == 0)
+            if (totalArchive == 0)
             {
                 throw new InvalidOperationException("No ArticulateArchive found under the blog root node");
             }
-            if (authorsNodes.Length == 0)
+
+            if (totalAuthors == 0)
             {
                 throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
             }
+
             var categoryDataType = Current.Services.DataTypeService.GetDataType("Articulate Categories");
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
             }
+
             var categoryDtPreVals = Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(categoryDataType.Id);
             if (categoryDtPreVals == null)
             {
@@ -128,7 +134,7 @@ namespace Articulate
 
         private void AddBlogAuthors(IContent authorsNode, BlogMLDocument blogMlDoc)
         {
-            foreach (var author in Current.Services.ContentService.GetChildren(authorsNode.Id))
+            foreach (var author in Current.Services.ContentService.GetPagedChildren(authorsNode.Id, 0, int.MaxValue, out long totalAuthors))
             {
                 var blogMlAuthor = new BlogMLAuthor();
                 blogMlAuthor.Id = author.Key.ToString();
@@ -147,7 +153,7 @@ namespace Articulate
             IContent[] posts;
             do
             {
-                posts = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _, "createDate").ToArray();
+                posts = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _ , ordering: Ordering.By("createDate")).ToArray();
 
                 foreach (var child in posts)
                 {

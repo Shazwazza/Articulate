@@ -17,6 +17,8 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Services;
 using Umbraco.Web;
+using Umbraco.Web.Actions;
+using Umbraco.Web.Composing;
 using Umbraco.Web.WebApi;
 using File = System.IO.File;
 
@@ -82,7 +84,7 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate Archive node found for the specified id"));
             }
 
-            var list = new List<char> { ActionNew.Instance.Letter, ActionUpdate.Instance.Letter };
+            var list = new List<char> { ActionNew.ActionLetter, ActionUpdate.ActionLetter };
             var hasPermission = CheckPermissions(Security.CurrentUser, Services.UserService, list.ToArray(), archive);
             if (hasPermission == false)
             {
@@ -130,12 +132,12 @@ namespace Articulate.Controllers
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
-            var status = Services.ContentService.SaveAndPublish(content, Security.GetUserId());
+            var status = Services.ContentService.SaveAndPublish(content, userId: Current.UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)
             {
                 CleanFiles(multiPartRequest);
 
-                ModelState.AddModelError("server", "Publishing failed: " + status.Result.StatusType);
+                ModelState.AddModelError("server", "Publishing failed: " + status.Result);
                 //probably  need to send back more info than that...
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }

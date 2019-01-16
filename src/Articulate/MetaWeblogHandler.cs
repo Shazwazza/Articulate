@@ -24,18 +24,11 @@ namespace Articulate
 {
     public class MetaWeblogHandler : XmlRpcService, IMetaWeblog, IBloggerMetaWeblog, IWordPressMetaWeblog, IRouteHandler
     {
-        private readonly int _blogRootId;
-        private readonly ApplicationContext _applicationContext;
+        private readonly int _blogRootId;        
 
         public MetaWeblogHandler(int blogRootId)
-            : this(blogRootId, ApplicationContext.Current)
-        {
-        }
-
-        public MetaWeblogHandler(int blogRootId, ApplicationContext applicationContext)
         {
             _blogRootId = blogRootId;
-            _applicationContext = applicationContext;
         }
 
         string IMetaWeblog.AddPost(string blogid, string username, string password, MetaWeblogPost post, bool publish)
@@ -50,7 +43,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            var content = _applicationContext.Services.ContentService.CreateContent(
+            var content = Current.Services.ContentService.Create(
                 post.Title, node.Id, "ArticulateRichText", user.Id);
 
             var extractFirstImageAsProperty = false;
@@ -75,7 +68,7 @@ namespace Articulate
             }
 
             //first see if it's published
-            var content = _applicationContext.Services.ContentService.GetById(asInt.Result);
+            var content = Current.Services.ContentService.GetById(asInt.Result);
             if (content == null)
             {
                 return false;
@@ -109,14 +102,14 @@ namespace Articulate
             }
 
             //first see if it's published
-            var content = _applicationContext.Services.ContentService.GetById(asInt.Result);
+            var content = Current.Services.ContentService.GetById(asInt.Result);
             if (content == null)
             {
                 return false;
             }
 
             //unpublish it, we won't delete it with this API
-            _applicationContext.Services.ContentService.UnPublish(content, userId);
+            Current.Services.ContentService.Unpublish(content, userId: userId);
 
             return true;
         }
@@ -138,7 +131,7 @@ namespace Articulate
                 return FromPost(new PostModel(post));
             }
 
-            var content = _applicationContext.Services.ContentService.GetById(asInt.Result);
+            var content = Current.Services.ContentService.GetById(asInt.Result);
             if (content == null)
             {
                 throw new XmlRpcFaultException(0, "No post found with id " + postid);
@@ -157,7 +150,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            return _applicationContext.Services.ContentService.GetChildren(node.Id)
+            return Current.Services.ContentService.GetChildren(node.Id)
                 .OrderByDescending(x => x.UpdateDate)
                 .Take(numberOfPosts)
                 .Select(FromContent).ToArray();
@@ -167,7 +160,7 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            return _applicationContext.Services.TagService.GetAllTags("ArticulateCategories")
+            return Current.Services.TagService.GetAllTags("ArticulateCategories")
                 .Select(x => (object)new
                 {
                     description = x.Text,
@@ -201,7 +194,7 @@ namespace Articulate
                 {
                     blogid = node.Id,
                     blogName = node.Name,
-                    url = node.UrlWithDomain()
+                    url = node.Url
                 }
             };
         }
@@ -215,7 +208,7 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            return _applicationContext.Services.TagService.GetAllTags("ArticulateTags")
+            return Current.Services.TagService.GetAllTags("ArticulateTags")
                 .Select(x => (object)new
                 {
                     name = x.Text,
@@ -311,11 +304,11 @@ namespace Articulate
                     content.SetValue("publishedDate", post.CreateDate);
                 }
 
-                _applicationContext.Services.ContentService.SaveAndPublishWithStatus(content, user.Id);
+                Current.Services.ContentService.SaveAndPublish(content, userId: user.Id);
             }
             else
             {
-                _applicationContext.Services.ContentService.Save(content, user.Id);
+                Current.Services.ContentService.Save(content, user.Id);
             }
         }
 
@@ -341,7 +334,7 @@ namespace Articulate
                 Content = post.Body.ToString(),
                 CreateDate = post.PublishedDate != default(DateTime) ? post.PublishedDate : post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
-                Slug = post.UrlName,
+                Slug = post.Url,
                 Excerpt = post.Excerpt,
                 Tags = string.Join(",", post.Tags.ToArray()),
                 Title = post.Name
@@ -392,7 +385,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "User is not valid!");
             }
 
-            return _applicationContext.Services.UserService.GetByUsername(username);
+            return Current.Services.UserService.GetByUsername(username);
         }
 
         private static MembershipProvider GetUsersMembershipProvider()
