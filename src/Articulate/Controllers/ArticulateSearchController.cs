@@ -47,7 +47,7 @@ namespace Articulate.Controllers
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Search(RenderModel model, string term, string provider = null, int? p = null)
+        public ActionResult Search(ContentModel model, string term, string provider = null, int? p = null)
         {
             var searchPage = model.Content as ArticulateVirtualPage;
             if (searchPage == null)

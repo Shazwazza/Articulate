@@ -12,6 +12,7 @@ using CookComputing.XmlRpc;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 
@@ -35,12 +36,12 @@ namespace Articulate.Models
             {
                 if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
                 {
-                    var tags = this.GetPropertyValue<string>("tags");
+                    var tags = this.Value<string>("tags");
                     return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
                 }
                 else
                 {
-                    var tags = this.GetPropertyValue<IEnumerable<string>>("tags");
+                    var tags = this.Value<IEnumerable<string>>("tags");
                     return tags ?? Enumerable.Empty<string>();
                 }
             }
@@ -52,12 +53,12 @@ namespace Articulate.Models
             {
                 if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
                 {
-                    var tags = this.GetPropertyValue<string>("categories");
+                    var tags = this.Value<string>("categories");
                     return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
                 }
                 else
                 {
-                    var tags = this.GetPropertyValue<IEnumerable<string>>("categories");
+                    var tags = this.Value<IEnumerable<string>>("categories");
                     return tags ?? Enumerable.Empty<string>();
                 }
             }
@@ -80,14 +81,14 @@ namespace Articulate.Models
                 };
 
                 //look up assocated author node if we can
-                var authors = RootBlogNode?.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
+                var authors = RootBlogNode?.Children(content => content.ContentType.Alias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
                 var authorNode = authors?.Children(content => content.Name.InvariantEquals(_author.Name)).FirstOrDefault();
                 if (authorNode != null)
                 {
-                    _author.Bio = authorNode.GetPropertyValue<string>("authorBio");
-                    _author.Url = authorNode.GetPropertyValue<string>("authorUrl");
+                    _author.Bio = authorNode.Value<string>("authorBio");
+                    _author.Url = authorNode.Value<string>("authorUrl");
 
-                    var imageVal = authorNode.GetPropertyValue<string>("authorImage");
+                    var imageVal = authorNode.Value<string>("authorImage");
                     _author.Image = !imageVal.IsNullOrWhiteSpace()
                         ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
                         : null;
@@ -99,7 +100,7 @@ namespace Articulate.Models
             }
         }
 
-        public string Excerpt => this.GetPropertyValue<string>("excerpt");
+        public string Excerpt => this.Value<string>("excerpt");
 
         public DateTime PublishedDate => Content.GetPropertyValue<DateTime>("publishedDate");
 
@@ -118,7 +119,7 @@ namespace Articulate.Models
         /// <summary>
         /// Social Meta Description
         /// </summary>
-        public string SocialMetaDescription => this.GetPropertyValue<string>("socialDescription");
+        public string SocialMetaDescription => this.Value<string>("socialDescription");
 
         public IHtmlString Body
         {
@@ -126,11 +127,11 @@ namespace Articulate.Models
             {
                 if (this.HasProperty("richText"))
                 {
-                    return this.GetPropertyValue<IHtmlString>("richText");                    
+                    return this.Value<IHtmlString>("richText");                    
                 }
                 else
                 {
-                    var val = this.GetPropertyValue<string>("markdown");
+                    var val = this.Value<string>("markdown");
                     var md = new MarkdownDeep.Markdown();
                     UmbracoConfig.For.ArticulateOptions().MarkdownDeepOptionsCallBack(md);
                     return new MvcHtmlString(md.Transform(val));                    
@@ -139,7 +140,7 @@ namespace Articulate.Models
             }
         }
 
-        public string ExternalUrl => this.GetPropertyValue<string>("externalUrl");
+        public string ExternalUrl => this.Value<string>("externalUrl");
     }
 
 }

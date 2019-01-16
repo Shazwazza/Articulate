@@ -38,9 +38,9 @@ namespace Articulate.Controllers
         /// <param name="tag">The category to display if supplied</param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Categories(RenderModel model, string tag, int? p)
+        public ActionResult Categories(ContentModel model, string tag, int? p)
         {
-            var caturlName = model.Content.GetPropertyValue<string>("categoriesUrlName");
+            var caturlName = model.Content.Value<string>("categoriesUrlName");
 
             return tag.IsNullOrWhiteSpace()
                 ? RenderTagsOrCategories(model, "ArticulateCategories", caturlName)
@@ -54,16 +54,16 @@ namespace Articulate.Controllers
         /// <param name="tag">The tag to display if supplied</param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Tags(RenderModel model, string tag, int? p)
+        public ActionResult Tags(ContentModel model, string tag, int? p)
         {
-            var tagurlName = model.Content.GetPropertyValue<string>("tagsUrlName");
+            var tagurlName = model.Content.Value<string>("tagsUrlName");
 
             return tag.IsNullOrWhiteSpace()
                 ? RenderTagsOrCategories(model, "ArticulateTags", tagurlName)
                 : RenderByTagOrCategory(model, p, "ArticulateTags", tagurlName);
         }
 
-        private ActionResult RenderTagsOrCategories(RenderModel model, string tagGroup, string baseUrl)
+        private ActionResult RenderTagsOrCategories(ContentModel model, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
@@ -85,12 +85,12 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 
-        private ActionResult RenderByTagOrCategory(IRenderModel model, int? p, string tagGroup, string baseUrl)
+        private ActionResult RenderByTagOrCategory(ContentModel model, int? p, string tagGroup, string baseUrl)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)
             {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
+                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
             //create a master model

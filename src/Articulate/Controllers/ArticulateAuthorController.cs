@@ -17,12 +17,12 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             return Index(model, 0);
         }
 
-        public ActionResult Index(RenderModel model, int? p)
+        public ActionResult Index(ContentModel model, int? p)
         {
             //create a master model
             var masterModel = new MasterModel(model.Content);
