@@ -12,6 +12,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
+using Umbraco.Core.Composing;
 
 namespace Articulate
 {
@@ -219,7 +220,7 @@ namespace Articulate
                         }
                         catch (Exception ex)
                         {
-                            LogHelper.Error<BlogMlExporter>("Could not add the file to the blogML post attachments", ex);
+                            Current.Logger.Error<BlogMlExporter>(ex, "Could not add the file to the blogML post attachments");
                         }
                     }
 

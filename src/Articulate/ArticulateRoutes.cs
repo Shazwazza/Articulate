@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
@@ -25,7 +26,7 @@ namespace Articulate
             //find all articulate root nodes
             var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 
-            LogHelper.Info(typeof(ArticulateRoutes), () => $"Mapping routes for {articulateNodes.Length} Articulate root nodes");
+            Current.Logger.Info<ArticulateRoutes>("Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Length);
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values

@@ -55,7 +55,7 @@ namespace Articulate
             var extractFirstImageAsProperty = false;
             if (root.HasProperty("extractFirstImage"))
             {
-                extractFirstImageAsProperty = root.GetPropertyValue<bool>("extractFirstImage");
+                extractFirstImageAsProperty = root.Value<bool>("extractFirstImage");
             }
 
             AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);
@@ -89,7 +89,7 @@ namespace Articulate
             var extractFirstImageAsProperty = true;
             if (node.HasProperty("extractFirstImage"))
             {
-                extractFirstImageAsProperty = node.GetPropertyValue<bool>("extractFirstImage");
+                extractFirstImageAsProperty = node.Value<bool>("extractFirstImage");
             }
 
             AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);

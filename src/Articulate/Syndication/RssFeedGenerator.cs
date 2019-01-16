@@ -12,6 +12,7 @@ using System.Xml;
 using Articulate.Controllers;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 using Umbraco.Web;
 
@@ -124,7 +125,7 @@ namespace Articulate.Syndication
             }
             catch (Exception ex)
             {
-                LogHelper.Error<ArticulateRssController>("Could not convert the blog logo path to a Uri", ex);
+                Current.Logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
             }
             return logoUri;
         }

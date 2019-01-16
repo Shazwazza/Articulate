@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
@@ -145,16 +146,16 @@ namespace Articulate
         {
             foreach (var c in e.SavedEntities.Where(c => c.IsNewEntity() && c.ContentType.Alias.InvariantEquals("Articulate")))
             {
-                LogHelper.Debug<UmbracoEventHandler>(() => "Creating sub nodes (authors, archive) for new Articulate node");
+                Current.Logger.Debug<UmbracoEventHandler>("Creating sub nodes (authors, archive) for new Articulate node");
 
                 //it's a root blog node, set up the required sub nodes (archive , authors)
                 var articles = sender.CreateContentWithIdentity("Archive", c, "ArticulateArchive");
 
-                LogHelper.Debug<UmbracoEventHandler>(() => "Archive node created with name: " + articles.Name);
+                Current.Logger.Debug<UmbracoEventHandler>("Archive node created with name: {ArchiveNodeName}", articles.Name);
 
                 var authors = sender.CreateContentWithIdentity("Authors", c, "ArticulateAuthors");
 
-                LogHelper.Debug<UmbracoEventHandler>(() => "Authors node created with name: " + authors.Name);
+                Current.Logger.Debug<UmbracoEventHandler>("Authors node created with name: {AuthorNodeName}", authors.Name);
             }
         }
 
