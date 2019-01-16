@@ -1,19 +1,23 @@
-﻿
-using System;
+﻿using System;
 using System.Globalization;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
 namespace Articulate
 {
-    class DateFormattedPostContentFinder : ContentFinderByNiceUrl
+    class DateFormattedPostContentFinder : ContentFinderByUrl
     {
-        public override bool TryFindContent(PublishedContentRequest contentRequest)
+        public DateFormattedPostContentFinder(ILogger logger) : base(logger)
+        {
+        }
+
+        public override bool TryFindContent(PublishedRequest contentRequest)
         {
             string route;
             if (contentRequest.HasDomain)
-                route = contentRequest.Domain.RootNodeId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
+                route = contentRequest.Domain.ContentId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
             else
                 route = contentRequest.Uri.GetAbsolutePathDecoded();
 
@@ -22,7 +26,7 @@ namespace Articulate
             var segmentLength = contentRequest.Uri.Segments.Length;
             if (segmentLength > 4)
             {
-                var stringDate = contentRequest.Uri.Segments[segmentLength - 4]+ contentRequest.Uri.Segments[segmentLength - 3]+ contentRequest.Uri.Segments[segmentLength - 2].TrimEnd("/");
+                var stringDate = contentRequest.Uri.Segments[segmentLength - 4] + contentRequest.Uri.Segments[segmentLength - 3] + contentRequest.Uri.Segments[segmentLength - 2].TrimEnd("/");
                 DateTime postDate;
                 try
                 {
@@ -32,7 +36,7 @@ namespace Articulate
                 {
                     return false;
                 }
-                
+
                 var newRoute = string.Empty;
                 for (int i = 0; i < segmentLength; i++)
                 {
@@ -42,10 +46,10 @@ namespace Articulate
                 var node = FindContent(contentRequest, newRoute);
                 contentRequest.PublishedContent = null;
                 // If by chance something matches the format pattern I check again if there is sucn a node and if it's an articulate post
-                if (node == null || (node.DocumentTypeAlias!= "ArticulateRichText" && node.DocumentTypeAlias != "ArticulateMarkdown")) return false;
-                if (!node.Parent.Parent.GetPropertyValue<bool>("useDateFormatForUrl")) return false;
-                if (node.GetPropertyValue<DateTime>("publishedDate").Date!= postDate.Date) return false;
-                
+                if (node == null || (node.ContentType.Alias != "ArticulateRichText" && node.ContentType.Alias != "ArticulateMarkdown")) return false;
+                if (!node.Parent.Parent.Value<bool>("useDateFormatForUrl")) return false;
+                if (node.Value<DateTime>("publishedDate").Date != postDate.Date) return false;
+
                 contentRequest.PublishedContent = node;
                 return true;
             }

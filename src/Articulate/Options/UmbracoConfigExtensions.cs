@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 
 namespace Articulate.Options
@@ -8,14 +8,6 @@ namespace Articulate.Options
     /// </summary>
     public static class UmbracoConfigExtensions
     {
-        private static ArticulateOptions _options;
-
-        public static ArticulateOptions ArticulateOptions(this UmbracoConfig umbracoConfig)
-        {
-            LazyInitializer.EnsureInitialized(ref _options, () => Options.ArticulateOptions.Default);
-
-            return _options;
-        } 
-
+        public static ArticulateOptions Articulate(this Configs configs) => Current.Configs.GetConfig<ArticulateOptions>();
     }
 }

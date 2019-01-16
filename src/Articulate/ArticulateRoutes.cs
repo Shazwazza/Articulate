@@ -21,12 +21,12 @@ namespace Articulate
     public static class ArticulateRoutes
     {
 
-        public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache, UrlProvider umbracoUrlProvider)
+        public static void MapRoutes(RouteCollection routes, IPublishedContentCache umbracoCache, UrlProvider umbracoUrlProvider)
         {
             //find all articulate root nodes
             var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 
-            Current.Logger.Info<ArticulateRoutes>("Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Length);
+            Current.Logger.Info(typeof(ArticulateRoutes), "Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Length);
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
