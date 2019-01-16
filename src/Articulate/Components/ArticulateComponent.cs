@@ -148,16 +148,16 @@ namespace Articulate.Components
         {
             foreach (var c in e.SavedEntities.Where(c => c.HasIdentity == false && c.ContentType.Alias.InvariantEquals("Articulate")))
             {
-                Current.Logger.Debug<UmbracoEventHandler>("Creating sub nodes (authors, archive) for new Articulate node");
+                Current.Logger.Debug<ArticulateComponent>("Creating sub nodes (authors, archive) for new Articulate node");
 
                 //it's a root blog node, set up the required sub nodes (archive , authors)
                 var articles = sender.CreateAndSave("Archive", c, "ArticulateArchive");
 
-                Current.Logger.Debug<UmbracoEventHandler>("Archive node created with name: {ArchiveNodeName}", articles.Name);
+                Current.Logger.Debug<ArticulateComponent>("Archive node created with name: {ArchiveNodeName}", articles.Name);
 
                 var authors = sender.CreateAndSave("Authors", c, "ArticulateAuthors");
 
-                Current.Logger.Debug<UmbracoEventHandler>("Authors node created with name: {AuthorNodeName}", authors.Name);
+                Current.Logger.Debug<ArticulateComponent>("Authors node created with name: {AuthorNodeName}", authors.Name);
             }
         }
 
