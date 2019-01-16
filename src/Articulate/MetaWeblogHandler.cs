@@ -12,6 +12,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using umbraco;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
@@ -396,10 +397,10 @@ namespace Articulate
 
         private static MembershipProvider GetUsersMembershipProvider()
         {
-            if (Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider] == null)
-                throw new InvalidOperationException("No membership provider found with name " + UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider);
+            if (Membership.Providers[Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider] == null)
+                throw new InvalidOperationException("No membership provider found with name " + Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider);
 
-            return Membership.Providers[UmbracoConfig.For.UmbracoSettings().Providers.DefaultBackOfficeUserProvider];
+            return Membership.Providers[Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider];
         }
 
         public IHttpHandler GetHttpHandler(RequestContext requestContext)

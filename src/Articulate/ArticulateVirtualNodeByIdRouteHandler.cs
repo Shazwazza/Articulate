@@ -87,7 +87,7 @@ namespace Articulate
                     }
                 }
                 else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
-                    && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes)
+                    && ! Current.Configs.Settings().RequestHandler.UseDomainPrefixes)
                 {
                     //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
@@ -77,7 +78,7 @@ namespace Articulate
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
                                                   //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
-                    : httpContext.Request.Url.Host.InvariantEquals("localhost") && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes
+                    : httpContext.Request.Url.Host.InvariantEquals("localhost") && !Current.Configs.Settings().RequestHandler.UseDomainPrefixes
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }

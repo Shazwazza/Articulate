@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using Articulate.Options;
 using CookComputing.XmlRpc;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
@@ -34,16 +35,8 @@ namespace Articulate.Models
         {
             get
             {
-                if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
-                {
-                    var tags = this.Value<string>("tags");
-                    return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
-                }
-                else
-                {
-                    var tags = this.Value<IEnumerable<string>>("tags");
-                    return tags ?? Enumerable.Empty<string>();
-                }
+                var tags = this.Value<IEnumerable<string>>("tags");
+                return tags ?? Enumerable.Empty<string>();
             }
         }
 
@@ -51,16 +44,8 @@ namespace Articulate.Models
         {
             get
             {
-                if (!UmbracoConfig.For.UmbracoSettings().Content.EnablePropertyValueConverters)
-                {
-                    var tags = this.Value<string>("categories");
-                    return tags.IsNullOrWhiteSpace() ? Enumerable.Empty<string>() : tags.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
-                }
-                else
-                {
-                    var tags = this.Value<IEnumerable<string>>("categories");
-                    return tags ?? Enumerable.Empty<string>();
-                }
+                var tags = this.Value<IEnumerable<string>>("categories");
+                return tags ?? Enumerable.Empty<string>();
             }
         }
 
