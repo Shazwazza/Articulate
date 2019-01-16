@@ -15,17 +15,16 @@ using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
 using System.Net;
 using System.Net.Http;
+using Umbraco.Core.Composing;
 
 namespace Articulate
 {
     public class BlogMlImporter
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ApplicationContext _applicationContext;
 
-        public BlogMlImporter(ApplicationContext applicationContext, IFileSystem fileSystem)
+        public BlogMlImporter(IFileSystem fileSystem)
         {
-            _applicationContext = applicationContext;
             _fileSystem = fileSystem;
         }
 
@@ -55,7 +54,7 @@ namespace Articulate
                     throw new FileNotFoundException("File not found: " + fileName);
                 }
 
-                var root = _applicationContext.Services.ContentService.GetById(blogRootNode);
+                var root = Current.Services.ContentService.GetById(blogRootNode);
                 if (root == null)
                 {
                     throw new InvalidOperationException("No node found with id " + blogRootNode);
@@ -93,7 +92,7 @@ namespace Articulate
             catch (Exception ex)
             {
                 HasErrors = true;
-                LogHelper.Error<BlogMlImporter>("Importing failed with errors", ex);
+                Current.Logger.Error<BlogMlImporter>(ex, "Importing failed with errors");
             }
         }
 
@@ -116,7 +115,7 @@ namespace Articulate
         {
             var result = new Dictionary<string, string>();
 
-            var authorType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateAuthor");
+            var authorType = Current.Services.ContentTypeService.Get("ArticulateAuthor");
             if (authorType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
@@ -129,17 +128,17 @@ namespace Articulate
             if (authorsNode == null)
             {
                 //create the authors node
-                authorsNode = _applicationContext.Services.ContentService.CreateContent(
+                authorsNode = Current.Services.ContentService.Create(
                     "Authors", rootNode, "ArticulateAuthors");
-                _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorsNode, userId);
+                Current.Services.ContentService.SaveAndPublish(authorsNode, userId);
             }
 
-            var allAuthorNodes = _applicationContext.Services.ContentService.GetContentOfContentType(authorType.Id).ToArray();
+            var allAuthorNodes = Current.Services.ContentService.GetContentOfContentType(authorType.Id).ToArray();
 
             foreach (var author in authors)
             {
                 //first check if a user exists by email
-                var found = _applicationContext.Services.UserService.GetByEmail(author.EmailAddress);
+                var found = Current.Services.UserService.GetByEmail(author.EmailAddress);
                 if (found != null)
                 {
                     //check if an author node exists for this user
@@ -150,9 +149,9 @@ namespace Articulate
                     {
                         //create an author with the same name as the user - we'll need to wire up that
                         // name to posts later on
-                        authorNode = _applicationContext.Services.ContentService.CreateContent(
+                        authorNode = Current.Services.ContentService.Create(
                             found.Name, authorsNode, "ArticulateAuthor");
-                        _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorNode, userId);
+                        Current.Services.ContentService.SaveAndPublish(authorNode, userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -166,9 +165,9 @@ namespace Articulate
                     if (authorNode == null)
                     {
                         //create a new author node with this title
-                        authorNode = _applicationContext.Services.ContentService.CreateContent(
+                        authorNode = Current.Services.ContentService.Create(
                             author.Title.Content, authorsNode, "ArticulateAuthor");
-                        _applicationContext.Services.ContentService.SaveAndPublishWithStatus(authorNode, userId);
+                        Current.Services.ContentService.SaveAndPublish(authorNode, userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -182,7 +181,7 @@ namespace Articulate
         {
             var result = new List<IContent>();
 
-            var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
+            var postType = Current.Services.ContentTypeService.Get("ArticulateRichText");
             if (postType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
@@ -194,10 +193,10 @@ namespace Articulate
 
             if (archiveNode == null)
             {
-                //create teh authors node
-                archiveNode = _applicationContext.Services.ContentService.CreateContent(
+                //create the authors node
+                archiveNode = Current.Services.ContentService.Create(
                     "Articles", rootNode, "ArticulateArchive");
-                _applicationContext.Services.ContentService.Save(archiveNode);
+                Current.Services.ContentService.Save(archiveNode);
             }
 
             var allPostNodes = archiveNode.Children().ToArray();
@@ -228,7 +227,7 @@ namespace Articulate
                 if (postNode == null)
                 {
                     var title = WebUtility.HtmlDecode(post.Title.Content);
-                    postNode = _applicationContext.Services.ContentService.CreateContent(
+                    postNode = Current.Services.ContentService.Create(
                         title, archiveNode, "ArticulateRichText");
                 }
 
@@ -302,11 +301,11 @@ namespace Articulate
 
                 if (publishAll)
                 {
-                    _applicationContext.Services.ContentService.SaveAndPublishWithStatus(postNode, userId);
+                    Current.Services.ContentService.SaveAndPublish(postNode, userId: userId);
                 }
                 else
                 {
-                    _applicationContext.Services.ContentService.Save(postNode, userId);
+                    Current.Services.ContentService.Save(postNode, userId);
                 }
 
                 //if (!publicKey.IsNullOrWhiteSpace())
@@ -341,7 +340,7 @@ namespace Articulate
             }
             catch (Exception exception)
             {
-                LogHelper.Error<BlogMlImporter>($"Exception retrieving {attachment.Url}; post {post.Id}", exception);
+                Current.Logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
             }
         }
 
@@ -380,7 +379,7 @@ namespace Articulate
                 .Select(x => x.Title.Content)
                 .ToArray();
 
-            postNode.SetTags("categories", postCats, true, "ArticulateCategories");
+            postNode.AssignTags("categories", postCats, true, "ArticulateCategories");
         }
 
         private void ImportTags(XDocument xdoc, IContent postNode, BlogMLPost post)
@@ -399,7 +398,7 @@ namespace Articulate
             if (xmlPost == null) return;
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
-            postNode.SetTags("tags", tags, true, "ArticulateTags");
+            postNode.AssignTags("tags", tags, true, "ArticulateTags");
         }
     }
 }

@@ -300,9 +300,9 @@ namespace Articulate
                 content.SetValue("enableComments", 0);
             }
 
-            content.SetTags("categories", post.Categories, true, "ArticulateCategories");
+            content.AssignTags("categories", post.Categories, true, "ArticulateCategories");
             var tags = post.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
-            content.SetTags("tags", tags, true, "ArticulateTags");
+            content.AssignTags("tags", tags, true, "ArticulateTags");
 
             if (publish)
             {

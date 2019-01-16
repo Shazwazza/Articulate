@@ -19,13 +19,13 @@ namespace Articulate
     public class BlogMlExporter
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ApplicationContext _applicationContext;
+        //private readonly ApplicationContext _applicationContext;
         private readonly UmbracoContext _umbracoContext;
 
         public BlogMlExporter(UmbracoContext umbracoContext, IFileSystem fileSystem)
         {
             _umbracoContext = umbracoContext;
-            _applicationContext = _umbracoContext.Application;
+            //_applicationContext = _umbracoContext.Application;
             _fileSystem = fileSystem;
         }
 
@@ -33,7 +33,7 @@ namespace Articulate
             string fileName,
             int blogRootNode)
         {
-            var root = _applicationContext.Services.ContentService.GetById(blogRootNode);
+            var root = Current.Services.ContentService.GetById(blogRootNode);
             if (root == null)
             {
                 throw new InvalidOperationException("No node found with id " + blogRootNode);
@@ -43,7 +43,7 @@ namespace Articulate
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
             }
 
-            var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
+            var postType = Current.Services.ContentTypeService.Get("ArticulateRichText");
             if (postType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
@@ -61,12 +61,12 @@ namespace Articulate
             {
                 throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
             }
-            var categoryDataType = _applicationContext.Services.DataTypeService.GetDataTypeDefinitionByName("Articulate Categories");
+            var categoryDataType = Current.Services.DataTypeService.GetDataType("Articulate Categories");
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
             }
-            var categoryDtPreVals = _applicationContext.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(categoryDataType.Id);
+            var categoryDtPreVals = Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(categoryDataType.Id);
             if (categoryDtPreVals == null)
             {
                 throw new InvalidOperationException("No pre values for Articulate Categories data type found");
@@ -110,7 +110,7 @@ namespace Articulate
 
         private void AddBlogCategories(BlogMLDocument blogMlDoc, string tagGroup)
         {
-            var categories = _applicationContext.Services.TagService.GetAllContentTags(tagGroup);
+            var categories = Current.Services.TagService.GetAllContentTags(tagGroup);
             foreach (var category in categories)
             {
                 if (category.NodeCount == 0) continue;
@@ -128,7 +128,7 @@ namespace Articulate
 
         private void AddBlogAuthors(IContent authorsNode, BlogMLDocument blogMlDoc)
         {
-            foreach (var author in _applicationContext.Services.ContentService.GetChildren(authorsNode.Id))
+            foreach (var author in Current.Services.ContentService.GetChildren(authorsNode.Id))
             {
                 var blogMlAuthor = new BlogMLAuthor();
                 blogMlAuthor.Id = author.Key.ToString();
@@ -147,7 +147,7 @@ namespace Articulate
             IContent[] posts;
             do
             {
-                posts = _applicationContext.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _, "createDate").ToArray();
+                posts = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _, "createDate").ToArray();
 
                 foreach (var child in posts)
                 {
@@ -186,7 +186,7 @@ namespace Articulate
                         blogMlPost.Authors.Add(author.Id);
                     }
 
-                    var categories = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
+                    var categories = Current.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
                     foreach (var category in categories)
                     {
                         blogMlPost.Categories.Add(category.Id.ToString());

@@ -12,18 +12,16 @@ using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Core.Composing;
 
 namespace Articulate
 {
     public class ArticulateDataInstaller
     {
-        private readonly ServiceContext _services;
         private readonly int _userId;
 
-        public ArticulateDataInstaller(ServiceContext services, int userId)
+        public ArticulateDataInstaller(int userId)
         {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            _services = services;
             _userId = userId;
         }
         
@@ -34,7 +32,7 @@ namespace Articulate
             //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
             // the number of crops required. 
 
-            var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
+            var articulateContentType = Current.Services.ContentTypeService.Get("Articulate");
 
             if (articulateContentType == null)
             {
@@ -201,9 +199,9 @@ namespace Articulate
         private IContent InstallContent()
         {
             //Create the root node - this will automatically create the authors and archive nodes
-            LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = _services.ContentService.CreateContent(
-                "Blog", -1, "Articulate");
+            Current.Logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
+            var root = Current.Services.ContentService.CreateContent(
+                "Blog", Udi.Create(Constants.UdiEntityType.Document, Constants.System.RootString), "Articulate");
             root.SetValue("theme", "VAPOR");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
@@ -212,33 +210,33 @@ namespace Articulate
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 
-            _services.ContentService.SaveAndPublishWithStatus(root);
+            Current.Services.ContentService.SaveAndPublish(root);
 
             //get the authors and archive nodes and publish them
-            LogHelper.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
+            Current.Logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
             var children = root.Children().ToArray();
             var authors = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             var archive = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            _services.ContentService.SaveAndPublishWithStatus(authors);
-            _services.ContentService.SaveAndPublishWithStatus(archive);
+            Current.Services.ContentService.SaveAndPublish(authors);
+            Current.Services.ContentService.SaveAndPublish(archive);
 
             //Create the author
-            LogHelper.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = _services.ContentService.CreateContent(
+            Current.Logger.Info<ArticulateDataInstaller>("Creating demo author");
+            var author = Current.Services.ContentService.CreateContent(
                 "Demo author", authors, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
-            _services.ContentService.SaveAndPublishWithStatus(author);
+            Current.Services.ContentService.SaveAndPublish(author);
 
             //Create a test post
-            LogHelper.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = _services.ContentService.CreateContent(
+            Current.Logger.Info<ArticulateDataInstaller>("Creating test blog post");
+            var post = Current.Services.ContentService.CreateContent(
                 "Test post", archive, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post.SetTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
-            post.SetTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
+            post.AssignTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
+            post.AssignTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
             post.SetValue("publishedDate", DateTime.Now);
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
@@ -271,7 +269,7 @@ You can post directly from your mobile (including images and photos). This edito
 http://yoursiteurl.com/a-new
 
 Enjoy!");
-            _services.ContentService.SaveAndPublishWithStatus(post);
+            Current.Services.ContentService.SaveAndPublish(post);
 
             return root;
         }

@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
-using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
@@ -117,13 +116,13 @@ namespace Articulate.Controllers
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("tags", tags, true, "ArticulateTags");
+                content.AssignTags("tags", tags, true, "ArticulateTags");
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("categories", cats, true, "ArticulateCategories");
+                content.AssignTags("categories", cats, true, "ArticulateCategories");
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
@@ -131,7 +130,7 @@ namespace Articulate.Controllers
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
-            var status = Services.ContentService.SaveAndPublishWithStatus(content, Security.GetUserId());
+            var status = Services.ContentService.SaveAndPublish(content, Security.GetUserId());
             if (status.Success == false)
             {
                 CleanFiles(multiPartRequest);
@@ -141,12 +140,12 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
 
-            var published = Umbraco.TypedContent(content.Id);
+            var published = Umbraco.Content(content.Id);
 
             CleanFiles(multiPartRequest);
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(published.UrlWithDomain(), Encoding.UTF8, "text/html");
+            response.Content = new StringContent(published.Url, Encoding.UTF8, "text/html");
             return response;
         }
 
