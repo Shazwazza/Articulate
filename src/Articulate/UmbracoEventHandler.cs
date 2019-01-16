@@ -113,7 +113,7 @@ namespace Articulate
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
                     var item = UmbracoContext.Current.ContentCache.GetById((int)e.MessageObject);
-                    if (item != null && item.DocumentTypeAlias.InvariantEquals("Articulate"))
+                    if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
                         ApplicationContext.Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);

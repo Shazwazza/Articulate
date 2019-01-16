@@ -13,16 +13,16 @@ namespace Articulate
         {
             var content = umbracoContext.ContentCache.GetById(id);
 
-            if (content != null && (content.DocumentTypeAlias == "ArticulateRichText" || content.DocumentTypeAlias == "ArticulateMarkdown") && content.Parent != null)
+            if (content != null && (content.ContentType.Alias == "ArticulateRichText" || content.ContentType.Alias == "ArticulateMarkdown") && content.Parent != null)
             {
                 if (content.Parent.Parent != null)
                 {
-                    var useDateFormat = content.Parent.Parent.GetPropertyValue<bool>("useDateFormatForUrl");
+                    var useDateFormat = content.Parent.Parent.Value<bool>("useDateFormatForUrl");
                     if (!useDateFormat)
                         return null;
                 }
 
-                var date = content.GetPropertyValue<DateTime>("publishedDate");
+                var date = content.Value<DateTime>("publishedDate");
                 if (date != null)
                 {
                     var parentPath = base.GetUrl(umbracoContext, content.Parent.Id, current, mode);

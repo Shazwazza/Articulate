@@ -8,6 +8,7 @@ using System.Web.Routing;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
@@ -38,10 +39,10 @@ namespace Articulate
                 _urlsAndPageNames.Add(new UrlAndPageNames
                 {
                     NodeId = node.Id,
-                    TagsUrlName = node.GetPropertyValue<string>("tagsUrlName"),
-                    TagsPageName = node.GetPropertyValue<string>("tagsPageName"),
-                    CategoriesUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                    CategoriesPageName = node.GetPropertyValue<string>("categoriesPageName")
+                    TagsUrlName = node.Value<string>("tagsUrlName"),
+                    TagsPageName = node.Value<string>("tagsPageName"),
+                    CategoriesUrlName = node.Value<string>("categoriesUrlName"),
+                    CategoriesPageName = node.Value<string>("categoriesPageName")
                 });
             }
         }        

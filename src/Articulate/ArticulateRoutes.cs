@@ -7,6 +7,7 @@ using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.PublishedCache;
 using Umbraco.Web.Routing;
@@ -256,7 +257,7 @@ namespace Articulate
         {
             //we need to group by the search url name and make unique routes amongst those,
             // alternatively we could create route constraints like we do for the tags/categories routes
-            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.GetPropertyValue<string>("searchUrlName")))
+            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.Value<string>("searchUrlName")))
             {
                 //the hash needs to be the combination of the nodeRoutePath and the searchUrl group
                 var routeHash = (nodeRoutePath + nodeSearch.Key).GetHashCode();

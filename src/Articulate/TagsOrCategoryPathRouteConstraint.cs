@@ -7,6 +7,7 @@ using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
@@ -44,8 +45,8 @@ namespace Articulate
                         _urlNames.Add(new UrlNames
                         {
                             Host = uri.Host,
-                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                            TagsUrlName = node.Value<string>("tagsUrlName")
                         });
                     }
                     else
@@ -53,8 +54,8 @@ namespace Articulate
                         _urlNames.Add(new UrlNames
                         {
                             Host = string.Empty,
-                            CategoryUrlName = node.GetPropertyValue<string>("categoriesUrlName"),
-                            TagsUrlName = node.GetPropertyValue<string>("tagsUrlName")
+                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                            TagsUrlName = node.Value<string>("tagsUrlName")
                         });
                     }
                 }

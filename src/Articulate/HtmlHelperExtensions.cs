@@ -12,6 +12,7 @@ using System.Web.WebPages;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate
@@ -183,15 +184,15 @@ namespace Articulate
 
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
         {
-            if (model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false
-                && model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsName").IsNullOrWhiteSpace() == false)
+            if (model.RootBlogNode.Value<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false
+                && model.RootBlogNode.Value<string>("googleAnalyticsName").IsNullOrWhiteSpace() == false)
             {
                 return new HtmlString(@"<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', '" + model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId") + @"', '" + model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsName") + @"');
+  ga('create', '" + model.RootBlogNode.Value<string>("googleAnalyticsId") + @"', '" + model.RootBlogNode.Value<string>("googleAnalyticsName") + @"');
   ga('send', 'pageview');
 </script>");
             }

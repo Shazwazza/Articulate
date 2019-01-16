@@ -104,7 +104,7 @@ namespace Articulate.Models
 
         public string CustomRssFeed
         {
-            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.GetPropertyValue<string>("customRssFeedUrl")); }
+            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.Value<string>("customRssFeedUrl")); }
             protected set { _customRssFeed = value; }
         }        
 

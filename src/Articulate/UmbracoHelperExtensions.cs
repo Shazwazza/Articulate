@@ -479,7 +479,7 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
         private static IPublishedContent GetAuthorsNode(IMasterModel masterModel)
         {
             var authorsNode = masterModel.RootBlogNode.Children
-                .FirstOrDefault(x => x.DocumentTypeAlias.InvariantEquals("ArticulateAuthors"));
+                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             if (authorsNode == null)
             {
                 throw new InvalidOperationException(

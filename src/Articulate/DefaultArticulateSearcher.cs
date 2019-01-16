@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Examine;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate

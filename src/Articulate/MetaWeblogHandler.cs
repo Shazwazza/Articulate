@@ -16,6 +16,7 @@ using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate
