@@ -49,7 +49,7 @@ namespace Articulate.Models
             }
         }
 
-        public bool EnableComments => Content.GetPropertyValue<bool>("enableComments", true);
+        public bool EnableComments => base.Unwrap().Value<bool>("enableComments", fallback: Fallback.ToAncestors);
 
         public PostAuthorModel Author
         {
@@ -62,7 +62,7 @@ namespace Articulate.Models
 
                 _author = new PostAuthorModel
                 {
-                    Name = Content.GetPropertyValue<string>("author", true)
+                    Name = base.Unwrap().Value<string>("author", fallback: Fallback.ToAncestors)
                 };
 
                 //look up assocated author node if we can
@@ -87,12 +87,12 @@ namespace Articulate.Models
 
         public string Excerpt => this.Value<string>("excerpt");
 
-        public DateTime PublishedDate => Content.GetPropertyValue<DateTime>("publishedDate");
+        public DateTime PublishedDate => base.Unwrap().Value<DateTime>("publishedDate");
 
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public string PostImageUrl => Content.GetPropertyValue<string>("postImage");
+        public string PostImageUrl => base.Unwrap().Value<string>("postImage");
 
         /// <summary>
         /// Cropped version of the PostImageUrl
