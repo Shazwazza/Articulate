@@ -19,7 +19,7 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.TypedContent(id);
+            var node = Umbraco.Content(id);
             if (node == null)
             {
                 return new HttpNotFoundResult();
@@ -30,13 +30,13 @@ namespace Articulate.Controllers
                 new XElement("service",
                     new XElement("engineName", "Articulate, powered by Umbraco"),
                     new XElement("engineLink", "http://github.com/shandem/articulate"),
-                    new XElement("homePageLink", node.UrlWithDomain())),
+                    new XElement("homePageLink", node.UrlAbsolute())),
                 new XElement("apis",
                     new XElement("api",
                         new XAttribute("name", "MetaWeblog"),
                         new XAttribute("preferred", true),
-                        new XAttribute("apiLink", node.UrlWithDomain().EnsureEndsWith('/') + "metaweblog/" + id),
-                        new XAttribute("blogID", node.UrlWithDomain()))));
+                        new XAttribute("apiLink", node.UrlAbsolute().EnsureEndsWith('/') + "metaweblog/" + id),
+                        new XAttribute("blogID", node.UrlAbsolute()))));
 
             return new XmlResult(new XDocument(rsd));
         }

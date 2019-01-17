@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
@@ -30,7 +31,7 @@ namespace Articulate
                     new XAttribute(XNamespace.Xmlns + "wp", nsWp),
                     xChannel));
 
-            var umbHelper = new UmbracoHelper(UmbracoContext.Current);
+            var umbHelper = new UmbracoHelper(UmbracoContext.Current, Current.Services);
             var markDown = new MarkdownDeep.Markdown();
 
             foreach (var post in posts)
@@ -51,7 +52,7 @@ namespace Articulate
 
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
-                    new XElement("link", umbHelper.NiceUrlWithDomain(post.Id)),
+                    new XElement("link", umbHelper.UrlAbsolute(post.Id)),
                     new XElement(nsContent + "encoded", new XCData(body)),
                     new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),

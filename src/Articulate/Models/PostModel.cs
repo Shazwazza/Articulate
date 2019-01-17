@@ -118,7 +118,7 @@ namespace Articulate.Models
                 {
                     var val = this.Value<string>("markdown");
                     var md = new MarkdownDeep.Markdown();
-                    UmbracoConfig.For.ArticulateOptions().MarkdownDeepOptionsCallBack(md);
+                    Current.Configs.Articulate().MarkdownDeepOptionsCallBack(md);
                     return new MvcHtmlString(md.Transform(val));                    
                 }
                 

@@ -38,7 +38,7 @@ namespace Articulate.Controllers
                 var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
 
                 //there should only be one file so we'll just use the first one
-                var importer = new BlogMlImporter(ApplicationContext, fs);
+                var importer = new BlogMlImporter(fs);
                 var count = importer.GetPostCount(result.FileData[0].LocalFileName);
 
                 return JObject.FromObject(new
@@ -95,7 +95,7 @@ namespace Articulate.Controllers
             var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
 
             //there should only be one file so we'll just use the first one
-            var importer = new BlogMlImporter(ApplicationContext, fs);
+            var importer = new BlogMlImporter(fs);
             await importer.Import(Security.CurrentUser.Id,
                 model.TempFile,
                 model.ArticulateNodeId,

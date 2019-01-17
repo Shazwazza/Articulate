@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Xml.XPath;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -32,7 +33,7 @@ namespace Articulate.Controllers
             return base.Index(model);
         }
 
-        protected IRssFeedGenerator FeedGenerator => UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(UmbracoContext);
+        protected IRssFeedGenerator FeedGenerator => Current.Configs.Articulate().GetRssFeedGenerator(UmbracoContext.Current);
 
         public ActionResult Index(ContentModel model, int? maxItems)
         {

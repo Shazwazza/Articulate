@@ -126,13 +126,13 @@ namespace Articulate
 
             var openGraphUrl = new TagBuilder("meta");
             openGraphUrl.Attributes["property"] = "og:url";
-            openGraphUrl.Attributes["content"] = model.UrlWithDomain();
+            openGraphUrl.Attributes["content"] = model.UrlAbsolute();
             builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));            
         }
 
         public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
         {
-            var openSearchUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
+            var openSearchUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
             var tag = $@"<link rel=""search"" type=""application/opensearchdescription+xml"" href=""{openSearchUrl}"" title=""Search {model.RootBlogNode.Name}"" >";
 
             return new HtmlString(tag);
@@ -141,7 +141,7 @@ namespace Articulate
         public static IHtmlString RssFeed(this HtmlHelper html, IMasterModel model)
         {
             var url = model.CustomRssFeed.IsNullOrWhiteSpace()
-                ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss"
                 : model.CustomRssFeed;
 
             return new HtmlString(
@@ -158,8 +158,8 @@ namespace Articulate
 
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
         {
-            var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
-            var manifestUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
+            var rsdUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
+            var manifestUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
 
             return new HtmlString(
                 string.Concat(

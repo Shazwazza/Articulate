@@ -13,7 +13,7 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.TypedContent(id);
+            var node = Umbraco.Content(id);
             if (node == null)
             {
                 return new HttpNotFoundResult();

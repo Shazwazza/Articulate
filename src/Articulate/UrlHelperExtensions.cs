@@ -30,7 +30,7 @@ namespace Articulate
         public static string ArticulateRssUrl(this UrlHelper url, IMasterModel model)
         {
             return model.CustomRssFeed.IsNullOrWhiteSpace()
-                ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss"
                 : model.CustomRssFeed;
         }
 
@@ -81,9 +81,9 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : (includeDomain
-                      ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/')
+                      ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/')
                       : model.RootBlogNode.Url.EnsureEndsWith('/')) +
-                  model.RootBlogNode.GetPropertyValue<string>("searchUrlName");
+                  model.RootBlogNode.Value<string>("searchUrlName");
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') +
-                  model.RootBlogNode.GetPropertyValue<string>("categoriesUrlName");
+                  model.RootBlogNode.Value<string>("categoriesUrlName");
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') +
-                  model.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
+                  model.RootBlogNode.Value<string>("tagsUrlName");
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') +
-                  model.RootBlogNode.GetPropertyValue<string>("tagsUrlName").EnsureEndsWith('/') +
+                  model.RootBlogNode.Value<string>("tagsUrlName").EnsureEndsWith('/') +
                   tag.SafeEncodeUrlSegments();
         }
 
@@ -155,7 +155,7 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : model.RootBlogNode.Url.EnsureEndsWith('/') +
-                  model.RootBlogNode.GetPropertyValue<string>("categoriesUrlName").EnsureEndsWith('/') +
+                  model.RootBlogNode.Value<string>("categoriesUrlName").EnsureEndsWith('/') +
                   category.SafeEncodeUrlSegments();
         }
     }

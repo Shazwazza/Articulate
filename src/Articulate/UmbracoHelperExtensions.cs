@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.XPath;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
@@ -99,14 +100,14 @@ namespace Articulate
                 .Take(pager.PageSize);
 
             //Now we can select the IPublishedContent instances by Id
-            var listItems = helper.TypedContent(xmlListItems.Select(x => int.Parse(x.GetAttribute("id", ""))));
+            var listItems = helper.Content(xmlListItems.Select(x => int.Parse(x.GetAttribute("id", ""))));
 
             return listItems;
         }
 
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
         {
-            var tagsBaseUrl = masterModel.RootBlogNode.GetPropertyValue<string>("tagsUrlName");
+            var tagsBaseUrl = masterModel.RootBlogNode.Value<string>("tagsUrlName");
 
             var contentByTags = helper.GetContentByTags(masterModel, "ArticulateTags", tagsBaseUrl);
 
@@ -123,8 +124,7 @@ namespace Articulate
         {
             //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
 
-            var appContext = helper.UmbracoContext.Application;
-            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+            var sqlSyntax = Current.SqlContext.SqlSyntax;
 
             var sql = GetTagQuery("cmsTags.id, cmsTags.tag, cmsTags.[group], Count(*) as NodeCount", masterModel, sqlSyntax)
                 .Where("cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
@@ -248,8 +248,7 @@ namespace Articulate
 
             //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
 
-            var appContext = helper.UmbracoContext.Application;
-            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+            var sqlSyntax = Current.SqlContext.SqlSyntax;
 
             IEnumerable<PostsByTagModel> GetResult()
             {
@@ -273,7 +272,7 @@ namespace Articulate
                     //will be the same tag name for all of these tag Ids
                     var tagName = groupedTags.First().Tag;
 
-                    var publishedContent = helper.TypedContent(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
+                    var publishedContent = helper.Content(groupedTags.Select(t => t.NodeId).Distinct()).WhereNotNull();
 
                     var model = new PostsByTagModel(
                         publishedContent.Select(c => new PostModel(c)).OrderByDescending(c => c.PublishedDate), 
@@ -302,8 +301,7 @@ namespace Articulate
         {
             //TODO: We want to use the core for this but it's not available, this needs to be implemented: http://issues.umbraco.org/issue/U4-9290
 
-            var appContext = helper.UmbracoContext.Application;
-            var sqlSyntax = appContext.DatabaseContext.SqlSyntax;
+            var sqlSyntax = Current.SqlContext.SqlSyntax;
 
             PostsByTagModel GetResult()
             {
@@ -346,7 +344,7 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
 
                 var result = new List<PostsByTagModel>();                
 
-                var publishedContent = helper.TypedContent(taggedContent.Items).WhereNotNull();
+                var publishedContent = helper.Content(taggedContent.Items).WhereNotNull();
 
                 var model = new PostsByTagModel(
                     publishedContent.Select(c => new PostModel(c)),
