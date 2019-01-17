@@ -14,6 +14,7 @@ using Umbraco.Web;
 using Umbraco.Web.Routing;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Services;
+using Umbraco.Core.PropertyEditors;
 
 namespace Articulate
 {
@@ -71,13 +72,8 @@ namespace Articulate
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
             }
-
-            var categoryDtPreVals = Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(categoryDataType.Id);
-            if (categoryDtPreVals == null)
-            {
-                throw new InvalidOperationException("No pre values for Articulate Categories data type found");
-            }
-            var tagGroup = categoryDtPreVals.PreValuesAsDictionary["group"];
+            
+            var tagConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
 
             //TODO: See: http://argotic.codeplex.com/wikipage?title=Generating%20portable%20web%20log%20content&referringTitle=Home
 
@@ -93,10 +89,10 @@ namespace Articulate
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
-            AddBlogCategories(blogMlDoc, tagGroup.Value);
+            AddBlogCategories(blogMlDoc, tagConfiguration.Group);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, tagGroup.Value);
+                AddBlogPosts(archiveNode, blogMlDoc, tagConfiguration.Group);
             }
             WriteFile(blogMlDoc);
         }
