@@ -10,9 +10,8 @@ namespace Articulate.Components
     {
         public void Compose(Composition composition)
         {
-            //TODO Register these - composition.UrlProviders is internal need a V8 build
-            //UrlProviderResolver.Current.AddType<VirtualNodeUrlProvider>();
-            //UrlProviderResolver.Current.InsertTypeBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
+            composition.UrlProviders().Append<VirtualNodeUrlProvider>();
+            composition.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
             
             composition.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
 
