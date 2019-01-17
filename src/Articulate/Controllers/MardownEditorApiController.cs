@@ -76,7 +76,7 @@ namespace Articulate.Controllers
                 extractFirstImageAsProperty = articulateNode.GetValue<bool>("extractFirstImage");
             }
 
-            var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
+            var archive = Services.ContentService.GetPagedChildren(model.ArticulateNodeId.Value, 0, int.MaxValue, out long totalArchiveNodes)                
                 .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             if (archive == null)
             {
@@ -99,9 +99,9 @@ namespace Articulate.Controllers
 
             var content = Services.ContentService.CreateContent(
                 model.Title,
-                archive.Id,
+                archive.GetUdi(),
                 "ArticulateMarkdown",
-                Security.GetUserId());
+                Current.UmbracoContext.Security.GetUserId().Result);
 
             content.SetValue("markdown", model.Body);
 
@@ -174,17 +174,20 @@ namespace Articulate.Controllers
 
                     using (var stream = File.OpenRead(file.LocalFileName))
                     {
-                        var savedFile = UmbracoMediaFile.Save(stream, "articulate/" + rndId + "/" +
-                                                                      file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\""));
+                        var fileUrl = "articulate/" + rndId + "/" + file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\"");
 
+                        //TODO: WB - MediaFileSystem not in Umbraco.Web.Composing.Current
+                        //TODO: WB - We may need to query MediaFS to get the image we just added media url path?!
+                        global::Umbraco.Core.Composing.Current.MediaFileSystem.AddFile(fileUrl, stream);
+                        
                         var result = string.Format("![{0}]({1})",
-                            savedFile.Url,
-                            savedFile.Url
+                            fileUrl,
+                            fileUrl
                         );
 
                         if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
                         {
-                            firstImage = savedFile.Url;
+                            firstImage = fileUrl;
                             //in this case, we've extracted the image, we don't want it to be displayed
                             // in the content too so don't return it.
                             return string.Empty;

@@ -17,7 +17,7 @@ namespace Articulate
         {
             string route;
             if (contentRequest.HasDomain)
-                route = contentRequest.Domain.ContentId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.DomainUri, contentRequest.Uri.GetAbsolutePathDecoded());
+                route = contentRequest.Domain.ContentId.ToString() + DomainHelper.PathRelativeToDomain(contentRequest.Domain.Uri, contentRequest.Uri.GetAbsolutePathDecoded());
             else
                 route = contentRequest.Uri.GetAbsolutePathDecoded();
 

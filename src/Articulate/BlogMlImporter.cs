@@ -120,21 +120,25 @@ namespace Articulate
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
             }
+            
+            var authorsType = Current.Services.ContentTypeService.Get("ArticulateAuthors");
+            if (authorsType == null)
+            {
+                throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthors doc type could not be found");
+            }
 
-            //TODO: Check for existence of ArticulateAuthors
+            var allAuthorsNodes = Current.Services.ContentService.GetPagedOfType(authorsType.Id, 0, int.MaxValue, out long totalAuthorsNodes, null);
 
-            var children = rootNode.Children().ToArray();
-            var authorsNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
+            var authorsNode = allAuthorsNodes.FirstOrDefault();
             if (authorsNode == null)
             {
                 //create the authors node
                 authorsNode = Current.Services.ContentService.Create(
                     "Authors", rootNode, "ArticulateAuthors");
-                Current.Services.ContentService.SaveAndPublish(authorsNode, userId);
+                Current.Services.ContentService.SaveAndPublish(authorsNode, userId: userId);
             }
 
-            var allAuthorNodes = Current.Services.ContentService.GetContentOfContentType(authorType.Id).ToArray();
-
+            var allAuthorNodes = Current.Services.ContentService.GetPagedOfType(authorType.Id, 0, int.MaxValue, out long totalAuthorNodes, null);
             foreach (var author in authors)
             {
                 //first check if a user exists by email
@@ -151,7 +155,7 @@ namespace Articulate
                         // name to posts later on
                         authorNode = Current.Services.ContentService.Create(
                             found.Name, authorsNode, "ArticulateAuthor");
-                        Current.Services.ContentService.SaveAndPublish(authorNode, userId);
+                        Current.Services.ContentService.SaveAndPublish(authorNode, userId: userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -167,7 +171,7 @@ namespace Articulate
                         //create a new author node with this title
                         authorNode = Current.Services.ContentService.Create(
                             author.Title.Content, authorsNode, "ArticulateAuthor");
-                        Current.Services.ContentService.SaveAndPublish(authorNode, userId);
+                        Current.Services.ContentService.SaveAndPublish(authorNode, userId: userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -187,9 +191,10 @@ namespace Articulate
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
 
-            var children = rootNode.Children().ToArray();
+            var archiveDocType = Current.Services.ContentTypeService.Get("ArticulateArchive");
+            var archive = Current.Services.ContentService.GetPagedOfType(archiveDocType.Id, 0, int.MaxValue, out long totalArchives, null);
 
-            var archiveNode = children.FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
+            var archiveNode = archive.FirstOrDefault();
 
             if (archiveNode == null)
             {
@@ -199,7 +204,7 @@ namespace Articulate
                 Current.Services.ContentService.Save(archiveNode);
             }
 
-            var allPostNodes = archiveNode.Children().ToArray();
+            var allPostNodes = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, 0, int.MaxValue, out long totalPostNodes);
 
             foreach (var post in posts)
             {

@@ -10,14 +10,13 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Routing;
 using System.Web.Security;
-using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Persistence.DatabaseModelDefinitions;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace Articulate
@@ -150,9 +149,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            return Current.Services.ContentService.GetChildren(node.Id)
-                .OrderByDescending(x => x.UpdateDate)
-                .Take(numberOfPosts)
+            return Current.Services.ContentService.GetPagedChildren(node.Id, 0, numberOfPosts, out long totalPosts, ordering: Ordering.By("updateDate", direction:Direction.Descending))
                 .Select(FromContent).ToArray();
         }
 
@@ -177,8 +174,9 @@ namespace Articulate
             // Save File
             using (var ms = new MemoryStream(media.Bits))
             {
-                var file = UmbracoMediaFile.Save(ms, "articulate/" + media.Name.ToSafeFileName());
-                return new { url = file.Url };
+                var fileUrl = "articulate/" + media.Name.ToSafeFileName();
+                Current.MediaFileSystem.AddFile(fileUrl, ms);                
+                return new { url = fileUrl };
             }
         }
 

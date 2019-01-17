@@ -133,7 +133,13 @@ namespace Articulate
                 })
                 .GroupBy("cmsTags.id", "cmsTags.tag", "cmsTags." + sqlSyntax.GetQuotedColumnName("group") + @"");
 
-            return appContext.DatabaseContext.Database.Fetch<TagDto>(sql).Select(x => x.Tag).WhereNotNull().OrderBy(x => x);
+            using(var scope = Current.ScopeProvider.CreateScope())
+            {
+                var results = scope.Database.Fetch<TagDto>(sql).Select(x => x.Tag).WhereNotNull().OrderBy(x => x);
+                scope.Complete();
+
+                return results;
+            }
         }
 
         /// <summary>
@@ -263,7 +269,14 @@ namespace Articulate
                             tagIds = tagBatch.Select(x => x.Id).ToArray(),
                             tagGroup = tagGroup
                         });
-                    taggedContent.AddRange(appContext.DatabaseContext.Database.Fetch<TagDto>(sql));
+
+                    using(var scope = Current.ScopeProvider.CreateScope())
+                    {
+                        var dbTags = scope.Database.Fetch<TagDto>(sql);
+                        scope.Complete();
+
+                        taggedContent.AddRange(dbTags);
+                    }
                 }
 
                 var result = new List<PostsByTagModel>();
@@ -327,42 +340,49 @@ namespace Articulate
                 }                
 
                 //get the publishedDate property type id on the ArticulatePost content type
-                var publishedDatePropertyTypeId = appContext.DatabaseContext.Database.ExecuteScalar<int>(@"SELECT cmsPropertyType.id FROM cmsContentType
+                using(var scope = Current.ScopeProvider.CreateScope())
+                {
+                    var publishedDatePropertyTypeId = scope.Database.ExecuteScalar<int>(@"SELECT cmsPropertyType.id FROM cmsContentType
 INNER JOIN cmsPropertyType ON cmsPropertyType.contentTypeId = cmsContentType.nodeId
 WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @propertyTypeAlias", new { contentTypeAlias = "ArticulatePost", propertyTypeAlias = "publishedDate" });
 
-                var sqlContent = GetContentByTagQueryForPaging("umbracoNode.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
+                    var sqlContent = GetContentByTagQueryForPaging("umbracoNode.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
 
-                sqlContent.Append("WHERE umbracoNode.id IN (").Append(sqlTags).Append(")");
+                    sqlContent.Append("WHERE umbracoNode.id IN (").Append(sqlTags).Append(")");
 
-                //order by the dataDate field which will be the publishedDate 
-                sqlContent.OrderBy("cmsPropertyData.dataDate DESC");
+                    //order by the dataDate field which will be the publishedDate 
+                    sqlContent.OrderBy("cmsPropertyData.dataDate DESC");
 
-                //TODO: ARGH This still returns multiple non distinct Ids :(
-                
-                var taggedContent = appContext.DatabaseContext.Database.Page<int>(page, pageSize, sqlContent);
+                    //TODO: ARGH This still returns multiple non distinct Ids :(
 
-                var result = new List<PostsByTagModel>();                
+                    var taggedContent = scope.Database.Page<int>(page, pageSize, sqlContent);
 
-                var publishedContent = helper.Content(taggedContent.Items).WhereNotNull();
+                    var result = new List<PostsByTagModel>();
 
-                var model = new PostsByTagModel(
-                    publishedContent.Select(c => new PostModel(c)),
-                    tag,
-                    masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tag.ToLowerInvariant(),
-                    Convert.ToInt32(taggedContent.TotalItems));
+                    var publishedContent = helper.Content(taggedContent.Items).WhereNotNull();
 
-                result.Add(model);
+                    var model = new PostsByTagModel(
+                        publishedContent.Select(c => new PostModel(c)),
+                        tag,
+                        masterModel.RootBlogNode.Url.EnsureEndsWith('/') + baseUrlName + "/" + tag.ToLowerInvariant(),
+                        Convert.ToInt32(taggedContent.TotalItems));
 
-                return result.FirstOrDefault();
+                    result.Add(model);
+
+                    scope.Complete();
+
+                    return result.FirstOrDefault();
+
+                }
             }
+            
 
 #if DEBUG
             return GetResult();
 #else
             //cache this result for a short amount of time
             
-            return (PostsByTagModel) appContext.ApplicationCache.RuntimeCache.GetCacheItem(
+            return (PostsByTagModel)Current.ApplicationCache.RuntimeCache.GetCacheItem(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup, tag, page, pageSize),
                 GetResult, TimeSpan.FromSeconds(30));
 #endif
