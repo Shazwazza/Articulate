@@ -26,6 +26,5 @@
     <file src="App_Plugins\Articulate\**\*" target="content\App_Plugins\Articulate" />
     <file src="media\articulate\default\*.jpg" target="content\media\articulate" />
     <file src="media\articulate\default\*.png" target="content\media\articulate" />
-    <file src="$buildFolder$\dashboard.config.install.xdt" target="content\config\dashboard.config.install.xdt" />
   </files>
 </package>
