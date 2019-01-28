@@ -16,7 +16,7 @@
         @if (ViewContext.RouteData.Values["action"].ToString().Equals("Tags", StringComparison.OrdinalIgnoreCase))
         {
             <div class="tag-cloud-large">
-                @Html.TagCloud(Model.Tags, @<a href="#tag-@item.TagName">@item.TagName</a>, 5, 50)
+                @Html.TagCloud(Model.Tags, @<a href="#tag-@item.TagName.Replace(' ', '-')">@item.TagName</a>, 5, 50)
             </div>
         }
         else
@@ -38,7 +38,7 @@
             {
                 <h2>
                     <a href="@Url.ArticulateTagRssUrl(asArray[i])" class="fa fa-rss"><span>RSS</span></a>
-                    <a id="tag-@asArray[i].TagName" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
+                    <a id="tag-@asArray[i].TagName.Replace(' ', '-')" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
                 </h2>
 
                 @Html.Table(
