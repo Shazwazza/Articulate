@@ -34,12 +34,13 @@ namespace Articulate
             {
                 if (Uri.IsWellFormedUriString(urlPath, UriKind.Absolute))
                 {
-                    Uri url;
-                    if (Uri.TryCreate(urlPath, UriKind.Absolute, out url))
-                    {
-                        var pathToEncode = url.AbsolutePath;
-                        return url.GetLeftPart(UriPartial.Authority).EnsureEndsWith('/') + EncodePath(pathToEncode) + url.Query;
-                    }
+                    return urlPath;
+                }
+
+                if (Uri.TryCreate(urlPath, UriKind.Absolute, out var url))
+                {
+                    var pathToEncode = url.AbsolutePath;
+                    return url.GetLeftPart(UriPartial.Authority).EnsureEndsWith('/') + pathToEncode + url.Query;
                 }
             }
 
