@@ -39,8 +39,7 @@ namespace Articulate
 
                 if (Uri.TryCreate(urlPath, UriKind.Absolute, out var url))
                 {
-                    var pathToEncode = url.AbsolutePath;
-                    return url.GetLeftPart(UriPartial.Authority).EnsureEndsWith('/') + pathToEncode + url.Query;
+                    return url.GetLeftPart(UriPartial.Authority) + url.AbsolutePath + url.Query;
                 }
             }
 
