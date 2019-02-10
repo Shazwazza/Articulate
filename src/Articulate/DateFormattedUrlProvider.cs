@@ -1,4 +1,5 @@
 ﻿using System;
+using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
@@ -27,7 +28,7 @@ namespace Articulate
                 {
                     var parentPath = base.GetUrl(umbracoContext, content.Parent.Id, current, mode);
                     var urlFolder = String.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
-                    var newUrl = parentPath + urlFolder + "/" + content.UrlName;
+                    var newUrl = parentPath.EnsureEndsWith("/") + urlFolder + "/" + content.UrlName;
                     return newUrl;
                 }
             }
