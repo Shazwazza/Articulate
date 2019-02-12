@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Web.Routing;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
@@ -30,8 +31,8 @@ namespace Articulate
                 _urlNames.Add(new UrlNames
                 {
                     NodeId = node.Id,
-                    SearchUrlName = node.GetPropertyValue<string>("searchUrlName"),
-                    SearchPageName = node.GetPropertyValue<string>("searchPageName")
+                    SearchUrlName = node.Value<string>("searchUrlName"),
+                    SearchPageName = node.Value<string>("searchPageName")
                 });
             }
         }        

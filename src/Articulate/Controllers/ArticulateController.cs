@@ -21,7 +21,7 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Index(RenderModel model, int? p)
+        public ActionResult Index(ContentModel model, int? p)
         {
             return RenderView(model, p);
         }
@@ -32,12 +32,12 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             return RenderView(model);
         }
 
-        private ActionResult RenderView(IRenderModel model, int? p = null)
+        private ActionResult RenderView(ContentModel model, int? p = null)
         {
             var listNodes = model.Content.Children("ArticulateArchive").ToArray();
             if (listNodes.Length == 0)

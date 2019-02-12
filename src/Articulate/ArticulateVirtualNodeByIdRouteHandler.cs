@@ -8,11 +8,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web.Routing;
-using umbraco.cms.businesslogic.web;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
@@ -47,7 +48,8 @@ namespace Articulate
                         _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
                     }
                 }
-                LogHelper.Debug<ArticulateVirtualNodeByIdRouteHandler>(() => $"Hosts/IDs map for node {publishedContent.Id}. Values: {DebugHostIdsCollection()}");
+
+                Current.Logger.Debug<ArticulateVirtualNodeByIdRouteHandler>("Hosts/IDs map for node {NodeId}. Values: {ArticulateHostValues}", publishedContent.Id, DebugHostIdsCollection());
             }
         }
 
@@ -79,12 +81,12 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
+                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
                         return null;
                     }
                 }
                 else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
-                    && !UmbracoConfig.For.UmbracoSettings().RequestHandler.UseDomainPrefixes)
+                    && ! Current.Configs.Settings().RequestHandler.UseDomainPrefixes)
                 {
                     //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
 
@@ -95,7 +97,7 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: " + DebugHostIdsCollection());
+                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: {ArticulateHostValues}", DebugHostIdsCollection());
                         return null;
                     }
                 }
@@ -108,7 +110,10 @@ namespace Articulate
                     }
                     else
                     {
-                        LogHelper.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of " + requestContext.HttpContext.Request.Url.Host + ". Values: " + DebugHostIdsCollection());
+                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of {HostName}. Values: {ArticulateHostValues}",
+                            requestContext.HttpContext.Request.Url.Host,
+                            DebugHostIdsCollection());
+
                         return null;
                     }
                 }

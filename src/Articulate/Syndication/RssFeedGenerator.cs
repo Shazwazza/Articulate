@@ -12,6 +12,7 @@ using System.Xml;
 using Articulate.Controllers;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 using Umbraco.Web;
 
@@ -34,7 +35,7 @@ namespace Articulate.Syndication
             var feed = new SyndicationFeed(
               rootPageModel.BlogTitle,
               rootPageModel.BlogDescription,
-              new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
+              new Uri(rootPageModel.RootBlogNode.UrlAbsolute()),
               GetFeedItems(rootPageModel, posts))
             {
                 Generator = "Articulate, blogging built on Umbraco",
@@ -54,7 +55,7 @@ namespace Articulate.Syndication
 
         protected virtual SyndicationItem GetFeedItem(IMasterModel model, PostModel post, string rootUrl)
         {
-            var posturl = post.UrlWithDomain();
+            var posturl = post.UrlAbsolute();
 
             //Cannot continue if the url cannot be resolved - probably has publishing issues
             if (posturl.StartsWith("#"))
@@ -109,7 +110,7 @@ namespace Articulate.Syndication
 
         private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
-            var rootUrl = model.RootBlogNode.UrlWithDomain();
+            var rootUrl = model.RootBlogNode.UrlAbsolute();
             return posts.Select(post => GetFeedItem(model, post, rootUrl)).WhereNotNull().ToList();
         }
 
@@ -124,7 +125,7 @@ namespace Articulate.Syndication
             }
             catch (Exception ex)
             {
-                LogHelper.Error<ArticulateRssController>("Could not convert the blog logo path to a Uri", ex);
+                Current.Logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
             }
             return logoUri;
         }

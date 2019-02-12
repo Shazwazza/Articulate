@@ -5,8 +5,10 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.PublishedCache;
 using Umbraco.Web.Routing;
@@ -19,12 +21,12 @@ namespace Articulate
     public static class ArticulateRoutes
     {
 
-        public static void MapRoutes(RouteCollection routes, ContextualPublishedCache umbracoCache, UrlProvider umbracoUrlProvider)
+        public static void MapRoutes(RouteCollection routes, IPublishedContentCache umbracoCache, UrlProvider umbracoUrlProvider)
         {
             //find all articulate root nodes
             var articulateNodes = umbracoCache.GetByXPath("//Articulate").ToArray();
 
-            LogHelper.Info(typeof(ArticulateRoutes), () => $"Mapping routes for {articulateNodes.Length} Articulate root nodes");
+            Current.Logger.Info(typeof(ArticulateRoutes), "Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Length);
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
@@ -86,8 +88,10 @@ namespace Articulate
             var other = umbracoUrlProvider.GetOtherUrls(publishedContent.Id).ToArray();
             if (other.Length > 0)
             {
+                var urls = other.Where(x => x.IsUrl && string.IsNullOrEmpty(x.Text) == false).Select(x => x.Text);
+
                 //this means there are domains assigned
-                allUrls = new HashSet<string>(other)
+                allUrls = new HashSet<string>(urls)
                     {
                         umbracoUrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute)
                     };
@@ -256,7 +260,7 @@ namespace Articulate
         {
             //we need to group by the search url name and make unique routes amongst those,
             // alternatively we could create route constraints like we do for the tags/categories routes
-            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.GetPropertyValue<string>("searchUrlName")))
+            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.Value<string>("searchUrlName")))
             {
                 //the hash needs to be the combination of the nodeRoutePath and the searchUrl group
                 var routeHash = (nodeRoutePath + nodeSearch.Key).GetHashCode();

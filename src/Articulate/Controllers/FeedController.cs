@@ -19,7 +19,7 @@ namespace Articulate.Controllers
         [OutputCache(Duration = 120)]
         public ActionResult RenderGitHub(int id)
         {
-            var content = Umbraco.TypedContent(id);
+            var content = Umbraco.Content(id);
             if (content == null) return HttpNotFound();
 
             var articulateModel = new MasterModel(content);

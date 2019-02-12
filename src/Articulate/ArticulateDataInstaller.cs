@@ -1,29 +1,23 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Articulate.Resources;
-using umbraco.cms.businesslogic.packager;
 using Umbraco.Core;
-using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Core.Composing;
+using Umbraco.Core.PropertyEditors;
 
 namespace Articulate
 {
     public class ArticulateDataInstaller
     {
-        private readonly ServiceContext _services;
         private readonly int _userId;
 
-        public ArticulateDataInstaller(ServiceContext services, int userId)
+        public ArticulateDataInstaller(int userId)
         {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            _services = services;
             _userId = userId;
         }
         
@@ -34,7 +28,7 @@ namespace Articulate
             //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
             // the number of crops required. 
 
-            var articulateContentType = _services.ContentTypeService.GetContentType("Articulate");
+            var articulateContentType = Current.Services.ContentTypeService.Get("Articulate");
 
             if (articulateContentType == null)
             {
@@ -44,7 +38,7 @@ namespace Articulate
 
             Upgrade();
 
-            var root = _services.ContentService.GetContentOfContentType(articulateContentType.Id).FirstOrDefault();
+            var root = Current.Services.ContentService.GetPagedOfType(articulateContentType.Id, 0, int.MaxValue, out long totalRoots, null).FirstOrDefault();
             if (root == null)
             {
                 return InstallContent();
@@ -53,6 +47,7 @@ namespace Articulate
             return null;
         }
 
+        //TODO: WB still to tidy up - need to chat with Shan
         private bool InstallPackage()
         {
             //check if it's already installed
@@ -106,8 +101,8 @@ namespace Articulate
         //borrowed from Core
         private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
         {
-            var allInstalled = InstalledPackage.GetAllInstalledPackages();
-            var found = allInstalled.Where(x => x.Data.Name == name).ToArray();
+            var allInstalled = Current.Services.PackagingService.GetAllInstalledPackages();
+            var found = allInstalled.Where(x => x.Name == name).ToArray();
             sameVersion = false;
 
             if (found.Length  > 0)
@@ -115,12 +110,12 @@ namespace Articulate
                 var foundVersion = found.FirstOrDefault(x =>
                 {
                     //match the exact version
-                    if (x.Data.Version == version)
+                    if (x.Version == version)
                     {
                         return true;
                     }
                     //now try to compare the versions
-                    if (Version.TryParse(x.Data.Version, out Version installed) && Version.TryParse(version, out Version selected))
+                    if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
                     {
                         if (installed >= selected)
                             return true;
@@ -131,7 +126,7 @@ namespace Articulate
                 sameVersion = foundVersion != null;
 
                 //this package is already installed, find the highest package id for this package name that is installed
-                packageId = found.Max(x => x.Data.Id);
+                packageId = found.Max(x => x.Id);
                 return true;
             }
 
@@ -148,50 +143,47 @@ namespace Articulate
             //For v3.0 we need to manually add some pre-values to the Articulate Cropper,
             // https://github.com/Shazwazza/Articulate/issues/202
 
-            var cropperDt = _services.DataTypeService.GetDataTypeDefinitionByName("Articulate Cropper");
+            var cropperDt = Current.Services.DataTypeService.GetDataType("Articulate Cropper");
             if (cropperDt != null)
             {
-                if (cropperDt.PropertyEditorAlias.InvariantEquals("Umbraco.ImageCropper"))
+                if (cropperDt.EditorAlias.InvariantEquals("Umbraco.ImageCropper"))
                 {
-                    var preVals = _services.DataTypeService.GetPreValuesCollectionByDataTypeId(cropperDt.Id);
+                    var preVals = cropperDt.ConfigurationAs<ImageCropperConfiguration>();
                     if (preVals != null)
                     {
-                        var crops = new[]
+                        var crops = new ImageCropperConfiguration.Crop[]
                         {
-                            new {alias = "square", width = 480, height = 480},
-                            new {alias = "thumbnail", width = 50, height = 50},
-                            new {alias = "wide", width = 1024, height = 512}
+                            new ImageCropperConfiguration.Crop { Alias = "square", Width = 480, Height = 480 },
+                            new ImageCropperConfiguration.Crop { Alias = "thumbnail", Width = 50, Height = 50 },
+                            new ImageCropperConfiguration.Crop { Alias = "wide", Width = 1024, Height = 512 }
                         };
 
-                        if (preVals.PreValuesAsDictionary["crops"] == null
-                            || preVals.PreValuesAsDictionary["crops"].Value.IsNullOrWhiteSpace())
+                        if (preVals.Crops == null || preVals.Crops.Length == 0)
                         {
-                            //there aren't any so we need to add them all                                                        
-                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(crops));
-
-                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
+                            preVals.Crops = crops;
+                            Current.Services.DataTypeService.Save(cropperDt);
                         }
                         else
                         {
                             //we should merge them since the developer may have added their own
-                            var json = JsonConvert.DeserializeObject<JArray>(preVals.PreValuesAsDictionary["crops"].Value);
-                            var required = crops.ToDictionary(crop => crop.alias, crop => false);
-                            foreach (var prop in json.Children<JObject>().SelectMany(x => x.Property("alias")))
+                            var currentCrops = preVals.Crops;
+                            var required = crops.ToDictionary(crop => crop.Alias, crop => false);
+
+                            foreach (var cropAlias in currentCrops.Select(x => x.Alias))
                             {
-                                var val = prop.Value<string>();
-                                if (required.ContainsKey(prop.Value<string>()))
-                                    required[val] = true;
+                                if (required.ContainsKey(cropAlias))
+                                    required[cropAlias] = true;
                             }
+
                             //fill in the missing
                             foreach (var req in required)
                             {
                                 if (!req.Value)
-                                    json.Add(JObject.FromObject(crops.First(x => x.alias == req.Key)));
+                                    preVals.Crops.Append(crops.First(x => x.Alias == req.Key));
                             }
 
-                            preVals.PreValuesAsDictionary["crops"] = new PreValue(JsonConvert.SerializeObject(json));
-
-                            _services.DataTypeService.SavePreValues(cropperDt.Id, preVals.PreValuesAsDictionary);
+                            preVals.Crops = crops;
+                            Current.Services.DataTypeService.Save(cropperDt);
                         }                        
                     }
                 }
@@ -201,9 +193,9 @@ namespace Articulate
         private IContent InstallContent()
         {
             //Create the root node - this will automatically create the authors and archive nodes
-            LogHelper.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = _services.ContentService.CreateContent(
-                "Blog", -1, "Articulate");
+            Current.Logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
+            var root = Current.Services.ContentService.CreateContent(
+                "Blog", Udi.Create(Constants.UdiEntityType.Document, Constants.System.RootString), "Articulate");
             root.SetValue("theme", "VAPOR");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
@@ -212,33 +204,33 @@ namespace Articulate
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 
-            _services.ContentService.SaveAndPublishWithStatus(root);
+            Current.Services.ContentService.SaveAndPublish(root);
 
             //get the authors and archive nodes and publish them
-            LogHelper.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
-            var children = root.Children().ToArray();
+            Current.Logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
+            var children = Current.Services.ContentService.GetPagedChildren(root.Id, 0, int.MaxValue, out long totalChildren);
             var authors = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             var archive = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            _services.ContentService.SaveAndPublishWithStatus(authors);
-            _services.ContentService.SaveAndPublishWithStatus(archive);
+            Current.Services.ContentService.SaveAndPublish(authors);
+            Current.Services.ContentService.SaveAndPublish(archive);
 
             //Create the author
-            LogHelper.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = _services.ContentService.CreateContent(
-                "Demo author", authors, "ArticulateAuthor");
+            Current.Logger.Info<ArticulateDataInstaller>("Creating demo author");
+            var author = Current.Services.ContentService.CreateContent(
+                "Demo author", authors.GetUdi(), "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
-            _services.ContentService.SaveAndPublishWithStatus(author);
+            Current.Services.ContentService.SaveAndPublish(author);
 
             //Create a test post
-            LogHelper.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = _services.ContentService.CreateContent(
-                "Test post", archive, "ArticulateMarkdown");
+            Current.Logger.Info<ArticulateDataInstaller>("Creating test blog post");
+            var post = Current.Services.ContentService.CreateContent(
+                "Test post", archive.GetUdi(), "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post.SetTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
-            post.SetTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
+            post.AssignTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
+            post.AssignTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
             post.SetValue("publishedDate", DateTime.Now);
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
@@ -271,7 +263,7 @@ You can post directly from your mobile (including images and photos). This edito
 http://yoursiteurl.com/a-new
 
 Enjoy!");
-            _services.ContentService.SaveAndPublishWithStatus(post);
+            Current.Services.ContentService.SaveAndPublish(post);
 
             return root;
         }

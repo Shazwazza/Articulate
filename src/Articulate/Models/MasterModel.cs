@@ -23,7 +23,7 @@ namespace Articulate.Models
         /// </summary>
         public string Theme
         {
-            get { return _theme ?? (_theme = Content.GetPropertyValue<string>("theme", true)); }
+            get { return _theme ?? (_theme = base.Unwrap().Value<string>("theme", fallback: Fallback.ToAncestors)); }
             protected set { _theme = value; }
         }
 
@@ -31,7 +31,7 @@ namespace Articulate.Models
         {
             get
             {
-                var root = Content.AncestorOrSelf("Articulate");
+                var root = base.Unwrap().AncestorOrSelf("Articulate");
                 if (root == null)
                 {
                     throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
@@ -98,13 +98,13 @@ namespace Articulate.Models
 
         public string DisqusShortName
         {
-            get { return _disqusShortName ?? (_disqusShortName = Content.GetPropertyValue<string>("disqusShortname", true)); }
+            get { return _disqusShortName ?? (_disqusShortName = base.Unwrap().Value<string>("disqusShortname", fallback: Fallback.ToAncestors)); }
             protected set { _disqusShortName = value; }
         }
 
         public string CustomRssFeed
         {
-            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.GetPropertyValue<string>("customRssFeedUrl")); }
+            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.Value<string>("customRssFeedUrl")); }
             protected set { _customRssFeed = value; }
         }        
 
@@ -122,13 +122,13 @@ namespace Articulate.Models
 
         public string BlogTitle
         {
-            get { return _blogTitle ?? (_blogTitle = Content.GetPropertyValue<string>("blogTitle", true)); }
+            get { return _blogTitle ?? (_blogTitle = base.Unwrap().Value<string>("blogTitle", fallback: Fallback.ToAncestors)); }
             protected set { _blogTitle = value; }
         }
 
         public string BlogDescription
         {
-            get { return _blogDescription ?? (_blogDescription = Content.GetPropertyValue<string>("blogDescription", true)); }
+            get { return _blogDescription ?? (_blogDescription = base.Unwrap().Value<string>("blogDescription", fallback: Fallback.ToAncestors)); }
             protected set { _blogDescription = value; }
         }
 
@@ -138,7 +138,7 @@ namespace Articulate.Models
             {
                 if (_pageSize.HasValue == false)
                 {
-                    _pageSize = Content.GetPropertyValue<int>("pageSize", true, 10);
+                    _pageSize = base.Unwrap().Value<int>("pageSize", fallback: Fallback.To(Fallback.Ancestors, Fallback.DefaultValue), defaultValue: 10);
                 }
                 return _pageSize.Value;
             }

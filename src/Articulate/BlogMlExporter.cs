@@ -12,19 +12,22 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
+using Umbraco.Core.Composing;
+using Umbraco.Core.Services;
+using Umbraco.Core.PropertyEditors;
 
 namespace Articulate
 {
     public class BlogMlExporter
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ApplicationContext _applicationContext;
+        //private readonly ApplicationContext _applicationContext;
         private readonly UmbracoContext _umbracoContext;
 
         public BlogMlExporter(UmbracoContext umbracoContext, IFileSystem fileSystem)
         {
             _umbracoContext = umbracoContext;
-            _applicationContext = _umbracoContext.Application;
+            //_applicationContext = _umbracoContext.Application;
             _fileSystem = fileSystem;
         }
 
@@ -32,7 +35,7 @@ namespace Articulate
             string fileName,
             int blogRootNode)
         {
-            var root = _applicationContext.Services.ContentService.GetById(blogRootNode);
+            var root = Current.Services.ContentService.GetById(blogRootNode);
             if (root == null)
             {
                 throw new InvalidOperationException("No node found with id " + blogRootNode);
@@ -42,35 +45,35 @@ namespace Articulate
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
             }
 
-            var postType = _applicationContext.Services.ContentTypeService.GetContentType("ArticulateRichText");
+            var postType = Current.Services.ContentTypeService.Get("ArticulateRichText");
             if (postType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
+            
+            var archiveContentType = Current.Services.ContentTypeService.Get("ArticulateArchive");
+            var archiveNodes = Current.Services.ContentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
 
-            var children = root.Children().ToArray();
+            var authorsContentType = Current.Services.ContentTypeService.Get("ArticulateAuthors");
+            var authorsNodes = Current.Services.ContentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
 
-            var archiveNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive")).ToArray();
-            var authorsNodes = children.Where(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors")).ToArray();
-            if (archiveNodes.Length == 0)
+            if (totalArchive == 0)
             {
                 throw new InvalidOperationException("No ArticulateArchive found under the blog root node");
             }
-            if (authorsNodes.Length == 0)
+
+            if (totalAuthors == 0)
             {
                 throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
             }
-            var categoryDataType = _applicationContext.Services.DataTypeService.GetDataTypeDefinitionByName("Articulate Categories");
+
+            var categoryDataType = Current.Services.DataTypeService.GetDataType("Articulate Categories");
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
             }
-            var categoryDtPreVals = _applicationContext.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(categoryDataType.Id);
-            if (categoryDtPreVals == null)
-            {
-                throw new InvalidOperationException("No pre values for Articulate Categories data type found");
-            }
-            var tagGroup = categoryDtPreVals.PreValuesAsDictionary["group"];
+            
+            var tagConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
 
             //TODO: See: http://argotic.codeplex.com/wikipage?title=Generating%20portable%20web%20log%20content&referringTitle=Home
 
@@ -86,10 +89,10 @@ namespace Articulate
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
-            AddBlogCategories(blogMlDoc, tagGroup.Value);
+            AddBlogCategories(blogMlDoc, tagConfiguration.Group);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, tagGroup.Value);
+                AddBlogPosts(archiveNode, blogMlDoc, tagConfiguration.Group);
             }
             WriteFile(blogMlDoc);
         }
@@ -109,7 +112,7 @@ namespace Articulate
 
         private void AddBlogCategories(BlogMLDocument blogMlDoc, string tagGroup)
         {
-            var categories = _applicationContext.Services.TagService.GetAllContentTags(tagGroup);
+            var categories = Current.Services.TagService.GetAllContentTags(tagGroup);
             foreach (var category in categories)
             {
                 if (category.NodeCount == 0) continue;
@@ -127,7 +130,7 @@ namespace Articulate
 
         private void AddBlogAuthors(IContent authorsNode, BlogMLDocument blogMlDoc)
         {
-            foreach (var author in _applicationContext.Services.ContentService.GetChildren(authorsNode.Id))
+            foreach (var author in Current.Services.ContentService.GetPagedChildren(authorsNode.Id, 0, int.MaxValue, out long totalAuthors))
             {
                 var blogMlAuthor = new BlogMLAuthor();
                 blogMlAuthor.Id = author.Key.ToString();
@@ -146,7 +149,7 @@ namespace Articulate
             IContent[] posts;
             do
             {
-                posts = _applicationContext.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _, "createDate").ToArray();
+                posts = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _ , ordering: Ordering.By("createDate")).ToArray();
 
                 foreach (var child in posts)
                 {
@@ -185,7 +188,7 @@ namespace Articulate
                         blogMlPost.Authors.Add(author.Id);
                     }
 
-                    var categories = _applicationContext.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
+                    var categories = Current.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
                     foreach (var category in categories)
                     {
                         blogMlPost.Categories.Add(category.Id.ToString());
@@ -219,7 +222,7 @@ namespace Articulate
                         }
                         catch (Exception ex)
                         {
-                            LogHelper.Error<BlogMlExporter>("Could not add the file to the blogML post attachments", ex);
+                            Current.Logger.Error<BlogMlExporter>(ex, "Could not add the file to the blogML post attachments");
                         }
                     }
 

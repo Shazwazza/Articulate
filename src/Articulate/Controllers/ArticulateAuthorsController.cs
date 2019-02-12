@@ -10,7 +10,7 @@ namespace Articulate.Controllers
 #endif
     public class ArticulateAuthorsController : RenderMvcController
     {
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             var authorList = new AuthorListModel(model.Content);
             authorList.Authors = Umbraco.GetContentByAuthors(authorList);

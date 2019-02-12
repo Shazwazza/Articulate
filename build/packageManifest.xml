@@ -1318,17 +1318,5 @@ Supporting all the features you'd want in a blogging platform:
   </DataTypes>
   <control>~/App_Plugins/Articulate/BackOffice/Installer.ascx</control>
   <Actions>
-    <Action runat="install" undo="true" alias="articulateAddDashboardSection" dashboardAlias="ArticulateDashboard">
-      <section alias="Articulate Management">
-        <areas>
-          <area>developer</area>
-        </areas>
-        <tab caption="Articulate Management">
-          <control showOnce="false" addPanel="true" panelCaption="">
-            ~/App_Plugins/Articulate/BackOffice/Dashboards/ArticulateMgmt.html
-          </control>
-        </tab>
-      </section>
-    </Action>
   </Actions>
 </umbPackage>

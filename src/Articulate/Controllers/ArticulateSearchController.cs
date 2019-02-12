@@ -3,7 +3,12 @@ using System;
 using System.Linq;
 using System.Web.Mvc;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -21,17 +26,12 @@ namespace Articulate.Controllers
         {
         }
 
-        public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
+        public ArticulateSearchController(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, CacheHelper applicationCache, ILogger logger, IProfilingLogger profilingLogger, IArticulateSearcher articulateSearcher) 
+            : base(globalSettings, umbracoContext, services, applicationCache, logger, profilingLogger)
         {
             if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
             _articulateSearcher = articulateSearcher;
-        }
-
-        public ArticulateSearchController(UmbracoContext umbracoContext, IArticulateSearcher articulateSearcher) : base(umbracoContext)
-        {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
-            _articulateSearcher = articulateSearcher;
-        }
+        }        
 
         protected IArticulateSearcher ArticulateSearcher => _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco));
 
@@ -47,12 +47,12 @@ namespace Articulate.Controllers
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Search(RenderModel model, string term, string provider = null, int? p = null)
+        public ActionResult Search(ContentModel model, string term, string provider = null, int? p = null)
         {
             var searchPage = model.Content as ArticulateVirtualPage;
             if (searchPage == null)
             {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
+                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
             //create a master model

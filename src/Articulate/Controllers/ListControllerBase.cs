@@ -4,7 +4,12 @@ using System.Text;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -16,19 +21,16 @@ namespace Articulate.Controllers
     /// </summary>
     public abstract class ListControllerBase : RenderMvcController
     {
+
         protected ListControllerBase()
         {
         }
 
-        protected ListControllerBase(UmbracoContext umbracoContext)
-            : base(umbracoContext)
+        public ListControllerBase(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, CacheHelper applicationCache, ILogger logger, IProfilingLogger profilingLogger) 
+            : base(globalSettings, umbracoContext, services, applicationCache, logger, profilingLogger)
         {
         }
-
-        protected ListControllerBase(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper)
-            : base(umbracoContext, umbracoHelper)
-        {
-        }
+        
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model

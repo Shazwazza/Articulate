@@ -14,12 +14,12 @@ namespace Articulate.Controls
         {
             base.OnInit(e);
 
-            var dataInstaller = new ArticulateDataInstaller(Services, Security.CurrentUser.Id);
+            var dataInstaller = new ArticulateDataInstaller(Security.CurrentUser.Id);
             var root = dataInstaller.Execute(out bool packageInstalled);
 
             if (root != null)
             {
-                BlogUrl = Umbraco.TypedContent(root.Id).Url;
+                BlogUrl = Umbraco.Content(root.Id).Url;
             }
             else
             {

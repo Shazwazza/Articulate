@@ -11,13 +11,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
-using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Services;
 using Umbraco.Web;
+using Umbraco.Web.Actions;
+using Umbraco.Web.Composing;
 using Umbraco.Web.WebApi;
 using File = System.IO.File;
 
@@ -75,7 +76,7 @@ namespace Articulate.Controllers
                 extractFirstImageAsProperty = articulateNode.GetValue<bool>("extractFirstImage");
             }
 
-            var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
+            var archive = Services.ContentService.GetPagedChildren(model.ArticulateNodeId.Value, 0, int.MaxValue, out long totalArchiveNodes)                
                 .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             if (archive == null)
             {
@@ -83,7 +84,7 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate Archive node found for the specified id"));
             }
 
-            var list = new List<char> { ActionNew.Instance.Letter, ActionUpdate.Instance.Letter };
+            var list = new List<char> { ActionNew.ActionLetter, ActionUpdate.ActionLetter };
             var hasPermission = CheckPermissions(Security.CurrentUser, Services.UserService, list.ToArray(), archive);
             if (hasPermission == false)
             {
@@ -98,9 +99,9 @@ namespace Articulate.Controllers
 
             var content = Services.ContentService.CreateContent(
                 model.Title,
-                archive.Id,
+                archive.GetUdi(),
                 "ArticulateMarkdown",
-                Security.GetUserId());
+                Current.UmbracoContext.Security.GetUserId().Result);
 
             content.SetValue("markdown", model.Body);
 
@@ -117,13 +118,13 @@ namespace Articulate.Controllers
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("tags", tags, true, "ArticulateTags");
+                content.AssignTags("tags", tags, true, "ArticulateTags");
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("categories", cats, true, "ArticulateCategories");
+                content.AssignTags("categories", cats, true, "ArticulateCategories");
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
@@ -131,22 +132,22 @@ namespace Articulate.Controllers
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
-            var status = Services.ContentService.SaveAndPublishWithStatus(content, Security.GetUserId());
+            var status = Services.ContentService.SaveAndPublish(content, userId: Current.UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)
             {
                 CleanFiles(multiPartRequest);
 
-                ModelState.AddModelError("server", "Publishing failed: " + status.Result.StatusType);
+                ModelState.AddModelError("server", "Publishing failed: " + status.Result);
                 //probably  need to send back more info than that...
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
 
-            var published = Umbraco.TypedContent(content.Id);
+            var published = Umbraco.Content(content.Id);
 
             CleanFiles(multiPartRequest);
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(published.UrlWithDomain(), Encoding.UTF8, "text/html");
+            response.Content = new StringContent(published.Url, Encoding.UTF8, "text/html");
             return response;
         }
 
@@ -173,17 +174,20 @@ namespace Articulate.Controllers
 
                     using (var stream = File.OpenRead(file.LocalFileName))
                     {
-                        var savedFile = UmbracoMediaFile.Save(stream, "articulate/" + rndId + "/" +
-                                                                      file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\""));
+                        var fileUrl = "articulate/" + rndId + "/" + file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\"");
 
+                        //TODO: WB - MediaFileSystem not in Umbraco.Web.Composing.Current
+                        //TODO: WB - We may need to query MediaFS to get the image we just added media url path?!
+                        global::Umbraco.Core.Composing.Current.MediaFileSystem.AddFile(fileUrl, stream);
+                        
                         var result = string.Format("![{0}]({1})",
-                            savedFile.Url,
-                            savedFile.Url
+                            fileUrl,
+                            fileUrl
                         );
 
                         if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
                         {
-                            firstImage = savedFile.Url;
+                            firstImage = fileUrl;
                             //in this case, we've extracted the image, we don't want it to be displayed
                             // in the content too so don't return it.
                             return string.Empty;

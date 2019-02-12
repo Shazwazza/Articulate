@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate.Models
@@ -35,7 +36,7 @@ namespace Articulate.Models
 
             _pager = pager;
             _listItems = listItems;
-            if (content.DocumentTypeAlias.Equals("ArticulateArchive"))
+            if (content.ContentType.Alias.Equals("ArticulateArchive"))
                 PageTitle = BlogTitle + " - " + BlogDescription;
             else
                 PageTags = Name;

@@ -23,7 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1
 		..\build\Articulate.nuspec = ..\build\Articulate.nuspec
 		..\build\build.ps1 = ..\build\build.ps1
 		..\build\createdPackages.config = ..\build\createdPackages.config
-		..\build\dashboard.config.install.xdt = ..\build\dashboard.config.install.xdt
 		..\build\packageManifest.xml = ..\build\packageManifest.xml
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection

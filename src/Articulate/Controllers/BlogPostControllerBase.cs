@@ -7,7 +7,7 @@ namespace Articulate.Controllers
 {
     public abstract class BlogPostControllerBase : RenderMvcController
     {
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             var post = new PostModel(model.Content);
             return View(PathHelper.GetThemeViewPath(post, "Post"), post);

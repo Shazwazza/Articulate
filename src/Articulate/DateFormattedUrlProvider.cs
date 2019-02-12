@@ -1,5 +1,8 @@
 ﻿using System;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Configuration.UmbracoSettings;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
@@ -7,32 +10,34 @@ namespace Articulate
 {
     public class DateFormattedUrlProvider : DefaultUrlProvider
     {
-        public DateFormattedUrlProvider() : base(UmbracoConfig.For.UmbracoSettings().RequestHandler) { }
-
-        public override string GetUrl(UmbracoContext umbracoContext, int id, Uri current, UrlProviderMode mode)
+        public DateFormattedUrlProvider(IRequestHandlerSection requestSettings, ILogger logger, IGlobalSettings globalSettings, ISiteDomainHelper siteDomainHelper) 
+            : base(requestSettings, logger, globalSettings, siteDomainHelper)
         {
-            var content = umbracoContext.ContentCache.GetById(id);
+        }
 
-            if (content != null && (content.DocumentTypeAlias == "ArticulateRichText" || content.DocumentTypeAlias == "ArticulateMarkdown") && content.Parent != null)
+        public override UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlProviderMode mode, string culture, Uri current)
+        {
+            if (content != null && (content.ContentType.Alias == "ArticulateRichText" || content.ContentType.Alias == "ArticulateMarkdown") && content.Parent != null)
             {
                 if (content.Parent.Parent != null)
                 {
-                    var useDateFormat = content.Parent.Parent.GetPropertyValue<bool>("useDateFormatForUrl");
+                    var useDateFormat = content.Parent.Parent.Value<bool>("useDateFormatForUrl");
                     if (!useDateFormat)
                         return null;
                 }
 
-                var date = content.GetPropertyValue<DateTime>("publishedDate");
+                var date = content.Value<DateTime>("publishedDate");
                 if (date != null)
                 {
-                    var parentPath = base.GetUrl(umbracoContext, content.Parent.Id, current, mode);
-                    var urlFolder = String.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
-                    var newUrl = parentPath + urlFolder + "/" + content.UrlName;
-                    return newUrl;
+                    var parentPath = base.GetUrl(umbracoContext, content, mode, culture, current);
+                    var urlFolder = string.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
+                    var newUrl = parentPath + urlFolder + "/" + content.Url;
+
+                    return UrlInfo.Url(newUrl, culture);
                 }
             }
+
             return null;
         }
-
     }
 }

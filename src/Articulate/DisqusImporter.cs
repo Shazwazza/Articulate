@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
 
 namespace Articulate
@@ -93,7 +94,7 @@ namespace Articulate
                 {
                     var result = resp.ReadToEnd();
 
-                    LogHelper.Error<BlogMlImporter>("Importing comment failed", new Exception(result));
+                    Current.Logger.Error<BlogMlImporter>(new Exception(result), "Importing comment failed");
 
                     var obj = (JObject)JsonConvert.DeserializeObject(result);
                     throw;

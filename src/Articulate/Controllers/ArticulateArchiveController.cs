@@ -11,11 +11,12 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateArchiveController : RenderMvcController
     {
-        public override ActionResult Index(RenderModel model)
+
+        public override ActionResult Index(ContentModel model)
         {
             var root = new MasterModel(model.Content);
 
-            if (root.RootBlogNode.GetPropertyValue<bool>("redirectArchive"))
+            if (root.RootBlogNode.Value<bool>("redirectArchive"))
             {
                 return RedirectPermanent(root.RootBlogNode.Url);
             }
