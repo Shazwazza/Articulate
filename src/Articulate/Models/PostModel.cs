@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using Articulate.Options;
 using CookComputing.XmlRpc;
+using HeyRed.MarkdownSharp;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
@@ -116,10 +117,8 @@ namespace Articulate.Models
                 }
                 else
                 {
-                    var val = this.Value<string>("markdown");
-                    var md = new MarkdownDeep.Markdown();
-                    Current.Configs.Articulate().MarkdownDeepOptionsCallBack(md);
-                    return new MvcHtmlString(md.Transform(val));                    
+                    var val = this.Value<IHtmlString>("markdown");
+                    return val;
                 }
                 
             }

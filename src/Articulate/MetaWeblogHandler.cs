@@ -12,6 +12,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
@@ -359,7 +360,7 @@ namespace Articulate
                 Categories = post.GetValue<string>("categories").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
                 Content = post.ContentType.Alias == "ArticulateRichText"
                     ? post.GetValue<string>("richText")
-                    : new MarkdownDeep.Markdown().Transform(post.GetValue<string>("markdown")),
+                    : post.GetValue<IHtmlString>("markdown")?.ToString(),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
                 Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()

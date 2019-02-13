@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Xml.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
@@ -39,8 +40,6 @@ namespace Articulate
                     new XAttribute(XNamespace.Xmlns + "wp", nsWp),
                     xChannel));
             
-            var markDown = new MarkdownDeep.Markdown();
-
             foreach (var post in posts)
             {
                 var blogMlPost = document.Posts.FirstOrDefault(x => x.Title.Content == post.Name);
@@ -54,7 +53,7 @@ namespace Articulate
                 var body = post.GetValue<string>("richText");
                 if (body.IsNullOrWhiteSpace())
                 {
-                    body = markDown.Transform(post.GetValue<string>("markdown"));
+                    body = post.GetValue<IHtmlString>("markdown")?.ToString();
                 }
 
                 var xItem = new XElement("item",

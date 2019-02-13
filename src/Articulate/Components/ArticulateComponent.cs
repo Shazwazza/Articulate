@@ -137,9 +137,7 @@ namespace Articulate.Components
                         }
                         else
                         {
-                            var val = c.GetValue<string>("markdown");
-                            var md = new MarkdownDeep.Markdown();
-                            val = md.Transform(val);
+                            var val = c.GetValue<IHtmlString>("markdown")?.ToString();
                             c.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
                         }
                     }

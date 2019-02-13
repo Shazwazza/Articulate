@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core;
@@ -169,9 +170,7 @@ namespace Articulate
                     }
                     else if (child.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
-                        content = child.GetValue<string>("markdown");
-                        var markdown = new MarkdownDeep.Markdown();
-                        content = markdown.Transform(content);
+                        content = child.GetValue<IHtmlString>("markdown")?.ToString();
                     }
 
                     var postUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
