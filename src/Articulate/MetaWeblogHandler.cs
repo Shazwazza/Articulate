@@ -388,10 +388,10 @@ namespace Articulate
 
         private static MembershipProvider GetUsersMembershipProvider()
         {
-            if (Membership.Providers[Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider] == null)
-                throw new InvalidOperationException("No membership provider found with name " + Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider);
+            if (Membership.Providers[Constants.Security.UserMembershipProviderName] == null)
+                throw new InvalidOperationException("No membership provider found with name " + Constants.Security.UserMembershipProviderName);
 
-            return Membership.Providers[Current.Configs.Settings().Providers.DefaultBackOfficeUserProvider];
+            return Membership.Providers[Constants.Security.UserMembershipProviderName];
         }
 
         public IHttpHandler GetHttpHandler(RequestContext requestContext)

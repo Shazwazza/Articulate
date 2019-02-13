@@ -6,6 +6,6 @@ namespace Articulate
 {
     public interface IArticulateSearcher
     {
-        IEnumerable<IPublishedContent> Search(string term, string provider, int blogArchiveNodeId, int pageSize, int pageIndex, out int totalResults);
+        IEnumerable<IPublishedContent> Search(string term, string searcherName, int blogArchiveNodeId, int pageSize, int pageIndex, out long totalResults);
     }
 }

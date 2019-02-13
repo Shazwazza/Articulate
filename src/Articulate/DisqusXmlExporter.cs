@@ -11,8 +11,16 @@ using Umbraco.Web;
 
 namespace Articulate
 {
-    internal class DisqusXmlExporter
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class DisqusXmlExporter
     {
+        private readonly UmbracoHelper _umbracoHelper;
+
+        public DisqusXmlExporter(UmbracoHelper umbracoHelper)
+        {
+            _umbracoHelper = umbracoHelper;
+        }
+
         public XDocument Export(IEnumerable<IContent> posts, BlogMLDocument document)
         {
             var nsContent = XNamespace.Get("http://purl.org/rss/1.0/modules/content/");
@@ -30,8 +38,7 @@ namespace Articulate
                     new XAttribute(XNamespace.Xmlns + "dc", nsDc),
                     new XAttribute(XNamespace.Xmlns + "wp", nsWp),
                     xChannel));
-
-            var umbHelper = new UmbracoHelper(UmbracoContext.Current, Current.Services);
+            
             var markDown = new MarkdownDeep.Markdown();
 
             foreach (var post in posts)
@@ -52,7 +59,7 @@ namespace Articulate
 
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
-                    new XElement("link", umbHelper.UrlAbsolute(post.Id)),
+                    new XElement("link", _umbracoHelper.UrlAbsolute(post.Id)),
                     new XElement(nsContent + "encoded", new XCData(body)),
                     new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),

@@ -20,20 +20,12 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateSearchController : ListControllerBase
     {
-        private IArticulateSearcher _articulateSearcher;
-
-        public ArticulateSearchController()
+        public ArticulateSearchController(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
         {
+            ArticulateSearcher = articulateSearcher;
         }
 
-        public ArticulateSearchController(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, CacheHelper applicationCache, ILogger logger, IProfilingLogger profilingLogger, IArticulateSearcher articulateSearcher) 
-            : base(globalSettings, umbracoContext, services, applicationCache, logger, profilingLogger)
-        {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
-            _articulateSearcher = articulateSearcher;
-        }        
-
-        protected IArticulateSearcher ArticulateSearcher => _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco));
+        private IArticulateSearcher ArticulateSearcher { get; }
 
         /// <summary>
         /// Used to render the search result listing (virtual node)
@@ -43,7 +35,7 @@ namespace Articulate.Controllers
         /// The search term
         /// </param>
         /// <param name="provider">
-        /// The search provider name (optional)
+        /// The searcher name (optional)
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>

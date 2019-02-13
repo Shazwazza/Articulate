@@ -14,11 +14,19 @@ namespace Articulate
 {
     public class ArticulateDataInstaller
     {
-        private readonly int _userId;
+        private readonly IContentTypeService _contentTypeService;
+        private readonly IContentService _contentService;
+        private readonly IPackagingService _packagingService;
+        private readonly IDataTypeService _dataTypeService;
+        private readonly ILogger _logger;
 
-        public ArticulateDataInstaller(int userId)
+        public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService, IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger)
         {
-            _userId = userId;
+            _contentTypeService = contentTypeService;
+            _contentService = contentService;
+            _packagingService = packagingService;
+            _dataTypeService = dataTypeService;
+            _logger = logger;
         }
         
         public IContent Execute(out bool packageInstalled)
@@ -28,7 +36,7 @@ namespace Articulate
             //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
             // the number of crops required. 
 
-            var articulateContentType = Current.Services.ContentTypeService.Get("Articulate");
+            var articulateContentType = _contentTypeService.Get("Articulate");
 
             if (articulateContentType == null)
             {
@@ -38,7 +46,7 @@ namespace Articulate
 
             Upgrade();
 
-            var root = Current.Services.ContentService.GetPagedOfType(articulateContentType.Id, 0, int.MaxValue, out long totalRoots, null).FirstOrDefault();
+            var root = _contentService.GetPagedOfType(articulateContentType.Id, 0, int.MaxValue, out long totalRoots, null).FirstOrDefault();
             if (root == null)
             {
                 return InstallContent();
@@ -47,12 +55,8 @@ namespace Articulate
             return null;
         }
 
-        //TODO: WB still to tidy up - need to chat with Shan
         private bool InstallPackage()
         {
-            //check if it's already installed
-            //var allInstalled = InstalledPackage.GetAllInstalledPackages();
-
             //need to save the package manifest to a temp folder since that is how this package installer logic works
             var tempFile = Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "package.xml");
             var tempDir = Path.GetDirectoryName(tempFile);
@@ -60,30 +64,32 @@ namespace Articulate
 
             try
             {
+                //TODO: If we want to support this we need to write a Zip file with this inside of it and then we can use _packagingService.GetCompiledPackageInfo() on the zip file
                 System.IO.File.WriteAllText(tempFile, ArticulateResources.packageManifest);
-                var ins = new global::umbraco.cms.businesslogic.packager.Installer(_userId);
                 
-                ins.LoadConfig(tempDir);
+                //_packagingService.GetCompiledPackageInfo()
+                //ins.LoadConfig(tempDir);
+                throw new NotImplementedException();
 
-                int packageId;
-                bool sameVersion;
-                if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
-                {
-                    //if it's the same version, we don't need to install anything
-                    if (!sameVersion)
-                    {
-                        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-                        ins.InstallBusinessLogic(pckId, tempDir);
-                        return true;
-                    }
-                    return false;
-                }
-                else
-                {
-                    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-                    ins.InstallBusinessLogic(pckId, tempDir);
-                    return true;
-                }
+                //int packageId;
+                //bool sameVersion;
+                //if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
+                //{
+                //    //if it's the same version, we don't need to install anything
+                //    if (!sameVersion)
+                //    {
+                //        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+                //        ins.InstallBusinessLogic(pckId, tempDir);
+                //        return true;
+                //    }
+                //    return false;
+                //}
+                //else
+                //{
+                //    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+                //    ins.InstallBusinessLogic(pckId, tempDir);
+                //    return true;
+                //}
             }
             finally
             {
@@ -101,7 +107,7 @@ namespace Articulate
         //borrowed from Core
         private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
         {
-            var allInstalled = Current.Services.PackagingService.GetAllInstalledPackages();
+            var allInstalled = _packagingService.GetAllInstalledPackages();
             var found = allInstalled.Where(x => x.Name == name).ToArray();
             sameVersion = false;
 
@@ -143,7 +149,7 @@ namespace Articulate
             //For v3.0 we need to manually add some pre-values to the Articulate Cropper,
             // https://github.com/Shazwazza/Articulate/issues/202
 
-            var cropperDt = Current.Services.DataTypeService.GetDataType("Articulate Cropper");
+            var cropperDt = _dataTypeService.GetDataType("Articulate Cropper");
             if (cropperDt != null)
             {
                 if (cropperDt.EditorAlias.InvariantEquals("Umbraco.ImageCropper"))
@@ -161,7 +167,7 @@ namespace Articulate
                         if (preVals.Crops == null || preVals.Crops.Length == 0)
                         {
                             preVals.Crops = crops;
-                            Current.Services.DataTypeService.Save(cropperDt);
+                            _dataTypeService.Save(cropperDt);
                         }
                         else
                         {
@@ -183,7 +189,7 @@ namespace Articulate
                             }
 
                             preVals.Crops = crops;
-                            Current.Services.DataTypeService.Save(cropperDt);
+                            _dataTypeService.Save(cropperDt);
                         }                        
                     }
                 }
@@ -193,8 +199,8 @@ namespace Articulate
         private IContent InstallContent()
         {
             //Create the root node - this will automatically create the authors and archive nodes
-            Current.Logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = Current.Services.ContentService.CreateContent(
+            _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
+            var root = _contentService.CreateContent(
                 "Blog", Udi.Create(Constants.UdiEntityType.Document, Constants.System.RootString), "Articulate");
             root.SetValue("theme", "VAPOR");
             root.SetValue("blogTitle", "Articulate Blog");
@@ -204,28 +210,28 @@ namespace Articulate
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 
-            Current.Services.ContentService.SaveAndPublish(root);
+            _contentService.SaveAndPublish(root);
 
             //get the authors and archive nodes and publish them
-            Current.Logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
-            var children = Current.Services.ContentService.GetPagedChildren(root.Id, 0, int.MaxValue, out long totalChildren);
+            _logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
+            var children = _contentService.GetPagedChildren(root.Id, 0, int.MaxValue, out long totalChildren);
             var authors = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
             var archive = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            Current.Services.ContentService.SaveAndPublish(authors);
-            Current.Services.ContentService.SaveAndPublish(archive);
+            _contentService.SaveAndPublish(authors);
+            _contentService.SaveAndPublish(archive);
 
             //Create the author
-            Current.Logger.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = Current.Services.ContentService.CreateContent(
+            _logger.Info<ArticulateDataInstaller>("Creating demo author");
+            var author = _contentService.CreateContent(
                 "Demo author", authors.GetUdi(), "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
-            Current.Services.ContentService.SaveAndPublish(author);
+            _contentService.SaveAndPublish(author);
 
             //Create a test post
-            Current.Logger.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = Current.Services.ContentService.CreateContent(
+            _logger.Info<ArticulateDataInstaller>("Creating test blog post");
+            var post = _contentService.CreateContent(
                 "Test post", archive.GetUdi(), "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
@@ -263,7 +269,7 @@ You can post directly from your mobile (including images and photos). This edito
 http://yoursiteurl.com/a-new
 
 Enjoy!");
-            Current.Services.ContentService.SaveAndPublish(post);
+            _contentService.SaveAndPublish(post);
 
             return root;
         }

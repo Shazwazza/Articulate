@@ -8,9 +8,9 @@ namespace Articulate
 {
     public static class JsonFeedHelper
     {
-        public static JArray GetResult(IRuntimeCacheProvider cache, string url)
+        public static JArray GetResult(AppCaches cache, string url)
         {
-            return (JArray)cache.GetCacheItem(url, () =>
+            return (JArray)cache.RuntimeCache.Get(url, () =>
             {
                 using (var client = new HttpClient())
                 {

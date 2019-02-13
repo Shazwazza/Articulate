@@ -85,11 +85,8 @@ namespace Articulate
                         return null;
                     }
                 }
-                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost")
-                    && ! Current.Configs.Settings().RequestHandler.UseDomainPrefixes)
+                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost"))
                 {
-                    //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
-
                     var found = _hostsAndIds.FirstOrDefault(x => x.Item1 == string.Empty);
                     if (found != null)
                     {

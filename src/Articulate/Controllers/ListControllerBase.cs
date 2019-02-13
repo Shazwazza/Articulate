@@ -21,21 +21,19 @@ namespace Articulate.Controllers
     /// </summary>
     public abstract class ListControllerBase : RenderMvcController
     {
-
         protected ListControllerBase()
         {
         }
 
-        public ListControllerBase(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, CacheHelper applicationCache, ILogger logger, IProfilingLogger profilingLogger) 
-            : base(globalSettings, umbracoContext, services, applicationCache, logger, profilingLogger)
+        protected ListControllerBase(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
         {
         }
-        
+
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
         /// </summary>
-        protected ActionResult GetPagedListView(IMasterModel masterModel, IPublishedContent pageNode, IEnumerable<IPublishedContent> listItems, int totalPosts, int? p)
+        protected ActionResult GetPagedListView(IMasterModel masterModel, IPublishedContent pageNode, IEnumerable<IPublishedContent> listItems, long totalPosts, int? p)
         {
             if (masterModel == null) throw new ArgumentNullException(nameof(masterModel));
             if (pageNode == null) throw new ArgumentNullException(nameof(pageNode));
@@ -51,7 +49,7 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
 
-        protected bool GetPagerModel(IMasterModel masterModel, int totalPosts, int? p, out PagerModel pager)
+        protected bool GetPagerModel(IMasterModel masterModel, long totalPosts, int? p, out PagerModel pager)
         {
             if (p == null || p.Value <= 0)
             {

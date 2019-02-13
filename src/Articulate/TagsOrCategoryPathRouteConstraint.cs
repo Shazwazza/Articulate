@@ -77,8 +77,7 @@ namespace Articulate
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
-                                                  //TODO: Why is this checking for UseDomainPrefixes + localhost? I can't figure that part out (even though i wrote that)
-                    : httpContext.Request.Url.Host.InvariantEquals("localhost") && !Current.Configs.Settings().RequestHandler.UseDomainPrefixes
+                    : httpContext.Request.Url.Host.InvariantEquals("localhost")
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }

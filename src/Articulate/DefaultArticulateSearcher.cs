@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Examine;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -11,15 +12,16 @@ namespace Articulate
 {
     public class DefaultArticulateSearcher : IArticulateSearcher
     {
-        private readonly UmbracoHelper _umbracoHelper;
+        private readonly UmbracoContext _umbracoContext;
+        private readonly IExamineManager _examineManager;
 
-        public DefaultArticulateSearcher(UmbracoHelper umbracoHelper)
+        public DefaultArticulateSearcher(UmbracoContext umbracoContext, IExamineManager examineManager)
         {
-            if (umbracoHelper == null) throw new ArgumentNullException(nameof(umbracoHelper));
-            _umbracoHelper = umbracoHelper;
+            _umbracoContext = umbracoContext ?? throw new ArgumentNullException(nameof(umbracoContext));
+            _examineManager = examineManager;
         }
 
-        public IEnumerable<IPublishedContent> Search(string term, string provider, int blogArchiveNodeId, int pageSize, int pageIndex, out int totalResults)
+        public IEnumerable<IPublishedContent> Search(string term, string searcherName, int blogArchiveNodeId, int pageSize, int pageIndex, out long totalResults)
         {
             var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -60,31 +62,22 @@ namespace Articulate
                 }
             }
 
-            var criteria = provider == null
-                ? ExamineManager.Instance.CreateSearchCriteria()
-                : ExamineManager.Instance.SearchProviderCollection[provider].CreateSearchCriteria();
+            searcherName = searcherName.IsNullOrWhiteSpace() ? Constants.UmbracoIndexes.ExternalIndexName : searcherName;
 
-            criteria.RawQuery($"+parentID:{blogArchiveNodeId} +({fieldQuery})");
+            if (!_examineManager.TryGetSearcher(searcherName, out var searcher))
+                throw new InvalidOperationException("No searcher found by name " + searcherName);
 
-            var searchProvider = provider == null
-                ? ExamineManager.Instance.DefaultSearchProvider
-                : ExamineManager.Instance.SearchProviderCollection[provider];
+            var criteria = searcher.CreateQuery().NativeQuery($"+parentID:{blogArchiveNodeId} +({fieldQuery})");
 
-            var searchResult = searchProvider.Search(criteria, 
+            var searchResult = criteria.Execute(
                 //don't return more results than we need for the paging
                 pageSize*(pageIndex + 1));
 
-            //TODO: Wait until Umbraco 7.5.7 is out so this is public, for now we'll use reflection
-
-            var examineExtensionsType = typeof(UmbracoContext).Assembly.GetType("Umbraco.Web.ExamineExtensions");
-            var result = (IEnumerable<IPublishedContent>)examineExtensionsType.CallStaticMethod(
-                "ConvertSearchResultToPublishedContent", 
-                searchResult.Skip(pageIndex*pageSize),
-                _umbracoHelper.UmbracoContext.ContentCache);
+            var result = searchResult.ToPublishedSearchResults(_umbracoContext.PublishedSnapshot.Content);
 
             totalResults = searchResult.TotalItemCount;
 
-            return result;
+            return result.Select(x => x.Content);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Articulate.Controllers
     /// <summary>
     /// Tree for displaying partial views in the settings app
     /// </summary>
-    [Tree(Constants.Applications.Settings, "articulatethemes", "Articulate Themes", sortOrder: 100)]
+    [Tree(Constants.Applications.Settings, "articulatethemes", TreeTitle = "Articulate Themes", SortOrder = 100)]
     [PluginController("Articulate")]
     public class ThemeTreeController : FileSystemTreeController
     {

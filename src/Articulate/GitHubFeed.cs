@@ -9,11 +9,11 @@ namespace Articulate
 {
     public sealed class GitHubFeed
     {
-        private readonly IRuntimeCacheProvider _cache;
+        private readonly AppCaches _cache;
         private readonly string _url;
         private readonly int _maxResults;
 
-        public GitHubFeed(IRuntimeCacheProvider cache, string feedUrl, int maxResults = 10)
+        public GitHubFeed(AppCaches cache, string feedUrl, int maxResults = 10)
         {
             _cache = cache;
             _url = feedUrl;
@@ -22,7 +22,7 @@ namespace Articulate
 
         public string[] GetResult()
         {
-            return (string[])_cache.GetCacheItem(typeof(GitHubFeed).ToString(), () =>
+            return (string[])_cache.RuntimeCache.Get(typeof(GitHubFeed).ToString(), () =>
             {
                 using (var client = new HttpClient())
                 {

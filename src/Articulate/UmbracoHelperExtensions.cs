@@ -20,25 +20,24 @@ namespace Articulate
     public static class UmbracoHelperExtensions
     {
         /// <summary>
-        /// A method that will return number of posts in an efficient way
+        /// A method that will return number of posts
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="articulateArchiveIds"></param>
         /// <returns></returns>
         public static int GetPostCount(this UmbracoHelper helper, params int[] articulateArchiveIds)
         {
-            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
-            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
-            var xPathChildren = $"//* [{ids}]/*[@isDoc]";
-            //get the count with XPath, this will be the fastest
-            var totalPosts = xPathNavigator
-                .Select(xPathChildren)
-                .Count;
+            var totalPosts = articulateArchiveIds
+                .Select(helper.Content)
+                .WhereNotNull()
+                .SelectMany(x => x.Descendants())
+                .Count();
+
             return totalPosts;
         }
 
         /// <summary>
-        /// A method that will return number of posts in an efficient way
+        /// A method that will return number of posts
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="authorName"></param>
@@ -46,13 +45,12 @@ namespace Articulate
         /// <returns></returns>
         public static int GetPostCount(this UmbracoHelper helper, string authorName, params int[] articulateArchiveIds)
         {
-            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
-            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
-            var xPathChildren = $"//* [{ids}]/*[@isDoc and author = '{authorName}']";
-            //get the count with XPath, this will be the fastest
-            var totalPosts = xPathNavigator
-                .Select(xPathChildren)
-                .Count;
+            var totalPosts = articulateArchiveIds
+                .Select(helper.Content)
+                .WhereNotNull()
+                .SelectMany(x => x.Descendants().Where(d => d.Value<string>("author") == authorName))
+                .Count();
+
             return totalPosts;
         }
 
@@ -67,42 +65,26 @@ namespace Articulate
         public static IEnumerable<IPublishedContent> GetPostsSortedByPublishedDate(
             this UmbracoHelper helper, 
             PagerModel pager,
-            Func<XPathNavigator, bool> filter,
+            Func<IPublishedContent, bool> filter,
             params int[] articulateArchiveIds)
         {
-            var xPathNavigator = helper.UmbracoContext.ContentCache.GetXPathNavigator(false);
-            var ids = string.Join(" or ", articulateArchiveIds.Select(x => $"@id={x}"));
-            var xPathChildren = $"//* [{ids}]/*[@isDoc]";
-
-            //Filter/Sort the children we're looking for with XML
-            var xmlListItems = xPathNavigator.Select(xPathChildren)
-                .Cast<XPathNavigator>();
-
+            var posts = articulateArchiveIds
+                .Select(helper.Content)
+                .WhereNotNull()
+                .SelectMany(x => x.Descendants());
+            
             //apply a filter if there is one
             if (filter != null)
             {
-                xmlListItems = xmlListItems.Where(filter);
+                posts = posts.Where(filter);
             }
 
             //now do the ordering
-            xmlListItems = xmlListItems.OrderByDescending(x =>
-                {
-                    var publishedDate = DateTime.MinValue;
-
-                    var xmlNode = x.SelectSingleNode("publishedDate [not(@isDoc)]");
-                    if (xmlNode == null)
-                        return publishedDate;
-
-                    publishedDate = xmlNode.ValueAsDateTime;
-                    return publishedDate;
-                })
+            posts = posts.OrderByDescending(x => x.Value<DateTime>("publishedDate"))
                 .Skip(pager.CurrentPageIndex * pager.PageSize)
                 .Take(pager.PageSize);
 
-            //Now we can select the IPublishedContent instances by Id
-            var listItems = helper.Content(xmlListItems.Select(x => int.Parse(x.GetAttribute("id", ""))));
-
-            return listItems;
+            return posts;
         }
 
         public static PostTagCollection GetPostTagCollection(this UmbracoHelper helper, IMasterModel masterModel)
@@ -319,28 +301,18 @@ namespace Articulate
             PostsByTagModel GetResult()
             {
                 var sqlTags = GetTagQuery("umbracoNode.id", masterModel, sqlSyntax);
-                if (sqlSyntax is MySqlSyntaxProvider)
-                {
-                    sqlTags.Where("cmsTags.tag = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
-                    {
-                        tagName = tag,
-                        tagGroup = tagGroup
-                    });
-                }
-                else
-                {
-                    //For whatever reason, SQLCE and even SQL SERVER are not willing to lookup 
-                    //tags with hyphens in them, it's super strange, so we force the tag column to be - what it already is!! what tha.
+                
+                //For whatever reason, SQLCE and even SQL SERVER are not willing to lookup 
+                //tags with hyphens in them, it's super strange, so we force the tag column to be - what it already is!! what tha.
 
-                    sqlTags.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
-                    {
-                        tagName = tag,
-                        tagGroup = tagGroup
-                    });
-                }                
+                sqlTags.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                {
+                    tagName = tag,
+                    tagGroup = tagGroup
+                });
 
                 //get the publishedDate property type id on the ArticulatePost content type
-                using(var scope = Current.ScopeProvider.CreateScope())
+                using (var scope = Current.ScopeProvider.CreateScope())
                 {
                     var publishedDatePropertyTypeId = scope.Database.ExecuteScalar<int>(@"SELECT cmsPropertyType.id FROM cmsContentType
 INNER JOIN cmsPropertyType ON cmsPropertyType.contentTypeId = cmsContentType.nodeId
@@ -392,12 +364,7 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
         {            
             var listNodeIds = listNodes.Select(x => x.Id).ToArray();           
 
-            var postWithAuthor = helper.GetPostsSortedByPublishedDate(pager, x =>
-            {
-                //filter by author
-                var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
-                return xmlNode != null && string.Equals(xmlNode.Value, authorName.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase);
-            }, listNodeIds);
+            var postWithAuthor = helper.GetPostsSortedByPublishedDate(pager, x => string.Equals(x.Value<string>("author"), authorName.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase), listNodeIds);
 
             var rootPageModel = new ListModel(listNodes[0], postWithAuthor, pager);
             return rootPageModel.Posts;
@@ -438,11 +405,12 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
                 var posts = helper.GetPostsSortedByPublishedDate(pager, x =>
                 {
                     //ensure there's an author and one that matches someone in the author list
-                    var xmlNode = x.SelectSingleNode("author [not(@isDoc)]");
-                    var hasName = xmlNode != null && authorNames.Contains(xmlNode.Value);
+
+                    var author = x.Value<string>("author");
+                    var hasName = author != null && authorNames.Contains(author);
                     if (hasName)
                     {
-                        postsWithAuthors[int.Parse(x.GetAttribute("id", ""))] = Tuple.Create(xmlNode.Value, authors.First(a => a.Name == xmlNode.Value));
+                        postsWithAuthors[x.Id] = Tuple.Create(author, authors.First(a => a.Name == author));
                     }
                     return hasName;
                 }, listNodeIds);

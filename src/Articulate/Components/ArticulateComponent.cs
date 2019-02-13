@@ -18,7 +18,7 @@ using Umbraco.Core.Services.Implement;
 using Umbraco.Core.Sync;
 using Umbraco.Web;
 using Umbraco.Web.Cache;
-using Umbraco.Web.UI.JavaScript;
+using Umbraco.Web.JavaScript;
 
 namespace Articulate.Components
 {
@@ -71,8 +71,8 @@ namespace Articulate.Components
         /// </remarks>
         private void App_PostRequestHandlerExecute(object sender, EventArgs e)
         {
-            if (Current.ApplicationCache == null) return;
-            if (Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes") == null) return;
+            if (Current.AppCaches == null) return;
+            if (Current.AppCaches.RequestCache.Get("articulate-refresh-routes") == null) return;
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
             ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
         }
@@ -221,7 +221,7 @@ namespace Articulate.Components
                     if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
-                        Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
 
@@ -235,7 +235,7 @@ namespace Articulate.Components
                     if (content.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
-                        Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
             }
@@ -244,7 +244,7 @@ namespace Articulate.Components
         private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, CacheRefresherEventArgs e)
         {
             //ensure routes are rebuilt
-            Current.ApplicationCache.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+            Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
         }
 
     }

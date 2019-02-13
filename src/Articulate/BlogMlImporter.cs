@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Umbraco.Core;
-using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using File = System.IO.File;
@@ -16,19 +15,26 @@ using Task = System.Threading.Tasks.Task;
 using System.Net;
 using System.Net.Http;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Services;
 
 namespace Articulate
 {
     public class BlogMlImporter
     {
-        private readonly IFileSystem _fileSystem;
+        private readonly ArticulateTempFileSystem _fileSystem;
+        private readonly DisqusXmlExporter _disqusXmlExporter;
+        private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
+        private readonly IContentService _contentService;
+        private readonly ILogger _logger;
 
-        public BlogMlImporter(IFileSystem fileSystem)
+        public BlogMlImporter(ArticulateTempFileSystem fileSystem, DisqusXmlExporter disqusXmlExporter, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IContentService contentService, ILogger logger)
         {
             _fileSystem = fileSystem;
+            _disqusXmlExporter = disqusXmlExporter;
+            _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
+            _contentService = contentService;
+            _logger = logger;
         }
-
-        public bool HasErrors { get; private set; }
 
         public int GetPostCount(string fileName)
         {
@@ -36,7 +42,7 @@ namespace Articulate
             return doc.Posts.Count();
         }
 
-        public async Task Import(
+        public async Task<bool> Import(
             int userId,
             string fileName,
             int blogRootNode,
@@ -54,7 +60,7 @@ namespace Articulate
                     throw new FileNotFoundException("File not found: " + fileName);
                 }
 
-                var root = Current.Services.ContentService.GetById(blogRootNode);
+                var root = _contentService.GetById(blogRootNode);
                 if (root == null)
                 {
                     throw new InvalidOperationException("No node found with id " + blogRootNode);
@@ -78,8 +84,7 @@ namespace Articulate
 
                     if (exportDisqusXml)
                     {
-                        var exporter = new DisqusXmlExporter();
-                        var xDoc = exporter.Export(imported, document);
+                        var xDoc = _disqusXmlExporter.Export(imported, document);
 
                         using (var memStream = new MemoryStream())
                         {
@@ -88,11 +93,13 @@ namespace Articulate
                         }
                     }
                 }
+
+                return false;
             }
             catch (Exception ex)
             {
-                HasErrors = true;
-                Current.Logger.Error<BlogMlImporter>(ex, "Importing failed with errors");
+                _logger.Error<BlogMlImporter>(ex, "Importing failed with errors");
+                return true;
             }
         }
 
@@ -127,18 +134,18 @@ namespace Articulate
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthors doc type could not be found");
             }
 
-            var allAuthorsNodes = Current.Services.ContentService.GetPagedOfType(authorsType.Id, 0, int.MaxValue, out long totalAuthorsNodes, null);
+            var allAuthorsNodes = _contentService.GetPagedOfType(authorsType.Id, 0, int.MaxValue, out long totalAuthorsNodes, null);
 
             var authorsNode = allAuthorsNodes.FirstOrDefault();
             if (authorsNode == null)
             {
                 //create the authors node
-                authorsNode = Current.Services.ContentService.Create(
+                authorsNode = _contentService.Create(
                     "Authors", rootNode, "ArticulateAuthors");
-                Current.Services.ContentService.SaveAndPublish(authorsNode, userId: userId);
+                _contentService.SaveAndPublish(authorsNode, userId: userId);
             }
 
-            var allAuthorNodes = Current.Services.ContentService.GetPagedOfType(authorType.Id, 0, int.MaxValue, out long totalAuthorNodes, null);
+            var allAuthorNodes = _contentService.GetPagedOfType(authorType.Id, 0, int.MaxValue, out long totalAuthorNodes, null);
             foreach (var author in authors)
             {
                 //first check if a user exists by email
@@ -153,9 +160,9 @@ namespace Articulate
                     {
                         //create an author with the same name as the user - we'll need to wire up that
                         // name to posts later on
-                        authorNode = Current.Services.ContentService.Create(
+                        authorNode = _contentService.Create(
                             found.Name, authorsNode, "ArticulateAuthor");
-                        Current.Services.ContentService.SaveAndPublish(authorNode, userId: userId);
+                        _contentService.SaveAndPublish(authorNode, userId: userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -169,9 +176,9 @@ namespace Articulate
                     if (authorNode == null)
                     {
                         //create a new author node with this title
-                        authorNode = Current.Services.ContentService.Create(
+                        authorNode = _contentService.Create(
                             author.Title.Content, authorsNode, "ArticulateAuthor");
-                        Current.Services.ContentService.SaveAndPublish(authorNode, userId: userId);
+                        _contentService.SaveAndPublish(authorNode, userId: userId);
                     }
 
                     result.Add(author.Id, authorNode.Name);
@@ -192,19 +199,19 @@ namespace Articulate
             }
 
             var archiveDocType = Current.Services.ContentTypeService.Get("ArticulateArchive");
-            var archive = Current.Services.ContentService.GetPagedOfType(archiveDocType.Id, 0, int.MaxValue, out long totalArchives, null);
+            var archive = _contentService.GetPagedOfType(archiveDocType.Id, 0, int.MaxValue, out long totalArchives, null);
 
             var archiveNode = archive.FirstOrDefault();
 
             if (archiveNode == null)
             {
                 //create the authors node
-                archiveNode = Current.Services.ContentService.Create(
+                archiveNode = _contentService.Create(
                     "Articles", rootNode, "ArticulateArchive");
-                Current.Services.ContentService.Save(archiveNode);
+                _contentService.Save(archiveNode);
             }
 
-            var allPostNodes = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, 0, int.MaxValue, out long totalPostNodes);
+            var allPostNodes = _contentService.GetPagedChildren(archiveNode.Id, 0, int.MaxValue, out long totalPostNodes);
 
             foreach (var post in posts)
             {
@@ -232,7 +239,7 @@ namespace Articulate
                 if (postNode == null)
                 {
                     var title = WebUtility.HtmlDecode(post.Title.Content);
-                    postNode = Current.Services.ContentService.Create(
+                    postNode = _contentService.Create(
                         title, archiveNode, "ArticulateRichText");
                 }
 
@@ -306,11 +313,11 @@ namespace Articulate
 
                 if (publishAll)
                 {
-                    Current.Services.ContentService.SaveAndPublish(postNode, userId: userId);
+                    _contentService.SaveAndPublish(postNode, userId: userId);
                 }
                 else
                 {
-                    Current.Services.ContentService.Save(postNode, userId);
+                    _contentService.Save(postNode, userId);
                 }
 
                 //if (!publicKey.IsNullOrWhiteSpace())
@@ -339,13 +346,13 @@ namespace Articulate
                 {
                     using (var stream = await client.GetStreamAsync(attachment.Url))
                     {
-                        postNode.SetValue("postImage", Path.GetFileName(path), stream);
+                        postNode.SetValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(path), stream);
                     }
                 }
             }
             catch (Exception exception)
             {
-                Current.Logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
+                _logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
             }
         }
 
