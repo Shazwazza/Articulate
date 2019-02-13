@@ -23,7 +23,7 @@ Supporting all the features you'd want in a blogging platform
 
 ## Minimum requirements
 
-Articulate version 3+ is only compatible with Umbraco 7.6+
+Articulate version 4+ is only compatible with Umbraco 8.0+
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 

@@ -1,16 +1,11 @@
 ﻿using Articulate.Models;
 using NPoco;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Xml.XPath;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Web;
 

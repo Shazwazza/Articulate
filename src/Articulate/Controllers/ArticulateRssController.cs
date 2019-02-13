@@ -1,13 +1,10 @@
 using Articulate.Models;
-using Articulate.Options;
 using Articulate.Syndication;
 using System;
 using System.Linq;
 using System.Web.Mvc;
-using System.Xml.XPath;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
-using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Services;
