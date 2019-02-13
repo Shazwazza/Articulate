@@ -20,22 +20,30 @@ namespace Articulate
 {
     public class BlogMlExporter
     {
-        private readonly IFileSystem _fileSystem;
-        //private readonly ApplicationContext _applicationContext;
-        private readonly UmbracoContext _umbracoContext;
+        private readonly ArticulateTempFileSystem _fileSystem;
+        private readonly IContentService _contentService;
+        private readonly IContentTypeService _contentTypeService;
+        private readonly IDataTypeService _dataTypeService;
+        private readonly ITagService _tagService;
+        private readonly ILogger _logger;
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
-        public BlogMlExporter(UmbracoContext umbracoContext, IFileSystem fileSystem)
+        public BlogMlExporter(IUmbracoContextAccessor umbracoContextAccessor, ArticulateTempFileSystem fileSystem, IContentService contentService, IContentTypeService contentTypeService, IDataTypeService dataTypeService, ITagService tagService, ILogger logger)
         {
-            _umbracoContext = umbracoContext;
-            //_applicationContext = _umbracoContext.Application;
+            _umbracoContextAccessor = umbracoContextAccessor;
             _fileSystem = fileSystem;
+            _contentService = contentService;
+            _contentTypeService = contentTypeService;
+            _dataTypeService = dataTypeService;
+            _tagService = tagService;
+            _logger = logger;
         }
 
         public void Export(
             string fileName,
             int blogRootNode)
         {
-            var root = Current.Services.ContentService.GetById(blogRootNode);
+            var root = _contentService.GetById(blogRootNode);
             if (root == null)
             {
                 throw new InvalidOperationException("No node found with id " + blogRootNode);
@@ -45,17 +53,17 @@ namespace Articulate
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
             }
 
-            var postType = Current.Services.ContentTypeService.Get("ArticulateRichText");
+            var postType = _contentTypeService.Get("ArticulateRichText");
             if (postType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
             
-            var archiveContentType = Current.Services.ContentTypeService.Get("ArticulateArchive");
-            var archiveNodes = Current.Services.ContentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
+            var archiveContentType = _contentTypeService.Get("ArticulateArchive");
+            var archiveNodes = _contentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
 
-            var authorsContentType = Current.Services.ContentTypeService.Get("ArticulateAuthors");
-            var authorsNodes = Current.Services.ContentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
+            var authorsContentType = _contentTypeService.Get("ArticulateAuthors");
+            var authorsNodes = _contentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
 
             if (totalArchive == 0)
             {
@@ -67,7 +75,7 @@ namespace Articulate
                 throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
             }
 
-            var categoryDataType = Current.Services.DataTypeService.GetDataType("Articulate Categories");
+            var categoryDataType = _dataTypeService.GetDataType("Articulate Categories");
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
@@ -79,7 +87,7 @@ namespace Articulate
 
             var blogMlDoc = new BlogMLDocument
             {
-                RootUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
+                RootUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
                 GeneratedOn = DateTime.Now,
                 Title = new BlogMLTextConstruct(root.GetValue<string>("blogTitle")),
                 Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
@@ -112,7 +120,7 @@ namespace Articulate
 
         private void AddBlogCategories(BlogMLDocument blogMlDoc, string tagGroup)
         {
-            var categories = Current.Services.TagService.GetAllContentTags(tagGroup);
+            var categories = _tagService.GetAllContentTags(tagGroup);
             foreach (var category in categories)
             {
                 if (category.NodeCount == 0) continue;
@@ -130,7 +138,7 @@ namespace Articulate
 
         private void AddBlogAuthors(IContent authorsNode, BlogMLDocument blogMlDoc)
         {
-            foreach (var author in Current.Services.ContentService.GetPagedChildren(authorsNode.Id, 0, int.MaxValue, out long totalAuthors))
+            foreach (var author in _contentService.GetPagedChildren(authorsNode.Id, 0, int.MaxValue, out long totalAuthors))
             {
                 var blogMlAuthor = new BlogMLAuthor();
                 blogMlAuthor.Id = author.Key.ToString();
@@ -149,7 +157,7 @@ namespace Articulate
             IContent[] posts;
             do
             {
-                posts = Current.Services.ContentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _ , ordering: Ordering.By("createDate")).ToArray();
+                posts = _contentService.GetPagedChildren(archiveNode.Id, pageIndex, pageSize, out long _ , ordering: Ordering.By("createDate")).ToArray();
 
                 foreach (var child in posts)
                 {
@@ -166,8 +174,8 @@ namespace Articulate
                         content = markdown.Transform(content);
                     }
 
-                    var postUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
-                    var postAbsoluteUrl = new Uri(_umbracoContext.UrlProvider.GetUrl(child.Id, UrlProviderMode.Absolute), UriKind.Absolute);
+                    var postUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
+                    var postAbsoluteUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id, UrlProviderMode.Absolute), UriKind.Absolute);
                     var blogMlPost = new BlogMLPost()
                     {
                         Id = child.Key.ToString(),
@@ -188,7 +196,7 @@ namespace Articulate
                         blogMlPost.Authors.Add(author.Id);
                     }
 
-                    var categories = Current.Services.TagService.GetTagsForEntity(child.Id, tagGroup);
+                    var categories = _tagService.GetTagsForEntity(child.Id, tagGroup);
                     foreach (var category in categories)
                     {
                         blogMlPost.Categories.Add(category.Id.ToString());
@@ -222,7 +230,7 @@ namespace Articulate
                         }
                         catch (Exception ex)
                         {
-                            Current.Logger.Error<BlogMlExporter>(ex, "Could not add the file to the blogML post attachments");
+                            _logger.Error<BlogMlExporter>(ex, "Could not add the file to the blogML post attachments");
                         }
                     }
 

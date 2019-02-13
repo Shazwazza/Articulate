@@ -23,10 +23,12 @@ namespace Articulate.Controllers
     public class ArticulateBlogImportController : UmbracoAuthorizedApiController
     {
         private readonly BlogMlImporter _blogMlImporter;
+        private readonly BlogMlExporter _blogMlExporter;
 
-        public ArticulateBlogImportController(BlogMlImporter blogMlImporter, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        public ArticulateBlogImportController(BlogMlImporter blogMlImporter, BlogMlExporter blogMlExporter, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
         {
             _blogMlImporter = blogMlImporter;
+            _blogMlExporter = blogMlExporter;
         }
 
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
@@ -64,10 +66,7 @@ namespace Articulate.Controllers
 
         public ImportModel PostExportBlogMl(ExportBlogMlModel model)
         {
-            var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-            var exporter = new BlogMlExporter(UmbracoContext, fs);
-
-            exporter.Export("BlogMlExport.xml", model.ArticulateNodeId);
+            _blogMlExporter.Export("BlogMlExport.xml", model.ArticulateNodeId);
 
             return new ImportModel
             {

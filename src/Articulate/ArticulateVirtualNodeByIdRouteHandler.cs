@@ -23,17 +23,19 @@ namespace Articulate
     public class ArticulateVirtualNodeByIdRouteHandler : UmbracoVirtualNodeRouteHandler
     {
         private readonly List<Tuple<string, int>> _hostsAndIds = new List<Tuple<string, int>>();
-        
+        private readonly ILogger _logger;
+
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
-        /// <param name="umbracoUrlProvider"></param>
+        /// <param name="articulateRoutes"></param>
         /// <param name="itemsForRoute"></param>
-        public ArticulateVirtualNodeByIdRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
+        public ArticulateVirtualNodeByIdRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
         {
+            _logger = articulateRoutes.Logger;
             foreach (var publishedContent in itemsForRoute)
             {
-                var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, publishedContent);
+                var allUrls = articulateRoutes.GetContentUrls(publishedContent);
 
                 foreach (var url in allUrls)
                 {
@@ -49,7 +51,7 @@ namespace Articulate
                     }
                 }
 
-                Current.Logger.Debug<ArticulateVirtualNodeByIdRouteHandler>("Hosts/IDs map for node {NodeId}. Values: {ArticulateHostValues}", publishedContent.Id, DebugHostIdsCollection());
+                _logger.Debug<ArticulateVirtualNodeByIdRouteHandler>("Hosts/IDs map for node {NodeId}. Values: {ArticulateHostValues}", publishedContent.Id, DebugHostIdsCollection());
             }
         }
 
@@ -81,7 +83,7 @@ namespace Articulate
                     }
                     else
                     {
-                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
+                        _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found to map hosts and IDs");
                         return null;
                     }
                 }
@@ -94,7 +96,7 @@ namespace Articulate
                     }
                     else
                     {
-                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: {ArticulateHostValues}", DebugHostIdsCollection());
+                        _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: {ArticulateHostValues}", DebugHostIdsCollection());
                         return null;
                     }
                 }
@@ -107,7 +109,7 @@ namespace Articulate
                     }
                     else
                     {
-                        Current.Logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of {HostName}. Values: {ArticulateHostValues}",
+                        _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of {HostName}. Values: {ArticulateHostValues}",
                             requestContext.HttpContext.Request.Url.Host,
                             DebugHostIdsCollection());
 

@@ -23,8 +23,8 @@ namespace Articulate
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
 
-        public ArticulateSearchRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
-            : base(umbracoUrlProvider, itemsForRoute)
+        public ArticulateSearchRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(articulateRoutes, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {

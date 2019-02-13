@@ -7,12 +7,14 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 using System.Xml;
 using Articulate.Controllers;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Web;
 
@@ -20,11 +22,11 @@ namespace Articulate.Syndication
 {
     public class RssFeedGenerator : IRssFeedGenerator
     {
-        private readonly UmbracoContext _umbracoContext;
+        private readonly ILogger _logger;
 
-        public RssFeedGenerator(UmbracoContext umbracoContext)
+        public RssFeedGenerator(ILogger logger)
         {
-            _umbracoContext = umbracoContext;
+            _logger = logger;
         }
 
         private readonly Regex _relativeMediaSrc = new Regex(" src=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -63,7 +65,7 @@ namespace Articulate.Syndication
                 return null;
             }
 
-            var appPath = _umbracoContext.HttpContext.Request.ApplicationPath;
+            var appPath = HttpRuntime.AppDomainAppVirtualPath;
             var rootUri = new Uri(rootUrl);
             var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
 
@@ -125,7 +127,7 @@ namespace Articulate.Syndication
             }
             catch (Exception ex)
             {
-                Current.Logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
+                _logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
             }
             return logoUri;
         }

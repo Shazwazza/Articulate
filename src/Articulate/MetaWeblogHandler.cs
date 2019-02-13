@@ -12,6 +12,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
+using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
@@ -23,12 +24,22 @@ namespace Articulate
 {
     public class MetaWeblogHandler : XmlRpcService, IMetaWeblog, IBloggerMetaWeblog, IWordPressMetaWeblog, IRouteHandler
     {
-        private readonly int _blogRootId;        
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly IContentService _contentService;
+        private readonly ITagService _tagService;
+        private readonly IUserService _userService;
+        private readonly IMediaFileSystem _mediaFileSystem;
 
-        public MetaWeblogHandler(int blogRootId)
+        public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem)
         {
-            _blogRootId = blogRootId;
+            _umbracoContextAccessor = umbracoContextAccessor;
+            _contentService = contentService;
+            _tagService = tagService;
+            _userService = userService;
+            _mediaFileSystem = mediaFileSystem;
         }
+
+        public int BlogRootId { get; internal set; }
 
         string IMetaWeblog.AddPost(string blogid, string username, string password, MetaWeblogPost post, bool publish)
         {
@@ -42,7 +53,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            var content = Current.Services.ContentService.Create(
+            var content = _contentService.Create(
                 post.Title, node.Id, "ArticulateRichText", user.Id);
 
             var extractFirstImageAsProperty = false;
@@ -67,7 +78,7 @@ namespace Articulate
             }
 
             //first see if it's published
-            var content = Current.Services.ContentService.GetById(asInt.Result);
+            var content = _contentService.GetById(asInt.Result);
             if (content == null)
             {
                 return false;
@@ -101,14 +112,14 @@ namespace Articulate
             }
 
             //first see if it's published
-            var content = Current.Services.ContentService.GetById(asInt.Result);
+            var content = _contentService.GetById(asInt.Result);
             if (content == null)
             {
                 return false;
             }
 
             //unpublish it, we won't delete it with this API
-            Current.Services.ContentService.Unpublish(content, userId: userId);
+            _contentService.Unpublish(content, userId: userId);
 
             return true;
         }
@@ -124,13 +135,13 @@ namespace Articulate
             }
 
             //first see if it's published
-            var post = UmbracoContext.Current.ContentCache.GetById(asInt.Result);
+            var post = _umbracoContextAccessor.UmbracoContext.ContentCache.GetById(asInt.Result);
             if (post != null)
             {
                 return FromPost(new PostModel(post));
             }
 
-            var content = Current.Services.ContentService.GetById(asInt.Result);
+            var content = _contentService.GetById(asInt.Result);
             if (content == null)
             {
                 throw new XmlRpcFaultException(0, "No post found with id " + postid);
@@ -149,7 +160,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            return Current.Services.ContentService.GetPagedChildren(node.Id, 0, numberOfPosts, out long totalPosts, ordering: Ordering.By("updateDate", direction:Direction.Descending))
+            return _contentService.GetPagedChildren(node.Id, 0, numberOfPosts, out long totalPosts, ordering: Ordering.By("updateDate", direction:Direction.Descending))
                 .Select(FromContent).ToArray();
         }
 
@@ -157,7 +168,7 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            return Current.Services.TagService.GetAllTags("ArticulateCategories")
+            return _tagService.GetAllTags("ArticulateCategories")
                 .Select(x => (object)new
                 {
                     description = x.Text,
@@ -175,7 +186,7 @@ namespace Articulate
             using (var ms = new MemoryStream(media.Bits))
             {
                 var fileUrl = "articulate/" + media.Name.ToSafeFileName();
-                Current.MediaFileSystem.AddFile(fileUrl, ms);                
+                _mediaFileSystem.AddFile(fileUrl, ms);                
                 return new { url = fileUrl };
             }
         }
@@ -206,7 +217,7 @@ namespace Articulate
         {
             ValidateUser(username, password);
 
-            return Current.Services.TagService.GetAllTags("ArticulateTags")
+            return _tagService.GetAllTags("ArticulateTags")
                 .Select(x => (object)new
                 {
                     name = x.Text,
@@ -302,11 +313,11 @@ namespace Articulate
                     content.SetValue("publishedDate", post.CreateDate);
                 }
 
-                Current.Services.ContentService.SaveAndPublish(content, userId: user.Id);
+                _contentService.SaveAndPublish(content, userId: user.Id);
             }
             else
             {
-                Current.Services.ContentService.Save(content, user.Id);
+                _contentService.Save(content, user.Id);
             }
         }
 
@@ -362,7 +373,7 @@ namespace Articulate
 
         private IPublishedContent BlogRoot()
         {
-            var node = UmbracoContext.Current.ContentCache.GetById(_blogRootId);
+            var node = _umbracoContextAccessor.UmbracoContext.ContentCache.GetById(BlogRootId);
 
             if (node == null)
             {
@@ -383,7 +394,7 @@ namespace Articulate
                 throw new XmlRpcFaultException(0, "User is not valid!");
             }
 
-            return Current.Services.UserService.GetByUsername(username);
+            return _userService.GetByUsername(username);
         }
 
         private static MembershipProvider GetUsersMembershipProvider()

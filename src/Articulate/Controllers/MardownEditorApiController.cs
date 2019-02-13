@@ -12,9 +12,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
+using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Actions;
@@ -26,6 +30,13 @@ namespace Articulate.Controllers
 {
     public class MardownEditorApiController : UmbracoAuthorizedApiController
     {
+        private readonly IMediaFileSystem _mediaFileSystem;
+
+        public MardownEditorApiController(IMediaFileSystem mediaFileSystem, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        {
+            _mediaFileSystem = mediaFileSystem;
+        }
+
         public class ParseImageResponse
         {
             public string BodyText { get; set; }
@@ -101,7 +112,7 @@ namespace Articulate.Controllers
                 model.Title,
                 archive.GetUdi(),
                 "ArticulateMarkdown",
-                Current.UmbracoContext.Security.GetUserId().Result);
+                UmbracoContext.Security.GetUserId().Result);
 
             content.SetValue("markdown", model.Body);
 
@@ -132,7 +143,7 @@ namespace Articulate.Controllers
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
-            var status = Services.ContentService.SaveAndPublish(content, userId: Current.UmbracoContext.Security.GetUserId().Result);
+            var status = Services.ContentService.SaveAndPublish(content, userId: UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)
             {
                 CleanFiles(multiPartRequest);
@@ -159,7 +170,7 @@ namespace Articulate.Controllers
             }
         }
 
-        private static ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest, bool extractFirstImageAsProperty)
+        private ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest, bool extractFirstImageAsProperty)
         {
             var firstImage = string.Empty;
             var bodyText = Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
@@ -176,9 +187,7 @@ namespace Articulate.Controllers
                     {
                         var fileUrl = "articulate/" + rndId + "/" + file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\"");
 
-                        //TODO: WB - MediaFileSystem not in Umbraco.Web.Composing.Current
-                        //TODO: WB - We may need to query MediaFS to get the image we just added media url path?!
-                        global::Umbraco.Core.Composing.Current.MediaFileSystem.AddFile(fileUrl, stream);
+                        _mediaFileSystem.AddFile(fileUrl, stream);
                         
                         var result = string.Format("![{0}]({1})",
                             fileUrl,

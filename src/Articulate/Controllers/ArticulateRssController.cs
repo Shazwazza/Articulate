@@ -6,8 +6,11 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Xml.XPath;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -26,6 +29,12 @@ namespace Articulate.Controllers
 
     public class ArticulateRssController : RenderMvcController
     {
+        public ArticulateRssController(IRssFeedGenerator rssFeedGenerator, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) 
+            : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
+        {
+            FeedGenerator = rssFeedGenerator;
+        }
+
         //NonAction so it is not routed since we want to use an overload below
         [NonAction]
         public override ActionResult Index(ContentModel model)
@@ -33,7 +42,7 @@ namespace Articulate.Controllers
             return base.Index(model);
         }
 
-        protected IRssFeedGenerator FeedGenerator => Current.Configs.Articulate().GetRssFeedGenerator(UmbracoContext.Current);
+        private IRssFeedGenerator FeedGenerator { get; }
 
         public ActionResult Index(ContentModel model, int? maxItems)
         {

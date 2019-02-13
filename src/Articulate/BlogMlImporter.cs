@@ -25,14 +25,18 @@ namespace Articulate
         private readonly DisqusXmlExporter _disqusXmlExporter;
         private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
         private readonly IContentService _contentService;
+        private readonly IContentTypeService _contentTypeService;
+        private readonly IUserService _userService;
         private readonly ILogger _logger;
 
-        public BlogMlImporter(ArticulateTempFileSystem fileSystem, DisqusXmlExporter disqusXmlExporter, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IContentService contentService, ILogger logger)
+        public BlogMlImporter(ArticulateTempFileSystem fileSystem, DisqusXmlExporter disqusXmlExporter, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IContentService contentService, IContentTypeService contentTypeService, IUserService userService, ILogger logger)
         {
             _fileSystem = fileSystem;
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
             _contentService = contentService;
+            _contentTypeService = contentTypeService;
+            _userService = userService;
             _logger = logger;
         }
 
@@ -122,13 +126,13 @@ namespace Articulate
         {
             var result = new Dictionary<string, string>();
 
-            var authorType = Current.Services.ContentTypeService.Get("ArticulateAuthor");
+            var authorType = _contentTypeService.Get("ArticulateAuthor");
             if (authorType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
             }
             
-            var authorsType = Current.Services.ContentTypeService.Get("ArticulateAuthors");
+            var authorsType = _contentTypeService.Get("ArticulateAuthors");
             if (authorsType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthors doc type could not be found");
@@ -149,7 +153,7 @@ namespace Articulate
             foreach (var author in authors)
             {
                 //first check if a user exists by email
-                var found = Current.Services.UserService.GetByEmail(author.EmailAddress);
+                var found = _userService.GetByEmail(author.EmailAddress);
                 if (found != null)
                 {
                     //check if an author node exists for this user
@@ -192,13 +196,13 @@ namespace Articulate
         {
             var result = new List<IContent>();
 
-            var postType = Current.Services.ContentTypeService.Get("ArticulateRichText");
+            var postType = _contentTypeService.Get("ArticulateRichText");
             if (postType == null)
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
 
-            var archiveDocType = Current.Services.ContentTypeService.Get("ArticulateArchive");
+            var archiveDocType = _contentTypeService.Get("ArticulateArchive");
             var archive = _contentService.GetPagedOfType(archiveDocType.Id, 0, int.MaxValue, out long totalArchives, null);
 
             var archiveNode = archive.FirstOrDefault();

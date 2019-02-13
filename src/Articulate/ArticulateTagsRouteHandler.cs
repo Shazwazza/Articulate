@@ -30,9 +30,10 @@ namespace Articulate
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
+        /// <param name="articulateRoutes"></param>
         /// <param name="itemsForRoute"></param>
-        public ArticulateTagsRouteHandler(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
-            : base(umbracoUrlProvider, itemsForRoute)
+        public ArticulateTagsRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(articulateRoutes, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {

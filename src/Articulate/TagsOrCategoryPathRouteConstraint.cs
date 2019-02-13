@@ -29,13 +29,13 @@ namespace Articulate
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
 
-        public TagsOrCategoryPathRouteConstraint(UrlProvider umbracoUrlProvider, IEnumerable<IPublishedContent> itemsForRoute)
+        public TagsOrCategoryPathRouteConstraint(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException(nameof(itemsForRoute));
 
             foreach (var node in itemsForRoute)
             {
-                var allUrls = ArticulateRoutes.GetContentUrls(umbracoUrlProvider, node);
+                var allUrls = articulateRoutes.GetContentUrls(node);
 
                 foreach (var url in allUrls)
                 {

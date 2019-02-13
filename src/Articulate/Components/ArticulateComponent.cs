@@ -10,6 +10,7 @@ using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Components;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
@@ -24,6 +25,21 @@ namespace Articulate.Components
 {
     public class ArticulateComponent : IComponent
     {
+        private readonly ArticulateRoutes _articulateRoutes;
+        private readonly AppCaches _appCaches;
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly Configs _configs;
+        private readonly ILogger _logger;
+
+        public ArticulateComponent(ArticulateRoutes articulateRoutes, AppCaches appCaches, IUmbracoContextAccessor umbracoContextAccessor, Configs configs, ILogger logger)
+        {
+            _articulateRoutes = articulateRoutes;
+            _appCaches = appCaches;
+            _umbracoContextAccessor = umbracoContextAccessor;
+            _configs = configs;
+            _logger = logger;
+        }
+
         public void Initialize()
         {
             //listen to the init event of the application base, this allows us to bind to the actual HttpApplication events
@@ -35,7 +51,7 @@ namespace Articulate.Components
                 "ArticulateFeeds/{action}/{id}",
                 new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
             );
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
+            _articulateRoutes.MapRoutes(RouteTable.Routes);
             
 
             //umbraco event subscriptions
@@ -71,10 +87,9 @@ namespace Articulate.Components
         /// </remarks>
         private void App_PostRequestHandlerExecute(object sender, EventArgs e)
         {
-            if (Current.AppCaches == null) return;
-            if (Current.AppCaches.RequestCache.Get("articulate-refresh-routes") == null) return;
+            if (_appCaches?.RequestCache.Get("articulate-refresh-routes") == null) return;
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
-            ArticulateRoutes.MapRoutes(RouteTable.Routes, UmbracoContext.Current.ContentCache, UmbracoContext.Current.UrlProvider);
+            _articulateRoutes.MapRoutes(RouteTable.Routes);
         }
 
         private void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
@@ -84,9 +99,9 @@ namespace Articulate.Components
             if (e.Entity.ContentType.Alias.InvariantEquals("ArticulateRichText")
                 || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
             {
-                if (UmbracoContext.Current.Security.CurrentUser != null)
+                if (_umbracoContextAccessor.UmbracoContext.Security.CurrentUser != null)
                 {
-                    e.Entity.SetValue("author", UmbracoContext.Current.Security.CurrentUser.Name);
+                    e.Entity.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
                 }
                 e.Entity.SetValue("publishedDate", DateTime.Now);
                 e.Entity.SetValue("enableComments", 1);
@@ -107,7 +122,7 @@ namespace Articulate.Components
 
         private void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
-            if (Current.Configs.Articulate().AutoGenerateExcerpt)
+            if (_configs.Articulate().AutoGenerateExcerpt)
             {
                 foreach (var c in e.SavedEntities
                     .Where(c => c.ContentType.Alias.InvariantEquals("ArticulateRichText") || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown")))
@@ -118,14 +133,14 @@ namespace Articulate.Components
                         if (c.HasProperty("richText"))
                         {
                             var val = c.GetValue<string>("richText");
-                            c.SetValue("excerpt", Current.Configs.Articulate().GenerateExcerpt(val));
+                            c.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
                         }
                         else
                         {
                             var val = c.GetValue<string>("markdown");
                             var md = new MarkdownDeep.Markdown();
                             val = md.Transform(val);
-                            c.SetValue("excerpt", Current.Configs.Articulate().GenerateExcerpt(val));
+                            c.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
                         }
                     }
 
@@ -148,16 +163,16 @@ namespace Articulate.Components
         {
             foreach (var c in e.SavedEntities.Where(c => c.HasIdentity == false && c.ContentType.Alias.InvariantEquals("Articulate")))
             {
-                Current.Logger.Debug<ArticulateComponent>("Creating sub nodes (authors, archive) for new Articulate node");
+                _logger.Debug<ArticulateComponent>("Creating sub nodes (authors, archive) for new Articulate node");
 
                 //it's a root blog node, set up the required sub nodes (archive , authors)
                 var articles = sender.CreateAndSave("Archive", c, "ArticulateArchive");
 
-                Current.Logger.Debug<ArticulateComponent>("Archive node created with name: {ArchiveNodeName}", articles.Name);
+                _logger.Debug<ArticulateComponent>("Archive node created with name: {ArchiveNodeName}", articles.Name);
 
                 var authors = sender.CreateAndSave("Authors", c, "ArticulateAuthors");
 
-                Current.Logger.Debug<ArticulateComponent>("Authors node created with name: {AuthorNodeName}", authors.Name);
+                _logger.Debug<ArticulateComponent>("Authors node created with name: {AuthorNodeName}", authors.Name);
             }
         }
 
@@ -217,11 +232,11 @@ namespace Articulate.Components
             {
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
-                    var item = UmbracoContext.Current.ContentCache.GetById((int)e.MessageObject);
+                    var item = _umbracoContextAccessor.UmbracoContext.ContentCache.GetById((int)e.MessageObject);
                     if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
-                        Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
 
@@ -235,7 +250,7 @@ namespace Articulate.Components
                     if (content.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
-                        Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
             }
@@ -244,7 +259,7 @@ namespace Articulate.Components
         private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, CacheRefresherEventArgs e)
         {
             //ensure routes are rebuilt
-            Current.AppCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+            _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
         }
 
     }
