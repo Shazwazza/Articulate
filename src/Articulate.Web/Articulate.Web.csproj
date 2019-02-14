@@ -491,7 +491,7 @@
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\Dashboards\blogimporter.controller.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\theme.resource.js" />
-    <Content Include="App_Plugins\Articulate\BackOffice\Installer.ascx" />
+    <Content Include="App_Plugins\Articulate\BackOffice\package-options.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\Edictum\Assets\css\style.css" />
@@ -522,7 +522,6 @@
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
-    <Content Include="App_Data\packages\created\createdPackages.config" />
     <None Include="App_Plugins\Articulate\package.manifest" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.controller.js" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.htm" />
@@ -883,6 +882,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\packages\" />
     <Folder Include="media\1021\" />
   </ItemGroup>
   <PropertyGroup>

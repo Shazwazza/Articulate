@@ -1,11 +1,16 @@
 ﻿using Articulate.Models;
 using NPoco;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Xml.XPath;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
+using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Web;
 
@@ -279,7 +284,7 @@ namespace Articulate
             return GetResult();
 #else
             //cache this result for a short amount of time
-            return (IEnumerable<PostsByTagModel>)appContext.ApplicationCache.RuntimeCache.GetCacheItem(
+            return (IEnumerable<PostsByTagModel>)Current.AppCaches.RuntimeCache.Get(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
                 GetResult, TimeSpan.FromSeconds(30));
 #endif
@@ -349,7 +354,7 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
 #else
             //cache this result for a short amount of time
             
-            return (PostsByTagModel)Current.ApplicationCache.RuntimeCache.GetCacheItem(
+            return (PostsByTagModel)Current.AppCaches.RuntimeCache.Get(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup, tag, page, pageSize),
                 GetResult, TimeSpan.FromSeconds(30));
 #endif

@@ -39,6 +39,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="ArticulateInstallPackageAction.cs" />
     <Compile Include="ArticulateTagsRouteHandler.cs" />
     <Compile Include="ArticulateRoutes.cs" />
     <Compile Include="ArticulateSearchRouteHandler.cs" />
@@ -47,6 +48,7 @@
     <Compile Include="BlogMlImporter.cs" />
     <Compile Include="Components\ArticulateComponent.cs" />
     <Compile Include="Components\ArticulateComposer.cs" />
+    <Compile Include="Components\MetaWeblogHandlerFactory.cs" />
     <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
     <Compile Include="Controllers\ArticulateAuthorsController.cs" />

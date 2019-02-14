@@ -1,5 +1,4 @@
-﻿using System;
-using Articulate.Options;
+﻿using Articulate.Options;
 using Articulate.Syndication;
 using Umbraco.Core;
 using Umbraco.Core.Components;
@@ -44,17 +43,5 @@ namespace Articulate.Components
 
             composition.Components().Append<ArticulateComponent>();
         }
-    }
-
-    public class MetaWeblogHandlerFactory
-    {
-        private readonly Func<int, MetaWeblogHandler> _factory;
-
-        public MetaWeblogHandlerFactory(Func<int, MetaWeblogHandler> factory)
-        {
-            _factory = factory;
-        }
-
-        public MetaWeblogHandler Create(int contentId) => _factory(contentId);
     }
 }

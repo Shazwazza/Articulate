@@ -1,5 +1,4 @@
 {
-  "propertyEditors": [],
   "javascript": [
     "~/App_Plugins/Articulate/BackOffice/Dashboards/articulatemgmt.controller.js",
     "~/App_Plugins/Articulate/BackOffice/Dashboards/datainstaller.controller.js",
