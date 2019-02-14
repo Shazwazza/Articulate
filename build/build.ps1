@@ -166,7 +166,7 @@ $PackageManifestXML.umbPackage.ReplaceChild($NewFilesXML, $PackageManifestXML.Se
 $PackageManifestXML.Save($PackageManifest)
 
 #zip the package
-$DestZIP = "$ReleaseFolder\Articulate.zip" 
+$DestZIP = "$ReleaseFolder\Articulate_$ReleaseVersionNumber$PreReleaseName.zip"
 Add-Type -assembly "system.io.compression.filesystem"
 [io.compression.zipfile]::CreateFromDirectory($TempFolder, $DestZIP) 
 

@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Routing;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -30,10 +31,11 @@ namespace Articulate
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
-        /// <param name="articulateRoutes"></param>
+        /// <param name="contentUrls"></param>
         /// <param name="itemsForRoute"></param>
-        public ArticulateTagsRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
-            : base(articulateRoutes, itemsForRoute)
+        /// <param name="logger"></param>
+        public ArticulateTagsRouteHandler(ILogger logger, ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(logger, contentUrls, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {

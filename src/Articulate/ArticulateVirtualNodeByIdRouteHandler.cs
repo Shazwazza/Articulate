@@ -1,22 +1,13 @@
 using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Web.Routing;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
-using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -24,35 +15,50 @@ namespace Articulate
     {
         private readonly List<Tuple<string, int>> _hostsAndIds = new List<Tuple<string, int>>();
         private readonly ILogger _logger;
+        private readonly Lazy<List<Tuple<string, int>>> _lazyHostsAndIds;
+
+        private List<Tuple<string, int>> HostsAndIds => _hostsAndIds ?? _lazyHostsAndIds.Value;
 
         /// <summary>
         /// Constructor used to create a new handler for multi-tenency with domains and ids
         /// </summary>
-        /// <param name="articulateRoutes"></param>
+        /// <param name="logger"></param>
+        /// <param name="contentUrls"></param>
         /// <param name="itemsForRoute"></param>
-        public ArticulateVirtualNodeByIdRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
+        public ArticulateVirtualNodeByIdRouteHandler(ILogger logger, ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
         {
-            _logger = articulateRoutes.Logger;
-            foreach (var publishedContent in itemsForRoute)
+            _logger = logger;
+            _lazyHostsAndIds = new Lazy<List<Tuple<string, int>>>(() =>
             {
-                var allUrls = articulateRoutes.GetContentUrls(publishedContent);
+                //needs to be lazy because we can only collect the hosts/ids when there's an umbraco context
 
-                foreach (var url in allUrls)
+                var hostsAndIds = new List<Tuple<string, int>>();
+                foreach (var publishedContent in itemsForRoute)
                 {
-                    //if there is a double slash, it will have a domain
-                    if (url.Contains("//"))
+                    var allUrls = contentUrls.GetContentUrls(publishedContent);
+
+                    foreach (var url in allUrls)
                     {
-                        var uri = new Uri(url, UriKind.Absolute);
-                        _hostsAndIds.Add(new Tuple<string, int>(uri.Host, publishedContent.Id));
+                        //if there is a double slash, it will have a domain
+                        if (url.Contains("//"))
+                        {
+                            var uri = new Uri(url, UriKind.Absolute);
+                            hostsAndIds.Add(new Tuple<string, int>(uri.Host, publishedContent.Id));
+                        }
+                        else
+                        {
+                            hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
+                        }
                     }
-                    else
-                    {
-                        _hostsAndIds.Add(new Tuple<string, int>(string.Empty, publishedContent.Id));
-                    }
+
+                    _logger.Debug<ArticulateVirtualNodeByIdRouteHandler>("Hosts/IDs map for node {NodeId}. Values: {ArticulateHostValues}", publishedContent.Id, DebugHostIdsCollection());
+                    
                 }
 
-                _logger.Debug<ArticulateVirtualNodeByIdRouteHandler>("Hosts/IDs map for node {NodeId}. Values: {ArticulateHostValues}", publishedContent.Id, DebugHostIdsCollection());
-            }
+                return hostsAndIds;
+            });
+
+            
         }
 
         /// <summary>
@@ -68,18 +74,18 @@ namespace Articulate
         {
             //determine if it's for a particular domain
             int realNodeId;
-            if (_hostsAndIds.Count == 1)
+            if (HostsAndIds.Count == 1)
             {
-                realNodeId = _hostsAndIds[0].Item2;
+                realNodeId = HostsAndIds[0].Item2;
             }
             else
             {
                 if (requestContext.HttpContext.Request.Url == null)
                 {
-                    if (_hostsAndIds.Count > 0)
+                    if (HostsAndIds.Count > 0)
                     {
                         //cannot be determined
-                        realNodeId = _hostsAndIds[0].Item2;
+                        realNodeId = HostsAndIds[0].Item2;
                     }
                     else
                     {
@@ -89,7 +95,7 @@ namespace Articulate
                 }
                 else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost"))
                 {
-                    var found = _hostsAndIds.FirstOrDefault(x => x.Item1 == string.Empty);
+                    var found = HostsAndIds.FirstOrDefault(x => x.Item1 == string.Empty);
                     if (found != null)
                     {
                         realNodeId = found.Item2;
@@ -102,7 +108,7 @@ namespace Articulate
                 }
                 else
                 {
-                    var found = _hostsAndIds.FirstOrDefault(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host));
+                    var found = HostsAndIds.FirstOrDefault(x => x.Item1.InvariantEquals(requestContext.HttpContext.Request.Url.Host));
                     if (found != null)
                     {
                         realNodeId = found.Item2;
@@ -127,7 +133,7 @@ namespace Articulate
         private string DebugHostIdsCollection()
         {
             var sb = new StringBuilder();
-            foreach (var hostsAndId in _hostsAndIds)
+            foreach (var hostsAndId in HostsAndIds)
             {
                 sb.AppendFormat("{0} = {1}, ", hostsAndId.Item1, hostsAndId.Item2);
             }

@@ -16,6 +16,7 @@ namespace Articulate.Components
         public void Compose(Composition composition)
         {
             composition.RegisterUnique<ArticulateRoutes>();
+            composition.RegisterUnique<ContentUrls>();
             composition.RegisterUnique<ArticulateDataInstaller>();
             composition.RegisterUnique<ArticulateTempFileSystem>(x => new ArticulateTempFileSystem("~/App_Data/Temp/Articulate"));
             composition.RegisterUnique<BlogMlExporter>();

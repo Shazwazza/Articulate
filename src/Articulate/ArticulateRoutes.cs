@@ -12,7 +12,6 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.PublishedCache;
-using Umbraco.Web.Routing;
 
 namespace Articulate
 {
@@ -23,22 +22,26 @@ namespace Articulate
     {
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
         private readonly MetaWeblogHandlerFactory _metaWeblogHandlerFactory;
-        public ILogger Logger { get; }
+        private readonly ILogger _logger;
+        private readonly ContentUrls _contentUrls;
 
-        public ArticulateRoutes(IUmbracoContextAccessor umbracoContextAccessor, ILogger logger, MetaWeblogHandlerFactory metaWeblogHandlerFactory)
+        public ArticulateRoutes(IUmbracoContextAccessor umbracoContextAccessor, ILogger logger, ContentUrls contentUrls, MetaWeblogHandlerFactory metaWeblogHandlerFactory)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
             _metaWeblogHandlerFactory = metaWeblogHandlerFactory;
-            Logger = logger;
+            _logger = logger;
+            _contentUrls = contentUrls;
         }
 
         public void MapRoutes(RouteCollection routes)
         {
             //find all articulate root nodes
-            var articulateCt = _umbracoContextAccessor.UmbracoContext.ContentCache.GetContentType("Articulate");
-            var articulateNodes = _umbracoContextAccessor.UmbracoContext.ContentCache.GetByContentType(articulateCt).ToList();
+            var contentCache = _umbracoContextAccessor.UmbracoContext.ContentCache;
 
-            Logger.Info(typeof(ArticulateRoutes), "Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Count);
+            var articulateCt = contentCache.GetContentType("Articulate");
+            var articulateNodes = contentCache.GetByContentType(articulateCt).ToList();
+
+            _logger.Info(typeof(ArticulateRoutes), "Mapping routes for {ArticulateRootNodesCount} Articulate root nodes", articulateNodes.Count);
 
             //NOTE: need to write lock because this might need to be remapped while the app is running if
             // any articulate nodes are updated with new values
@@ -88,35 +91,6 @@ namespace Articulate
 
         }
 
-        /// <summary>
-        /// Returns the content item URLs taking into account any domains assigned
-        /// </summary>
-        /// <param name="publishedContent"></param>
-        /// <returns></returns>
-        internal HashSet<string> GetContentUrls(IPublishedContent publishedContent)
-        {
-            HashSet<string> allUrls;
-            var other = _umbracoContextAccessor.UmbracoContext.UrlProvider.GetOtherUrls(publishedContent.Id).ToArray();
-            if (other.Length > 0)
-            {
-                var urls = other.Where(x => x.IsUrl && string.IsNullOrEmpty(x.Text) == false).Select(x => x.Text);
-
-                //this means there are domains assigned
-                allUrls = new HashSet<string>(urls)
-                    {
-                        _umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute)
-                    };
-            }
-            else
-            {
-                allUrls = new HashSet<string>()
-                    {
-                        publishedContent.Url
-                    };
-            }
-            return allUrls;
-        }
-
         private void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
         {
             //var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
@@ -132,7 +106,7 @@ namespace Articulate
                     controller = "MarkdownEditor",
                     action = "NewPost"
                 },
-                new ArticulateVirtualNodeByIdRouteHandler(this, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
         private void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -148,7 +122,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "Index"
                 },
-                new ArticulateVirtualNodeByIdRouteHandler(this, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
 
             routes.MapUmbracoRoute(
                 "articulate_rss_xslt_" + routeHash,
@@ -158,7 +132,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "FeedXslt"
                 },
-                new ArticulateVirtualNodeByIdRouteHandler(this, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
         private void MapAuthorsRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -174,7 +148,7 @@ namespace Articulate
                     controller = "ArticulateRss",
                     action = "Author"
                 },
-                new ArticulateVirtualNodeByIdRouteHandler(this, nodesWithPath));
+                new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
         private void MapTagsAndCategoriesRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
@@ -190,9 +164,9 @@ namespace Articulate
                     controller = "ArticulateTags",
                     tag = UrlParameter.Optional
                 },
-                new ArticulateTagsRouteHandler(this, nodesWithPath),
+                new ArticulateTagsRouteHandler(_logger, _contentUrls, nodesWithPath),
                 //Constraints: only match either the tags or categories url names
-                new { action = new TagsOrCategoryPathRouteConstraint(this, nodesWithPath) });
+                new { action = new TagsOrCategoryPathRouteConstraint(_contentUrls, nodesWithPath) });
 
             //Create the routes for the RSS specific feeds
             routes.MapUmbracoRoute(
@@ -202,9 +176,9 @@ namespace Articulate
                 {
                     controller = "ArticulateRss"
                 },
-                new ArticulateTagsRouteHandler(this, nodesWithPath),
+                new ArticulateTagsRouteHandler(_logger, _contentUrls, nodesWithPath),
                 //Constraints: only match either the tags or categories url names
-                new { action = new TagsOrCategoryPathRouteConstraint(this, nodesWithPath) });
+                new { action = new TagsOrCategoryPathRouteConstraint(_contentUrls, nodesWithPath) });
         }
 
         private void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
@@ -286,7 +260,7 @@ namespace Articulate
                         action = "Search",
                         term = UrlParameter.Optional
                     },
-                    new ArticulateSearchRouteHandler(this, nodesWithPath));
+                    new ArticulateSearchRouteHandler(_logger, _contentUrls, nodesWithPath));
             }
 
             

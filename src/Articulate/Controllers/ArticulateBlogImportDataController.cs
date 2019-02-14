@@ -21,21 +21,23 @@ namespace Articulate.Controllers
 
         public IHttpActionResult PostInstall()
         {
-            //TODO: indicate that it's already installed and no changes have been made
-            var root = _installer.Execute(out bool packageInstalled);
+            return NotFound();
 
-            string blogUrl;
+            ////TODO: indicate that it's already installed and no changes have been made
+            //var root = _installer.Execute(out bool packageInstalled);
 
-            if (root != null)
-            {
-                blogUrl = Umbraco.Content(root.Id).Url;
-            }
-            else
-            {
-                blogUrl = "/";
-            }
+            //string blogUrl;
 
-            return Ok(blogUrl);
+            //if (root != null)
+            //{
+            //    blogUrl = Umbraco.Content(root.Id).Url;
+            //}
+            //else
+            //{
+            //    blogUrl = "/";
+            //}
+
+            //return Ok(blogUrl);
         }
     }
 }

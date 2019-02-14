@@ -16,7 +16,7 @@ namespace Articulate
         public bool Execute(string packageName, XElement xmlData)
         {
             var dataInstaller = Current.Factory.GetInstance<ArticulateDataInstaller>();
-            var root = dataInstaller.Execute(out var packageInstalled);
+            var root = dataInstaller.Execute();
             //TODO: Maybe log something?
             return true;
         }

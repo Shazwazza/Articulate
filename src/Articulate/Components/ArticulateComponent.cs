@@ -3,6 +3,7 @@ using Articulate.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -45,15 +46,6 @@ namespace Articulate.Components
             //listen to the init event of the application base, this allows us to bind to the actual HttpApplication events
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
-            //map routes
-            RouteTable.Routes.MapRoute(
-                "ArticulateFeeds",
-                "ArticulateFeeds/{action}/{id}",
-                new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
-            );
-            _articulateRoutes.MapRoutes(RouteTable.Routes);
-            
-
             //umbraco event subscriptions
             ContentService.Created += ContentService_Created;
             ContentService.Saving += ContentService_Saving;
@@ -75,7 +67,48 @@ namespace Articulate.Components
         private void UmbracoApplicationBase_ApplicationInit(object sender, EventArgs e)
         {
             var app = (UmbracoApplicationBase)sender;
+            app.ResolveRequestCache += App_ResolveRequestCache;
             app.PostRequestHandlerExecute += App_PostRequestHandlerExecute;
+        }
+
+        private static bool _routesInitialized;
+        private static object _syncLock = new object();
+        private RouteInitializer _routeInitializer;
+
+        private class RouteInitializer
+        {
+            private readonly ArticulateRoutes _articulateRoutes;
+            public RouteInitializer(ArticulateRoutes articulateRoutes)
+            {
+                _articulateRoutes = articulateRoutes;
+            }
+
+            public void Initialize(RouteCollection routes)
+            {
+                //map routes
+                routes.MapRoute(
+                    "ArticulateFeeds",
+                    "ArticulateFeeds/{action}/{id}",
+                    new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
+                );
+                _articulateRoutes.MapRoutes(routes);
+            }
+        }
+
+        /// <summary>
+        /// This executes before Umbraco tries to do any routing but after the Umbraco context is created, it's here we want
+        /// to create our custom routes since we have access to the content cache at this point
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void App_ResolveRequestCache(object sender, EventArgs e)
+        {
+            LazyInitializer.EnsureInitialized(ref _routeInitializer, ref _routesInitialized, ref _syncLock, () =>
+            {
+                var routeInit = new RouteInitializer(_articulateRoutes);
+                routeInit.Initialize(RouteTable.Routes);
+                return routeInit;
+            });
         }
 
         /// <summary>

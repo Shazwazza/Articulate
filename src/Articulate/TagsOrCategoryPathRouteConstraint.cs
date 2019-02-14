@@ -7,6 +7,7 @@ using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -27,40 +28,49 @@ namespace Articulate
             public string CategoryUrlName { get; set; }
         }
 
-        private readonly List<UrlNames> _urlNames = new List<UrlNames>();
+        private readonly Lazy<List<UrlNames>> _urlNames;
 
-        public TagsOrCategoryPathRouteConstraint(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
+        public TagsOrCategoryPathRouteConstraint(ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException(nameof(itemsForRoute));
 
-            foreach (var node in itemsForRoute)
+            _urlNames = new Lazy<List<UrlNames>>(() =>
             {
-                var allUrls = articulateRoutes.GetContentUrls(node);
+                var urlNames = new List<UrlNames>();
 
-                foreach (var url in allUrls)
+                foreach (var node in itemsForRoute)
                 {
-                    //if there is a double slash, it will have a domain
-                    if (url.Contains("//"))
+                    var allUrls = contentUrls.GetContentUrls(node);
+
+                    foreach (var url in allUrls)
                     {
-                        var uri = new Uri(url, UriKind.Absolute);
-                        _urlNames.Add(new UrlNames
+                        //if there is a double slash, it will have a domain
+                        if (url.Contains("//"))
                         {
-                            Host = uri.Host,
-                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
-                            TagsUrlName = node.Value<string>("tagsUrlName")
-                        });
-                    }
-                    else
-                    {
-                        _urlNames.Add(new UrlNames
+                            var uri = new Uri(url, UriKind.Absolute);
+                            urlNames.Add(new UrlNames
+                            {
+                                Host = uri.Host,
+                                CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                                TagsUrlName = node.Value<string>("tagsUrlName")
+                            });
+                        }
+                        else
                         {
-                            Host = string.Empty,
-                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
-                            TagsUrlName = node.Value<string>("tagsUrlName")
-                        });
+                            urlNames.Add(new UrlNames
+                            {
+                                Host = string.Empty,
+                                CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                                TagsUrlName = node.Value<string>("tagsUrlName")
+                            });
+                        }
                     }
                 }
-            }
+
+                return urlNames;
+            });
+
+            
         }
 
         public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
@@ -69,17 +79,17 @@ namespace Articulate
 
             //determine if it's for a particular domain
             UrlNames urlNames;
-            if (_urlNames.Count == 1)
+            if (_urlNames.Value.Count == 1)
             {
-                urlNames = _urlNames.FirstOrDefault();
+                urlNames = _urlNames.Value.FirstOrDefault();
             }
             else
             {
                 urlNames = httpContext.Request.Url == null
-                    ? _urlNames.FirstOrDefault()  //cannot be determined
+                    ? _urlNames.Value.FirstOrDefault()  //cannot be determined
                     : httpContext.Request.Url.Host.InvariantEquals("localhost")
-                        ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
-                        : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                        ? _urlNames.Value.FirstOrDefault(x => x.Host == string.Empty)
+                        : _urlNames.Value.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
 
             if (urlNames == null) return false;

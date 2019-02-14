@@ -49,6 +49,7 @@
     <Compile Include="Components\ArticulateComponent.cs" />
     <Compile Include="Components\ArticulateComposer.cs" />
     <Compile Include="Components\MetaWeblogHandlerFactory.cs" />
+    <Compile Include="ContentUrls.cs" />
     <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
     <Compile Include="Controllers\ArticulateAuthorsController.cs" />

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Web.Routing;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -23,8 +24,8 @@ namespace Articulate
 
         private readonly List<UrlNames> _urlNames = new List<UrlNames>();
 
-        public ArticulateSearchRouteHandler(ArticulateRoutes articulateRoutes, IEnumerable<IPublishedContent> itemsForRoute)
-            : base(articulateRoutes, itemsForRoute)
+        public ArticulateSearchRouteHandler(ILogger logger, ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
+            : base(logger, contentUrls, itemsForRoute)
         {
             foreach (var node in itemsForRoute)
             {

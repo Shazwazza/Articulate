@@ -29,9 +29,9 @@ namespace Articulate
             _logger = logger;
         }
         
-        public IContent Execute(out bool packageInstalled)
+        public IContent Execute(/*out bool packageInstalled*/)
         {
-            packageInstalled = InstallPackage();
+            //packageInstalled = InstallPackage();
 
             //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
             // the number of crops required. 
@@ -55,90 +55,89 @@ namespace Articulate
             return null;
         }
 
-        private bool InstallPackage()
-        {
-            //need to save the package manifest to a temp folder since that is how this package installer logic works
-            var tempFile = Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "package.xml");
-            var tempDir = Path.GetDirectoryName(tempFile);
-            Directory.CreateDirectory(tempDir);
+        //private bool InstallPackage()
+        //{
+        //    //need to save the package manifest to a temp folder since that is how this package installer logic works
+        //    var tempFile = Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "package.xml");
+        //    var tempDir = Path.GetDirectoryName(tempFile);
+        //    Directory.CreateDirectory(tempDir);
 
-            try
-            {
-                //TODO: If we want to support this we need to write a Zip file with this inside of it and then we can use _packagingService.GetCompiledPackageInfo() on the zip file
-                System.IO.File.WriteAllText(tempFile, ArticulateResources.packageManifest);
-                
-                //_packagingService.GetCompiledPackageInfo()
-                //ins.LoadConfig(tempDir);
-                throw new NotImplementedException();
+        //    try
+        //    {
+        //        //TODO: If we want to support this we need to write a Zip file with this inside of it and then we can use _packagingService.GetCompiledPackageInfo() on the zip file
+        //        System.IO.File.WriteAllText(tempFile, ArticulateResources.packageManifest);
 
-                //int packageId;
-                //bool sameVersion;
-                //if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
-                //{
-                //    //if it's the same version, we don't need to install anything
-                //    if (!sameVersion)
-                //    {
-                //        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-                //        ins.InstallBusinessLogic(pckId, tempDir);
-                //        return true;
-                //    }
-                //    return false;
-                //}
-                //else
-                //{
-                //    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-                //    ins.InstallBusinessLogic(pckId, tempDir);
-                //    return true;
-                //}
-            }
-            finally
-            {
-                if (System.IO.File.Exists(tempFile))
-                {
-                    System.IO.File.Delete(tempFile);
-                }
-                if (System.IO.Directory.Exists(tempDir))
-                {
-                    System.IO.Directory.Delete(tempDir, true);
-                }
-            }
-        }
+        //        //_packagingService.GetCompiledPackageInfo()
+        //        //ins.LoadConfig(tempDir);
 
-        //borrowed from Core
-        private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
-        {
-            var allInstalled = _packagingService.GetAllInstalledPackages();
-            var found = allInstalled.Where(x => x.Name == name).ToArray();
-            sameVersion = false;
+        //        //int packageId;
+        //        //bool sameVersion;
+        //        //if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
+        //        //{
+        //        //    //if it's the same version, we don't need to install anything
+        //        //    if (!sameVersion)
+        //        //    {
+        //        //        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+        //        //        ins.InstallBusinessLogic(pckId, tempDir);
+        //        //        return true;
+        //        //    }
+        //        //    return false;
+        //        //}
+        //        //else
+        //        //{
+        //        //    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
+        //        //    ins.InstallBusinessLogic(pckId, tempDir);
+        //        //    return true;
+        //        //}
+        //    }
+        //    finally
+        //    {
+        //        if (System.IO.File.Exists(tempFile))
+        //        {
+        //            System.IO.File.Delete(tempFile);
+        //        }
+        //        if (System.IO.Directory.Exists(tempDir))
+        //        {
+        //            System.IO.Directory.Delete(tempDir, true);
+        //        }
+        //    }
+        //}
 
-            if (found.Length  > 0)
-            {
-                var foundVersion = found.FirstOrDefault(x =>
-                {
-                    //match the exact version
-                    if (x.Version == version)
-                    {
-                        return true;
-                    }
-                    //now try to compare the versions
-                    if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
-                    {
-                        if (installed >= selected)
-                            return true;
-                    }
-                    return false;
-                });
+        ////borrowed from Core
+        //private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
+        //{
+        //    var allInstalled = _packagingService.GetAllInstalledPackages();
+        //    var found = allInstalled.Where(x => x.Name == name).ToArray();
+        //    sameVersion = false;
 
-                sameVersion = foundVersion != null;
+        //    if (found.Length  > 0)
+        //    {
+        //        var foundVersion = found.FirstOrDefault(x =>
+        //        {
+        //            //match the exact version
+        //            if (x.Version == version)
+        //            {
+        //                return true;
+        //            }
+        //            //now try to compare the versions
+        //            if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
+        //            {
+        //                if (installed >= selected)
+        //                    return true;
+        //            }
+        //            return false;
+        //        });
 
-                //this package is already installed, find the highest package id for this package name that is installed
-                packageId = found.Max(x => x.Id);
-                return true;
-            }
+        //        sameVersion = foundVersion != null;
 
-            packageId = -1;
-            return false;
-        }
+        //        //this package is already installed, find the highest package id for this package name that is installed
+        //        packageId = found.Max(x => x.Id);
+        //        return true;
+        //    }
+
+        //    packageId = -1;
+        //    return false;
+        //}
 
         private void Upgrade()
         {
@@ -200,8 +199,7 @@ namespace Articulate
         {
             //Create the root node - this will automatically create the authors and archive nodes
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = _contentService.CreateContent(
-                "Blog", Udi.Create(Constants.UdiEntityType.Document, Constants.System.RootString), "Articulate");
+            var root = _contentService.Create("Blog", Constants.System.Root, "Articulate");
             root.SetValue("theme", "VAPOR");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
@@ -222,8 +220,7 @@ namespace Articulate
 
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = _contentService.CreateContent(
-                "Demo author", authors.GetUdi(), "ArticulateAuthor");
+            var author = _contentService.Create("Demo author", authors.Id, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
@@ -231,8 +228,7 @@ namespace Articulate
 
             //Create a test post
             _logger.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = _contentService.CreateContent(
-                "Test post", archive.GetUdi(), "ArticulateMarkdown");
+            var post = _contentService.Create("Test post", archive.Id, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
             post.AssignTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
