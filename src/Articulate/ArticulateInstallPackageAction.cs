@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using Umbraco.Core.PackageActions;
-using Umbraco.Core.Composing;
-using Umbraco.Web.Composing;
+using Umbraco.Core;
 using Current = Umbraco.Web.Composing.Current;
 
 namespace Articulate

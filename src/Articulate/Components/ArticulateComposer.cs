@@ -1,10 +1,7 @@
 ﻿using Articulate.Options;
 using Articulate.Syndication;
 using Umbraco.Core;
-using Umbraco.Core.Components;
 using Umbraco.Core.Composing;
-using Umbraco.Core.IO;
-using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 

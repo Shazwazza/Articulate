@@ -15,11 +15,11 @@ namespace Articulate
     // ReSharper disable once ClassNeverInstantiated.Global
     public class DisqusXmlExporter
     {
-        private readonly UmbracoHelper _umbracoHelper;
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
-        public DisqusXmlExporter(UmbracoHelper umbracoHelper)
+        public DisqusXmlExporter(IUmbracoContextAccessor umbracoContextAccessor)
         {
-            _umbracoHelper = umbracoHelper;
+            _umbracoContextAccessor = umbracoContextAccessor;
         }
 
         public XDocument Export(IEnumerable<IContent> posts, BlogMLDocument document)
@@ -58,7 +58,7 @@ namespace Articulate
 
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
-                    new XElement("link", _umbracoHelper.UrlAbsolute(post.Id)),
+                    new XElement("link", _umbracoContextAccessor?.UmbracoContext?.UrlAbsolute(post.Id) ?? string.Empty),
                     new XElement(nsContent + "encoded", new XCData(body)),
                     new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),

@@ -9,7 +9,6 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
-using Umbraco.Core.Components;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Events;
@@ -127,12 +126,10 @@ namespace Articulate.Components
 
         private void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
         {
-            if (UmbracoContext.Current == null) return;
-
             if (e.Entity.ContentType.Alias.InvariantEquals("ArticulateRichText")
                 || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
             {
-                if (_umbracoContextAccessor.UmbracoContext.Security.CurrentUser != null)
+                if (_umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
                 {
                     e.Entity.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
                 }
@@ -257,13 +254,11 @@ namespace Articulate.Components
         /// </remarks>
         private void ContentCacheRefresher_CacheUpdated(ContentCacheRefresher sender, CacheRefresherEventArgs e)
         {
-            if (UmbracoContext.Current == null) return;
-
             switch (e.MessageType)
             {
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
-                    var item = _umbracoContextAccessor.UmbracoContext.ContentCache.GetById((int)e.MessageObject);
+                    var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById((int)e.MessageObject);
                     if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         //ensure routes are rebuilt
