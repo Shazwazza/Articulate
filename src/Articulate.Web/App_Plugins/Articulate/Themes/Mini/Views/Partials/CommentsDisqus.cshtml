@@ -23,8 +23,8 @@
 
                 /** DO NOT MODIFY BELOW THIS LINE **/
 
-                var disqus_identifier = '@Model.GetContentKey()';
-                var disqus_url = '@Model.UrlWithDomain()';
+                var disqus_identifier = '@Model.Key';
+                var disqus_url = '@UmbracoContext.UrlAbsolute(Model.Id)';
 
                 (function () {
                     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

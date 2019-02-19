@@ -201,6 +201,13 @@ namespace Articulate
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = _contentService.Create("Blog", Constants.System.Root, "Articulate");
             root.SetValue("theme", "VAPOR");
+            root.SetValue("pageSize", 10);
+            root.SetValue("categoriesUrlName", "categories");
+            root.SetValue("tagsUrlName", "tags");
+            root.SetValue("searchUrlName", "search");
+            root.SetValue("categoriesPageName", "Categories");
+            root.SetValue("tagsPageName", "Tags");
+            root.SetValue("searchPageName", "Search results");
             root.SetValue("blogTitle", "Articulate Blog");
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("extractFirstImage", true);
@@ -208,14 +215,41 @@ namespace Articulate
             root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
             root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
 
-            _contentService.SaveAndPublish(root);
+            var result = _contentService.SaveAndPublish(root);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate root node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
 
             //get the authors and archive nodes and publish them
             _logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
-            var archive = _contentService.Create("Archive", root.Id, "ArticulateArchive");
-            var authors = _contentService.Create("Authors", root.Id, "ArticulateAuthors");
-            _contentService.SaveAndPublish(archive);
-            _contentService.SaveAndPublish(authors);
+            var children = _contentService.GetPagedChildren(root.Id, 0, 10, out var total).ToList();
+            var archive = children.FirstOrDefault(x => x.ContentType.Alias == "ArticulateArchive");
+            if (archive == null)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Articulate archive node was not created, cannot proceed to publish");
+                return null;
+            }
+            result = _contentService.SaveAndPublish(archive);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate archive node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
+
+            var authors = children.FirstOrDefault(x => x.ContentType.Alias == "ArticulateAuthors");
+            if (authors == null)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Articulate authors node was not created, cannot proceed to publish");
+                return null;
+            }
+            result = _contentService.SaveAndPublish(authors);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate authors node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
 
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
@@ -223,15 +257,21 @@ namespace Articulate
             author.SetValue("authorBio", "A test Author bio");
             author.SetValue("authorUrl", "http://google.com");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
-            _contentService.SaveAndPublish(author);
+            result = _contentService.SaveAndPublish(author);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate author node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
+
 
             //Create a test post
             _logger.Info<ArticulateDataInstaller>("Creating test blog post");
             var post = _contentService.Create("Test post", archive.Id, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post.AssignTags("categories", new[] { "TestCategory" }, true, "ArticulateCategories");
-            post.AssignTags("tags", new[] { "TestTag" }, true, "ArticulateTags");
+            post.AssignTags("categories", new[] { "TestCategory" }, true);
+            post.AssignTags("tags", new[] { "TestTag" }, true);
             post.SetValue("publishedDate", DateTime.Now);
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
@@ -264,7 +304,12 @@ You can post directly from your mobile (including images and photos). This edito
 http://yoursiteurl.com/a-new
 
 Enjoy!");
-            _contentService.SaveAndPublish(post);
+            result = _contentService.SaveAndPublish(post);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate post node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
 
             return root;
         }
