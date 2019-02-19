@@ -20,7 +20,7 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateSearchController : ListControllerBase
     {
-        public ArticulateSearchController(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
+        public ArticulateSearchController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
         {
             ArticulateSearcher = articulateSearcher;
         }
@@ -59,7 +59,7 @@ namespace Articulate.Controllers
 
             if (p != null && p.Value == 1)
             {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+                return new RedirectToUmbracoPageResult(model.Content, UmbracoContextAccessor);
             }
 
             if (p == null || p.Value <= 0)

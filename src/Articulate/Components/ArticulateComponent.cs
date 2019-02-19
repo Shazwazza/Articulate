@@ -19,6 +19,7 @@ using Umbraco.Core.Services.Implement;
 using Umbraco.Core.Sync;
 using Umbraco.Web;
 using Umbraco.Web.Cache;
+using Umbraco.Web.Editors;
 using Umbraco.Web.JavaScript;
 
 namespace Articulate.Components
@@ -41,20 +42,68 @@ namespace Articulate.Components
         }
 
         public void Initialize()
-        {
+        {   
             //listen to the init event of the application base, this allows us to bind to the actual HttpApplication events
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
             //umbraco event subscriptions
-            ContentService.Created += ContentService_Created;
             ContentService.Saving += ContentService_Saving;
             ContentService.Saved += ContentService_Saved;
             ServerVariablesParser.Parsing += ServerVariablesParser_Parsing;
-            //ContentTypeService.SavingContentType += ContentTypeService_SavingContentType; //TODO: Its internal in V8 core currently - will need newer build
+            ContentTypeService.Saving += ContentTypeService_SavingContentType;
             ContentCacheRefresher.CacheUpdated += ContentCacheRefresher_CacheUpdated;
             DomainCacheRefresher.CacheUpdated += DomainCacheRefresher_CacheUpdated;
-            
-        }        
+            EditorModelEventManager.SendingContentModel += EditorModelEventManager_SendingContentModel;
+
+            InitializeRoutes(_articulateRoutes, RouteTable.Routes);
+        }
+
+        /// <summary>
+        /// Fill in default properties when creating an Articulate root node
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditorModelEventManager_SendingContentModel(System.Web.Http.Filters.HttpActionExecutedContext sender, EditorModelEventArgs<Umbraco.Web.Models.ContentEditing.ContentItemDisplay> e)
+        {
+            var content = e.Model;
+            if (!content.ContentTypeAlias.InvariantEquals("Articulate")) return;
+
+            //if it's not new don't continue
+            if (content.Id != default(int))
+                return;
+
+            var allProperties = content.Variants.SelectMany(x => x.Tabs.SelectMany(p => p.Properties));
+            foreach (var prop in allProperties)
+            {
+                switch (prop.Alias)
+                {
+                    case "theme":
+                        prop.Value = "VAPOR";
+                        break;
+                    case "pageSize":
+                        prop.Value = 10;
+                        break;
+                    case "categoriesUrlName":
+                        prop.Value = "categories";
+                        break;
+                    case "tagsUrlName":
+                        prop.Value = "tags";
+                        break;
+                    case "searchUrlName":
+                        prop.Value = "search";
+                        break;
+                    case "categoriesPageName":
+                        prop.Value = "Categories";
+                        break;
+                    case "tagsPageName":
+                        prop.Value = "Tags";
+                        break;
+                    case "searchPageName":
+                        prop.Value = "Search results";
+                        break;
+                }
+            }
+        }
 
         public void Terminate()
         {
@@ -66,48 +115,19 @@ namespace Articulate.Components
         private void UmbracoApplicationBase_ApplicationInit(object sender, EventArgs e)
         {
             var app = (UmbracoApplicationBase)sender;
-            app.ResolveRequestCache += App_ResolveRequestCache;
+            //app.ResolveRequestCache += App_ResolveRequestCache;
             app.PostRequestHandlerExecute += App_PostRequestHandlerExecute;
         }
 
-        private static bool _routesInitialized;
-        private static object _syncLock = new object();
-        private RouteInitializer _routeInitializer;
-
-        private class RouteInitializer
+        private static void InitializeRoutes(ArticulateRoutes articulateRoutes, RouteCollection routes)
         {
-            private readonly ArticulateRoutes _articulateRoutes;
-            public RouteInitializer(ArticulateRoutes articulateRoutes)
-            {
-                _articulateRoutes = articulateRoutes;
-            }
-
-            public void Initialize(RouteCollection routes)
-            {
-                //map routes
-                routes.MapRoute(
-                    "ArticulateFeeds",
-                    "ArticulateFeeds/{action}/{id}",
-                    new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
-                );
-                _articulateRoutes.MapRoutes(routes);
-            }
-        }
-
-        /// <summary>
-        /// This executes before Umbraco tries to do any routing but after the Umbraco context is created, it's here we want
-        /// to create our custom routes since we have access to the content cache at this point
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void App_ResolveRequestCache(object sender, EventArgs e)
-        {
-            LazyInitializer.EnsureInitialized(ref _routeInitializer, ref _routesInitialized, ref _syncLock, () =>
-            {
-                var routeInit = new RouteInitializer(_articulateRoutes);
-                routeInit.Initialize(RouteTable.Routes);
-                return routeInit;
-            });
+            //map routes
+            routes.MapRoute(
+                "ArticulateFeeds",
+                "ArticulateFeeds/{action}/{id}",
+                new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
+            );
+            articulateRoutes.MapRoutes(routes);
         }
 
         /// <summary>
@@ -123,63 +143,54 @@ namespace Articulate.Components
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
             _articulateRoutes.MapRoutes(RouteTable.Routes);
         }
-
-        private void ContentService_Created(IContentService sender, NewEventArgs<IContent> e)
-        {
-            if (e.Entity.ContentType.Alias.InvariantEquals("ArticulateRichText")
-                || e.Entity.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
-            {
-                if (_umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
-                {
-                    e.Entity.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
-                }
-                e.Entity.SetValue("publishedDate", DateTime.Now);
-                e.Entity.SetValue("enableComments", 1);
-            }
-            else if (e.Entity.ContentType.Alias.InvariantEquals("Articulate"))
-            {
-                e.Entity.SetValue("theme", "VAPOR");
-                e.Entity.SetValue("pageSize", 10);
-                e.Entity.SetValue("categoriesUrlName", "categories");
-                e.Entity.SetValue("tagsUrlName", "tags");
-                e.Entity.SetValue("redirectArchive", true);
-                e.Entity.SetValue("searchUrlName", "search");
-                e.Entity.SetValue("categoriesPageName", "Categories");
-                e.Entity.SetValue("tagsPageName", "Tags");
-                e.Entity.SetValue("searchPageName", "Search results");
-            }
-        }
-
+        
         private void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
-            if (_configs.Articulate().AutoGenerateExcerpt)
+            foreach (var content in e.SavedEntities)
             {
-                foreach (var c in e.SavedEntities
-                    .Where(c => c.ContentType.Alias.InvariantEquals("ArticulateRichText") || c.ContentType.Alias.InvariantEquals("ArticulateMarkdown")))
+                if (!content.HasIdentity)
                 {
-                    //fill in the excerpt if it is empty
-                    if (c.GetValue<string>("excerpt").IsNullOrWhiteSpace())
+                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
+                        || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
-                        if (c.HasProperty("richText"))
+                        if (_umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
                         {
-                            var val = c.GetValue<string>("richText");
-                            c.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
+                            content.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
                         }
-                        else
-                        {
-                            var val = c.GetValue<IHtmlString>("markdown")?.ToString();
-                            c.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
-                        }
+                        content.SetValue("publishedDate", DateTime.Now);
+                        content.SetValue("enableComments", 1);
                     }
+                }
 
-                    //now fill in the social description if it is empty with the excerpt
-                    if (c.HasProperty("socialDescription"))
+                if (_configs.Articulate().AutoGenerateExcerpt)
+                {
+                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText") || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
-                        if (c.GetValue<string>("socialDescription").IsNullOrWhiteSpace())
+                        //fill in the excerpt if it is empty
+                        if (content.GetValue<string>("excerpt").IsNullOrWhiteSpace())
                         {
-                            c.SetValue("socialDescription", c.GetValue<string>("excerpt"));
+                            if (content.HasProperty("richText"))
+                            {
+                                var val = content.GetValue<string>("richText");
+                                content.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
+                            }
+                            else
+                            {
+                                var val = content.GetValue<IHtmlString>("markdown")?.ToString();
+                                content.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
+                            }
+                        }
+
+                        //now fill in the social description if it is empty with the excerpt
+                        if (content.HasProperty("socialDescription"))
+                        {
+                            if (content.GetValue<string>("socialDescription").IsNullOrWhiteSpace())
+                            {
+                                content.SetValue("socialDescription", content.GetValue<string>("excerpt"));
+                            }
                         }
                     }
+                    
                 }
             }
         }
@@ -189,18 +200,22 @@ namespace Articulate.Components
         /// </summary>
         private void ContentService_Saved(IContentService sender, SaveEventArgs<IContent> e)
         {
-            foreach (var c in e.SavedEntities.Where(c => c.HasIdentity == false && c.ContentType.Alias.InvariantEquals("Articulate")))
+            foreach (var c in e.SavedEntities)
             {
-                _logger.Debug<ArticulateComponent>("Creating sub nodes (authors, archive) for new Articulate node");
+                if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals("Articulate")) continue;
+                
+                //it's a root blog node, set up the required sub nodes (archive , authors) if they don't exist
 
-                //it's a root blog node, set up the required sub nodes (archive , authors)
-                var articles = sender.CreateAndSave("Archive", c, "ArticulateArchive");
+                var children = sender.GetPagedChildren(c.Id, 0, 10, out var total).ToList();
+                if (total == 0 || children.All(x => x.ContentType.Alias != "ArticulateArchive"))
+                {
+                    var articles = sender.CreateAndSave("Archive", c, "ArticulateArchive");
+                }
 
-                _logger.Debug<ArticulateComponent>("Archive node created with name: {ArchiveNodeName}", articles.Name);
-
-                var authors = sender.CreateAndSave("Authors", c, "ArticulateAuthors");
-
-                _logger.Debug<ArticulateComponent>("Authors node created with name: {AuthorNodeName}", authors.Name);
+                if (total == 0 || children.All(x => x.ContentType.Alias != "ArticulateArchive"))
+                {
+                    var authors = sender.CreateAndSave("Authors", c, "ArticulateAuthors");
+                }
             }
         }
 

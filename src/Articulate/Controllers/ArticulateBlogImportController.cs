@@ -25,12 +25,12 @@ namespace Articulate.Controllers
         private readonly BlogMlImporter _blogMlImporter;
         private readonly BlogMlExporter _blogMlExporter;
 
-        public ArticulateBlogImportController(BlogMlImporter blogMlImporter, BlogMlExporter blogMlExporter, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        public ArticulateBlogImportController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, BlogMlImporter blogMlImporter, BlogMlExporter blogMlExporter) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
         {
             _blogMlImporter = blogMlImporter;
             _blogMlExporter = blogMlExporter;
         }
-
+        
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())

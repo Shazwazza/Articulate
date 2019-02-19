@@ -1177,7 +1177,7 @@ Supporting all the features you'd want in a blogging platform:
                     <Name>Social Description</Name>
                     <Alias>socialDescription</Alias>
                     <Type>Umbraco.TextboxMultiple</Type>
-                    <Definition>cf59b608-c3ac-4016-bf67-41d72a1dbac5</Definition>
+                    <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
                     <Tab>Meta Tags</Tab>
                     <SortOrder>0</SortOrder>
                     <Mandatory>False</Mandatory>
@@ -1260,7 +1260,7 @@ Supporting all the features you'd want in a blogging platform:
                 <GenericProperty>
                     <Name>Rich Text</Name>
                     <Alias>richText</Alias>
-                    <Type>Umbraco.TinyMCEv3</Type>
+                    <Type>Umbraco.TinyMCE</Type>
                     <Definition>dbcb0707-021d-4cd4-ba8b-5cc891516c28</Definition>
                     <Tab>Content</Tab>
                     <Mandatory>False</Mandatory>
@@ -1300,7 +1300,7 @@ Supporting all the features you'd want in a blogging platform:
                 <PreValue Id="9" Value="" Alias="defaultValue" SortOrder="1" />
             </PreValues>
         </DataType>
-        <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCEv3" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext">
+        <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext">
             <PreValues>
                 <PreValue Id="10" Value="{&#xD;&#xA;  &quot;toolbar&quot;: [&#xD;&#xA;    &quot;code&quot;,&#xD;&#xA;    &quot;bold&quot;,&#xD;&#xA;    &quot;italic&quot;,&#xD;&#xA;    &quot;underline&quot;,&#xD;&#xA;    &quot;strikethrough&quot;,&#xD;&#xA;    &quot;alignleft&quot;,&#xD;&#xA;    &quot;aligncenter&quot;,&#xD;&#xA;    &quot;alignright&quot;,&#xD;&#xA;    &quot;bullist&quot;,&#xD;&#xA;    &quot;numlist&quot;,&#xD;&#xA;    &quot;link&quot;,&#xD;&#xA;    &quot;unlink&quot;,&#xD;&#xA;    &quot;anchor&quot;,&#xD;&#xA;    &quot;umbmediapicker&quot;,&#xD;&#xA;    &quot;umbembeddialog&quot;,&#xD;&#xA;    &quot;hr&quot;&#xD;&#xA;  ],&#xD;&#xA;  &quot;stylesheets&quot;: [],&#xD;&#xA;  &quot;dimensions&quot;: {&#xD;&#xA;    &quot;height&quot;: 500&#xD;&#xA;  }&#xD;&#xA;}" Alias="editor" SortOrder="0" />
                 <PreValue Id="11" Value="true" Alias="hideLabel" SortOrder="1" />

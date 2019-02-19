@@ -26,12 +26,11 @@ namespace Articulate.Controllers
 
     public class ArticulateRssController : RenderMvcController
     {
-        public ArticulateRssController(IRssFeedGenerator rssFeedGenerator, IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) 
-            : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
+        public ArticulateRssController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IRssFeedGenerator feedGenerator) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
         {
-            FeedGenerator = rssFeedGenerator;
+            FeedGenerator = feedGenerator;
         }
-
+        
         //NonAction so it is not routed since we want to use an overload below
         [NonAction]
         public override ActionResult Index(ContentModel model)

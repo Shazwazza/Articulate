@@ -3,6 +3,10 @@ using System.Linq;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -11,6 +15,10 @@ namespace Articulate.Controllers
 {
     public class ArticulateAuthorController : ListControllerBase
     {
+        public ArticulateAuthorController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+        }
+
         /// <summary>
         /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
         /// </summary>
@@ -38,7 +46,7 @@ namespace Articulate.Controllers
             PagerModel pager;
             if (!GetPagerModel(masterModel, totalPosts, p, out pager))
             {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContext);
+                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContextAccessor);
             }
 
             var authorPosts = Umbraco.GetContentByAuthor(listNodes, model.Content.Name, pager);
@@ -46,5 +54,7 @@ namespace Articulate.Controllers
             
             return View(PathHelper.GetThemeViewPath(author, "Author"), author);
         }
+
+        
     }
 }

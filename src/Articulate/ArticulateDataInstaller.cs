@@ -212,11 +212,10 @@ namespace Articulate
 
             //get the authors and archive nodes and publish them
             _logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
-            var children = _contentService.GetPagedChildren(root.Id, 0, int.MaxValue, out long totalChildren);
-            var authors = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateAuthors"));
-            var archive = children.First(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
-            _contentService.SaveAndPublish(authors);
+            var archive = _contentService.Create("Archive", root.Id, "ArticulateArchive");
+            var authors = _contentService.Create("Authors", root.Id, "ArticulateAuthors");
             _contentService.SaveAndPublish(archive);
+            _contentService.SaveAndPublish(authors);
 
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");

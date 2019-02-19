@@ -2,6 +2,10 @@
 using System.Linq;
 using System.Web.Mvc;
 using Articulate.Models;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 
@@ -12,6 +16,10 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateController : ListControllerBase
     {
+        public ArticulateController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+        }
+
         /// <summary>
         /// Declare new Index action with optional page number
         /// </summary>

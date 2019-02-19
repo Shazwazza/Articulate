@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Articulate.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
@@ -33,7 +34,7 @@ namespace Articulate
         /// </summary>
         public IEnumerable<UrlInfo> GetOtherUrls(UmbracoContext umbracoContext, int id, Uri current)
         {
-            return null;
+            return Enumerable.Empty<UrlInfo>();
         }
     }
 }

@@ -21,14 +21,9 @@ namespace Articulate.Controllers
     /// </summary>
     public abstract class ListControllerBase : RenderMvcController
     {
-        protected ListControllerBase()
+        protected ListControllerBase(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
         {
         }
-
-        protected ListControllerBase(IGlobalSettings globalSettings, UmbracoContext umbracoContext, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContext, services, appCaches, profilingLogger, umbracoHelper)
-        {
-        }
-
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
@@ -41,7 +36,7 @@ namespace Articulate.Controllers
 
             if (!GetPagerModel(masterModel, totalPosts, p, out var pager))
             {
-                return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContext);
+                return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContextAccessor);
             }
 
             var listModel = new ListModel(pageNode, listItems, pager);

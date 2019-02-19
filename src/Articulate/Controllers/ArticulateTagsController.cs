@@ -3,6 +3,10 @@ using System;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -21,6 +25,10 @@ namespace Articulate.Controllers
 
     public class ArticulateTagsController : ListControllerBase
     {
+        public ArticulateTagsController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+        }
+
         /// <summary>
         /// Sets a custom action invoker so that the correct action is executed based on the specified tag/category url defined on the articulate root
         /// </summary>
