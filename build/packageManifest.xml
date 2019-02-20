@@ -1283,38 +1283,15 @@ Supporting all the features you'd want in a blogging platform:
     <DictionaryItems />
     <Languages />
     <DataTypes>
-        <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar">
-            <PreValues>
-                <PreValue Id="6" Value="ArticulateCategories" Alias="group" SortOrder="0" />
-                <PreValue Id="7" Value="Json" Alias="storageType" SortOrder="1" />
-            </PreValues>
-        </DataType>
-        <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext">
-            <PreValues>
-                <PreValue Id="16" Value="[&#xD;&#xA;  {&#xD;&#xA;    &quot;alias&quot;: &quot;blogPost&quot;,&#xD;&#xA;    &quot;width&quot;: 200,&#xD;&#xA;    &quot;height&quot;: 200&#xD;&#xA;  },&#xD;&#xA;  {&#xD;&#xA;    &quot;alias&quot;: &quot;thumbnail&quot;,&#xD;&#xA;    &quot;width&quot;: 50,&#xD;&#xA;    &quot;height&quot;: 50&#xD;&#xA;  }&#xD;&#xA;]" Alias="crops" SortOrder="0" />
-            </PreValues>
-        </DataType>
-        <DataType Name="Articulate Markdown" Id="Umbraco.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext">
-            <PreValues>
-                <PreValue Id="8" Value="true" Alias="preview" SortOrder="0" />
-                <PreValue Id="9" Value="" Alias="defaultValue" SortOrder="1" />
-            </PreValues>
-        </DataType>
-        <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext">
-            <PreValues>
-                <PreValue Id="10" Value="{&#xD;&#xA;  &quot;toolbar&quot;: [&#xD;&#xA;    &quot;code&quot;,&#xD;&#xA;    &quot;bold&quot;,&#xD;&#xA;    &quot;italic&quot;,&#xD;&#xA;    &quot;underline&quot;,&#xD;&#xA;    &quot;strikethrough&quot;,&#xD;&#xA;    &quot;alignleft&quot;,&#xD;&#xA;    &quot;aligncenter&quot;,&#xD;&#xA;    &quot;alignright&quot;,&#xD;&#xA;    &quot;bullist&quot;,&#xD;&#xA;    &quot;numlist&quot;,&#xD;&#xA;    &quot;link&quot;,&#xD;&#xA;    &quot;unlink&quot;,&#xD;&#xA;    &quot;anchor&quot;,&#xD;&#xA;    &quot;umbmediapicker&quot;,&#xD;&#xA;    &quot;umbembeddialog&quot;,&#xD;&#xA;    &quot;hr&quot;&#xD;&#xA;  ],&#xD;&#xA;  &quot;stylesheets&quot;: [],&#xD;&#xA;  &quot;dimensions&quot;: {&#xD;&#xA;    &quot;height&quot;: 500&#xD;&#xA;  }&#xD;&#xA;}" Alias="editor" SortOrder="0" />
-                <PreValue Id="11" Value="true" Alias="hideLabel" SortOrder="1" />
-            </PreValues>
-        </DataType>
-        <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar">
-            <PreValues>
-                <PreValue Id="12" Value="ArticulateTags" Alias="group" SortOrder="0" />
-                <PreValue Id="13" Value="Json" Alias="storageType" SortOrder="1" />
-            </PreValues>
-        </DataType>
-        <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar">
-            <PreValues />
-        </DataType>
+        <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar" 
+                  Configuration="{'group': 'ArticulateCategories'}"/>
+        <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext" 
+                  Configuration="{'Crops':[{'alias':'blogPost','width':200,'height':200},{'alias':'square','width':480,'height':480},{'alias':'thumbnail','width':50,'height':50},{'alias':'wide','width':1024,'height':512}]}" />
+        <DataType Name="Articulate Markdown" Id="Umbraco.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext"/>        
+        <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext" 
+                  Configuration="{'Editor':{'toolbar':['ace','bold','italic','underline','strikethrough','alignleft','aligncenter','alignright','bullist','numlist','link','unlink','anchor','umbmediapicker','umbembeddialog'],'mode':'distraction-free'},'HideLabel':true}"/>
+        <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar" Configuration="{'group': 'ArticulateTags'}"/>
+        <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar"/>
     </DataTypes>
     <view>~/App_Plugins/Articulate/BackOffice/package-options.html</view>
     <Actions>

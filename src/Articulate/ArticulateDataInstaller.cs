@@ -44,7 +44,7 @@ namespace Articulate
                 throw new InvalidOperationException("Could not find the Articulate content type");
             }
 
-            Upgrade();
+            //Upgrade();
 
             var root = _contentService.GetPagedOfType(articulateContentType.Id, 0, int.MaxValue, out long totalRoots, null).FirstOrDefault();
             if (root == null)
@@ -139,61 +139,62 @@ namespace Articulate
         //    return false;
         //}
 
-        private void Upgrade()
-        {
-            //For v2.0 we need to manually add some pre-values to the Articulate Cropper,
-            // https://github.com/Shazwazza/Articulate/issues/80
-            // https://github.com/Shazwazza/Articulate/issues/135
-            // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
-            //For v3.0 we need to manually add some pre-values to the Articulate Cropper,
-            // https://github.com/Shazwazza/Articulate/issues/202
+        //private void Upgrade()
+        //{
+        //    //For v2.0 we need to manually add some pre-values to the Articulate Cropper,
+        //    // https://github.com/Shazwazza/Articulate/issues/80
+        //    // https://github.com/Shazwazza/Articulate/issues/135
+        //    // The normal upgrade process will upgrade all of the other things apart from the addition of the pre-values
+        //    //For v3.0 we need to manually add some pre-values to the Articulate Cropper,
+        //    // https://github.com/Shazwazza/Articulate/issues/202
 
-            var cropperDt = _dataTypeService.GetDataType("Articulate Cropper");
-            if (cropperDt != null)
-            {
-                if (cropperDt.EditorAlias.InvariantEquals("Umbraco.ImageCropper"))
-                {
-                    var preVals = cropperDt.ConfigurationAs<ImageCropperConfiguration>();
-                    if (preVals != null)
-                    {
-                        var crops = new ImageCropperConfiguration.Crop[]
-                        {
-                            new ImageCropperConfiguration.Crop { Alias = "square", Width = 480, Height = 480 },
-                            new ImageCropperConfiguration.Crop { Alias = "thumbnail", Width = 50, Height = 50 },
-                            new ImageCropperConfiguration.Crop { Alias = "wide", Width = 1024, Height = 512 }
-                        };
+        //    var cropperDt = _dataTypeService.GetDataType("Articulate Cropper");
+        //    if (cropperDt != null)
+        //    {
+        //        if (cropperDt.EditorAlias.InvariantEquals("Umbraco.ImageCropper"))
+        //        {
+        //            var preVals = cropperDt.ConfigurationAs<ImageCropperConfiguration>();
+        //            if (preVals != null)
+        //            {
+        //                var crops = new ImageCropperConfiguration.Crop[]
+        //                {
+        //                    new ImageCropperConfiguration.Crop { Alias = "square", Width = 480, Height = 480 },
+        //                    new ImageCropperConfiguration.Crop { Alias = "thumbnail", Width = 50, Height = 50 },
+        //                    new ImageCropperConfiguration.Crop { Alias = "wide", Width = 1024, Height = 512 },
+        //                    new ImageCropperConfiguration.Crop { Alias = "blogPost", Width = 200, Height = 200 }
+        //                };
 
-                        if (preVals.Crops == null || preVals.Crops.Length == 0)
-                        {
-                            preVals.Crops = crops;
-                            _dataTypeService.Save(cropperDt);
-                        }
-                        else
-                        {
-                            //we should merge them since the developer may have added their own
-                            var currentCrops = preVals.Crops;
-                            var required = crops.ToDictionary(crop => crop.Alias, crop => false);
+        //                if (preVals.Crops == null || preVals.Crops.Length == 0)
+        //                {
+        //                    preVals.Crops = crops;
+        //                    _dataTypeService.Save(cropperDt);
+        //                }
+        //                else
+        //                {
+        //                    //we should merge them since the developer may have added their own
+        //                    var currentCrops = preVals.Crops;
+        //                    var required = crops.ToDictionary(crop => crop.Alias, crop => false);
 
-                            foreach (var cropAlias in currentCrops.Select(x => x.Alias))
-                            {
-                                if (required.ContainsKey(cropAlias))
-                                    required[cropAlias] = true;
-                            }
+        //                    foreach (var cropAlias in currentCrops.Select(x => x.Alias))
+        //                    {
+        //                        if (required.ContainsKey(cropAlias))
+        //                            required[cropAlias] = true;
+        //                    }
 
-                            //fill in the missing
-                            foreach (var req in required)
-                            {
-                                if (!req.Value)
-                                    preVals.Crops.Append(crops.First(x => x.Alias == req.Key));
-                            }
+        //                    //fill in the missing
+        //                    foreach (var req in required)
+        //                    {
+        //                        if (!req.Value)
+        //                            preVals.Crops.Append(crops.First(x => x.Alias == req.Key));
+        //                    }
 
-                            preVals.Crops = crops;
-                            _dataTypeService.Save(cropperDt);
-                        }                        
-                    }
-                }
-            }
-        }
+        //                    preVals.Crops = crops;
+        //                    _dataTypeService.Save(cropperDt);
+        //                }                        
+        //            }
+        //        }
+        //    }
+        //}
 
         private IContent InstallContent()
         {
