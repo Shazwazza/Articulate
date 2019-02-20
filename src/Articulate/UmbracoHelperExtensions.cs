@@ -108,12 +108,12 @@ namespace Articulate
 
             var sqlSyntax = Current.SqlContext.SqlSyntax;
 
-            var sql = GetTagQuery("cmsTags.id, cmsTags.tag, cmsTags.[group], Count(*) as NodeCount", masterModel, sqlSyntax)
-                .Where("cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+            var sql = GetTagQuery($"{Constants.DatabaseSchema.Tables.Tag}.id, {Constants.DatabaseSchema.Tables.Tag}.tag, {Constants.DatabaseSchema.Tables.Tag}.[group], Count(*) as NodeCount", masterModel, sqlSyntax)
+                .Where($"{Constants.DatabaseSchema.Tables.Tag}." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                 {
                     tagGroup = "ArticulateCategories"
                 })
-                .GroupBy("cmsTags.id", "cmsTags.tag", "cmsTags." + sqlSyntax.GetQuotedColumnName("group") + @"");
+                .GroupBy($"{Constants.DatabaseSchema.Tables.Tag}.id", $"{Constants.DatabaseSchema.Tables.Tag}.tag", $"{Constants.DatabaseSchema.Tables.Tag}." + sqlSyntax.GetQuotedColumnName("group") + @"");
 
             using(var scope = Current.ScopeProvider.CreateScope())
             {
@@ -181,16 +181,16 @@ namespace Articulate
         {
             var sql = new Sql()
                 .Select(selectCols)
-                .From("cmsTags")
-                .InnerJoin("cmsTagRelationship")
-                .On("cmsTagRelationship.tagId = cmsTags.id")
-                .InnerJoin("cmsContent")
-                .On("cmsContent.nodeId = cmsTagRelationship.nodeId")
-                .InnerJoin("umbracoNode")
-                .On("umbracoNode.id = cmsContent.nodeId")
-                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
+                .From(Constants.DatabaseSchema.Tables.Tag)
+                .InnerJoin(Constants.DatabaseSchema.Tables.TagRelationship)
+                .On($"{Constants.DatabaseSchema.Tables.TagRelationship}.tagId = {Constants.DatabaseSchema.Tables.Tag}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.Content)
+                .On($"{Constants.DatabaseSchema.Tables.Content}.nodeId = {Constants.DatabaseSchema.Tables.TagRelationship}.nodeId")
+                .InnerJoin(Constants.DatabaseSchema.Tables.Node)
+                .On($"{Constants.DatabaseSchema.Tables.Node}.id = {Constants.DatabaseSchema.Tables.Content}.nodeId")
+                .Where($"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
                 //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
+                .Where($"{Constants.DatabaseSchema.Tables.Node}." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
             return sql;
         }
 
@@ -211,18 +211,18 @@ namespace Articulate
         {
             var sql = new Sql()
                 .Select(selectCols)                
-                .From("umbracoNode")
-                .InnerJoin("cmsDocument")
-                .On("cmsDocument.nodeId = umbracoNode.id")
-                .InnerJoin("cmsPropertyData")
-                .On("cmsPropertyData.versionId = cmsDocument.versionId")
-                .Where("umbracoNode.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
+                .From(Constants.DatabaseSchema.Tables.Node)
+                .InnerJoin(Constants.DatabaseSchema.Tables.Document)
+                .On($"{Constants.DatabaseSchema.Tables.Document}.nodeId = {Constants.DatabaseSchema.Tables.Node}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.PropertyData)
+                .On($"{Constants.DatabaseSchema.Tables.PropertyData}.versionId = {Constants.DatabaseSchema.Tables.Document}.versionId")
+                .Where($"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
                 //Must be published, this will ensure there's only one version selected
-                .Where("cmsDocument.published = 1")
+                .Where($"{Constants.DatabaseSchema.Tables.Document}.published = 1")
                 //must only return rows with the publishedDate property data so we only get one row and so we can sort on `cmsPropertyData.dataDate` which will be the publishedDate
-                .Where("cmsPropertyData.propertytypeid = @propTypeId", new {propTypeId = publishedDatePropertyTypeId})
+                .Where($"{Constants.DatabaseSchema.Tables.PropertyData}.propertytypeid = @propTypeId", new {propTypeId = publishedDatePropertyTypeId})
                 //only get nodes underneath the current articulate root
-                .Where("umbracoNode." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
+                .Where($"{Constants.DatabaseSchema.Tables.Node}." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
             return sql;
         }
 
@@ -245,7 +245,7 @@ namespace Articulate
                 //process in groups to not exceed the max SQL params
                 foreach (var tagBatch in tags.InGroupsOf(2000))
                 {
-                    var sql = GetTagQuery("cmsTagRelationship.nodeId, cmsTagRelationship.tagId, cmsTags.tag", masterModel, sqlSyntax)
+                    var sql = GetTagQuery($"{Constants.DatabaseSchema.Tables.TagRelationship}.nodeId, {Constants.DatabaseSchema.Tables.TagRelationship}.tagId, {Constants.DatabaseSchema.Tables.Tag}.tag", masterModel, sqlSyntax)
                         .Where("tagId IN (@tagIds) AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                         {
                             tagIds = tagBatch.Select(x => x.Id).ToArray(),
@@ -300,12 +300,12 @@ namespace Articulate
 
             PostsByTagModel GetResult()
             {
-                var sqlTags = GetTagQuery("umbracoNode.id", masterModel, sqlSyntax);
+                var sqlTags = GetTagQuery($"{Constants.DatabaseSchema.Tables.Node}.id", masterModel, sqlSyntax);
                 
                 //For whatever reason, SQLCE and even SQL SERVER are not willing to lookup 
                 //tags with hyphens in them, it's super strange, so we force the tag column to be - what it already is!! what tha.
 
-                sqlTags.Where("CAST(cmsTags.tag AS NVARCHAR(200)) = @tagName AND cmsTags." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
+                sqlTags.Where($"CAST({Constants.DatabaseSchema.Tables.Tag}.tag AS NVARCHAR(200)) = @tagName AND {Constants.DatabaseSchema.Tables.Tag}." + sqlSyntax.GetQuotedColumnName("group") + " = @tagGroup", new
                 {
                     tagName = tag,
                     tagGroup = tagGroup
@@ -314,16 +314,16 @@ namespace Articulate
                 //get the publishedDate property type id on the ArticulatePost content type
                 using (var scope = Current.ScopeProvider.CreateScope())
                 {
-                    var publishedDatePropertyTypeId = scope.Database.ExecuteScalar<int>(@"SELECT cmsPropertyType.id FROM cmsContentType
-INNER JOIN cmsPropertyType ON cmsPropertyType.contentTypeId = cmsContentType.nodeId
-WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @propertyTypeAlias", new { contentTypeAlias = "ArticulatePost", propertyTypeAlias = "publishedDate" });
+                    var publishedDatePropertyTypeId = scope.Database.ExecuteScalar<int>($@"SELECT {Constants.DatabaseSchema.Tables.PropertyType}.id FROM {Constants.DatabaseSchema.Tables.ContentType}
+INNER JOIN {Constants.DatabaseSchema.Tables.PropertyType} ON {Constants.DatabaseSchema.Tables.PropertyType}.contentTypeId = {Constants.DatabaseSchema.Tables.ContentType}.nodeId
+WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AND {Constants.DatabaseSchema.Tables.PropertyType}.alias = @propertyTypeAlias", new { contentTypeAlias = "ArticulatePost", propertyTypeAlias = "publishedDate" });
 
-                    var sqlContent = GetContentByTagQueryForPaging("umbracoNode.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
+                    var sqlContent = GetContentByTagQueryForPaging($"{Constants.DatabaseSchema.Tables.Node}.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
 
-                    sqlContent.Append("WHERE umbracoNode.id IN (").Append(sqlTags).Append(")");
+                    sqlContent.Append($"WHERE {Constants.DatabaseSchema.Tables.Node}.id IN (").Append(sqlTags).Append(")");
 
                     //order by the dataDate field which will be the publishedDate 
-                    sqlContent.OrderBy("cmsPropertyData.dataDate DESC");
+                    sqlContent.OrderBy($"{Constants.DatabaseSchema.Tables.PropertyData}.dataDate DESC");
 
                     //TODO: ARGH This still returns multiple non distinct Ids :(
 
@@ -372,7 +372,7 @@ WHERE cmsContentType.alias = @contentTypeAlias AND cmsPropertyType.alias = @prop
 
         private static IPublishedContent[] GetListNodes(IMasterModel masterModel)
         {
-            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            var listNodes = masterModel.RootBlogNode.Children(string.Empty, "ArticulateArchive").ToArray();
             if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException(

@@ -75,7 +75,7 @@ namespace Articulate.Controllers
             //create a master model
             var masterModel = new MasterModel(author);
 
-            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            var listNodes = masterModel.RootBlogNode.Children(string.Empty, "ArticulateArchive").ToArray();
 
             var authorContenet = Umbraco.GetContentByAuthor(listNodes, author.Name, new PagerModel(maxItems.Value, 0, 1));
 

@@ -23,8 +23,8 @@ namespace Articulate.Models
         /// </summary>
         public string Theme
         {
-            get { return _theme ?? (_theme = base.Unwrap().Value<string>("theme", fallback: Fallback.ToAncestors)); }
-            protected set { _theme = value; }
+            get => _theme ?? (_theme = base.Unwrap().Value<string>("theme", fallback: Fallback.ToAncestors));
+            protected set => _theme = value;
         }
 
         public IPublishedContent RootBlogNode
@@ -32,14 +32,10 @@ namespace Articulate.Models
             get
             {
                 var root = base.Unwrap().AncestorOrSelf("Articulate");
-                if (root == null)
-                {
-                    throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
-                }
-                _rootBlogNode = root;
+                _rootBlogNode = root ?? throw new InvalidOperationException("Could not find the Articulate root document for the current rendered page");
                 return _rootBlogNode;
             }
-            protected set { _rootBlogNode = value; }
+            protected set => _rootBlogNode = value;
         }
 
         private IPublishedContent _rootBlogNode;
@@ -67,15 +63,11 @@ namespace Articulate.Models
         {
             get
             {
-                var list = RootBlogNode.Children("ArticulateArchive").FirstOrDefault();
-                if (list == null)
-                {
-                    throw new InvalidOperationException("Could not find the ArticulateArchive document for the current rendered page");
-                }
-                _blogListNode = list;
+                var list = RootBlogNode.Children(string.Empty, "ArticulateArchive").FirstOrDefault();
+                _blogListNode = list ?? throw new InvalidOperationException("Could not find the ArticulateArchive document for the current rendered page");
                 return _blogListNode;
             }
-            protected set { _blogListNode = value; }
+            protected set => _blogListNode = value;
         }
 
         /// <summary>
@@ -85,51 +77,47 @@ namespace Articulate.Models
         {
             get
             {
-                var authors = RootBlogNode.Children("ArticulateAuthors").FirstOrDefault();
-                if (authors == null)
-                {
-                    throw new InvalidOperationException("Could not find the ArticulateAuthors document for the current rendered page");
-                }
-                _blogAuthorsNode = authors;
+                var authors = RootBlogNode.Children(string.Empty, "ArticulateAuthors").FirstOrDefault();
+                _blogAuthorsNode = authors ?? throw new InvalidOperationException("Could not find the ArticulateAuthors document for the current rendered page");
                 return _blogAuthorsNode;
             }
-            protected set { _blogListNode = value; }
+            protected set => _blogListNode = value;
         }
 
         public string DisqusShortName
         {
-            get { return _disqusShortName ?? (_disqusShortName = base.Unwrap().Value<string>("disqusShortname", fallback: Fallback.ToAncestors)); }
-            protected set { _disqusShortName = value; }
+            get => _disqusShortName ?? (_disqusShortName = base.Unwrap().Value<string>("disqusShortname", fallback: Fallback.ToAncestors));
+            protected set => _disqusShortName = value;
         }
 
         public string CustomRssFeed
         {
-            get { return _customRssFeed ?? (_customRssFeed = RootBlogNode.Value<string>("customRssFeedUrl")); }
-            protected set { _customRssFeed = value; }
+            get => _customRssFeed ?? (_customRssFeed = RootBlogNode.Value<string>("customRssFeedUrl"));
+            protected set => _customRssFeed = value;
         }        
 
         public string BlogLogo
         {
-            get { return _blogLogo ?? (_blogLogo = RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max)); }
-            protected set { _blogLogo = value; }
+            get => _blogLogo ?? (_blogLogo = RootBlogNode.GetCropUrl(propertyAlias: "blogLogo", imageCropMode: ImageCropMode.Max));
+            protected set => _blogLogo = value;
         }
 
         public string BlogBanner
         {
-            get { return _blogBanner ?? (_blogBanner = RootBlogNode.GetCropUrl(propertyAlias: "blogBanner", imageCropMode: ImageCropMode.Max)); }
-            protected set { _blogBanner = value; }
+            get => _blogBanner ?? (_blogBanner = RootBlogNode.GetCropUrl(propertyAlias: "blogBanner", imageCropMode: ImageCropMode.Max));
+            protected set => _blogBanner = value;
         }
 
         public string BlogTitle
         {
-            get { return _blogTitle ?? (_blogTitle = base.Unwrap().Value<string>("blogTitle", fallback: Fallback.ToAncestors)); }
-            protected set { _blogTitle = value; }
+            get => _blogTitle ?? (_blogTitle = base.Unwrap().Value<string>("blogTitle", fallback: Fallback.ToAncestors));
+            protected set => _blogTitle = value;
         }
 
         public string BlogDescription
         {
-            get { return _blogDescription ?? (_blogDescription = base.Unwrap().Value<string>("blogDescription", fallback: Fallback.ToAncestors)); }
-            protected set { _blogDescription = value; }
+            get => _blogDescription ?? (_blogDescription = base.Unwrap().Value<string>("blogDescription", fallback: Fallback.ToAncestors));
+            protected set => _blogDescription = value;
         }
 
         public int PageSize
@@ -142,20 +130,20 @@ namespace Articulate.Models
                 }
                 return _pageSize.Value;
             }
-            protected set { _pageSize = value; }
+            protected set => _pageSize = value;
         }
 
 
         public string PageTitle
         {
-            get { return _pageTitle ?? (_pageTitle = Name + " - " + BlogTitle); }
-            protected set { _pageTitle = value; }
+            get => _pageTitle ?? (_pageTitle = Name + " - " + BlogTitle);
+            protected set => _pageTitle = value;
         }
 
         public string PageDescription
         {
-            get { return _pageDescription ?? (_pageDescription = BlogDescription); }
-            protected set { _pageDescription = value; }
+            get => _pageDescription ?? (_pageDescription = BlogDescription);
+            protected set => _pageDescription = value;
         }
 
         public string PageTags { get; protected set; }
