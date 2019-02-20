@@ -395,7 +395,7 @@ namespace Articulate
                 .Select(x => x.Title.Content)
                 .ToArray();
 
-            postNode.AssignTags("categories", postCats, true, "ArticulateCategories");
+            postNode.AssignTags("categories", postCats);
         }
 
         private void ImportTags(XDocument xdoc, IContent postNode, BlogMLPost post)

@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Routing;
 using System.Web.Security;
+using HeyRed.MarkdownSharp;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
@@ -303,9 +304,9 @@ namespace Articulate
                 content.SetValue("enableComments", 0);
             }
 
-            content.AssignTags("categories", post.Categories, true, "ArticulateCategories");
+            content.AssignTags("categories", post.Categories);
             var tags = post.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
-            content.AssignTags("tags", tags, true, "ArticulateTags");
+            content.AssignTags("tags", tags);
 
             if (publish)
             {
@@ -360,7 +361,7 @@ namespace Articulate
                 Categories = post.GetValue<string>("categories").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
                 Content = post.ContentType.Alias == "ArticulateRichText"
                     ? post.GetValue<string>("richText")
-                    : post.GetValue<IHtmlString>("markdown")?.ToString(),
+                    : new Markdown().Transform(post.GetValue<string>("markdown")),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
                 Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()

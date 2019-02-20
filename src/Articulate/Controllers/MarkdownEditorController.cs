@@ -4,7 +4,7 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    public class MarkdownEditorController : UmbracoController
+    public class MarkdownEditorController : PluginController
     {
         [System.Web.Mvc.HttpGet]
         public ActionResult NewPost(ContentModel model)

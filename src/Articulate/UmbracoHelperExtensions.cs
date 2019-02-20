@@ -214,12 +214,17 @@ namespace Articulate
                 .From(Constants.DatabaseSchema.Tables.Node)
                 .InnerJoin(Constants.DatabaseSchema.Tables.Document)
                 .On($"{Constants.DatabaseSchema.Tables.Document}.nodeId = {Constants.DatabaseSchema.Tables.Node}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.ContentVersion)
+                .On($"{Constants.DatabaseSchema.Tables.ContentVersion}.nodeId = {Constants.DatabaseSchema.Tables.Document}.nodeId")
+                .InnerJoin(Constants.DatabaseSchema.Tables.DocumentVersion)
+                .On($"{Constants.DatabaseSchema.Tables.DocumentVersion}.id = {Constants.DatabaseSchema.Tables.ContentVersion}.id")
                 .InnerJoin(Constants.DatabaseSchema.Tables.PropertyData)
-                .On($"{Constants.DatabaseSchema.Tables.PropertyData}.versionId = {Constants.DatabaseSchema.Tables.Document}.versionId")
+                .On($"{Constants.DatabaseSchema.Tables.PropertyData}.versionId = {Constants.DatabaseSchema.Tables.DocumentVersion}.id")
                 .Where($"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType", new { nodeObjectType = Constants.ObjectTypes.Document })
                 //Must be published, this will ensure there's only one version selected
                 .Where($"{Constants.DatabaseSchema.Tables.Document}.published = 1")
-                //must only return rows with the publishedDate property data so we only get one row and so we can sort on `cmsPropertyData.dataDate` which will be the publishedDate
+                .Where($"{Constants.DatabaseSchema.Tables.DocumentVersion}.published = 1")
+                //must only return rows with the publishedDate property data so we only get one row and so we can sort on `cmsPropertyData.dateValue` which will be the publishedDate
                 .Where($"{Constants.DatabaseSchema.Tables.PropertyData}.propertytypeid = @propTypeId", new {propTypeId = publishedDatePropertyTypeId})
                 //only get nodes underneath the current articulate root
                 .Where($"{Constants.DatabaseSchema.Tables.Node}." + sqlSyntax.GetQuotedColumnName("path") + " LIKE @path", new { path = masterModel.RootBlogNode.Path + ",%" });
@@ -318,12 +323,15 @@ namespace Articulate
 INNER JOIN {Constants.DatabaseSchema.Tables.PropertyType} ON {Constants.DatabaseSchema.Tables.PropertyType}.contentTypeId = {Constants.DatabaseSchema.Tables.ContentType}.nodeId
 WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AND {Constants.DatabaseSchema.Tables.PropertyType}.alias = @propertyTypeAlias", new { contentTypeAlias = "ArticulatePost", propertyTypeAlias = "publishedDate" });
 
-                    var sqlContent = GetContentByTagQueryForPaging($"{Constants.DatabaseSchema.Tables.Node}.id", masterModel, sqlSyntax, publishedDatePropertyTypeId);
+                    var sqlContent = GetContentByTagQueryForPaging($"{Constants.DatabaseSchema.Tables.Node}.id, {Constants.DatabaseSchema.Tables.PropertyData}.dateValue", masterModel, sqlSyntax, publishedDatePropertyTypeId);
 
-                    sqlContent.Append($"WHERE {Constants.DatabaseSchema.Tables.Node}.id IN (").Append(sqlTags).Append(")");
+                    sqlContent.Append($"WHERE ({Constants.DatabaseSchema.Tables.Node}.id IN (").Append(sqlTags).Append("))");
 
-                    //order by the dataDate field which will be the publishedDate 
-                    sqlContent.OrderBy($"{Constants.DatabaseSchema.Tables.PropertyData}.dataDate DESC");
+                    //order by the dateValue field which will be the publishedDate 
+                    sqlContent.OrderBy($"({Constants.DatabaseSchema.Tables.PropertyData}.dateValue) DESC");
+
+                    //Put on a single line! NPoco paging does weird stuff on multiline
+                    sqlContent = Current.SqlContext.Sql(sqlContent.SQL.ToSingleLine(), sqlContent.Arguments);
 
                     //TODO: ARGH This still returns multiple non distinct Ids :(
 

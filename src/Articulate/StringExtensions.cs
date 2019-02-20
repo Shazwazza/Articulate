@@ -7,6 +7,11 @@ namespace Articulate
 {
     internal static class StringExtensions
     {
+        public static string NewLinesToSpaces(this string input)
+        {
+            return input.Replace("\r", " ").Replace("\n", " ").Replace("  ", "");
+        }
+
         public static string DecodeHtml(this string text)
         {
             return HttpUtility.HtmlDecode(text);

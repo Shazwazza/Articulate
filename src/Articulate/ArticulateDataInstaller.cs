@@ -271,8 +271,8 @@ namespace Articulate
             var post = _contentService.Create("Test post", archive.Id, "ArticulateMarkdown");
             post.SetValue("author", "Demo author");
             post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post.AssignTags("categories", new[] { "TestCategory" }, true);
-            post.AssignTags("tags", new[] { "TestTag" }, true);
+            post.AssignTags("categories", new[] { "TestCategory" });
+            post.AssignTags("tags", new[] { "TestTag" });
             post.SetValue("publishedDate", DateTime.Now);
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)

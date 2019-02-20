@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Xml.Linq;
+using HeyRed.MarkdownSharp;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
@@ -53,7 +54,8 @@ namespace Articulate
                 var body = post.GetValue<string>("richText");
                 if (body.IsNullOrWhiteSpace())
                 {
-                    body = post.GetValue<IHtmlString>("markdown")?.ToString();
+                    var md = new Markdown();
+                    body = md.Transform(post.GetValue<string>("markdown"));
                 }
 
                 var xItem = new XElement("item",

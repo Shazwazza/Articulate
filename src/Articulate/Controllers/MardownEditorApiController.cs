@@ -108,9 +108,9 @@ namespace Articulate.Controllers
 
             model.Body = parsedImageResponse.BodyText;
 
-            var content = Services.ContentService.CreateContent(
+            var content = Services.ContentService.Create(
                 model.Title,
-                archive.GetUdi(),
+                archive,
                 "ArticulateMarkdown",
                 UmbracoContext.Security.GetUserId().Result);
 
@@ -129,19 +129,22 @@ namespace Articulate.Controllers
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.AssignTags("tags", tags, true, "ArticulateTags");
+                content.AssignTags("tags", tags);
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.AssignTags("categories", cats, true, "ArticulateCategories");
+                content.AssignTags("categories", cats);
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
             {
                 content.SetValue("umbracoUrlName", model.Slug);
             }
+
+            //author is required
+            content.SetValue("author", UmbracoContext?.Security?.CurrentUser?.Name ?? "Unknown");
 
             var status = Services.ContentService.SaveAndPublish(content, userId: UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)

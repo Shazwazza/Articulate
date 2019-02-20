@@ -21,7 +21,7 @@ namespace Articulate.Options
                 ? string.Empty
                 : string.Join("", val.StripHtml()
                     .DecodeHtml()
-                    .StripNewLines()
+                    .NewLinesToSpaces()
                     .TruncateAtWord(200, "")));
         }
 

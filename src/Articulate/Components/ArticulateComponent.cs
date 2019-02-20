@@ -7,6 +7,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using HeyRed.MarkdownSharp;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Composing;
@@ -164,7 +165,8 @@ namespace Articulate.Components
 
                 if (_configs.Articulate().AutoGenerateExcerpt)
                 {
-                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText") || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
+                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText") 
+                        || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
                         //fill in the excerpt if it is empty
                         if (content.GetValue<string>("excerpt").IsNullOrWhiteSpace())
@@ -176,8 +178,10 @@ namespace Articulate.Components
                             }
                             else
                             {
-                                var val = content.GetValue<IHtmlString>("markdown")?.ToString();
-                                content.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(val));
+                                var val = content.GetValue<string>("markdown");
+                                var md = new Markdown();
+                                var html = md.Transform(val);
+                                content.SetValue("excerpt", _configs.Articulate().GenerateExcerpt(html));
                             }
                         }
 
