@@ -35,7 +35,7 @@ namespace Articulate.Controllers
             //create a master model
             var masterModel = new MasterModel(model.Content);
 
-            var listNodes = masterModel.RootBlogNode.Children(string.Empty, "ArticulateArchive").ToArray();
+            var listNodes = masterModel.RootBlogNode.ChildrenOfType("ArticulateArchive").ToArray();
             if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");

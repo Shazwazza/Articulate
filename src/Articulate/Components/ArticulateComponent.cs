@@ -2,6 +2,7 @@
 using Articulate.Options;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Web;
@@ -22,6 +23,7 @@ using Umbraco.Web;
 using Umbraco.Web.Cache;
 using Umbraco.Web.Editors;
 using Umbraco.Web.JavaScript;
+using IComponent = Umbraco.Core.Composing.IComponent;
 
 namespace Articulate.Components
 {

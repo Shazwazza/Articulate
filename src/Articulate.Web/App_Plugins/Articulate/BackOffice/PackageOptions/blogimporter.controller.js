@@ -45,6 +45,8 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
         
         $scope.contentPickerImportModel = {
             view: "contentpicker",
+            label: "Articulate blog node",
+            description: "Choose the Articulate blog node to import to",
             config: {
                 minNumber: 1
             }

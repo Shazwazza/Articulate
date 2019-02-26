@@ -110,7 +110,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateAuthorsUrl(this UrlHelper url, IMasterModel model)
         {
-            return model.RootBlogNode?.Children(string.Empty, "ArticulateAuthors").FirstOrDefault()?.Url;
+            return model.RootBlogNode?.ChildrenOfType("ArticulateAuthors").FirstOrDefault()?.Url;
         }
 
         /// <summary>

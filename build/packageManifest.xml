@@ -1293,7 +1293,7 @@ Supporting all the features you'd want in a blogging platform:
         <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar" Configuration="{'group': 'ArticulateTags'}"/>
         <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar"/>
     </DataTypes>
-    <view>~/App_Plugins/Articulate/BackOffice/package-options.html</view>
+    <view>~/App_Plugins/Articulate/BackOffice/PackageOptions/package-options.html</view>
     <Actions>
         <Action runat="install" undo="false" alias="articulateInstall" />
     </Actions>
