@@ -1,19 +1,14 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
-using Umbraco.Web.Routing;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public class ArticulateTagsRouteHandler : ArticulateVirtualNodeByIdRouteHandler
     {

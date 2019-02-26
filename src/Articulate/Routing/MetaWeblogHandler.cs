@@ -1,8 +1,4 @@
-﻿using Articulate.Models;
-using Articulate.Models.MetaWeblog;
-using CookComputing.XmlRpc;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,10 +6,11 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Routing;
 using System.Web.Security;
+using Articulate.Models;
+using Articulate.Models.MetaWeblog;
+using CookComputing.XmlRpc;
 using HeyRed.MarkdownSharp;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
@@ -22,7 +19,7 @@ using Umbraco.Core.Persistence.DatabaseModelDefinitions;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public class MetaWeblogHandler : XmlRpcService, IMetaWeblog, IBloggerMetaWeblog, IWordPressMetaWeblog, IRouteHandler
     {

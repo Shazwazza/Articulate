@@ -9,7 +9,7 @@ using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public class ArticulateVirtualNodeByIdRouteHandler : UmbracoVirtualNodeRouteHandler
     {

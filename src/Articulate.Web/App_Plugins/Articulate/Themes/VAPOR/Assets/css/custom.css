@@ -1,0 +1,16 @@
+﻿/* Additional styles done in addition to the VAPOR theme */
+
+ul.nostyle {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+    ul.nostyle li {
+        margin: 0;
+        padding: 0;
+    }
+
+.feed blockquote {
+
+}

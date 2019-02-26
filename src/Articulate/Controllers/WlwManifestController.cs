@@ -4,7 +4,7 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    public class WlwManifestController : UmbracoController
+    public class WlwManifestController : PluginController
     {
 
         //http://msdn.microsoft.com/en-us/library/bb463260.aspx

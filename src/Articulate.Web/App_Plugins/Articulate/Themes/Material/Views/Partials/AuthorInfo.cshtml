@@ -19,7 +19,7 @@
         return ApplicationContext.ApplicationCache.RuntimeCache.GetCacheItem<string>("a_author_thumb_" + postModel.Author.Name, () =>
         {
             var blogRootNode = postModel.RootBlogNode;
-            var authors = blogRootNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
+            var authors = blogRootNode.Children(content => content.ContentType.Alias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
             if (authors != null)
             {
                 var authorNode = authors.Children(content => content.Name.InvariantEquals(postModel.Author.Name)).FirstOrDefault();

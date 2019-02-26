@@ -5,7 +5,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     class DateFormattedPostContentFinder : ContentFinderByUrl
     {

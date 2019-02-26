@@ -511,11 +511,13 @@
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\img\timeicon.gif" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\feeds.js" />
     <Content Include="App_Plugins\Articulate\Themes\Shazwazza\Assets\js\responsive.ie10mobilefix.min.js" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\custom.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\normalize.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\css\screen.css" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\fonts\icons.svg" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.html" />
     <None Include="App_Plugins\Articulate\package.manifest" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Assets\js\feeds.js" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.controller.js" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.htm" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.html" />
@@ -859,6 +861,7 @@
     <Content Include="config\HealthChecks.config" />
     <Content Include="config\ClientDependency.config" />
     <Content Include="config\BackOfficeTours\getting-started.json" />
+    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Recent.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

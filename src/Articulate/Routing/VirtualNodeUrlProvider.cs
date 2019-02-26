@@ -6,7 +6,7 @@ using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     /// <summary>
     /// This is used purely so that RedirectToCurrentUmbracoPage works in SurfaceControllers with virtual nodes / custom routes.

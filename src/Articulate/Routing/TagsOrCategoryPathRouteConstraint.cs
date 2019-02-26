@@ -5,15 +5,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
-using Umbraco.Web.Routing;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     /// <summary>
     /// A route constraint that matches only the specified categories or tag route path names

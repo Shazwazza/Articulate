@@ -1,19 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Articulate.Components;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
-using Umbraco.Web.PublishedCache;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     /// <summary>
     /// Manages the MVC/Umbraco routes

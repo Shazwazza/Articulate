@@ -5,7 +5,7 @@ using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Web.Mvc;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public static class RouteCollectionExtensions
     {

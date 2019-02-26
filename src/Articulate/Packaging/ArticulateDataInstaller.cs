@@ -1,16 +1,11 @@
 using System;
-using System.IO;
 using System.Linq;
-using Articulate.Resources;
 using Umbraco.Core;
-using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
-using Umbraco.Core.Composing;
-using Umbraco.Core.PropertyEditors;
 
-namespace Articulate
+namespace Articulate.Packaging
 {
     public class ArticulateDataInstaller
     {
@@ -274,6 +269,7 @@ namespace Articulate
             post.AssignTags("categories", new[] { "TestCategory" });
             post.AssignTags("tags", new[] { "TestTag" });
             post.SetValue("publishedDate", DateTime.Now);
+            post.SetValue("postImage", "/media/articulate/default/capture3.png");
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
 
@@ -294,7 +290,7 @@ This is a fully functional blog engine supporting many features:
 Articulate is open source and hosted on GitHub:
 [https://github.com/Shandem/Articulate/](https://github.com/Shandem/Articulate)
 
-It comes with 4 themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
+It comes with 5 themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
 
 Comments are powered by Disqus (Google+ or Facebook are also supported and can be enabled in the templates).
 

@@ -1,9 +1,12 @@
-﻿using System.Xml.Linq;
-using Umbraco.Core.PackageActions;
+﻿using System.Web.Routing;
+using System.Xml.Linq;
+using Articulate.Routing;
 using Umbraco.Core;
+using Umbraco.Core.Logging;
+using Umbraco.Core.PackageActions;
 using Current = Umbraco.Web.Composing.Current;
 
-namespace Articulate
+namespace Articulate.Packaging
 {
     public class ArticulateInstallPackageAction : IPackageAction
     {
@@ -11,7 +14,12 @@ namespace Articulate
         {
             var dataInstaller = Current.Factory.GetInstance<ArticulateDataInstaller>();
             var root = dataInstaller.Execute();
-            //TODO: Maybe log something?
+
+            Current.Logger.Info<ArticulateInstallPackageAction>("Articulate data installation completed");
+
+            var articulateRoutes = Current.Factory.GetInstance<ArticulateRoutes>();
+            articulateRoutes.MapRoutes(RouteTable.Routes);
+
             return true;
         }
 

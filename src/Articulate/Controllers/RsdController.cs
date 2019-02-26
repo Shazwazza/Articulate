@@ -9,7 +9,7 @@ namespace Articulate.Controllers
     /// <summary>
     /// Really simple discovery controller
     /// </summary>
-    public class RsdController : UmbracoController
+    public class RsdController : PluginController
     {
         /// <summary>
         /// Renders the RSD for the articulate node id

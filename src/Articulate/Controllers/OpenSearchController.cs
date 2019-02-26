@@ -7,7 +7,7 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    public class OpenSearchController : UmbracoController
+    public class OpenSearchController : PluginController
     {
         [HttpGet]
         public ActionResult Index(int id)

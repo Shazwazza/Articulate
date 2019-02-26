@@ -1,17 +1,15 @@
-using Argotic.Syndication.Specialized;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web;
 using System.Xml.Linq;
+using Argotic.Syndication.Specialized;
 using HeyRed.MarkdownSharp;
 using Umbraco.Core;
-using Umbraco.Core.Composing;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
-namespace Articulate
+namespace Articulate.ImportExport
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class DisqusXmlExporter

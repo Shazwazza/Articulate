@@ -1,23 +1,22 @@
-﻿using Argotic.Syndication.Specialized;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Argotic.Syndication.Specialized;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Services;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
-using System.Net;
-using System.Net.Http;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Services;
 
-namespace Articulate
+namespace Articulate.ImportExport
 {
     public class BlogMlImporter
     {

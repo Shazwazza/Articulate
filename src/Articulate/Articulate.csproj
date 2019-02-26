@@ -39,13 +39,13 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="ArticulateInstallPackageAction.cs" />
-    <Compile Include="ArticulateTagsRouteHandler.cs" />
-    <Compile Include="ArticulateRoutes.cs" />
-    <Compile Include="ArticulateSearchRouteHandler.cs" />
+    <Compile Include="Packaging\ArticulateInstallPackageAction.cs" />
+    <Compile Include="Routing\ArticulateTagsRouteHandler.cs" />
+    <Compile Include="Routing\ArticulateRoutes.cs" />
+    <Compile Include="Routing\ArticulateSearchRouteHandler.cs" />
     <Compile Include="ArticulateTempFileSystem.cs" />
-    <Compile Include="BlogMlExporter.cs" />
-    <Compile Include="BlogMlImporter.cs" />
+    <Compile Include="ImportExport\BlogMlExporter.cs" />
+    <Compile Include="ImportExport\BlogMlImporter.cs" />
     <Compile Include="Components\ArticulateComponent.cs" />
     <Compile Include="Components\ArticulateComposer.cs" />
     <Compile Include="Components\MetaWeblogHandlerFactory.cs" />
@@ -79,7 +79,7 @@
     <Compile Include="Controllers\ThemeTreeController.cs" />
     <Compile Include="Controllers\UmbracoNotFoundResult.cs" />
     <Compile Include="Controllers\UrlHelperExtensions.cs" />
-    <Compile Include="DateFormattedPostContentFinder.cs" />
+    <Compile Include="Routing\DateFormattedPostContentFinder.cs" />
     <Compile Include="DateFormattedUrlProvider.cs" />
     <Compile Include="Models\AuthorListModel.cs" />
     <Compile Include="Models\ExportBlogMlModel.cs" />
@@ -99,14 +99,13 @@
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
     <Compile Include="Controls\Installer.cs" />
-    <Compile Include="DisqusImporter.cs" />
-    <Compile Include="DisqusXmlExporter.cs" />
-    <Compile Include="GitHubFeed.cs" />
+    <Compile Include="ImportExport\DisqusImporter.cs" />
+    <Compile Include="ImportExport\DisqusXmlExporter.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
-    <Compile Include="ArticulateDataInstaller.cs" />
-    <Compile Include="JsonFeedHelper.cs" />
-    <Compile Include="MetaWeblogHandler.cs" />
-    <Compile Include="MetaWeblogRouteConstraint.cs" />
+    <Compile Include="Packaging\ArticulateDataInstaller.cs" />
+    <Compile Include="Syndication\JsonFeedHelper.cs" />
+    <Compile Include="Routing\MetaWeblogHandler.cs" />
+    <Compile Include="Routing\MetaWeblogRouteConstraint.cs" />
     <Compile Include="Models\AuthorModel.cs" />
     <Compile Include="Models\IMasterModel.cs" />
     <Compile Include="Models\ImportBlogMlModel.cs" />
@@ -124,22 +123,22 @@
     <Compile Include="Models\PostsByTagModel.cs" />
     <Compile Include="Models\ArticulateVirtualPage.cs" />
     <Compile Include="Models\MasterModel.cs" />
-    <Compile Include="NotFoundHandler.cs" />
+    <Compile Include="Routing\NotFoundHandler.cs" />
     <Compile Include="Options\ArticulateOptions.cs" />
     <Compile Include="Options\UmbracoConfigExtensions.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PropertyEditors\ArticulateMarkdownPropertyEditor.cs" />
     <Compile Include="PropertyEditors\ThemePickerPropertyEditor.cs" />
     <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="RouteCollectionExtensions.cs" />
+    <Compile Include="Routing\RouteCollectionExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Syndication\RssFeedGenerator.cs" />
-    <Compile Include="TagsOrCategoryPathRouteConstraint.cs" />
+    <Compile Include="Routing\TagsOrCategoryPathRouteConstraint.cs" />
     <Compile Include="UmbracoHelperExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ArticulateVirtualNodeByIdRouteHandler.cs" />
+    <Compile Include="Routing\ArticulateVirtualNodeByIdRouteHandler.cs" />
     <Compile Include="UrlHelperExtensions.cs" />
-    <Compile Include="VirtualNodeUrlProvider.cs" />
+    <Compile Include="Routing\VirtualNodeUrlProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

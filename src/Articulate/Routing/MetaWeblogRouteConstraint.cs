@@ -2,7 +2,7 @@ using System.Web;
 using System.Web.Routing;
 using Umbraco.Core;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     /// <summary>
     /// Used for the metaweblog route so that there are some constraints applied.

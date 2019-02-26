@@ -1,4 +1,5 @@
 using System.Web.Http;
+using Articulate.Packaging;
 using Umbraco.Core;
 using Umbraco.Core.Cache;
 using Umbraco.Core.Configuration;

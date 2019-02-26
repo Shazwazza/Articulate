@@ -10,7 +10,7 @@
 
 @{
     var rss = Model.CustomRssFeed.IsNullOrWhiteSpace()
-                ? Model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                ? Model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss"
                 : Model.CustomRssFeed;
 }
 

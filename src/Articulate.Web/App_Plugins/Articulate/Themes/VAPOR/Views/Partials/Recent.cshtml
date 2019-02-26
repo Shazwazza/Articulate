@@ -6,11 +6,11 @@
     var recent = Umbraco.GetRecentPosts(Model, 5);
 }
 
-<div class="widget recentposts">
-    <h4>Recent posts</h4>
+<div>
+    <h3>Recent posts</h3>
 
-    <div class="content">
-        <ul class="recentPosts" id="recentPosts">
+    <div>
+        <ul class="nostyle">
             @foreach (var post in recent)
             {
                 <li>

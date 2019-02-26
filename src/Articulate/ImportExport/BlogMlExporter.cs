@@ -1,24 +1,21 @@
-using Argotic.Common;
-using Argotic.Syndication.Specialized;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Web;
+using Argotic.Common;
+using Argotic.Syndication.Specialized;
 using HeyRed.MarkdownSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core;
-using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.PropertyEditors;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Services;
-using Umbraco.Core.PropertyEditors;
 
-namespace Articulate
+namespace Articulate.ImportExport
 {
     public class BlogMlExporter
     {

@@ -19,11 +19,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />    
 
     @{ Html
-           .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
-           .RequiresCss("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
-           .RequiresCss("https://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&family=Open+Sans+Condensed:300|Open+Sans:400,600,400italic,600italic|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300")
-           //This loads all CSS found in the current theme's css folder: /Assets/css
-           .RequiresThemedCssFolder(Model);
+            .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+            .RequiresCss("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
+            .RequiresCss("https://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&family=Open+Sans+Condensed:300|Open+Sans:400,600,400italic,600italic|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300")
+            //This loads all CSS found in the current theme's css folder: /Assets/css
+            .RequiresThemedCssFolder(Model)
+            //This loads all JS found in the current theme's js folder: /Assets/js
+            .RequiresThemedJsFolder(Model);
     }
 
     @Html.RenderCssHere()

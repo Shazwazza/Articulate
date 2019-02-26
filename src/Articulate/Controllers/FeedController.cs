@@ -13,7 +13,7 @@ namespace Articulate.Controllers
     /// <summary>
     /// Summary description for FeedController
     /// </summary>
-    public class FeedController : UmbracoController
+    public class FeedController : PluginController
     {
         [HttpGet]
         [OutputCache(Duration = 120)]
@@ -36,7 +36,7 @@ namespace Articulate.Controllers
 		/// <param name="model">The model.</param>
 		/// <param name="isPartial">true if it is a Partial view, otherwise false for a normal view </param>
 		/// <returns></returns>
-		internal static string RenderViewToString(ControllerBase controller, string viewName, object model, bool isPartial = false)
+        private static string RenderViewToString(ControllerBase controller, string viewName, object model, bool isPartial = false)
         {
             if (controller.ControllerContext == null)
                 throw new ArgumentException("The controller must have an assigned ControllerContext to execute this method.");

@@ -49,7 +49,7 @@
                         new[] { "date", "title", "comments" },
                         @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
                         @<a href="@item.Url">@item.Name</a>,
-                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@item.GetContentKey()"></a>)
+                        @<a href="@item.Url#disqus_thread" data-disqus-identifier="@item.Key"></a>)
 
                     }
                 </div>

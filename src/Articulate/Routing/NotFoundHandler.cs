@@ -1,6 +1,6 @@
 using System.Web;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public class NotFoundHandler : IHttpHandler
     {
