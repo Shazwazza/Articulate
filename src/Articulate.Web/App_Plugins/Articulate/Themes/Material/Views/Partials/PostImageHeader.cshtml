@@ -7,10 +7,10 @@
 @{
     var postBg = "none";
 
-    if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+    if (Model.PostImage != null)
     {
-        var bgUrl = Model.GetCropUrl(propertyAlias: "postImage", width: 550);
-        if (!bgUrl.IsNullOrWhiteSpace())
+        var bgUrl = Url.GetCropUrl(Model.PostImage, width: 550, htmlEncode: false, upScale: false);
+        if (bgUrl != null)
         {
             postBg = "url('" + bgUrl + "')";
         }

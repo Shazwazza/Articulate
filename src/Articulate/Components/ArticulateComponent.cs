@@ -157,7 +157,8 @@ namespace Articulate.Components
                     if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
                         || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
-                        if (_umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
+                        var currentAuthor = content.GetValue<string>("author");
+                        if (string.IsNullOrWhiteSpace(currentAuthor) && _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
                         {
                             content.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
                         }

@@ -15,6 +15,7 @@ using Umbraco.Core.Composing;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 
@@ -73,12 +74,7 @@ namespace Articulate.Models
                 {
                     _author.Bio = authorNode.Value<string>("authorBio");
                     _author.Url = authorNode.Value<string>("authorUrl");
-
-                    var imageVal = authorNode.Value<string>("authorImage");
-                    _author.Image = !imageVal.IsNullOrWhiteSpace()
-                        ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Max) 
-                        : null;
-
+                    _author.Image = authorNode.Value<ImageCropperValue>("authorImage");
                     _author.BlogUrl = authorNode.Url;
                 }
 
@@ -90,17 +86,22 @@ namespace Articulate.Models
 
         public DateTime PublishedDate => base.Unwrap().Value<DateTime>("publishedDate");
 
+        private ImageCropperValue _postImage;
+
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public string PostImageUrl => base.Unwrap().Value<string>("postImage");
+        public ImageCropperValue PostImage => (_postImage ?? (_postImage = base.Unwrap().Value<ImageCropperValue>("postImage"))).Src.IsNullOrWhiteSpace() ? null : _postImage;
+
+        private string _croppedPostImageUrl;
 
         /// <summary>
         /// Cropped version of the PostImageUrl
         /// </summary>
-        public string CroppedPostImageUrl => !PostImageUrl.IsNullOrWhiteSpace() 
-            ? this.GetCropUrl("postImage", "wide") 
-            : null;
+        public string CroppedPostImageUrl => _croppedPostImageUrl ?? (_croppedPostImageUrl =
+                                                 PostImage != null
+                                                     ? PostImage.Src + PostImage.GetCropUrl("wide") + "&upscale=false"
+                                                     : null);
 
         /// <summary>
         /// Social Meta Description

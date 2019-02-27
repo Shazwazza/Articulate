@@ -10,29 +10,29 @@
     <h3>Recent posts</h3>
 
     <div>
-        <ul class="nostyle">
+        <ul class="nostyle recent-posts">
             @foreach (var post in recent)
             {
-                <li>
-                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+            <li>
+                @if (post.PostImage != null)
+                {
+                    var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                    if (thumbnail != null)
                     {
-                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                        if (!thumbnail.IsNullOrWhiteSpace())
-                        {
-                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
-                        }
+                        <div class="postthumb" style="background: url(@thumbnail)"></div>
                     }
-                    <div class="time">
-                        <time datetime="@post.PublishedDate">
-                            @post.PublishedDate.ToString("MMM d, yyyy HH:mm")
-                        </time>
-                    </div>
+                }
+                <div class="time">
+                    <time datetime="@post.PublishedDate">
+                        @post.PublishedDate.ToString("MMM d, yyyy HH:mm")
+                    </time>
+                </div>
 
-                    <a href="@post.Url">@post.Name</a>
-                    <div>
-                        <a data-disqus-identifier="@post.Key" class="comment-count" href="@post.Url#disqus_thread"></a>
-                    </div>
-                </li>
+                <a href="@post.Url">@post.Name</a>
+                <div>
+                    <a data-disqus-identifier="@post.Key" class="comment-count" href="@post.Url#disqus_thread"></a>
+                </div>
+            </li>
             }
         </ul>
     </div>

@@ -9,8 +9,11 @@ ul.nostyle {
     ul.nostyle li {
         margin: 0;
         padding: 0;
+        
     }
 
-.feed blockquote {
-
+ul.recent-posts li {
+    margin: 20px 0;
+    min-height: 70px;
+    clear: both;
 }

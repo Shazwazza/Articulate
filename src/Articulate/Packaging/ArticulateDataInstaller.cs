@@ -251,8 +251,40 @@ namespace Articulate.Packaging
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
             var author = _contentService.Create("Demo author", authors.Id, "ArticulateAuthor");
             author.SetValue("authorBio", "A test Author bio");
-            author.SetValue("authorUrl", "http://google.com");
-            author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/random-mask.jpg','crops': []}");
+            author.SetValue("authorUrl", "https://github.com/shazwazza/articulate");
+            author.SetValue("authorImage", @"{
+  'src': '/media/articulate/default/random-mask.jpg',
+  'focalPoint': {
+    'left': 0.5,
+    'top': 0.5
+  },
+  'crops': [
+    {
+      'alias': 'blogPost',
+      'width': 200,
+      'height': 200,
+      'coordinates': null
+    },
+    {
+      'alias': 'square',
+      'width': 480,
+      'height': 480,
+      'coordinates': null
+    },
+    {
+      'alias': 'thumbnail',
+      'width': 50,
+      'height': 50,
+      'coordinates': null
+    },
+    {
+      'alias': 'wide',
+      'width': 1024,
+      'height': 512,
+      'coordinates': null
+    }
+  ]
+}");
             result = _contentService.SaveAndPublish(author);
             if (!result.Success)
             {
@@ -269,7 +301,35 @@ namespace Articulate.Packaging
             post.AssignTags("categories", new[] { "TestCategory" });
             post.AssignTags("tags", new[] { "TestTag" });
             post.SetValue("publishedDate", DateTime.Now);
-            post.SetValue("postImage", "/media/articulate/default/capture3.png");
+            post.SetValue("postImage", @"{
+  'src': '/media/articulate/default/capture3.png',
+  'focalPoint': {
+    'left': 0.5,
+    'top': 0.5
+  },
+  'crops': [
+    {
+      'alias': 'blogPost',
+      'width': 200,
+      'height': 200
+    },
+    {
+      'alias': 'square',
+      'width': 480,
+      'height': 480
+    },
+    {
+      'alias': 'thumbnail',
+      'width': 50,
+      'height': 50
+    },
+    {
+      'alias': 'wide',
+      'width': 1024,
+      'height': 512
+    }
+  ]
+}");
             post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
             post.SetValue("markdown", @"Hi! Welcome to Articulate :)
 

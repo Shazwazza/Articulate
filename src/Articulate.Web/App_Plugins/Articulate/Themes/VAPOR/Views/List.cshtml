@@ -29,12 +29,12 @@
                     </div>
                 </header>
                 <section class="post-excerpt">
-                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    @if (post.PostImage != null)
                     {
-                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                        if (!thumbnail.IsNullOrWhiteSpace())
+                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        if (thumbnail != null)
                         {
-                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                            <div class="postthumb" style="background: url(@thumbnail)"></div>
                         }
                     }
                     <p>
@@ -45,24 +45,24 @@
                     </p>
                 </section>
 
-                @*Render different content if it's the homepage*@
-                @if (Model.ContentType.Alias == "ArticulateArchive")
-                {
-
-                    Html.RequiresCss("https://cdnjs.cloudflare.com/ajax/libs/octicons/2.1.2/octicons.css")
-                        .RequiresJs("https://code.jquery.com/jquery-3.1.1.min.js", 0, ClientDependency.Core.Constants.DefaultGroup, new { integrity = "sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=", crossorigin = "anonymous" });
-
-                    <hr/>
-                    <section>
-                        @Html.ThemedPartial(Model, "Recent")
-                    </section>
-                }
-
-
             </article>
         }
 
         @Html.ThemedPartial(Model, "Pager", Model.Pages)
+
+        @*Render different content if it's the homepage*@
+        if (Model.ContentType.Alias == "ArticulateArchive")
+        {
+
+            <hr />
+            <article>
+                <section>
+
+                    @Html.ThemedPartial(Model, "Recent")
+                </section>
+            </article>
+
+        }
     }
 
 </main>

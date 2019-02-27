@@ -103,7 +103,6 @@
     <Compile Include="ImportExport\DisqusXmlExporter.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Packaging\ArticulateDataInstaller.cs" />
-    <Compile Include="Syndication\JsonFeedHelper.cs" />
     <Compile Include="Routing\MetaWeblogHandler.cs" />
     <Compile Include="Routing\MetaWeblogRouteConstraint.cs" />
     <Compile Include="Models\AuthorModel.cs" />

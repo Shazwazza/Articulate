@@ -50,27 +50,31 @@
 
             @if (!Model.Author.Name.IsNullOrWhiteSpace())
             {
-                <section class="author">
-                    @if (!Model.Author.Image.IsNullOrWhiteSpace())
+            <section class="author">
+                @if (Model.Author.Image != null)
+                {
+                    var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                    if (thumbnail != null)
                     {
-                        <div class="authorimage" style="background: url(@Model.Author.Image)"></div>    
+                        <div class="authorimage" style="background: url(@thumbnail)"></div>
                     }
-                    <p class="attr">Author</p>
-                    <h4>
-                        @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
-                        {
-                            <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
-                        }
-                        else
-                        {
-                            @Model.Author.Name
-                        }
-                    </h4>
-                    @if (!Model.Author.Bio.IsNullOrWhiteSpace())
+                }
+                <p class="attr">Author</p>
+                <h4>
+                    @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
                     {
-                        <p class="bio">@Model.Author.Bio</p>
+                        <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
                     }
-                </section>
+                    else
+                    {
+                        @Model.Author.Name
+                    }
+                </h4>
+                @if (!Model.Author.Bio.IsNullOrWhiteSpace())
+                {
+                    <p class="bio">@Model.Author.Bio</p>
+                }
+            </section>
             }
 
         </footer>

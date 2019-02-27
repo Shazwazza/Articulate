@@ -3,6 +3,7 @@
 @using Umbraco.Core.Cache
 @using Umbraco.Core.Security
 @using Umbraco.Web.Models
+@using Umbraco.Web.Security
 @inherits UmbracoViewPage<IMasterModel>
 
 <div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
@@ -14,7 +15,7 @@
     @if (backofficeAuthTicket != null)
     {
         <a href="@Url.ArticulateCreateBlogEntryUrl(Model)" rel="nofollow" title="Create new blog post"
-           class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--primary">
+           class="new-post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--primary">
             <i class="material-icons mdl-color-text--white" role="presentation">add</i>
             <span class="visuallyhidden">add</span>
         </a>

@@ -90,3 +90,11 @@ th.date {
 .demo-blog--blogpost .meta + .mdl-card__supporting-text img {
     max-width: 100%;
 }
+
+.demo-blog .mdl-card a.new-post {
+    position: absolute;
+    top: 0;
+    right: 28px;
+    -webkit-transform: translate(0px, -28px);
+    transform: translate(0px, -28px);
+}

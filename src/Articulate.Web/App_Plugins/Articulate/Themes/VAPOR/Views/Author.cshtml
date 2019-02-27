@@ -55,10 +55,10 @@
                     </div>
                 </header>
                 <section class="post-excerpt">
-                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    @if (post.PostImage != null)
                     {
-                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                        if (!thumbnail.IsNullOrWhiteSpace())
+                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "thumbnail", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        if (thumbnail != null)
                         {
                             <img class="thumb" src="@thumbnail" alt="@post.Name" />
                         }
