@@ -3,12 +3,15 @@
 @using Umbraco.Web.Models
 @inherits UmbracoViewPage<PostModel>
 
-@if (Model.Author.Image != null)
+@if (!Model.Author.Name.IsNullOrWhiteSpace())
 {
-    var thumbnail = Url.GetCropUrl(Model.Author.Image, imageCropMode: ImageCropMode.Crop, width: 50, htmlEncode: false, upScale: false);
-    <div class="minilogo" style="background: url(@thumbnail)"></div>
+    if (Model.Author.Image != null)
+    {
+        var thumbnail = Url.GetCropUrl(Model.Author.Image, width: 50, height: 50, htmlEncode: false, upScale: false);
+        <div class="minilogo" style="background: url(@thumbnail)"></div>
+    }
+    <div>
+        <strong>@Model.Author.Name</strong>
+        <span>2 days ago</span>
+    </div>
 }
-<div>
-    <strong>@Model.Author.Name</strong>
-    <span>2 days ago</span>
-</div>

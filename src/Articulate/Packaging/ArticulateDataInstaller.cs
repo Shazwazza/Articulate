@@ -208,8 +208,8 @@ namespace Articulate.Packaging
             root.SetValue("blogDescription", "Welcome to my blog");
             root.SetValue("extractFirstImage", true);
             root.SetValue("redirectArchive", true);
-            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.51648351648351654,'top': 0.43333333333333335},'src': '/media/articulate/default/capture3.png','crops': []}");
-            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.35,'top': 0.29588014981273408},'src': '/media/articulate/default/7406981406_1aff1cb527_o.jpg','crops': []}");
+            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/logo.png','crops': []}");
+            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/banner.jpg','crops': []}");
 
             var result = _contentService.SaveAndPublish(root);
             if (!result.Success)
@@ -249,42 +249,10 @@ namespace Articulate.Packaging
 
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = _contentService.Create("Demo author", authors.Id, "ArticulateAuthor");
-            author.SetValue("authorBio", "A test Author bio");
+            var author = _contentService.Create("Jane Doe", authors.Id, "ArticulateAuthor");
+            author.SetValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.");
             author.SetValue("authorUrl", "https://github.com/shazwazza/articulate");
-            author.SetValue("authorImage", @"{
-  'src': '/media/articulate/default/random-mask.jpg',
-  'focalPoint': {
-    'left': 0.5,
-    'top': 0.5
-  },
-  'crops': [
-    {
-      'alias': 'blogPost',
-      'width': 200,
-      'height': 200,
-      'coordinates': null
-    },
-    {
-      'alias': 'square',
-      'width': 480,
-      'height': 480,
-      'coordinates': null
-    },
-    {
-      'alias': 'thumbnail',
-      'width': 50,
-      'height': 50,
-      'coordinates': null
-    },
-    {
-      'alias': 'wide',
-      'width': 1024,
-      'height': 512,
-      'coordinates': null
-    }
-  ]
-}");
+            author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}");
             result = _contentService.SaveAndPublish(author);
             if (!result.Success)
             {
@@ -293,45 +261,18 @@ namespace Articulate.Packaging
             }
 
 
-            //Create a test post
-            _logger.Info<ArticulateDataInstaller>("Creating test blog post");
-            var post = _contentService.Create("Test post", archive.Id, "ArticulateMarkdown");
-            post.SetValue("author", "Demo author");
-            post.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post.AssignTags("categories", new[] { "TestCategory" });
-            post.AssignTags("tags", new[] { "TestTag" });
-            post.SetValue("publishedDate", DateTime.Now);
-            post.SetValue("postImage", @"{
-  'src': '/media/articulate/default/capture3.png',
-  'focalPoint': {
-    'left': 0.5,
-    'top': 0.5
-  },
-  'crops': [
-    {
-      'alias': 'blogPost',
-      'width': 200,
-      'height': 200
-    },
-    {
-      'alias': 'square',
-      'width': 480,
-      'height': 480
-    },
-    {
-      'alias': 'thumbnail',
-      'width': 50,
-      'height': 50
-    },
-    {
-      'alias': 'wide',
-      'width': 1024,
-      'height': 512
-    }
-  ]
-}");
-            post.SetValue("socialDescription", "This article is the bomb!!! Write a description that is more suitable for social sharing than a standard meta description.");
-            post.SetValue("markdown", @"Hi! Welcome to Articulate :)
+            //Create a test posts
+            _logger.Info<ArticulateDataInstaller>("Creating test blog post 1");
+            
+            var post1 = _contentService.Create("Welcome", archive.Id, "ArticulateMarkdown");
+            post1.SetValue("author", "Jane Doe");
+            post1.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
+            post1.AssignTags("categories", new[] { "Articulate" });
+            post1.AssignTags("tags", new[] { "Cafe", "Markdown" });
+            post1.SetValue("publishedDate", DateTime.Now);
+            post1.SetValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post1.jpg','crops': []}");
+            post1.SetValue("socialDescription", "Welcome to blogging with Articulate, a fully functional blog engine supporting all of the blogging features you'd want.");
+            post1.SetValue("markdown", @"## Hi! Welcome to Articulate :)
 
 This is a fully functional blog engine supporting many features:
 
@@ -350,18 +291,34 @@ This is a fully functional blog engine supporting many features:
 Articulate is open source and hosted on GitHub:
 [https://github.com/Shandem/Articulate/](https://github.com/Shandem/Articulate)
 
-It comes with 5 themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
+It comes with a few themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
 
 Comments are powered by Disqus (Google+ or Facebook are also supported and can be enabled in the templates).
 
 Live Writer integration is fully functional, to configure Live Writer just use the URL of the Articulate root node and use your Umbraco username/password.
 
-You can post directly from your mobile (including images and photos). This editor can be found at the path of ""/a-new"". As an example if Articulate is your root node in Umbraco, then the URL would be:
-
-http://yoursiteurl.com/a-new
+You can post directly from your mobile (including images and photos). This editor can be found at the path of ""/a-new"". Click [Here](../a-new) to see it in action. Now you can post your thoughts wherever you are, from a cafe, on the road, etc... all without needing your computer. 
 
 Enjoy!");
-            result = _contentService.SaveAndPublish(post);
+            result = _contentService.SaveAndPublish(post1);
+            if (!result.Success)
+            {
+                _logger.Warn<ArticulateDataInstaller>("Could not create Articulate post node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
+                return null;
+            }
+
+            var post2 = _contentService.Create("Latte art", archive.Id, "ArticulateMarkdown");
+            post2.SetValue("author", "Jane Doe");
+            post2.SetValue("excerpt", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ");
+            post2.AssignTags("categories", new[] { "Coffee" });
+            post2.AssignTags("tags", new[] { "Cafe", "Milk", "Espresso" });
+            post2.SetValue("publishedDate", DateTime.Now.AddDays(-10));
+            post2.SetValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post2.jpg','crops': []}");
+            post2.SetValue("socialDescription", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ");
+            post2.SetValue("markdown", @"Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. Latte art is hard to create consistently because of the many factors involved with creating coffee, from the coffee acidity, temperature, to the type of milk and equipment being used. Don't expect that you'll be able to make latte art the first time you try, in fact it will probably take you a great number of tries to make something work and you'll be hoping that you're using some quality equipment, otherwise you'll stand no chance.
+
+Good latte art means you've found a cafe with a good barista so there's a good chance if you're seeing a a great design in your coffee, it's also going to taste wonderful.");
+            result = _contentService.SaveAndPublish(post2);
             if (!result.Success)
             {
                 _logger.Warn<ArticulateDataInstaller>("Could not create Articulate post node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));

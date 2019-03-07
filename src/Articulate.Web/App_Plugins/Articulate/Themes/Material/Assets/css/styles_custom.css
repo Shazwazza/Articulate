@@ -98,3 +98,7 @@ th.date {
     -webkit-transform: translate(0px, -28px);
     transform: translate(0px, -28px);
 }
+
+.demo-blog .mdl-card.tag-card {
+    min-height: initial;
+}

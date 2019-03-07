@@ -21,7 +21,7 @@ namespace Articulate
             _examineManager = examineManager;
         }
 
-        public IEnumerable<IPublishedContent> Search(string term, string searcherName, int blogArchiveNodeId, int pageSize, int pageIndex, out long totalResults)
+        public IEnumerable<IPublishedContent> Search(string term, string indexName, int blogArchiveNodeId, int pageSize, int pageIndex, out long totalResults)
         {
             var splitSearch = term.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -62,12 +62,17 @@ namespace Articulate
                 }
             }
 
-            searcherName = searcherName.IsNullOrWhiteSpace() ? Constants.UmbracoIndexes.ExternalIndexName : searcherName;
+            indexName = indexName.IsNullOrWhiteSpace() ? Constants.UmbracoIndexes.ExternalIndexName : indexName;
 
-            if (!_examineManager.TryGetSearcher(searcherName, out var searcher))
-                throw new InvalidOperationException("No searcher found by name " + searcherName);
+            if (!_examineManager.TryGetIndex(indexName, out var index))
+                throw new InvalidOperationException("No index found by name " + indexName);
 
-            var criteria = searcher.CreateQuery().NativeQuery($"+parentID:{blogArchiveNodeId} +({fieldQuery})");
+            var searcher = index.GetSearcher();
+
+            var criteria = searcher.CreateQuery()
+                .Field("parentID", blogArchiveNodeId)
+                .And()
+                .NativeQuery($" +({fieldQuery})");
 
             var searchResult = criteria.Execute(
                 //don't return more results than we need for the paging

@@ -23,49 +23,45 @@ namespace Articulate.Routing
             public string CategoryUrlName { get; set; }
         }
 
-        private readonly Lazy<List<UrlNames>> _urlNames;
+        private readonly List<UrlNames> _urlNames;
 
         public TagsOrCategoryPathRouteConstraint(ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException(nameof(itemsForRoute));
 
-            _urlNames = new Lazy<List<UrlNames>>(() =>
+            var urlNames = new List<UrlNames>();
+
+            foreach (var node in itemsForRoute)
             {
-                var urlNames = new List<UrlNames>();
+                var allUrls = contentUrls.GetContentUrls(node);
 
-                foreach (var node in itemsForRoute)
+                foreach (var url in allUrls)
                 {
-                    var allUrls = contentUrls.GetContentUrls(node);
-
-                    foreach (var url in allUrls)
+                    //if there is a double slash, it will have a domain
+                    if (url.Contains("//"))
                     {
-                        //if there is a double slash, it will have a domain
-                        if (url.Contains("//"))
+                        var uri = new Uri(url, UriKind.Absolute);
+                        urlNames.Add(new UrlNames
                         {
-                            var uri = new Uri(url, UriKind.Absolute);
-                            urlNames.Add(new UrlNames
-                            {
-                                Host = uri.Host,
-                                CategoryUrlName = node.Value<string>("categoriesUrlName"),
-                                TagsUrlName = node.Value<string>("tagsUrlName")
-                            });
-                        }
-                        else
+                            Host = uri.Host,
+                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                            TagsUrlName = node.Value<string>("tagsUrlName")
+                        });
+                    }
+                    else
+                    {
+                        urlNames.Add(new UrlNames
                         {
-                            urlNames.Add(new UrlNames
-                            {
-                                Host = string.Empty,
-                                CategoryUrlName = node.Value<string>("categoriesUrlName"),
-                                TagsUrlName = node.Value<string>("tagsUrlName")
-                            });
-                        }
+                            Host = string.Empty,
+                            CategoryUrlName = node.Value<string>("categoriesUrlName"),
+                            TagsUrlName = node.Value<string>("tagsUrlName")
+                        });
                     }
                 }
+            }
 
-                return urlNames;
-            });
+            _urlNames = urlNames;
 
-            
         }
 
         public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
@@ -74,17 +70,17 @@ namespace Articulate.Routing
 
             //determine if it's for a particular domain
             UrlNames urlNames;
-            if (_urlNames.Value.Count == 1)
+            if (_urlNames.Count == 1)
             {
-                urlNames = _urlNames.Value.FirstOrDefault();
+                urlNames = _urlNames.FirstOrDefault();
             }
             else
             {
                 urlNames = httpContext.Request.Url == null
-                    ? _urlNames.Value.FirstOrDefault()  //cannot be determined
+                    ? _urlNames.FirstOrDefault()  //cannot be determined
                     : httpContext.Request.Url.Host.InvariantEquals("localhost")
-                        ? _urlNames.Value.FirstOrDefault(x => x.Host == string.Empty)
-                        : _urlNames.Value.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                        ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
+                        : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
 
             if (urlNames == null) return false;

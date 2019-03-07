@@ -27,7 +27,10 @@
                 <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
             }
 
-            @Model.Body
+            <div>
+                @Model.Body
+            </div>
+
         </section>
 
         <section class="share">
@@ -50,35 +53,35 @@
 
             @if (!Model.Author.Name.IsNullOrWhiteSpace())
             {
-            <section class="author">
-                @if (Model.Author.Image != null)
-                {
-                    var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
-                    if (thumbnail != null)
+                <section class="author">
+                    @if (Model.Author.Image != null)
                     {
-                        <div class="authorimage" style="background: url(@thumbnail)"></div>
+                        var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        if (thumbnail != null)
+                        {
+                            <div class="authorimage" style="background: url(@thumbnail)"></div>
+                        }
                     }
-                }
-                <p class="attr">Author</p>
-                <h4>
-                    @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
+                    <p class="attr">Author</p>
+                    <h4>
+                        @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
+                        {
+                            <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+                        }
+                        else
+                        {
+                            @Model.Author.Name
+                        }
+                    </h4>
+                    @if (!Model.Author.Bio.IsNullOrWhiteSpace())
                     {
-                        <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+                        <p class="bio">@Model.Author.Bio</p>
                     }
-                    else
-                    {
-                        @Model.Author.Name
-                    }
-                </h4>
-                @if (!Model.Author.Bio.IsNullOrWhiteSpace())
-                {
-                    <p class="bio">@Model.Author.Bio</p>
-                }
-            </section>
+                </section>
             }
 
         </footer>
-        
+
         @if (Model.EnableComments)
         {
             @Html.ThemedPartial(Model, "CommentsDisqus")

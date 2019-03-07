@@ -46,7 +46,7 @@ namespace Articulate.Components
         }
 
         public void Initialize()
-        {   
+        {
             //listen to the init event of the application base, this allows us to bind to the actual HttpApplication events
             UmbracoApplicationBase.ApplicationInit += UmbracoApplicationBase_ApplicationInit;
 
@@ -147,29 +147,36 @@ namespace Articulate.Components
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
             _articulateRoutes.MapRoutes(RouteTable.Routes);
         }
-        
+
         private void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
             foreach (var content in e.SavedEntities)
             {
-                if (!content.HasIdentity)
+
+                if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
+                    || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
-                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
-                        || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
+                    if (content.GetValue("publishedDate") == null)
                     {
-                        var currentAuthor = content.GetValue<string>("author");
-                        if (string.IsNullOrWhiteSpace(currentAuthor) && _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
-                        {
-                            content.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
-                        }
                         content.SetValue("publishedDate", DateTime.Now);
+                    }
+
+                    var currentAuthor = content.GetValue<string>("author");
+                    if (string.IsNullOrWhiteSpace(currentAuthor) && _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser != null)
+                    {
+                        content.SetValue("author", _umbracoContextAccessor.UmbracoContext.Security.CurrentUser.Name);
+                    }
+
+                    if (!content.HasIdentity)
+                    {
+                        //default values
                         content.SetValue("enableComments", 1);
                     }
                 }
 
                 if (_configs.Articulate().AutoGenerateExcerpt)
                 {
-                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText") 
+                    if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
                         || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
                         //fill in the excerpt if it is empty
@@ -198,7 +205,7 @@ namespace Articulate.Components
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -211,7 +218,7 @@ namespace Articulate.Components
             foreach (var c in e.SavedEntities)
             {
                 if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals("Articulate")) continue;
-                
+
                 //it's a root blog node, set up the required sub nodes (archive , authors) if they don't exist
 
                 var children = sender.GetPagedChildren(c.Id, 0, 10, out var total).ToList();
