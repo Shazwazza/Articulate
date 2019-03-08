@@ -1,4 +1,5 @@
 ﻿using System;
+using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Logging;
@@ -31,7 +32,7 @@ namespace Articulate
                 {
                     var parentPath = base.GetUrl(umbracoContext, content, mode, culture, current);
                     var urlFolder = string.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
-                    var newUrl = parentPath + urlFolder + "/" + content.Url;
+                    var newUrl = parentPath.EnsureEndsWith("/") + urlFolder + "/" + content.UrlName;
 
                     return UrlInfo.Url(newUrl, culture);
                 }
