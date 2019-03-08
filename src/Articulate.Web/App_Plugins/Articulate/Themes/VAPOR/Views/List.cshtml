@@ -49,20 +49,7 @@
         }
 
         @Html.ThemedPartial(Model, "Pager", Model.Pages)
-
-        @*Render different content if it's the homepage*@
-        if (Model.ContentType.Alias == "ArticulateArchive")
-        {
-
-            <hr />
-            <article>
-                <section>
-
-                    @Html.ThemedPartial(Model, "Recent")
-                </section>
-            </article>
-
-        }
+        
     }
 
 </main>

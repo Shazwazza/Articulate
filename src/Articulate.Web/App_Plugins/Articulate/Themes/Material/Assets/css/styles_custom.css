@@ -102,3 +102,67 @@ th.date {
 .demo-blog .mdl-card.tag-card {
     min-height: initial;
 }
+
+/* === Tag cloud === */
+.tag-cloud-large {
+    font-size: 2.2em;
+    margin: 20px 0px 20px 0px;
+}
+
+ul.tag-cloud {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-transform: capitalize;
+    font-size: 1em;
+    text-align: center;
+    font-weight: normal;
+}
+
+    ul.tag-cloud li {
+        display: inline-block;
+        padding: 0.4em 0.4em;
+    }
+    ul.tag-cloud li a {
+        text-decoration: none;
+    }
+
+    ul.tag-cloud .tag-cloud-1 {
+        font-size: 40%;
+    }
+
+    ul.tag-cloud .tag-cloud-2 {
+        font-size: 50%;
+    }
+
+    ul.tag-cloud .tag-cloud-3 {
+        font-size: 60%;
+    }
+
+    ul.tag-cloud .tag-cloud-4 {
+        font-size: 750%;
+    }
+
+    ul.tag-cloud .tag-cloud-5 {
+        font-size: 90%;
+    }
+
+    ul.tag-cloud .tag-cloud-6 {
+        font-size: 100%;
+    }
+
+    ul.tag-cloud .tag-cloud-7 {
+        font-size: 110%;
+    }
+
+    ul.tag-cloud .tag-cloud-8 {
+        font-size: 120%;
+    }
+
+    ul.tag-cloud .tag-cloud-9 {
+        font-size: 130%;
+    }
+
+    ul.tag-cloud .tag-cloud-10 {
+        font-size: 140%;
+    }

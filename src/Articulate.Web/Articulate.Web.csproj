@@ -851,7 +851,6 @@
     <Content Include="config\HealthChecks.config" />
     <Content Include="config\ClientDependency.config" />
     <Content Include="config\BackOfficeTours\getting-started.json" />
-    <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\Recent.cshtml" />
     <Content Include="App_Plugins\Articulate\Themes\VAPOR\Views\Partials\PostList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

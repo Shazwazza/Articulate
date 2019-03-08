@@ -518,11 +518,12 @@ table tfoot {
 ul.tag-cloud {
     list-style: none;
     padding: 0;
-    margin: 0;
     text-transform: capitalize;
+    text-align: center;
 }
 ul.tag-cloud li {
-    display: inline-block;    
+    display: inline-block;
+    padding: 0.2em 0.4em;
 }
 ul.tag-cloud .tag-cloud-1 {
     font-size: 40%;
