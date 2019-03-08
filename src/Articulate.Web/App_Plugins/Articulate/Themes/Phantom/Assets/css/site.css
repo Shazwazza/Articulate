@@ -409,6 +409,10 @@ a {
                 text-decoration: none;
             }
 
+            .content .post .post-title .icon-rss {
+                float: right;
+            }
+
         .content .post .post-excerpt p {
             margin: 1.6rem 0 0 0;
             line-height: 1.6em;
@@ -446,6 +450,7 @@ a {
     padding: 5px;
     margin: 15px;
 }
+
     .articulate-search input::placeholder {
         color: white;
     }
@@ -486,7 +491,6 @@ img.thumb {
         }
 
         .sidebar .articulate-search {
-            
         }
 
         .sidebar .circle {

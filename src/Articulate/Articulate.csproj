@@ -39,6 +39,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\MarkdownEditorInitModel.cs" />
     <Compile Include="Packaging\ArticulateInstallPackageAction.cs" />
     <Compile Include="Routing\ArticulateTagsRouteHandler.cs" />
@@ -53,7 +54,6 @@
     <Compile Include="ContentUrls.cs" />
     <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
-    <Compile Include="Controllers\ArticulateAuthorsController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />

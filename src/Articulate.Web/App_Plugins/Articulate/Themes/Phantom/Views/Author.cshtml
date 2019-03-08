@@ -1,0 +1,37 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.AuthorModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template tag-sublime tag-javascript";
+}
+
+@section Header
+{
+    @Html.AuthorRssFeed(Model, Url)
+}
+
+<article class="post tag-ghost-tag">
+
+    <h1 class="post-title">@Model.Name<a href="@Url.ArticulateRssUrl(Model)" class="icon-rss"></a></h1>
+
+    <section class="post-content">
+        @if (Model.Image != null)
+        {
+            var imgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+            <img class="postImage" alt="@Model.Name" src="@imgUrl" />
+        }
+        <p>@Model.Bio</p>
+        @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+        {
+            <p>
+                Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+            </p>
+        }
+    </section>
+
+    <footer class="post-footer">
+      
+    </footer>
+
+</article>

@@ -4,12 +4,13 @@ using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class AuthorModel : ListModel
+    public class AuthorModel : ListModel, IImageModel
     {        
         private DateTime? _lastPostDate;
         
@@ -23,33 +24,13 @@ namespace Articulate.Models
 
         public string AuthorUrl => this.Value<string>("authorUrl");
 
-        private string _image;
-        public string Image
-        {
-            get
-            {
-                if (_image != null) return _image;
-
-                var imageVal = this.Value<string>("authorImage");
-                _image =  !imageVal.IsNullOrWhiteSpace()
-                    ? this.GetCropUrl("authorImage", "wide")
-                    : null;
-
-                return _image;
-            }
-        }
-        
+        private ImageCropperValue _image;
+        public ImageCropperValue Image => (_image ?? (_image = base.Unwrap().Value<ImageCropperValue>("authorImage"))).Src.IsNullOrWhiteSpace() ? null : _image;
+       
         public int PostCount { get; }
 
-
-        public DateTime? LastPostDate
-        {
-            get
-            {
-                //We know the list of posts passed in is already ordered descending so get the first
-                return _lastPostDate ?? (_lastPostDate = Children.FirstOrDefault()?.Value<DateTime>("publishedDate"));
-            }
-        }
+        //We know the list of posts passed in is already ordered descending so get the first
+        public DateTime? LastPostDate => _lastPostDate ?? (_lastPostDate = Children.FirstOrDefault()?.Value<DateTime>("publishedDate"));
     }
 
 }

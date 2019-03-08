@@ -21,7 +21,7 @@ using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
-    public class PostModel : MasterModel
+    public class PostModel : MasterModel, IImageModel
     {
         private PostAuthorModel _author;
 
@@ -126,6 +126,10 @@ namespace Articulate.Models
         }
 
         public string ExternalUrl => this.Value<string>("externalUrl");
+
+        ImageCropperValue IImageModel.Image => PostImage;
+        string IImageModel.Name => Name;
+        string IImageModel.Url => Url;
     }
 
 }

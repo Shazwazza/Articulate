@@ -1,0 +1,61 @@
+@using Articulate
+@using Umbraco.Core
+@model Articulate.Models.AuthorModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template";
+}
+
+@section Header
+{
+    @Html.AuthorRssFeed(Model, Url)
+}
+
+<!--- TEMPLATE FOR BLOG POST --->
+
+<div class="container">
+
+    <!-- HEADER COLUMN --->
+    <div class="header-col">
+        <header>
+            @Html.ThemedPartial(Model, "Header")
+        </header>
+    </div>
+
+
+    <!--- MAIN COLUMN --->
+    <div class="main-col">
+        <main>
+            <div class="post-entry">
+                <!--- POST CONTENT --->
+
+                <article role="article" itemscope itemtype="http://schema.org/Article" class="postlistArticle">
+                    <h1 class="post-title">@Model.Name<a href="@Url.ArticulateRssUrl(Model)" class="fa fa-rss"></a></h1>
+                    
+                    <div class="hrule"></div>
+                    <div class="postContent">
+                        @if (Model.Image != null)
+                        {
+                            var imgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+                            <img class="postImage" alt="@Model.Name" src="@imgUrl" />
+                        }
+                        <p>
+                            @Model.Bio
+                        </p>
+                        @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+                        {
+                            <p>
+                                Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+                            </p>
+                        }
+                    </div>
+                </article>
+
+
+            </div>
+        </main>
+        <footer>
+            @Html.ThemedPartial(Model, "Footer")
+        </footer>
+    </div>
+</div>

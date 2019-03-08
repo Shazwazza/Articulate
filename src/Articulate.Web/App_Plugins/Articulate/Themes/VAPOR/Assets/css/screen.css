@@ -568,6 +568,7 @@ ul.tag-list {
 .tag-list a.fa, .post-title a.fa {
     font-size: 60%;
     margin-right: 4px;
+    float: right;
 }
 .tag-list a.fa span, .post-title a.fa span {
     display: none;
@@ -587,6 +588,24 @@ ul.tag-list {
     float: left;
     padding: 0px 10px 0px 0px;
 }*/
+
+ul.nostyle {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.nostyle li {
+    margin: 0;
+    padding: 0;
+        
+}
+
+ul.recent-posts li {
+    margin: 20px 0;
+    min-height: 70px;
+    clear: both;
+}
 
 /* === Media Queries === */
 @media only screen and (min-width: 320px) and (max-width: 500px) {

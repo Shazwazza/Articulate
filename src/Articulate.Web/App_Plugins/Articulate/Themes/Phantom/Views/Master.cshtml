@@ -19,14 +19,14 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     @{ Html
-           .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
-           .RequiresThemedCssFolder(Model);
+            .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+            .RequiresThemedCssFolder(Model);
     }
 
     @Html.RenderCssHere()
-    
+    @RenderSection("Header", false)
 </head>
 <body class="@ViewBag.CssBodyClass">
 

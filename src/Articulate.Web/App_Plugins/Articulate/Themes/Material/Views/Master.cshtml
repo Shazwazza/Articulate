@@ -25,7 +25,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <title>@Model.PageTitle</title>
     @Html.MetaTags(Model)
     @Html.SocialMetaTags(Model)
@@ -34,15 +34,17 @@
     @Html.RenderOpenSearch(Model)
 
     @{ Html
-           .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en")
-           .RequiresCss("https://fonts.googleapis.com/icon?family=Material+Icons")
-           .RequiresCss("https://code.getmdl.io/1.3.0/material.pink-blue.min.css")
-           .RequiresJs("https://code.getmdl.io/1.3.0/material.min.js")
-           //This loads all CSS found in the current theme's css folder: /Assets/css
-           .RequiresThemedCssFolder(Model);
+            .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en")
+            .RequiresCss("https://fonts.googleapis.com/icon?family=Material+Icons")
+            .RequiresCss("https://code.getmdl.io/1.3.0/material.pink-blue.min.css")
+            .RequiresJs("https://code.getmdl.io/1.3.0/material.min.js")
+            //This loads all CSS found in the current theme's css folder: /Assets/css
+            .RequiresThemedCssFolder(Model);
     }
 
     @Html.RenderCssHere()
+    @RenderSection("Header", false)
+
     @{
         var blogBanner = Model.BlogBanner;
     }
