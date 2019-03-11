@@ -32,7 +32,7 @@ namespace Articulate
                 {
                     var parentPath = base.GetUrl(umbracoContext, content, mode, culture, current);
                     var urlFolder = string.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
-                    var newUrl = parentPath.EnsureEndsWith("/") + urlFolder + "/" + content.UrlName;
+                    var newUrl = parentPath.Text.EnsureEndsWith("/") + urlFolder + "/" + content.Url;
 
                     return UrlInfo.Url(newUrl, culture);
                 }
