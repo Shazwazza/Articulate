@@ -9,7 +9,7 @@
 
     if (Model.Image != null)
     {
-        var bgUrl = Url.GetCropUrl(Model.Image, width: 550, htmlEncode: false, upScale: false);
+        var bgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
         if (bgUrl != null)
         {
             postBg = "url('" + bgUrl + "')";
