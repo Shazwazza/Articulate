@@ -30,15 +30,18 @@
         vm.groups = [
             {
                 "name": "Articulate BlogMl Importer",
-                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.html"
+                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.html",
+                "icon": "icon-download-alt"
             },
             {
                 "name": "Articulate BlogMl Exporter",
-                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.html"
+                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.html",
+                "icon": "icon-out"
             },
             {
                 "name": "Articulate Data Installer",
-                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.html"
+                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.html",
+                "icon": "icon-stacked-disks"
             }
         ];
 

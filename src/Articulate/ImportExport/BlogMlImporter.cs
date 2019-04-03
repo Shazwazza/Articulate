@@ -413,7 +413,7 @@ namespace Articulate.ImportExport
             if (xmlPost == null) return;
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
-            postNode.AssignTags("tags", tags, true, "ArticulateTags");
+            postNode.AssignTags("tags", tags);
         }
     }
 }

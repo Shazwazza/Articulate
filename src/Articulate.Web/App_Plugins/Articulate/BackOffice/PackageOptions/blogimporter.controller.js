@@ -1,49 +1,49 @@
 angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
     function ($scope, umbRequestHelper, formHelper, fileManager, $http, $q) {
 
+        var vm = this;
+
         //initialize the import, this will upload the file and return the post count
         function postInitialize() {
-            var deferred = $q.defer();
-            umbRequestHelper.postMultiPartRequest(
-                    Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostInitialize",
-                    //something needs to be here (dummy data)
-                    { key: "temp", value: "nothing" },
-                    function (data, formData) {
-                        //assign the file data to the request
-                        formData.append(file.name, file);
+            return umbRequestHelper.postMultiPartRequest(
+                Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostInitialize",
+                //something needs to be here (dummy data)
+                { key: "temp", value: "nothing" },
+                function (data, formData) {
+                    //assign the file data to the request
+                    formData.append(file.name, file);
+                }).then(
+                    function (data, status, headers, config) {
+                        vm.status = "Please wait... Importing " + data.data.count + " blog posts...";
+                        return $q.resolve(data.data.tempFile);
                     },
                     function (data, status, headers, config) {
-                        $scope.status = "Please wait... Importing " + data.count + " blog posts...";
-                        deferred.resolve(data.tempFile);
-                    },
-                    function (data, status, headers, config) {
-                        deferred.reject('Failed to initialize');
+                        return $q.reject('Failed to initialize');
                     });
-            return deferred.promise;
         }
 
         function postImport(tempFile) {
             return umbRequestHelper.resourcePromise(
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostImportBlogMl", {
-                        articulateNode: $scope.contentPickerImportModel.value,
-                        overwrite: $scope.overwrite,
-                        regexMatch: $scope.regexMatch,
-                        regexReplace: $scope.regexReplace,
-                        publish: $scope.publish,
+                        articulateNode: vm.contentPickerImportModel.value,
+                        overwrite: vm.overwrite,
+                        regexMatch: vm.regexMatch,
+                        regexReplace: vm.regexReplace,
+                        publish: vm.publish,
                         tempFile: tempFile,
-                        exportDisqusXml: $scope.exportDisqusXml,
-                        importFirstImage: $scope.importFirstImage
+                        exportDisqusXml: vm.exportDisqusXml,
+                        importFirstImage: vm.importFirstImage
                     }),
                 'Failed to import blog posts');
         }
-        
+
 
         var file = null;
-        
-        $scope.submitting = false;
-        
-        $scope.contentPickerImportModel = {
+
+        vm.buttonState = "init";
+
+        vm.contentPickerImportModel = {
             view: "contentpicker",
             label: "Articulate blog node",
             description: "Choose the Articulate blog node to import to",
@@ -55,28 +55,48 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
         $scope.$on("filesSelected", function (e, args) {
             file = args.files[0];
         });
-        
 
-        $scope.submitImport = function () {
+        $scope.$watch("vm.contentPickerImportModel.value", function (newVal, oldVal) {
+            if (vm.articulateImportForm.articulateImportNodeId) {
+                vm.articulateImportForm.articulateImportNodeId.$setValidity('required', newVal !== null && newVal !== undefined && newVal !== "");
+            }
+        });
 
-            $scope.status = "";
+        vm.toggleExport = function () {
+            vm.exportDisqusXml = !vm.exportDisqusXml;
+            vm.publish = vm.publish || vm.exportDisqusXml;
+            vm.publish = vm.publish || vm.importFirstImage;
+        }
 
-            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateImportForm })) {
+        vm.toggleImportFirstImage = function () {
+            vm.importFirstImage = !vm.importFirstImage;
+            vm.publish = vm.publish || vm.exportDisqusXml;
+            vm.publish = vm.publish || vm.importFirstImage;
+        }
+
+        vm.submitImport = function () {
+
+            vm.status = "";
+
+            if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateImportForm })) {
 
                 formHelper.resetForm({ scope: $scope });
 
-                $scope.submitting = true;
-                $scope.status = "Please wait...";
+                vm.buttonState = "busy";
+                vm.status = "Please wait...";
 
                 postInitialize()
                     .then(postImport)
                     .then(function (data) {
 
-                        $scope.downloadLink = data.downloadUrl;
+                        vm.downloadLink = data.downloadUrl;
 
-                        $scope.status = "Finished!";
-                        $scope.submitting = false;
+                        vm.status = "Finished!";
+                        vm.buttonState = "success";
                     });
+            }
+            else {
+                vm.buttonState = "error";
             }
         }
     }).directive('requiredFile', function () {

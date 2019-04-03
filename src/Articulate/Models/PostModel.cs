@@ -91,7 +91,15 @@ namespace Articulate.Models
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public ImageCropperValue PostImage => (_postImage ?? (_postImage = base.Unwrap().Value<ImageCropperValue>("postImage"))).Src.IsNullOrWhiteSpace() ? null : _postImage;
+        public ImageCropperValue PostImage
+        {
+            get
+            {
+                if (_postImage == null)
+                    _postImage = base.Unwrap().Value<ImageCropperValue>("postImage");
+                return _postImage == null || _postImage.Src.IsNullOrWhiteSpace() ? null : _postImage;
+            }
+        }
 
         private string _croppedPostImageUrl;
 

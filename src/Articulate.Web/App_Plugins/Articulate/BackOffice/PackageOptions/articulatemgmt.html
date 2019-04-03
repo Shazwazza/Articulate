@@ -13,7 +13,10 @@
             <div class="umb-air" ng-repeat="group in vm.groups" ng-click="vm.openGroup(group);">
                 <div class="umb-healthcheck-group">
 
-                    <div class="umb-healthcheck-title">{{group.name}}</div>
+                    <div class="umb-healthcheck-title">
+                        <p ng-class="group.icon" style="font-size:2em;"></p>
+                        <p>{{group.name}}</p>
+                    </div>
 
                 </div>
             </div>
