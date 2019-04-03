@@ -9,9 +9,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
+using Newtonsoft.Json;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
@@ -27,8 +29,9 @@ namespace Articulate.ImportExport
         private readonly IContentTypeService _contentTypeService;
         private readonly IUserService _userService;
         private readonly ILogger _logger;
+        private readonly IDataTypeService _dataTypeService;
 
-        public BlogMlImporter(ArticulateTempFileSystem fileSystem, DisqusXmlExporter disqusXmlExporter, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IContentService contentService, IContentTypeService contentTypeService, IUserService userService, ILogger logger)
+        public BlogMlImporter(ArticulateTempFileSystem fileSystem, DisqusXmlExporter disqusXmlExporter, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IContentService contentService, IContentTypeService contentTypeService, IUserService userService, ILogger logger, IDataTypeService dataTypeService)
         {
             _fileSystem = fileSystem;
             _disqusXmlExporter = disqusXmlExporter;
@@ -37,6 +40,7 @@ namespace Articulate.ImportExport
             _contentTypeService = contentTypeService;
             _userService = userService;
             _logger = logger;
+            _dataTypeService = dataTypeService;
         }
 
         public int GetPostCount(string fileName)
@@ -341,22 +345,69 @@ namespace Articulate.ImportExport
 
             var attachment = post.Attachments.FirstOrDefault(p => imageMimeTypes.Contains(p.MimeType));
             if (attachment == null) return;
-            var path = attachment.Url.GetPath();
 
-            try
+            var imageSaved = false;
+
+            if (!attachment.Content.IsNullOrWhiteSpace())
             {
-                using (var client = new HttpClient())
+                //the image is base64
+                var bytes = Convert.FromBase64String(attachment.Content);
+                using (var stream = new MemoryStream(bytes))
                 {
-                    using (var stream = await client.GetStreamAsync(attachment.Url))
-                    {
-                        postNode.SetValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(path), stream);
-                    }
+                    postNode.SetValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream);
+                    imageSaved = true;
                 }
             }
-            catch (Exception exception)
+            else if (attachment.ExternalUri != null && attachment.ExternalUri.IsAbsoluteUri)
             {
-                _logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        using (var stream = await client.GetStreamAsync(attachment.ExternalUri))
+                        {
+                            postNode.SetValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream);
+                            imageSaved = true;
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
+                }
             }
+
+            if (imageSaved)
+            {
+                //this is a work around for the SetValue method to save a file, since it doesn't currently take into account the image cropper
+                //which we are using so we need to fix that.
+                
+                var propType = postNode.Properties["postImage"].PropertyType;
+                var cropperValue = CreateImageCropperValue(propType, postNode.GetValue("postImage"), _dataTypeService);
+                postNode.SetValue("postImage", cropperValue);
+            }
+            
+        }
+
+        //borrowed from CMS core until SetValue is fixed with a stream
+        private string CreateImageCropperValue(PropertyType propertyType, object value, IDataTypeService dataTypeService)
+        {
+            if (value == null || string.IsNullOrEmpty(value.ToString()))
+                return null;
+
+            // if we don't have a json structure, we will get it from the property type
+            var val = value.ToString();
+            if (val.DetectIsJson())
+                return val;
+
+            var configuration = dataTypeService.GetDataType(propertyType.DataTypeId).ConfigurationAs<ImageCropperConfiguration>();
+            var crops = configuration?.Crops ?? Array.Empty<ImageCropperConfiguration.Crop>();
+
+            return JsonConvert.SerializeObject(new
+            {
+                src = val,
+                crops = crops
+            });
         }
 
         //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
