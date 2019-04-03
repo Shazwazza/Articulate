@@ -1,25 +1,43 @@
-﻿<div ng-controller="Articulate.Dashboard.BlogExporter">
+﻿<div ng-controller="Articulate.Dashboard.BlogExporter as vm">
 
-    <umb-box>
-        <umb-box-content>
-            <form name="articulateExportForm" ng-submit="submitExport()" novalidate val-form-manager>
+    <ng-form name="vm.articulateExportForm" novalidate val-form-manager>
+
+        <umb-box>
+            <umb-box-content>
+
                 <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to export from"
-                    label="Articulate blog node">
-                    <umb-property-editor model="contentPickerExportModel"
-                        ng-model="$parent.$parent.articulateExportNodeId" name="articulateExportNodeId" no-dirty-check>
+                                   label="Articulate blog node">
+                    <umb-property-editor model="vm.contentPickerExportModel"
+                                         ng-model="vm.articulateExportNodeId" name="articulateExportNodeId" no-dirty-check>
                     </umb-property-editor>
 
+                    <span ng-messages="vm.articulateExportForm.articulateExportNodeId.$error" show-validation-on-submit>
+                        <span class="help-inline" ng-message="required"><localize key="general_required">Required</localize></span>
+                    </span>
+
                 </umb-control-group>
 
-                <umb-control-group>
-                    <p><input type="submit" ng-if="!submitting" /></p>
-                    <p class="alert" ng-bind-html="status" ng-if="status != null || status != undefined"
-                        ng-class="{'alert-success': status == 'Finished!', 'alert-info' : status != 'Finished!'}"></p>
-                    <p ng-if="status === 'Finished!'">Click <a href='{{downloadLink}}' target='_blank'>here</a> to
-                        download the exported BlogML file</p>
-                </umb-control-group>
-            </form>
-        </umb-box-content>
-    </umb-box>
+                <div>
+                    <umb-button type="button"
+                                button-style="success"
+                                action="vm.submitExport()"
+                                label="Submit"
+                                state="vm.buttonState">
+                    </umb-button>
+
+                    <div ng-show="vm.status != null && vm.status != undefined && vm.status != ''">
+                        <hr />
+                        <p class="alert" ng-bind-html="vm.status"
+                           ng-class="{'alert-success': vm.status == 'Finished!', 'alert-info' : vm.status != 'Finished!'}"></p>
+                        <p ng-show="vm.status === 'Finished!'">
+                            Click <a href='{{vm.downloadLink}}' target='_blank'>here</a> to download the exported BlogML file
+                        </p>
+                    </div>
+
+                </div>
+
+            </umb-box-content>
+        </umb-box>
+    </ng-form>
 
 </div>

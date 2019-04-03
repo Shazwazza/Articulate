@@ -1,43 +1,54 @@
 angular.module("umbraco").controller("Articulate.Dashboard.BlogExporter",
-    function ($scope, umbRequestHelper, formHelper, fileManager, $http, $q) {
-       
+    function ($scope, umbRequestHelper, formHelper, $http) {
+
+        var vm = this;
+
         function postExport() {
             return umbRequestHelper.resourcePromise(
                 $http.post(
                     Umbraco.Sys.ServerVariables["articulate"]["articulateImportBaseUrl"] + "PostExportBlogMl", {
-                        articulateNode: $scope.contentPickerExportModel.value
+                        articulateNode: vm.contentPickerExportModel.value
                     }),
                 'Failed to export blog posts');
         }        
 
-        $scope.submitting = false;
+        vm.buttonState = "init";
 
-        $scope.contentPickerExportModel = {
+        vm.contentPickerExportModel = {
             view: "contentpicker",
             config: {
                 minNumber: 1
             }
         };
 
-        $scope.submitExport = function () {
+        $scope.$watch("vm.contentPickerExportModel.value", function (newVal, oldVal) {
+            if (vm.articulateExportForm.articulateExportNodeId) {
+                vm.articulateExportForm.articulateExportNodeId.$setValidity('required', newVal !== null && newVal !== undefined && newVal !== "");
+            }
+        });
 
-            $scope.status = "";
+        vm.submitExport = function () {
 
-            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateExportForm })) {
+            vm.status = "";
+
+            if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateExportForm })) {
 
                 formHelper.resetForm({ scope: $scope });
 
-                $scope.submitting = true;
-                $scope.status = "Please wait...";
+                vm.buttonState = "busy";
+                vm.status = "Please wait...";
 
                 postExport()
                     .then(function (data) {
 
-                        $scope.downloadLink = data.downloadUrl;
+                        vm.downloadLink = data.downloadUrl;
 
-                        $scope.status = "Finished!";
-                        $scope.submitting = false;
+                        vm.status = "Finished!";
+                        vm.buttonState = "success";
                     });
+            }
+            else {
+                vm.buttonState = "error";
             }
         }
         
