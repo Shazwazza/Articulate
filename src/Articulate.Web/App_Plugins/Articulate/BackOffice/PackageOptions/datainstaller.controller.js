@@ -1,5 +1,7 @@
 angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
-    function ($scope, umbRequestHelper, formHelper, fileManager, $http, $q) {
+    function ($scope, umbRequestHelper, formHelper, $http) {
+
+        var vm = this;
 
         function postInstall() {
             return umbRequestHelper.resourcePromise(
@@ -8,29 +10,32 @@ angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
                 'Failed to install Articulate data');
         }
 
-        
+        vm.buttonState = "init";
 
-        $scope.submitInstall = function () {
+        vm.submitInstall = function () {
 
-            $scope.status = "";
+            vm.status = "";
 
-            $scope.status = "Finished!";
-            $scope.submitting = false;
+            vm.status = "Finished!";
+            vm.submitting = false;
 
-            if (formHelper.submitForm({ scope: $scope, formCtrl: $scope.articulateInstallerForm })) {
+            if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateInstallerForm })) {
 
                 formHelper.resetForm({ scope: $scope });
 
-                $scope.submitting = true;
-                $scope.status = "Please wait...";
+                vm.buttonState = "busy";
+                vm.status = "Please wait...";
 
                 postInstall()
                     .then(function (data) {
                         
-                        $scope.blogUrl = JSON.parse(data);
-                        $scope.status = "Finished!";
-                        $scope.submitting = false;
+                        vm.blogUrl = JSON.parse(data);
+                        vm.status = "Finished!";
+                        vm.buttonState = "success";
                     });
+            }
+            else {
+                vm.buttonState = "error";
             }
         }
     });

@@ -1,8 +1,8 @@
-﻿<div ng-controller="Articulate.Dashboard.DataInstaller">
+﻿<div ng-controller="Articulate.Dashboard.DataInstaller as vm">
 
     <umb-box>
         <umb-box-content>
-            <div ng-show="status !== 'Finished!'">
+            <div ng-show="vm.status !== 'Finished!'">
                 <p>
                     This will ensure that Articulate's schema (Document Types, Data Types, Media Types, etc...) is installed
                     correctly
@@ -23,13 +23,18 @@
                     </li>
                 </ul>
                 
-                <form name="articulateInstallerForm" novalidate val-form-manager>
+                <ng-form name="vm.articulateInstallerForm" novalidate val-form-manager>
                     <br/>
-                    <umb-button type="button" action="submitInstall" ng-if="!submitting" label="Install" button-style="action" />
-                </form>
+                    <umb-button type="button" 
+                                action="vm.submitInstall()" 
+                                state="vm.buttonState" 
+                                label="Install" 
+                                button-style="action">
+                    </umb-button>
+                </ng-form>
             </div>
         
-            <div ng-show="status === 'Finished!'">
+            <div ng-show="vm.status === 'Finished!'">
                 <h4>Congrats! Articulate is now installed</h4>
                 <br />
                 <p>
@@ -51,7 +56,7 @@
                     documentation.
                 </p>
                 <p>
-                    Click <a href="{{blogUrl}}" target="_blank">here</a> to view the installed blog
+                    Click <a href="{{vm.blogUrl}}" target="_blank">here</a> to view the installed blog
                 </p>
         
             </div>
