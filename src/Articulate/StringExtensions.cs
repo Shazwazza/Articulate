@@ -5,7 +5,7 @@ using Umbraco.Core;
 
 namespace Articulate
 {
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         public static string NewLinesToSpaces(this string input)
         {
