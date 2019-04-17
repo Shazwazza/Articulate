@@ -325,7 +325,7 @@ This is a fully functional blog engine supporting many features:
 * Live Writer support
 * Markdown support
 * Easily post from your mobile phone including adding images and photos direct from you camera
-* Disqus, Google+ or Facebook comment support
+* Disqus or Facebook comment support (or build your own)
 * Search
 * Blogml import/export
 * RSS
@@ -337,7 +337,7 @@ Articulate is open source and hosted on GitHub:
 
 It comes with a few themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
 
-Comments are powered by Disqus (Google+ or Facebook are also supported and can be enabled in the templates).
+Comments are powered by Disqus (Facebook or custom comment engines can be used which can be enabled in the templates).
 
 Live Writer integration is fully functional, to configure Live Writer just use the URL of the Articulate root node and use your Umbraco username/password.
 

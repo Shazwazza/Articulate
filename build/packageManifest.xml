@@ -688,6 +688,7 @@
             <version>3.0.0</version>
             <license url="http://opensource.org/licenses/MIT">MIT License</license>
             <url>https://github.com/Shandem/Articulate/</url>
+            <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</iconUrl>
             <requirements type="strict">
                 <major>8</major>
                 <minor>0</minor>
@@ -699,24 +700,19 @@
             <website>http://shazwazza.com</website>
         </author>
         <readme>
-            <![CDATA[Blogging built on Umbraco
-
-Supporting all the features you'd want in a blogging platform:
-
-* Categories & Tags
-* Themes
-* Live Writer support
-* Markdown support
-* Easily post from your mobile phone including adding images and photos direct from you camera
-* Disqus, Google+ or Facebook comment support
-* Search
-* Blogml import/export
-** During import we can also export a compatible XML so you can easily import your comments to Disqus
-* RSS
-** Built in or custom feed
-** Feeds per category/tag
-* Customizable urls
-* Author profiles]]>
+            <![CDATA[<br/>Blogging built on Umbraco - Supports all the features you'd want in a blogging platform:<br/><br/>
+Categories & Tags<br/>
+Themes<br/>
+Multiple archives<br/>
+Live Writer support<br/>
+Markdown support<br/>
+Post from your mobile phone including photos direct from you camera<br/>
+Disqus or Facebook comment support (or build your own)<br/>
+Search<br/>
+Blogml import/export<br/>
+Customizable RSS feeds<br/>
+Customizable urls<br/>
+Author profiles]]>
         </readme>
     </info>
     <DocumentTypes>
