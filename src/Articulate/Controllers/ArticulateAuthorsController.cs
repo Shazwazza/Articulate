@@ -7,15 +7,16 @@ using Umbraco.Web.Mvc;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// This is used to redirect the Archive node to the root so no 404s occur
+    /// This is used to redirect the Authors node to the root so no 404s occur
     /// </summary>
-    public class ArticulateArchiveController : RenderMvcController
+    public class ArticulateAuthorsController : RenderMvcController
     {
 
         public override ActionResult Index(ContentModel model)
         {
             var root = new MasterModel(model.Content);
 
+            //TODO: Should we have another setting for authors?
             if (root.RootBlogNode.Value<bool>("redirectArchive"))
             {
                 return RedirectPermanent(root.RootBlogNode.Url);
@@ -27,7 +28,7 @@ namespace Articulate.Controllers
             if (!EnsurePhsyicalViewExists(action))
                 return new UmbracoNotFoundResult();
 
-            return View(action, model);            
+            return View(action, model);
         }
     }
 }

@@ -6,12 +6,6 @@
     <ul>
         <li><a href="@Url.ArticulateCategoriesUrl(Model)">Categories</a></li>
         <li><a href="@Url.ArticulateTagsUrl(Model)">Tags</a></li>
-        @if (Model.BlogAuthorsNode.Children.HasMoreThan(1))
-        {
-            <li>
-                <a href="@Url.ArticulateAuthorsUrl(Model)">Authors</a>
-            </li>
-        }
         <li>
             @Html.ThemedPartial(Model, "SearchBox")
         </li>
