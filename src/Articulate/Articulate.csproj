@@ -99,7 +99,6 @@
     <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
     <Compile Include="Controllers\WlwManifestController.cs" />
-    <Compile Include="Controls\Installer.cs" />
     <Compile Include="ImportExport\DisqusImporter.cs" />
     <Compile Include="ImportExport\DisqusXmlExporter.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />

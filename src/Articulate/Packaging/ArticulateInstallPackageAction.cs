@@ -13,7 +13,7 @@ namespace Articulate.Packaging
         public bool Execute(string packageName, XElement xmlData)
         {
             var dataInstaller = Current.Factory.GetInstance<ArticulateDataInstaller>();
-            var root = dataInstaller.Execute();
+            var root = dataInstaller.InstallContent();
 
             Current.Logger.Info<ArticulateInstallPackageAction>("Articulate data installation completed");
 

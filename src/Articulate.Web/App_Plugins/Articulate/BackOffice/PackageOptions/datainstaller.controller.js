@@ -28,8 +28,8 @@ angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
 
                 postInstall()
                     .then(function (data) {
-                        
-                        vm.blogUrl = JSON.parse(data);
+                        //TODO: indicate that it's already installed and no changes have been made, this happens when the result is false
+
                         vm.status = "Finished!";
                         vm.buttonState = "success";
                     });

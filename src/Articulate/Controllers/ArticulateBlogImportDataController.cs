@@ -22,23 +22,9 @@ namespace Articulate.Controllers
         
         public IHttpActionResult PostInstall()
         {
-            return NotFound();
+            var dataInstalled = _installer.InstallSchemaAndContent(Security.GetUserId().ResultOr(-1));
 
-            ////TODO: indicate that it's already installed and no changes have been made
-            //var root = _installer.Execute(out bool packageInstalled);
-
-            //string blogUrl;
-
-            //if (root != null)
-            //{
-            //    blogUrl = Umbraco.Content(root.Id).Url;
-            //}
-            //else
-            //{
-            //    blogUrl = "/";
-            //}
-
-            //return Ok(blogUrl);
+            return Ok(dataInstalled);
         }
     }
 }

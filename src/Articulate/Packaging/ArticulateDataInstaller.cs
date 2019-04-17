@@ -1,8 +1,17 @@
+using Articulate.Resources;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Packaging;
+using Umbraco.Core.Packaging;
 using Umbraco.Core.Services;
 
 namespace Articulate.Packaging
@@ -11,23 +20,40 @@ namespace Articulate.Packaging
     {
         private readonly IContentTypeService _contentTypeService;
         private readonly IContentService _contentService;
+        private readonly IPackageInstallation _packageInstallation;
         private readonly IPackagingService _packagingService;
         private readonly IDataTypeService _dataTypeService;
         private readonly ILogger _logger;
 
-        public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService, IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger)
+        public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService, 
+            IPackageInstallation packageInstallation, 
+            IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger)
         {
             _contentTypeService = contentTypeService;
             _contentService = contentService;
+            _packageInstallation = packageInstallation;
             _packagingService = packagingService;
             _dataTypeService = dataTypeService;
             _logger = logger;
         }
         
-        public IContent Execute(/*out bool packageInstalled*/)
+        /// <summary>
+        /// Installs the Articulate package including schema and content via the package manifest and adds the package to the local repo
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>Returns false if the same version is already installed, in which case nothing is altered.</returns>
+        public bool InstallSchemaAndContent(int userId)
         {
-            //packageInstalled = InstallPackage();
+            //this will install the package (if it's not already installed), which will in turn run the package action to install the content
+            return InstallPackage(userId);
+        }
 
+        /// <summary>
+        /// Called by the package action to install content
+        /// </summary>
+        /// <returns></returns>
+        public IContent InstallContent()
+        {
             //TODO: Need to put the 'ugprader' back since package installation is not going to merge json values such as 
             // the number of crops required. 
 
@@ -44,95 +70,113 @@ namespace Articulate.Packaging
             var root = _contentService.GetPagedOfType(articulateContentType.Id, 0, int.MaxValue, out long totalRoots, null).FirstOrDefault();
             if (root == null)
             {
-                return InstallContent();
+                return InstallContentData();
             }
 
             return null;
         }
 
-        //private bool InstallPackage()
-        //{
-        //    //need to save the package manifest to a temp folder since that is how this package installer logic works
-        //    var tempFile = Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "package.xml");
-        //    var tempDir = Path.GetDirectoryName(tempFile);
-        //    Directory.CreateDirectory(tempDir);
+        /// <summary>
+        /// This will install the Articulate package based on the actual articulate package manifest file which is embedded
+        /// into this assembly.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// This would be like installing the package in the back office to install all schema, etc... but we do this 
+        /// without the full package file, just to install the schema and content and to add the package to the package repo.
+        /// </remarks>
+        private bool InstallPackage(int userId)
+        {
+            //TODO: We need to reflect here because this isn't public and we're resolving the internal type from DI
+            var parserType = _contentService.GetType().Assembly.GetType("Umbraco.Core.Packaging.CompiledPackageXmlParser");
+            if (parserType == null)
+                throw new InvalidOperationException("Could not get type Umbraco.Core.Packaging.CompiledPackageXmlParser");
+            var parser = Current.Factory.GetInstance(parserType);
 
-        //    try
-        //    {
-        //        //TODO: If we want to support this we need to write a Zip file with this inside of it and then we can use _packagingService.GetCompiledPackageInfo() on the zip file
-        //        System.IO.File.WriteAllText(tempFile, ArticulateResources.packageManifest);
+            //these are the parameters required, the fake FileInfo doesn't really do anything in this context
+            var fakePackageFile = new FileInfo(Path.Combine(IOHelper.MapPath("~/App_Data/TEMP/Articulate"), Guid.NewGuid().ToString(), "fake-package.zip"));
+            var xdoc = XDocument.Parse(ArticulateResources.packageManifest); //read in the xdocument package xml
+            var appRoot = GetRootDirectorySafe(); //the root folder (based on what is passed in the Core)
 
-        //        //_packagingService.GetCompiledPackageInfo()
-        //        //ins.LoadConfig(tempDir);
+            //reflect, call ToCompiledPackage to get the CompiledPackage reference
+            CompiledPackage compiledPackage = (CompiledPackage)parser.CallMethod("ToCompiledPackage", xdoc, fakePackageFile, appRoot);
 
-        //        //int packageId;
-        //        //bool sameVersion;
-        //        //if (IsPackageVersionAlreadyInstalled(ins.Name, ins.Version, out sameVersion, out packageId))
-        //        //{
-        //        //    //if it's the same version, we don't need to install anything
-        //        //    if (!sameVersion)
-        //        //    {
-        //        //        var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-        //        //        ins.InstallBusinessLogic(pckId, tempDir);
-        //        //        return true;
-        //        //    }
-        //        //    return false;
-        //        //}
-        //        //else
-        //        //{
-        //        //    var pckId = ins.CreateManifest(tempDir, Guid.NewGuid().ToString(), "65194810-1f85-11dd-bd0b-0800200c9a66");
-        //        //    ins.InstallBusinessLogic(pckId, tempDir);
-        //        //    return true;
-        //        //}
-        //    }
-        //    finally
-        //    {
-        //        if (System.IO.File.Exists(tempFile))
-        //        {
-        //            System.IO.File.Delete(tempFile);
-        //        }
-        //        if (System.IO.Directory.Exists(tempDir))
-        //        {
-        //            System.IO.Directory.Delete(tempDir, true);
-        //        }
-        //    }
-        //}
+            //TODO: Need to reflect again to get the package definition
+            PackageDefinition packageDefinition = (PackageDefinition)typeof(PackageDefinition).CallStaticMethod("FromCompiledPackage", compiledPackage);
 
-        ////borrowed from Core
-        //private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
-        //{
-        //    var allInstalled = _packagingService.GetAllInstalledPackages();
-        //    var found = allInstalled.Where(x => x.Name == name).ToArray();
-        //    sameVersion = false;
+            //if it's not installed or it's not the same version, then we need to run the installer
+            if (!IsPackageVersionAlreadyInstalled(packageDefinition.Name, packageDefinition.Version, out var sameVersion, out var packageId) || !sameVersion)
+            {
+                //clear out the files, we don't want to save this package manifest with files since we don't want to delete them on package 
+                //uninstallation done in the back office since this will generally only be the case when we are installing via Nuget
+                packageDefinition.Files = new List<string>(); 
+                var summary = _packageInstallation.InstallPackageData(packageDefinition, compiledPackage, userId);
+                //persist this to the package repo, it will now show up as installed packages in the back office
+                _packagingService.SaveInstalledPackage(packageDefinition);
+                return true;
+            }
 
-        //    if (found.Length  > 0)
-        //    {
-        //        var foundVersion = found.FirstOrDefault(x =>
-        //        {
-        //            //match the exact version
-        //            if (x.Version == version)
-        //            {
-        //                return true;
-        //            }
-        //            //now try to compare the versions
-        //            if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
-        //            {
-        //                if (installed >= selected)
-        //                    return true;
-        //            }
-        //            return false;
-        //        });
+            return false;
+        }
 
-        //        sameVersion = foundVersion != null;
+        // borrowed from Core (it's internal on IOHelper)
+        private static string _rootDir = "";
+        private static string GetRootDirectorySafe()
+        {
+            if (String.IsNullOrEmpty(_rootDir) == false)
+            {
+                return _rootDir;
+            }
 
-        //        //this package is already installed, find the highest package id for this package name that is installed
-        //        packageId = found.Max(x => x.Id);
-        //        return true;
-        //    }
+            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var uri = new Uri(codeBase);
+            var path = uri.LocalPath;
+            var baseDirectory = Path.GetDirectoryName(path);
+            if (String.IsNullOrEmpty(baseDirectory))
+                throw new Exception("No root directory could be resolved. Please ensure that your Umbraco solution is correctly configured.");
 
-        //    packageId = -1;
-        //    return false;
-        //}
+            _rootDir = baseDirectory.Contains("bin")
+                           ? baseDirectory.Substring(0, baseDirectory.LastIndexOf("bin", StringComparison.OrdinalIgnoreCase) - 1)
+                           : baseDirectory;
+
+            return _rootDir;
+        }
+
+        private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
+        {
+            var allInstalled = _packagingService.GetAllInstalledPackages();
+            var found = allInstalled.Where(x => x.Name == name).ToArray();
+            sameVersion = false;
+
+            if (found.Length > 0)
+            {
+                var foundVersion = found.FirstOrDefault(x =>
+                {
+                    //match the exact version
+                    if (x.Version == version)
+                    {
+                        return true;
+                    }
+                    //now try to compare the versions
+                    if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
+                    {
+                        if (installed >= selected)
+                            return true;
+                    }
+                    return false;
+                });
+
+                sameVersion = foundVersion != null;
+
+                //this package is already installed, find the highest package id for this package name that is installed
+                packageId = found.Max(x => x.Id);
+                return true;
+            }
+
+            packageId = -1;
+            return false;
+        }
 
         //private void Upgrade()
         //{
@@ -191,7 +235,7 @@ namespace Articulate.Packaging
         //    }
         //}
 
-        private IContent InstallContent()
+        private IContent InstallContentData()
         {
             //Create the root node - this will automatically create the authors and archive nodes
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
