@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -78,9 +79,17 @@ namespace Articulate.ImportExport
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
+            }            
+            var categoryConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
+            var categoryGroup = categoryConfiguration.Group;
+
+            var tagDataType = _dataTypeService.GetDataType("Articulate Tags");
+            if (tagDataType == null)
+            {
+                throw new InvalidOperationException("No Articulate Tags data type found");
             }
-            
-            var tagConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
+            var tagConfiguration = tagDataType.ConfigurationAs<TagConfiguration>();
+            var tagGroup = tagConfiguration.Group;
 
             //TODO: See: http://argotic.codeplex.com/wikipage?title=Generating%20portable%20web%20log%20content&referringTitle=Home
 
@@ -96,10 +105,10 @@ namespace Articulate.ImportExport
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
-            AddBlogCategories(blogMlDoc, tagConfiguration.Group);
+            AddBlogCategories(blogMlDoc, categoryGroup);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, tagConfiguration.Group);
+                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup);
             }
             WriteFile(blogMlDoc);
         }
@@ -149,7 +158,7 @@ namespace Articulate.ImportExport
             }
         }
 
-        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string tagGroup)
+        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
         {
             const int pageSize = 1000;
             var pageIndex = 0;
@@ -194,13 +203,22 @@ namespace Articulate.ImportExport
                         blogMlPost.Authors.Add(author.Id);
                     }
 
-                    var categories = _tagService.GetTagsForEntity(child.Id, tagGroup);
+                    var categories = _tagService.GetTagsForEntity(child.Id, categoryGroup);
+
                     foreach (var category in categories)
                     {
                         blogMlPost.Categories.Add(category.Id.ToString());
                     }
 
-                    //TODO: Tags isn't natively supported
+                    var tags = _tagService.GetTagsForEntity(child.Id, tagGroup).Select(t =>t.Text).ToList();
+                    if (tags?.Any() == true)
+                    {
+                        blogMlPost.AddExtension(
+                            new Syndication.BlogML.TagsSyndicationExtension()
+                            {
+                                Context = {Tags = new Collection<string>(tags)}
+                            });
+                    }
 
                     //add the image attached if there is one
                     if (child.HasProperty("postImage"))

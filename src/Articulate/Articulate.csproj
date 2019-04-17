@@ -96,6 +96,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ArticulateResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Syndication\BlogML\TagsSyndicationExtension.cs" />
+    <Compile Include="Syndication\BlogML\TagsSyndicationExtensionContext.cs" />
     <Compile Include="Syndication\IRssFeedGenerator.cs" />
     <Compile Include="Syndication\RssResult.cs" />
     <Compile Include="Controllers\TagsControllerActionInvoker.cs" />
