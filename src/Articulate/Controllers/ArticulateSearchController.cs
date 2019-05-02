@@ -3,7 +3,12 @@ using System;
 using System.Linq;
 using System.Web.Mvc;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -15,25 +20,12 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateSearchController : ListControllerBase
     {
-        private IArticulateSearcher _articulateSearcher;
-
-        public ArticulateSearchController()
+        public ArticulateSearchController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
         {
+            ArticulateSearcher = articulateSearcher;
         }
 
-        public ArticulateSearchController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(umbracoContext, umbracoHelper)
-        {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
-            _articulateSearcher = articulateSearcher;
-        }
-
-        public ArticulateSearchController(UmbracoContext umbracoContext, IArticulateSearcher articulateSearcher) : base(umbracoContext)
-        {
-            if (articulateSearcher == null) throw new ArgumentNullException(nameof(articulateSearcher));
-            _articulateSearcher = articulateSearcher;
-        }
-
-        protected IArticulateSearcher ArticulateSearcher => _articulateSearcher ?? (_articulateSearcher = new DefaultArticulateSearcher(Umbraco));
+        private IArticulateSearcher ArticulateSearcher { get; }
 
         /// <summary>
         /// Used to render the search result listing (virtual node)
@@ -43,16 +35,16 @@ namespace Articulate.Controllers
         /// The search term
         /// </param>
         /// <param name="provider">
-        /// The search provider name (optional)
+        /// The searcher name (optional)
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Search(RenderModel model, string term, string provider = null, int? p = null)
+        public ActionResult Search(ContentModel model, string term, string provider = null, int? p = null)
         {
             var searchPage = model.Content as ArticulateVirtualPage;
             if (searchPage == null)
             {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
+                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
             }
 
             //create a master model
@@ -67,7 +59,7 @@ namespace Articulate.Controllers
 
             if (p != null && p.Value == 1)
             {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContext);
+                return new RedirectToUmbracoPageResult(model.Content, UmbracoContextAccessor);
             }
 
             if (p == null || p.Value <= 0)

@@ -28,15 +28,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <![endif]-->
     @{ Html
-           .RequiresCss("https://fonts.googleapis.com/css?family=Raleway:200")
-           .RequiresCss("https://fonts.googleapis.com/css?family=Open+Sans:300")
-           .RequiresCss("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
-           .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
-           .RequiresThemedCssFolder(Model);           
+            .RequiresCss("https://fonts.googleapis.com/css?family=Raleway:200")
+            .RequiresCss("https://fonts.googleapis.com/css?family=Open+Sans:300")
+            .RequiresCss("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css")
+            .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
+            .RequiresThemedCssFolder(Model);
     }
 
     @Html.RenderCssHere()
-
+    @RenderSection("Header", false)
 </head>
 
 <body class="@ViewBag.CssBodyClass">

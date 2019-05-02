@@ -1,7 +1,7 @@
 ﻿@using Articulate.Controllers
 @using ClientDependency.Core.Mvc
 @using Umbraco.Web.Editors
-@model dynamic
+@model Articulate.Models.MarkdownEditorInitModel
 
 @{
     Layout = null;
@@ -171,10 +171,10 @@
 </head>
 
 <body ng-controller="EditorController"
-      data-articulate-nodeid="@ViewBag.articulateNodeId"
-      data-articulate-post-url="@(Url.GetUmbracoApiService<MardownEditorApiController>(controller => controller.PostNew()))"
-      data-umbraco-isauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.IsAuthenticated()))"
-      data-umbraco-doauth-url="@(Url.GetUmbracoApiService<AuthenticationController>(controller => controller.PostLogin(null)))">
+      data-articulate-nodeid="@Model.ArticulateNodeId"
+      data-articulate-post-url="@Model.PostUrl"
+      data-umbraco-isauth-url="@Model.IsAuthUrl"
+      data-umbraco-doauth-url="@Model.PostUrl">
 
     <form name="articulateForm" novalidate>
 

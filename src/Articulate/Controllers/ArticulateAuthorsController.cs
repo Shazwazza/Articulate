@@ -1,20 +1,34 @@
 ﻿using System.Web.Mvc;
 using Articulate.Models;
+using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-#if !DEBUG
-    [OutputCache(Duration = 60, VaryByHeader = "host")]
-#endif
+    /// <summary>
+    /// This is used to redirect the Authors node to the root so no 404s occur
+    /// </summary>
     public class ArticulateAuthorsController : RenderMvcController
     {
-        public override ActionResult Index(RenderModel model)
+
+        public override ActionResult Index(ContentModel model)
         {
-            var authorList = new AuthorListModel(model.Content);
-            authorList.Authors = Umbraco.GetContentByAuthors(authorList);
-            return View(PathHelper.GetThemeViewPath(authorList, "Authors"), authorList);
+            var root = new MasterModel(model.Content);
+
+            //TODO: Should we have another setting for authors?
+            if (root.RootBlogNode.Value<bool>("redirectArchive"))
+            {
+                return RedirectPermanent(root.RootBlogNode.Url);
+            }
+
+            //default
+
+            var action = ControllerContext.RouteData.Values["action"].ToString();
+            if (!EnsurePhsyicalViewExists(action))
+                return new UmbracoNotFoundResult();
+
+            return View(action, model);
         }
     }
 }

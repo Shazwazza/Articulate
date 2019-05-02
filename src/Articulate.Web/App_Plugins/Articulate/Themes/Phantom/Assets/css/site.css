@@ -110,9 +110,9 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Open Sans', sans-serif;
 }
 
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
-    text-decoration: none;
-}
+    h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+        text-decoration: none;
+    }
 
 h1 {
     font-size: 40px;
@@ -148,9 +148,9 @@ p, ul, ol {
     margin: 1.6em 0;
 }
 
-ol ol, ul ul, ul ol, ol ul {
-    margin: 0.4em 0;
-}
+    ol ol, ul ul, ul ol, ol ul {
+        margin: 0.4em 0;
+    }
 
 hr {
     display: block;
@@ -169,50 +169,50 @@ blockquote {
     border-left: #4a4a4a 0.4em solid;
 }
 
-blockquote p {
-    margin: 0.8em 0;
-    font-style: italic;
-}
+    blockquote p {
+        margin: 0.8em 0;
+        font-style: italic;
+    }
 
-blockquote small {
-    display: inline-block;
-    margin: 0.8em 0 0.8em 1.5em;
-    font-size: 0.9em;
-    color: #ccc;
-}
+    blockquote small {
+        display: inline-block;
+        margin: 0.8em 0 0.8em 1.5em;
+        font-size: 0.9em;
+        color: #ccc;
+    }
 
-blockquote small:before {
-    content: '\2014 \00A0';
-}
+        blockquote small:before {
+            content: '\2014 \00A0';
+        }
 
-blockquote cite {
-    font-weight: bold;
-}
+    blockquote cite {
+        font-weight: bold;
+    }
 
-blockquote cite a {
-    font-weight: normal;
-}
+        blockquote cite a {
+            font-weight: normal;
+        }
 
 dl {
     margin: 1.6em 0;
 }
 
-dl dt {
-    float: left;
-    width: 180px;
-    overflow: hidden;
-    clear: left;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: bold;
-    margin-bottom: 1em;
-}
+    dl dt {
+        float: left;
+        width: 180px;
+        overflow: hidden;
+        clear: left;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: bold;
+        margin-bottom: 1em;
+    }
 
-dl dd {
-    margin-left: 200px;
-    margin-bottom: 1em;
-}
+    dl dd {
+        margin-left: 200px;
+        margin-bottom: 1em;
+    }
 
 mark {
     background-color: #ffc336;
@@ -243,14 +243,14 @@ pre {
     border-radius: 3px;
 }
 
-pre code, tt {
-    font-size: inherit;
-    white-space: -moz-pre-wrap;
-    white-space: pre-wrap;
-    background: transparent;
-    border: none;
-    padding: 0;
-}
+    pre code, tt {
+        font-size: inherit;
+        white-space: -moz-pre-wrap;
+        white-space: pre-wrap;
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
 
 kbd {
     display: inline-block;
@@ -275,46 +275,46 @@ table {
     background-color: transparent;
 }
 
-table th, table td {
-    padding: 8px;
-    line-height: 20px;
-    text-align: left;
-    vertical-align: top;
-    border-top: 1px solid #efefef;
-}
+    table th, table td {
+        padding: 8px;
+        line-height: 20px;
+        text-align: left;
+        vertical-align: top;
+        border-top: 1px solid #efefef;
+    }
 
-table th {
-    color: #000;
-}
+    table th {
+        color: #000;
+    }
 
-table caption + thead tr:first-child th, table caption + thead tr:first-child td, table colgroup + thead tr:first-child th, table colgroup + thead tr:first-child td, table thead:first-child tr:first-child th, table thead:first-child tr:first-child td {
-    border-top: 0;
-}
+    table caption + thead tr:first-child th, table caption + thead tr:first-child td, table colgroup + thead tr:first-child th, table colgroup + thead tr:first-child td, table thead:first-child tr:first-child th, table thead:first-child tr:first-child td {
+        border-top: 0;
+    }
 
-table tbody + tbody {
-    border-top: 2px solid #efefef;
-}
+    table tbody + tbody {
+        border-top: 2px solid #efefef;
+    }
 
-table table table {
-    background-color: #fff;
-}
+    table table table {
+        background-color: #fff;
+    }
 
-table tbody > tr:nth-child(odd) > td, table tbody > tr:nth-child(odd) > th {
-    background-color: #f6f6f6;
-}
+    table tbody > tr:nth-child(odd) > td, table tbody > tr:nth-child(odd) > th {
+        background-color: #f6f6f6;
+    }
 
-table.plain tbody > tr:nth-child(odd) > td, table.plain tbody > tr:nth-child(odd) > th {
-    background: transparent;
-}
+    table.plain tbody > tr:nth-child(odd) > td, table.plain tbody > tr:nth-child(odd) > th {
+        background: transparent;
+    }
 
 a {
     color: #4a4a4a;
     transition: color ease 0.3s;
 }
 
-a:hover {
-    color: #E77A27;
-}
+    a:hover {
+        color: rgb(68,138,255);
+    }
 
 .sidebar {
     position: fixed;
@@ -330,62 +330,62 @@ a:hover {
     -webkit-transform: translateZ(0);
 }
 
-.sidebar .title {
-    font-size: 30px;
-    color: white;
-    text-decoration: none;
-}
+    .sidebar .title {
+        font-size: 30px;
+        color: white;
+        text-decoration: none;
+    }
 
-.sidebar .description {
-    margin-bottom: 10px;
-}
+    .sidebar .description {
+        margin-bottom: 10px;
+    }
 
-.sidebar .footer {
-    position: relative;
-    bottom: 0px;
-    font-size: 12px;
-}
+    .sidebar .footer {
+        position: relative;
+        bottom: 0px;
+        font-size: 12px;
+    }
 
-.sidebar a {
-    color: white;
-}
+    .sidebar a {
+        color: white;
+    }
 
-.sidebar a:hover {
-    color: #E77A27;
-}
+        .sidebar a:hover {
+            color: inherit;
+        }
 
-.sidebar .logo {
-    display: block;
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    background-size: contain;
-    margin: 0 auto 20px auto;
-    background: no-repeat;
-}
+    .sidebar .logo {
+        display: block;
+        width: 100%;
+        max-width: 250px;
+        height: auto;
+        background-size: contain;
+        margin: 0 auto 20px auto;
+        background: no-repeat;
+    }
 
-.sidebar .circle {
-    display: block;
-    width: 130px;
-    height: 130px;
-    margin: 0 auto 20px auto;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    -webkit-border-radius: 99em;
-    -moz-border-radius: 99em;
-    border-radius: 99em;
-    border: 5px solid #eee;
-    box-shadow: 0 3px 2px rgba(0,0,0,0.3);
-}
+    .sidebar .circle {
+        display: block;
+        width: 130px;
+        height: 130px;
+        margin: 0 auto 20px auto;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        -webkit-border-radius: 99em;
+        -moz-border-radius: 99em;
+        border-radius: 99em;
+        border: 5px solid #eee;
+        box-shadow: 0 3px 2px rgba(0,0,0,0.3);
+    }
 
-.sidebar .social-icons {
-    margin-top: 10px;
-}
+    .sidebar .social-icons {
+        margin-top: 10px;
+    }
 
-.sidebar .icon {
-    font-size: 18px;
-}
+    .sidebar .icon {
+        font-size: 18px;
+    }
 
 .content {
     margin-left: 250px;
@@ -393,42 +393,46 @@ a:hover {
     max-width: 800px;
 }
 
-.content .post {
-    margin-bottom: 50px;
-    padding-bottom: 20px;
-    border-bottom: #EBF2F6 1px solid;
-    word-break: break-word;
-    hyphens: auto;
-}
+    .content .post {
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        border-bottom: #EBF2F6 1px solid;
+        word-break: break-word;
+        hyphens: auto;
+    }
 
-.content .post .post-title {
-    margin: 0;
-}
+        .content .post .post-title {
+            margin: 0;
+        }
 
-.content .post .post-title a {
-    text-decoration: none;
-}
+            .content .post .post-title a {
+                text-decoration: none;
+            }
 
-.content .post .post-excerpt p {
-    margin: 1.6rem 0 0 0;
-    line-height: 1.6em;
-}
+            .content .post .post-title .icon-rss {
+                float: right;
+            }
 
-.content .post .post-meta {
-    display: inline-block;
-    margin: 0 0 5px 0;
-    font-size: 15px;
-    color: #9EABB3;
-}
+        .content .post .post-excerpt p {
+            margin: 1.6rem 0 0 0;
+            line-height: 1.6em;
+        }
 
-.content .post .post-meta a {
-    color: #9EABB3;
-    text-decoration: none;
-}
+        .content .post .post-meta {
+            display: inline-block;
+            margin: 0 0 5px 0;
+            font-size: 15px;
+            color: #9EABB3;
+        }
 
-.content .post .post-meta a:hover {
-    text-decoration: underline;
-}
+            .content .post .post-meta a {
+                color: #9EABB3;
+                text-decoration: none;
+            }
+
+                .content .post .post-meta a:hover {
+                    text-decoration: underline;
+                }
 
 .separator {
     display: block;
@@ -447,13 +451,17 @@ a:hover {
     margin: 15px;
 }
 
+    .articulate-search input::placeholder {
+        color: white;
+    }
+
 /* This hides the first image displayed in an RTE blog post - used in conjunction with Windows Live Writer */
 .a-image-0 {
     display: none;
 }
 
 .postImage {
-    float: left; 
+    float: left;
     padding: 10px 25px 10px 0px;
     max-width: 100%;
 }
@@ -478,18 +486,21 @@ img.thumb {
         -webkit-transform: translateZ(0);
     }
 
-    .sidebar .description {
-        display: none;
-    }
+        .sidebar .description {
+            display: none;
+        }
 
-    .sidebar .circle {
-        width: 100px;
-        height: 100px;
-    }
+        .sidebar .articulate-search {
+        }
 
-    .sidebar .logo {
-        display: none;
-    }
+        .sidebar .circle {
+            width: 100px;
+            height: 100px;
+        }
+
+        .sidebar .logo {
+            display: none;
+        }
 
     .content {
         margin-left: 0px;

@@ -300,6 +300,9 @@ hr {
   margin: 0;
   font-size: 35px;
 }
+.post-title a.fa {
+    float: right;
+}
 .post-share {
   text-align: right;
     background-color: #f5f5fa;

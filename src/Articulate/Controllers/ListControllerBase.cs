@@ -4,7 +4,12 @@ using System.Text;
 using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -16,24 +21,14 @@ namespace Articulate.Controllers
     /// </summary>
     public abstract class ListControllerBase : RenderMvcController
     {
-        protected ListControllerBase()
-        {
-        }
-
-        protected ListControllerBase(UmbracoContext umbracoContext)
-            : base(umbracoContext)
-        {
-        }
-
-        protected ListControllerBase(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper)
-            : base(umbracoContext, umbracoHelper)
+        protected ListControllerBase(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
         {
         }
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
         /// </summary>
-        protected ActionResult GetPagedListView(IMasterModel masterModel, IPublishedContent pageNode, IEnumerable<IPublishedContent> listItems, int totalPosts, int? p)
+        protected ActionResult GetPagedListView(IMasterModel masterModel, IPublishedContent pageNode, IEnumerable<IPublishedContent> listItems, long totalPosts, int? p)
         {
             if (masterModel == null) throw new ArgumentNullException(nameof(masterModel));
             if (pageNode == null) throw new ArgumentNullException(nameof(pageNode));
@@ -41,7 +36,7 @@ namespace Articulate.Controllers
 
             if (!GetPagerModel(masterModel, totalPosts, p, out var pager))
             {
-                return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContext);
+                return new RedirectToUmbracoPageResult(masterModel.RootBlogNode, UmbracoContextAccessor);
             }
 
             var listModel = new ListModel(pageNode, listItems, pager);
@@ -49,7 +44,7 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }
 
-        protected bool GetPagerModel(IMasterModel masterModel, int totalPosts, int? p, out PagerModel pager)
+        protected bool GetPagerModel(IMasterModel masterModel, long totalPosts, int? p, out PagerModel pager)
         {
             if (p == null || p.Value <= 0)
             {

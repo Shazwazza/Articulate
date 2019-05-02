@@ -9,7 +9,7 @@
 @inherits UmbracoViewPage<Articulate.Models.ListModel>
 @{
     Layout = "Master.cshtml";
-    ViewBag.CssWrapperClass = Model.DocumentTypeAlias == "ArticulateArchive" ? null : "demo-blog--blogpost";
+    ViewBag.CssWrapperClass = Model.ContentType.Alias == "ArticulateArchive" ? null : "demo-blog--blogpost";
 }
 
 <div class="demo-back">
@@ -38,7 +38,7 @@
         var doneFirst = false;
         foreach (var post in Model.Posts)
         {
-            if (!doneFirst && Model.DocumentTypeAlias == "ArticulateArchive")
+            if (!doneFirst && Model.ContentType.Alias == "ArticulateArchive")
             {
                 doneFirst = true;
 

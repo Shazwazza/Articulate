@@ -4,18 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Metadata;
-using System.Web.Http.Routing;
-using System.Web.Http.Validation;
 using Articulate.Models;
-using AutoMapper;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
+using Umbraco.Web;
 using Umbraco.Web.Editors;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
@@ -29,7 +28,11 @@ namespace Articulate.Controllers
     [UmbracoApplicationAuthorize(Constants.Applications.Settings)]
     public class ThemeEditorController : BackOfficeNotificationsController
     {
-        private readonly IFileSystem2 _themesFileSystem = new PhysicalFileSystem(PathHelper.VirtualThemePath);
+        public ThemeEditorController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        {
+        }
+
+        private readonly IFileSystem _themesFileSystem = new PhysicalFileSystem(PathHelper.VirtualThemePath);
 
         public CodeFileDisplay PostCreateFile(string parentId, string name, string type)
         {
@@ -292,5 +295,6 @@ namespace Articulate.Controllers
         }
 
 
+        
     }
 }

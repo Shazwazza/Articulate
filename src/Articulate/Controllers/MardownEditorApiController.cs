@@ -11,13 +11,18 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
-using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
+using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
 using Umbraco.Web;
+using Umbraco.Web.Actions;
+using Umbraco.Web.Composing;
 using Umbraco.Web.WebApi;
 using File = System.IO.File;
 
@@ -25,6 +30,13 @@ namespace Articulate.Controllers
 {
     public class MardownEditorApiController : UmbracoAuthorizedApiController
     {
+        private readonly IMediaFileSystem _mediaFileSystem;
+
+        public MardownEditorApiController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, IMediaFileSystem mediaFileSystem) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        {
+            _mediaFileSystem = mediaFileSystem;
+        }
+
         public class ParseImageResponse
         {
             public string BodyText { get; set; }
@@ -75,7 +87,7 @@ namespace Articulate.Controllers
                 extractFirstImageAsProperty = articulateNode.GetValue<bool>("extractFirstImage");
             }
 
-            var archive = Services.ContentService.GetChildren(model.ArticulateNodeId.Value)
+            var archive = Services.ContentService.GetPagedChildren(model.ArticulateNodeId.Value, 0, int.MaxValue, out long totalArchiveNodes)                
                 .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
             if (archive == null)
             {
@@ -83,7 +95,7 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No Articulate Archive node found for the specified id"));
             }
 
-            var list = new List<char> { ActionNew.Instance.Letter, ActionUpdate.Instance.Letter };
+            var list = new List<char> { ActionNew.ActionLetter, ActionUpdate.ActionLetter };
             var hasPermission = CheckPermissions(Security.CurrentUser, Services.UserService, list.ToArray(), archive);
             if (hasPermission == false)
             {
@@ -96,11 +108,11 @@ namespace Articulate.Controllers
 
             model.Body = parsedImageResponse.BodyText;
 
-            var content = Services.ContentService.CreateContent(
+            var content = Services.ContentService.Create(
                 model.Title,
-                archive.Id,
+                archive,
                 "ArticulateMarkdown",
-                Security.GetUserId());
+                UmbracoContext.Security.GetUserId().Result);
 
             content.SetValue("markdown", model.Body);
 
@@ -117,13 +129,13 @@ namespace Articulate.Controllers
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("tags", tags, true, "ArticulateTags");
+                content.AssignTags("tags", tags);
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                content.SetTags("categories", cats, true, "ArticulateCategories");
+                content.AssignTags("categories", cats);
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
@@ -131,22 +143,25 @@ namespace Articulate.Controllers
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
-            var status = Services.ContentService.SaveAndPublishWithStatus(content, Security.GetUserId());
+            //author is required
+            content.SetValue("author", UmbracoContext?.Security?.CurrentUser?.Name ?? "Unknown");
+
+            var status = Services.ContentService.SaveAndPublish(content, userId: UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)
             {
                 CleanFiles(multiPartRequest);
 
-                ModelState.AddModelError("server", "Publishing failed: " + status.Result.StatusType);
+                ModelState.AddModelError("server", "Publishing failed: " + status.Result);
                 //probably  need to send back more info than that...
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
 
-            var published = Umbraco.TypedContent(content.Id);
+            var published = Umbraco.Content(content.Id);
 
             CleanFiles(multiPartRequest);
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(published.UrlWithDomain(), Encoding.UTF8, "text/html");
+            response.Content = new StringContent(published.Url, Encoding.UTF8, "text/html");
             return response;
         }
 
@@ -158,7 +173,7 @@ namespace Articulate.Controllers
             }
         }
 
-        private static ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest, bool extractFirstImageAsProperty)
+        private ParseImageResponse ParseImages(string body, MultipartFileStreamProvider multiPartRequest, bool extractFirstImageAsProperty)
         {
             var firstImage = string.Empty;
             var bodyText = Regex.Replace(body, @"\[i:(\d+)\:(.*?)]", m =>
@@ -173,17 +188,18 @@ namespace Articulate.Controllers
 
                     using (var stream = File.OpenRead(file.LocalFileName))
                     {
-                        var savedFile = UmbracoMediaFile.Save(stream, "articulate/" + rndId + "/" +
-                                                                      file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\""));
+                        var fileUrl = "articulate/" + rndId + "/" + file.Headers.ContentDisposition.FileName.TrimStart("\"").TrimEnd("\"");
 
+                        _mediaFileSystem.AddFile(fileUrl, stream);
+                        
                         var result = string.Format("![{0}]({1})",
-                            savedFile.Url,
-                            savedFile.Url
+                            fileUrl,
+                            fileUrl
                         );
 
                         if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
                         {
-                            firstImage = savedFile.Url;
+                            firstImage = fileUrl;
                             //in this case, we've extracted the image, we don't want it to be displayed
                             // in the content too so don't return it.
                             return string.Empty;

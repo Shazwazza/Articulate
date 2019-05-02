@@ -1,0 +1,113 @@
+﻿<div ng-controller="Articulate.Dashboard.BlogImporter as vm">
+
+    <div class="umb-panel-group__details-check-title">
+        <div class="umb-panel-group__details-check-description">
+            See documentation for importing BlogMl content: <a href="https://github.com/Shazwazza/Articulate/wiki/Importing"
+                                                               target="_blank">https://github.com/Shazwazza/Articulate/wiki/Importing</a>
+        </div>
+    </div>
+
+    <ng-form name="vm.articulateImportForm" novalidate val-form-manager>
+
+        <umb-box>
+            <umb-box-content>
+
+                <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to import to"
+                                   label="Articulate blog node">
+                    <umb-property-editor model="vm.contentPickerImportModel"
+                                         ng-model="vm.articulateImportNodeId" name="articulateImportNodeId" no-dirty-check>
+                    </umb-property-editor>
+
+                    <span ng-messages="vm.articulateImportForm.articulateImportNodeId.$error" show-validation-on-submit>
+                        <span class="help-inline" ng-message="required"><localize key="general_required">Required</localize></span>
+                    </span>
+                </umb-control-group>
+
+                <umb-control-group alias="blogMlXmlFile" description="Select BlogMl xml file to import"
+                                   label="BlogMl import file">
+                    <input type="file" class="" umb-file-upload name="blogMlXmlFile" required-file accept="text/xml"
+                           ng-model="vm.blogMlXmlFile" no-dirty-check />
+
+                </umb-control-group>
+
+                <umb-control-group alias="overwrite" description="Check if you want to overwrite posts already imported"
+                                   label="Overwrite imported posts?">
+
+                    <umb-toggle checked="vm.overwrite"
+                                on-click="vm.overwrite = !vm.overwrite">
+                    </umb-toggle>
+
+                </umb-control-group>
+
+                <umb-control-group alias="publish" description="Check if you want all imported posts to be published"
+                                   label="Publish all posts?">
+
+                    <umb-toggle checked="vm.publish"
+                                on-click="vm.publish = !vm.publish"
+                                disabled="vm.importFirstImage || vm.exportDisqusXml">
+                    </umb-toggle>
+
+                    <p ng-show="vm.importFirstImage || vm.exportDisqusXml">
+                        <br />
+                        <small>Publishing is required when you want to export comments to Disqus or Import First Image.</small>
+                    </p>
+                </umb-control-group>
+
+                <umb-control-group alias="regexMatch"
+                                   description="Regex statement used to match content in the blog post to be replaced by the match statement"
+                                   label="Regex match expression">
+                    <input type="text" class="" name="regexMatch" ng-model="vm.regexMatch" no-dirty-check />
+                </umb-control-group>
+
+                <umb-control-group alias="regexReplace"
+                                   description="Replacement statement used with the above match statement"
+                                   label="Regex replacement statement">
+                    <input type="text" class="" name="regexReplace" ng-model="vm.regexReplace" no-dirty-check />
+                </umb-control-group>
+
+                <umb-control-group alias="exportDisqusXml"
+                                   description="If you would like Articulate to output an XML file that you can use to import the comments found in this file in to Disqus"
+                                   label="Export Disqus Xml">
+
+                    <umb-toggle checked="vm.exportDisqusXml"
+                                on-click="vm.toggleExport()">
+                    </umb-toggle>
+
+                </umb-control-group>
+
+                <umb-control-group alias="importFirstImage"
+                                   description="If you would like Articulate to try and import the first image url in the post attachements"
+                                   label="Import First Image from Post Attachments">
+
+                    <umb-toggle checked="vm.importFirstImage"
+                                on-click="vm.toggleImportFirstImage()">
+                    </umb-toggle>
+
+                </umb-control-group>
+
+                <div>
+                    <umb-button type="button"
+                                button-style="action"
+                                action="vm.submitImport()"
+                                label="Submit"
+                                state="vm.buttonState">
+                    </umb-button>
+
+                    <div ng-show="vm.status != null && vm.status != undefined && vm.status != ''">
+                        <hr />
+                        <p class="alert" ng-bind-html="vm.status" 
+                           ng-class="{'alert-success': vm.status == 'Finished!', 'alert-info' : vm.status != 'Finished!'}"></p>
+                        <p ng-show="vm.status === 'Finished!' && vm.exportDisqusXml == 1">
+                            Click <a href='{{vm.downloadLink}}' target='_blank'>here</a> to download the exported Disqus Xml file
+                        </p>
+                    </div>
+                    
+                </div>
+
+
+
+            </umb-box-content>
+        </umb-box>
+
+    </ng-form>
+</div>

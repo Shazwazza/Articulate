@@ -3,14 +3,14 @@
 @using Umbraco.Web.Models
 @using Umbraco.Web
 @using Umbraco.Core
-@inherits UmbracoViewPage<PostModel>
+@model IImageModel
 @{
     var postBg = "none";
 
-    if (!Model.PostImageUrl.IsNullOrWhiteSpace())
+    if (Model.Image != null)
     {
-        var bgUrl = Model.GetCropUrl(propertyAlias: "postImage", width: 550);
-        if (!bgUrl.IsNullOrWhiteSpace())
+        var bgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+        if (bgUrl != null)
         {
             postBg = "url('" + bgUrl + "')";
         }

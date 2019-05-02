@@ -28,8 +28,13 @@ namespace Articulate.Models
         }
 
         public IEnumerable<PostModel> Posts { get; }
-        public string TagName { get; private set; }
-        public string TagUrl { get; private set; }
+        public string TagName { get; }
+        public string TagUrl { get; }
+
+        /// <summary>
+        /// Returns an string that can represent an html id for the tag
+        /// </summary>
+        public string HtmlId => TagName.SafeEncodeUrlSegments();
 
         private int? _count;
         public int PostCount

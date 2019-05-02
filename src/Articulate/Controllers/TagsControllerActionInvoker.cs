@@ -25,18 +25,18 @@ namespace Articulate.Controllers
             {
                 if (controllerContext.RouteData.DataTokens.ContainsKey("umbraco"))
                 {
-                    var virtualNode = controllerContext.RouteData.DataTokens["umbraco"] as RenderModel;
+                    var virtualNode = controllerContext.RouteData.DataTokens["umbraco"] as ContentModel;
                     if (virtualNode != null)
                     {
                         var action = controllerContext.RouteData.GetRequiredString("action");
                         
-                        var categoryUrl = virtualNode.Content.GetPropertyValue<string>("categoriesUrlName");
+                        var categoryUrl = virtualNode.Content.Value<string>("categoriesUrlName");
                         if (action.InvariantEquals(categoryUrl))
                         {
                             return GetActionDescriptor(controllerContext, controllerDescriptor, "Categories");                            
                         }
 
-                        var tagsUrl = virtualNode.Content.GetPropertyValue<string>("tagsUrlName");
+                        var tagsUrl = virtualNode.Content.Value<string>("tagsUrlName");
                         if (action.InvariantEquals(tagsUrl))
                         {
                             return GetActionDescriptor(controllerContext, controllerDescriptor, "Tags"); 

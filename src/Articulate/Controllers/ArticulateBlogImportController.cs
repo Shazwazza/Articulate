@@ -8,8 +8,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Articulate.ImportExport;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
 using Umbraco.Core.IO;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Persistence;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
 
@@ -17,6 +23,15 @@ namespace Articulate.Controllers
 {
     public class ArticulateBlogImportController : UmbracoAuthorizedApiController
     {
+        private readonly BlogMlImporter _blogMlImporter;
+        private readonly BlogMlExporter _blogMlExporter;
+
+        public ArticulateBlogImportController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, BlogMlImporter blogMlImporter, BlogMlExporter blogMlExporter) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        {
+            _blogMlImporter = blogMlImporter;
+            _blogMlExporter = blogMlExporter;
+        }
+        
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
             if (!request.Content.IsMimeMultipartContent())
@@ -34,12 +49,9 @@ namespace Articulate.Controllers
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
 
-                //save to Temp folder (base path)
-                var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-
                 //there should only be one file so we'll just use the first one
-                var importer = new BlogMlImporter(ApplicationContext, fs);
-                var count = importer.GetPostCount(result.FileData[0].LocalFileName);
+                
+                var count = _blogMlImporter.GetPostCount(result.FileData[0].LocalFileName);
 
                 return JObject.FromObject(new
                 {
@@ -55,10 +67,7 @@ namespace Articulate.Controllers
 
         public ImportModel PostExportBlogMl(ExportBlogMlModel model)
         {
-            var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-            var exporter = new BlogMlExporter(UmbracoContext, fs);
-
-            exporter.Export("BlogMlExport.xml", model.ArticulateNodeId);
+            _blogMlExporter.Export("BlogMlExport.xml", model.ArticulateNodeId);
 
             return new ImportModel
             {
@@ -91,12 +100,9 @@ namespace Articulate.Controllers
                 throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
             }
 
-            //save to Temp folder (base path)
-            var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-
             //there should only be one file so we'll just use the first one
-            var importer = new BlogMlImporter(ApplicationContext, fs);
-            await importer.Import(Security.CurrentUser.Id,
+
+            var hasErrors = await _blogMlImporter.Import(Security.CurrentUser.Id,
                 model.TempFile,
                 model.ArticulateNodeId,
                 model.Overwrite,
@@ -109,7 +115,7 @@ namespace Articulate.Controllers
             //cleanup
             File.Delete(model.TempFile);
 
-            if (importer.HasErrors)
+            if (hasErrors)
             {
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details"));
             }

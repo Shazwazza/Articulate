@@ -1,17 +1,19 @@
 @using Articulate
 @using Articulate.Models
+@using ClientDependency.Core.Mvc
 @using Umbraco.Core
 @using Umbraco.Web
+@using Umbraco.Web.Models
 @model Articulate.Models.ListModel
 @{
     Layout = "Master.cshtml";
 }
 
 <main class="content" role="main">
-    
+
     @if (!Model.Children.Any())
     {
-        <article>No blog posts found</article>        
+        <article>No blog posts found</article>
     }
     else
     {
@@ -27,12 +29,12 @@
                     </div>
                 </header>
                 <section class="post-excerpt">
-                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                    @if (post.PostImage != null)
                     {
-                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                        if (!thumbnail.IsNullOrWhiteSpace())
+                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        if (thumbnail != null)
                         {
-                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                            <div class="postthumb" style="background: url(@thumbnail)"></div>
                         }
                     }
                     <p>
@@ -42,10 +44,12 @@
                         <a href="@post.Url">Read this article <i class="fa fa-chevron-circle-right"></i></a>
                     </p>
                 </section>
+
             </article>
         }
-    
-        @Html.ThemedPartial(Model, "Pager", Model.Pages)   
+
+        @Html.ThemedPartial(Model, "Pager", Model.Pages)
+        
     }
-    
+
 </main>

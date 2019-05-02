@@ -7,11 +7,14 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 using System.Xml;
 using Articulate.Controllers;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Web;
 
@@ -19,11 +22,11 @@ namespace Articulate.Syndication
 {
     public class RssFeedGenerator : IRssFeedGenerator
     {
-        private readonly UmbracoContext _umbracoContext;
+        private readonly ILogger _logger;
 
-        public RssFeedGenerator(UmbracoContext umbracoContext)
+        public RssFeedGenerator(ILogger logger)
         {
-            _umbracoContext = umbracoContext;
+            _logger = logger;
         }
 
         private readonly Regex _relativeMediaSrc = new Regex(" src=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -34,7 +37,7 @@ namespace Articulate.Syndication
             var feed = new SyndicationFeed(
               rootPageModel.BlogTitle,
               rootPageModel.BlogDescription,
-              new Uri(rootPageModel.RootBlogNode.UrlWithDomain()),
+              new Uri(rootPageModel.RootBlogNode.UrlAbsolute()),
               GetFeedItems(rootPageModel, posts))
             {
                 Generator = "Articulate, blogging built on Umbraco",
@@ -54,7 +57,7 @@ namespace Articulate.Syndication
 
         protected virtual SyndicationItem GetFeedItem(IMasterModel model, PostModel post, string rootUrl)
         {
-            var posturl = post.UrlWithDomain();
+            var posturl = post.UrlAbsolute();
 
             //Cannot continue if the url cannot be resolved - probably has publishing issues
             if (posturl.StartsWith("#"))
@@ -62,7 +65,7 @@ namespace Articulate.Syndication
                 return null;
             }
 
-            var appPath = _umbracoContext.HttpContext.Request.ApplicationPath;
+            var appPath = HttpRuntime.AppDomainAppVirtualPath;
             var rootUri = new Uri(rootUrl);
             var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
 
@@ -109,7 +112,7 @@ namespace Articulate.Syndication
 
         private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
-            var rootUrl = model.RootBlogNode.UrlWithDomain();
+            var rootUrl = model.RootBlogNode.UrlAbsolute();
             return posts.Select(post => GetFeedItem(model, post, rootUrl)).WhereNotNull().ToList();
         }
 
@@ -124,7 +127,7 @@ namespace Articulate.Syndication
             }
             catch (Exception ex)
             {
-                LogHelper.Error<ArticulateRssController>("Could not convert the blog logo path to a Uri", ex);
+                _logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
             }
             return logoUri;
         }

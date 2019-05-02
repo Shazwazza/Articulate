@@ -7,7 +7,7 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    public class OpenSearchController : UmbracoController
+    public class OpenSearchController : PluginController
     {
         [HttpGet]
         public ActionResult Index(int id)
@@ -42,7 +42,7 @@ namespace Articulate.Controllers
             //      template="http://aaron.pk/search?q={searchTerms}"/>
             //</OpenSearchDescription>
 
-            var node = Umbraco.TypedContent(id);
+            var node = Umbraco.Content(id);
             if (node == null)
             {
                 return new HttpNotFoundResult();

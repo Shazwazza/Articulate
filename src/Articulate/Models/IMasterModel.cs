@@ -1,4 +1,5 @@
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 
 namespace Articulate.Models
 {

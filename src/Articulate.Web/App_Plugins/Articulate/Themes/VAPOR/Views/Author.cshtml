@@ -18,62 +18,45 @@
     <article class="post">
 
         <header>
-            <h1 class="post-title">@Model.Name</h1>            
+            <h1 class="post-title"><a href="@Url.ArticulateAuthorRssUrl(Model)" class="fa fa-rss"><span>RSS</span></a>@Model.Name</h1>
         </header>
         <section class="post-content">
-            @if (!Model.Image.IsNullOrWhiteSpace())
+
+            @if (Model.Image != null)
             {
-                <img class="postImage" src="@Model.Image" />
+                var img = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+                <img class="postImage" src="@img" />
             }
             <p>@Model.Bio</p>
             @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
             {
-                <p>Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+                <p>
+                    Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
                 </p>
             }
-            
+
         </section>
-        
+
         <hr />
-    </article>
-    
-    @if (Model.PostCount == 0)
-    {
-        <article>No blog posts found</article>
-    }
-    else
-    {
-        foreach (var post in Model.Posts)
+
+        @if (Model.PostCount == 0)
         {
-            <article class="preview">
-                <header>
-                    <h1 class="post-title"><a href="@post.Url">@post.Name</a></h1>
-                    <div class="post-meta">
-                        <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
-                            @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
-                        </time>
-                    </div>
-                </header>
-                <section class="post-excerpt">
-                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
-                    {
-                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                        if (!thumbnail.IsNullOrWhiteSpace())
-                        {
-                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
-                        }
-                    }
-                    <p>
-                        @post.Excerpt&hellip;
-                    </p>
-                    <p class="readmore">
-                        <a href="@post.Url">Read this article <i class="fa fa-chevron-circle-right"></i></a>
-                    </p>
-                </section>
-            </article>
+            <section>No blog posts found</section>
+        }
+        else
+        {
+            <div>
+                
+                <h3>Author's Posts</h3>
+                @Html.ThemedPartial(Model, "PostList", Model.Posts)
+
+                @Html.ThemedPartial(Model, "Pager", Model.Pages)
+            </div>
+               
         }
 
-        @Html.ThemedPartial(Model, "Pager", Model.Pages)
-    }
+    </article>
+    
+    
 
 </main>

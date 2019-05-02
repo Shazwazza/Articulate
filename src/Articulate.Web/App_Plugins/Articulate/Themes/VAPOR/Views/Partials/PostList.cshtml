@@ -1,0 +1,32 @@
+@using Articulate
+@using Articulate.Models
+@model IEnumerable<PostModel>
+
+
+<div>
+    <ul class="nostyle recent-posts">
+        @foreach (var post in Model)
+        {
+            <li>
+                @if (post.PostImage != null)
+                {
+                    var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                    if (thumbnail != null)
+                    {
+                        <div class="postthumb" style="background: url(@thumbnail)"></div>
+                    }
+                }
+                <div class="time">
+                    <time datetime="@post.PublishedDate">
+                        @post.PublishedDate.ToString("MMM d, yyyy HH:mm")
+                    </time>
+                </div>
+
+                <a href="@post.Url">@post.Name</a>
+                <div>
+                    <a data-disqus-identifier="@post.Key" class="comment-count" href="@post.Url#disqus_thread"></a>
+                </div>
+            </li>
+        }
+    </ul>
+</div>

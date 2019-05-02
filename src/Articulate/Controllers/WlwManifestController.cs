@@ -4,7 +4,7 @@ using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
-    public class WlwManifestController : UmbracoController
+    public class WlwManifestController : PluginController
     {
 
         //http://msdn.microsoft.com/en-us/library/bb463260.aspx
@@ -13,7 +13,7 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.TypedContent(id);
+            var node = Umbraco.Content(id);
             if (node == null)
             {
                 return new HttpNotFoundResult();

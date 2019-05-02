@@ -1,33 +1,30 @@
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Http;
-using Newtonsoft.Json.Linq;
+using Articulate.Packaging;
+using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Persistence;
+using Umbraco.Core.Services;
+using Umbraco.Web;
 using Umbraco.Web.Editors;
-using Umbraco.Web.WebApi;
 
 namespace Articulate.Controllers
-{    
+{
     public class ArticulateBlogDataInstallController : UmbracoAuthorizedJsonController
     {
+        private readonly ArticulateDataInstaller _installer;
+
+        public ArticulateBlogDataInstallController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, ArticulateDataInstaller installer) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        {
+            _installer = installer;
+        }
+        
         public IHttpActionResult PostInstall()
         {
-            var dataInstaller = new ArticulateDataInstaller(Services, Security.CurrentUser.Id);
+            var dataInstalled = _installer.InstallSchemaAndContent(Security.GetUserId().ResultOr(-1));
 
-            //TODO: indicate that it's already installed and no changes have been made
-            var root = dataInstaller.Execute(out bool packageInstalled);
-
-            string blogUrl;
-
-            if (root != null)
-            {
-                blogUrl = Umbraco.TypedContent(root.Id).Url;
-            }
-            else
-            {
-                blogUrl = "/";
-            }
-
-            return Ok(blogUrl);
+            return Ok(dataInstalled);
         }
     }
 }

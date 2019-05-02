@@ -34,7 +34,7 @@ namespace Articulate.Syndication
                 });
 
                 // Write the Processing Instruction node.
-                var xsltHeader = string.Format("type=\"text/xsl\" href=\"{0}\"", _model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss/xslt");
+                var xsltHeader = string.Format("type=\"text/xsl\" href=\"{0}\"", _model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss/xslt");
                 xmlWriter.WriteProcessingInstruction("xml-stylesheet", xsltHeader);
 
                 var formatter = _feed.GetRss20Formatter();

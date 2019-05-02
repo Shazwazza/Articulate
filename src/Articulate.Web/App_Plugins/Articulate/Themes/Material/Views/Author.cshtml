@@ -1,0 +1,74 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Core
+@model Articulate.Models.AuthorModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssWrapperClass = "demo-blog--blogpost";
+}
+
+@section Header
+{
+    @Html.AuthorRssFeed(Model, Url)
+}
+
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
+<div class="demo-blog__posts mdl-grid">
+    <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+        @Html.ThemedPartial(Model, "PostImageHeader", Model)
+
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+            <div class="section-spacer"></div>
+
+            <div class="meta__favorites">
+                <a class="mdl-color-text--grey-700" href="@Url.ArticulateAuthorRssUrl(Model)"></a>
+                <a class="mdl-color-text--grey-700" href="@Url.ArticulateAuthorRssUrl(Model)"><i class="material-icons" role="presentation">rss_feed</i></a>
+                <span class="visuallyhidden">comments</span>
+            </div>
+        </div>
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+            <p>@Model.Bio</p>
+            @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+            {
+                <p>
+                    Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+                </p>
+            }
+        </div>
+        
+
+    </div>
+
+    @{
+        var next = Model.Next();
+        var prev = Model.Previous();
+
+    }
+    <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+        @if (next != null)
+        {
+            <a href="@next.Url" class="demo-nav__button">
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                Newer
+            </a>
+        }
+        <div class="section-spacer"></div>
+        @if (prev != null)
+        {
+            <a href="@prev.Url" class="demo-nav__button">
+                Older
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_forward</i>
+                </button>
+            </a>
+        }
+    </nav>
+</div>

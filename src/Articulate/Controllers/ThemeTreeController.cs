@@ -1,26 +1,23 @@
-﻿using System.Linq;
-using System.Net.Http.Formatting;
+﻿using System.Net.Http.Formatting;
 using System.Web;
-using AutoMapper;
-using umbraco.BusinessLogic.Actions;
 using Umbraco.Core;
 using Umbraco.Core.Services;
 using Umbraco.Core.IO;
-using Umbraco.Core.Models;
 using Umbraco.Web.Models.Trees;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Trees;
+using Umbraco.Web.Actions;
 
 namespace Articulate.Controllers
 {
     /// <summary>
     /// Tree for displaying partial views in the settings app
     /// </summary>
-    [Tree(Constants.Applications.Settings, "articulatethemes", "Articulate Themes", sortOrder: 100)]
+    [Tree(Constants.Applications.Settings, "articulatethemes", TreeTitle = "Articulate Themes", SortOrder = 100)]
     [PluginController("Articulate")]
     public class ThemeTreeController : FileSystemTreeController
     {
-        protected override IFileSystem2 FileSystem { get; } = new PhysicalFileSystem(PathHelper.VirtualThemePath);
+        protected override IFileSystem FileSystem => new PhysicalFileSystem(PathHelper.VirtualThemePath);
 
         private static readonly string[] ExtensionsStatic = { "cshtml", "js", "css" };
 
@@ -38,22 +35,23 @@ namespace Articulate.Controllers
             var menuItemCollection = new MenuItemCollection();
             if (id == Constants.System.Root.ToString())
             {
-                menuItemCollection.DefaultMenuAlias = ActionNew.Instance.Alias;
-                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.Instance.Alias}"));
-                menuItemCollection.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize($"actions/{ActionRefresh.Instance.Alias}"));
+                menuItemCollection.DefaultMenuAlias = ActionNew.ActionAlias;
+                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.ActionAlias}"));
+                menuItemCollection.Items.Add(new RefreshNode(Services.TextService, true));
+
                 return menuItemCollection;
             }
             var path = string.IsNullOrEmpty(id) || id == Constants.System.Root.ToString() ? "" : HttpUtility.UrlDecode(id).TrimStart("/");
             var dirExists = FileSystem.FileExists(path);
             if (FileSystem.DirectoryExists(path))
             {
-                menuItemCollection.DefaultMenuAlias = ActionNew.Instance.Alias;
-                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.Instance.Alias}"));                
-                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
-                menuItemCollection.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize($"actions/{ActionRefresh.Instance.Alias}"));
+                menuItemCollection.DefaultMenuAlias = ActionNew.ActionAlias;
+                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.ActionAlias}"));                
+                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.ActionAlias}"));
+                menuItemCollection.Items.Add(new RefreshNode(Services.TextService, true));
             }
             else if (dirExists)
-                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.Instance.Alias}"));
+                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.ActionAlias}"));
             return menuItemCollection;
         }
 

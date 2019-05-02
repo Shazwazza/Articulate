@@ -1,13 +1,55 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Umbraco.Core.Models;
+using System.Linq;
+using Umbraco.Core;
 using Umbraco.Core.Models.PublishedContent;
 
 namespace Articulate.Models
 {
     public static class PublishedContentExtensions
     {
+        public static IPublishedContent Next(this IPublishedContent content)
+        {
+            var found = false;
+            foreach (var sibling in content.Parent.Children)
+            {
+                if (found)
+                    return sibling;
+
+                if (sibling.Id == content.Id) 
+                    found = true;
+            }
+
+            return null;
+        }
+
+        public static IPublishedContent Previous(this IPublishedContent content)
+        {
+            var found = false;
+            IPublishedContent last = null;
+            foreach (var sibling in content.Parent.Children)
+            {
+                if (found)
+                    return last;
+
+                if (sibling.Id == content.Id)
+                {
+                    found = true;
+                }
+                else
+                {
+                    last = sibling;
+                }
+            }
+
+            //it could have been at the end
+            if (found)
+                return last;
+
+            return null;
+        }
+
         /// <summary>
         /// Returns true if there is more than x items
         /// </summary>
@@ -48,25 +90,6 @@ namespace Articulate.Models
             }
             return false; // < count
         }
-
-        public static IPublishedContentWithKey GetContentWithKey(IPublishedContent model)
-        {
-            var withKey = model as IPublishedContentWithKey;
-            if (withKey != null) return withKey;
-
-            var wrapped = model as PublishedContentWrapped;
-            if (wrapped != null)
-            {
-                return GetContentWithKey(wrapped.Unwrap());
-            }
-            return null;
-        }
-
-        public static Guid GetContentKey(this IMasterModel model)
-        {
-            var withKey = GetContentWithKey(model);
-            if (withKey != null) return withKey.Key;
-            return Guid.Empty;
-        }
+               
     }
 }

@@ -39,10 +39,10 @@
                             <a href="@post.Url" class="post-list-link">
                                 <div>
                                     <h2>@post.Name</h2>
-                                    @if (!post.PostImageUrl.IsNullOrWhiteSpace())
+                                    @if (post.PostImage != null)
                                     {
-                                        var thumbnail = post.GetCropUrl("postImage", "thumbnail");
-                                        if (!thumbnail.IsNullOrWhiteSpace())
+                                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "thumbnail", useCropDimensions: true, htmlEncode: false, upScale: false);
+                                        if (thumbnail != null)
                                         {
                                             <img class="thumb" src="@thumbnail" alt="@post.Name" />
                                         }

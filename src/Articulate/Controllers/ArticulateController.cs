@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
-using System.Xml.XPath;
 using Articulate.Models;
-using Umbraco.Core;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
-using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
@@ -15,13 +16,17 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateController : ListControllerBase
     {
+        public ArticulateController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+        }
+
         /// <summary>
         /// Declare new Index action with optional page number
         /// </summary>
         /// <param name="model"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Index(RenderModel model, int? p)
+        public ActionResult Index(ContentModel model, int? p)
         {
             return RenderView(model, p);
         }
@@ -32,14 +37,14 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             return RenderView(model);
         }
 
-        private ActionResult RenderView(IRenderModel model, int? p = null)
+        private ActionResult RenderView(ContentModel model, int? p = null)
         {
-            var listNodes = model.Content.Children("ArticulateArchive").ToArray();
+            var listNodes = model.Content.ChildrenOfType("ArticulateArchive").ToArray();
             if (listNodes.Length == 0)
             {
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
@@ -47,7 +52,6 @@ namespace Articulate.Controllers
 
             var master = new MasterModel(model.Content);
 
-            //Get post count by xpath is much faster than iterating all children to get a count
             var count = Umbraco.GetPostCount(listNodes.Select(x => x.Id).ToArray());
 
             var posts = Umbraco.GetRecentPosts(master, p ?? 1, master.PageSize);

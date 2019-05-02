@@ -223,7 +223,7 @@ blockquote p {
   font-size: 16px;
   margin-bottom: 0.6em;
 }
-div.authorimage {
+div.authorimage, div.postthumb {
   width: 70px;
   height: 70px;
   border-radius: 50%;
@@ -518,11 +518,12 @@ table tfoot {
 ul.tag-cloud {
     list-style: none;
     padding: 0;
-    margin: 0;
     text-transform: capitalize;
+    text-align: center;
 }
 ul.tag-cloud li {
-    display: inline-block;    
+    display: inline-block;
+    padding: 0.2em 0.4em;
 }
 ul.tag-cloud .tag-cloud-1 {
     font-size: 40%;
@@ -534,7 +535,7 @@ ul.tag-cloud .tag-cloud-3 {
     font-size: 60%;
 }
 ul.tag-cloud .tag-cloud-4 {
-    font-size: 750%;
+    font-size: 75%;
 }
 ul.tag-cloud .tag-cloud-5 {
     font-size: 90%;
@@ -567,6 +568,7 @@ ul.tag-list {
 .tag-list a.fa, .post-title a.fa {
     font-size: 60%;
     margin-right: 4px;
+    float: right;
 }
 .tag-list a.fa span, .post-title a.fa span {
     display: none;
@@ -578,13 +580,31 @@ ul.tag-list {
 }
 
 .postImage {
-    float: left; 
     padding: 10px 25px 10px 0px;
+    max-width: 100%;
 }
 
-img.thumb {
+/*.thumb {
     float: left;
     padding: 0px 10px 0px 0px;
+}*/
+
+ul.nostyle {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.nostyle li {
+    margin: 0;
+    padding: 0;
+        
+}
+
+ul.recent-posts li {
+    margin: 20px 0;
+    min-height: 70px;
+    clear: both;
 }
 
 /* === Media Queries === */

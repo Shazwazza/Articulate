@@ -3,36 +3,24 @@
 @using Umbraco.Web.Models
 @inherits UmbracoViewPage<PostModel>
 
-@if (!Model.Author.Image.IsNullOrWhiteSpace())
+@if (!Model.Author.Name.IsNullOrWhiteSpace())
 {
-<div class="minilogo" style="background: url(@Html.Raw(GetAuthorThumbnail(Model)))"></div>
-}
-<div>
-    <strong>@Model.Author.Name</strong>
-    <span>2 days ago</span>
-</div>
-
-@functions {
-
-    public string GetAuthorThumbnail(PostModel postModel)
+    if (Model.Author.Image != null)
     {
-        return ApplicationContext.ApplicationCache.RuntimeCache.GetCacheItem<string>("a_author_thumb_" + postModel.Author.Name, () =>
-        {
-            var blogRootNode = postModel.RootBlogNode;
-            var authors = blogRootNode.Children(content => content.DocumentTypeAlias.InvariantEquals("ArticulateAuthors")).FirstOrDefault();
-            if (authors != null)
-            {
-                var authorNode = authors.Children(content => content.Name.InvariantEquals(postModel.Author.Name)).FirstOrDefault();
-                if (authorNode != null)
-                {
-                    var imageVal = authorNode.GetPropertyValue<string>("authorImage");
-                    return !imageVal.IsNullOrWhiteSpace()
-                        ? authorNode.GetCropUrl(propertyAlias: "authorImage", imageCropMode: ImageCropMode.Crop, width: 50)
-                        : null;
-                }
-            }
-
-            return null;
-        });
+        var thumbnail = Url.GetCropUrl(Model.Author.Image, width: 50, height: 50, htmlEncode: false, upScale: false);
+        <div class="minilogo" style="background: url(@thumbnail)"></div>        
     }
+    <div>
+        <strong>
+            @if (Model.Author.BlogUrl.IsNullOrWhiteSpace())
+            {
+                @Model.Author.Name
+            }
+            else
+            {
+                <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+            }
+        </strong>
+        <span>2 days ago</span>
+    </div>
 }

@@ -27,22 +27,21 @@
                 <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
             }
 
-            @Model.Body
+            <div>
+                @Model.Body
+            </div>
+
         </section>
 
         <section class="share">
             <p class="info prompt">Share this post</p>
-            <a href="http://twitter.com/share?text=@Model.Name&url=@Model.UrlWithDomain()"
+            <a href="http://twitter.com/share?text=@Model.Name&url=@UmbracoContext.UrlAbsolute(Model.Id)"
                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                 <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
             </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=@Model.UrlWithDomain()"
+            <a href="https://www.facebook.com/sharer/sharer.php?u=@UmbracoContext.UrlAbsolute(Model.Id)"
                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
                 <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
-            </a>
-            <a href="https://plus.google.com/share?url=@Model.UrlWithDomain()"
-               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                <i class="fa fa-2x fa-fw fa-google-plus-square"></i> <span class="hidden">Google+</span>
             </a>
         </section>
 
@@ -51,9 +50,13 @@
             @if (!Model.Author.Name.IsNullOrWhiteSpace())
             {
                 <section class="author">
-                    @if (!Model.Author.Image.IsNullOrWhiteSpace())
+                    @if (Model.Author.Image != null)
                     {
-                        <div class="authorimage" style="background: url(@Model.Author.Image)"></div>    
+                        var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        if (thumbnail != null)
+                        {
+                            <div class="authorimage" style="background: url(@thumbnail)"></div>
+                        }
                     }
                     <p class="attr">Author</p>
                     <h4>
@@ -74,11 +77,10 @@
             }
 
         </footer>
-        
+
         @if (Model.EnableComments)
         {
             @Html.ThemedPartial(Model, "CommentsDisqus")
-            @*@Html.ThemedPartial(Model, "CommentsGooglePlus")*@
             @*@Html.ThemedPartial(Model, "CommentsFacebook")*@
         }
 

@@ -1,12 +1,13 @@
 using Articulate.Models;
-using Articulate.Options;
 using Articulate.Syndication;
 using System;
 using System.Linq;
 using System.Web.Mvc;
-using System.Xml.XPath;
 using Umbraco.Core;
+using Umbraco.Core.Cache;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
@@ -25,21 +26,26 @@ namespace Articulate.Controllers
 
     public class ArticulateRssController : RenderMvcController
     {
+        public ArticulateRssController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IRssFeedGenerator feedGenerator) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+            FeedGenerator = feedGenerator;
+        }
+        
         //NonAction so it is not routed since we want to use an overload below
         [NonAction]
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             return base.Index(model);
         }
 
-        protected IRssFeedGenerator FeedGenerator => UmbracoConfig.For.ArticulateOptions().GetRssFeedGenerator(UmbracoContext);
+        private IRssFeedGenerator FeedGenerator { get; }
 
-        public ActionResult Index(RenderModel model, int? maxItems)
+        public ActionResult Index(ContentModel model, int? maxItems)
         {
             if (!maxItems.HasValue) maxItems = 25;
 
             var listNodes = model.Content.Children
-                .Where(x => x.DocumentTypeAlias.InvariantEquals("ArticulateArchive"))
+                .Where(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"))
                 .ToArray();
             if (listNodes.Length == 0)
             {
@@ -59,9 +65,9 @@ namespace Articulate.Controllers
             return new RssResult(feed, rootPageModel);
         }
 
-        public ActionResult Author(RenderModel model, int authorId, int? maxItems)
+        public ActionResult Author(ContentModel model, int authorId, int? maxItems)
         {
-            var author = Umbraco.TypedContent(authorId);
+            var author = Umbraco.Content(authorId);
             if (author == null) throw new ArgumentNullException(nameof(author));
 
             if (!maxItems.HasValue) maxItems = 25;
@@ -69,7 +75,7 @@ namespace Articulate.Controllers
             //create a master model
             var masterModel = new MasterModel(author);
 
-            var listNodes = masterModel.RootBlogNode.Children("ArticulateArchive").ToArray();
+            var listNodes = masterModel.RootBlogNode.ChildrenOfType("ArticulateArchive").ToArray();
 
             var authorContenet = Umbraco.GetContentByAuthor(listNodes, author.Name, new PagerModel(maxItems.Value, 0, 1));
 
@@ -78,7 +84,7 @@ namespace Articulate.Controllers
             return new RssResult(feed, masterModel);
         }
 
-        public ActionResult Categories(RenderModel model, string tag, int? maxItems)
+        public ActionResult Categories(ContentModel model, string tag, int? maxItems)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -88,7 +94,7 @@ namespace Articulate.Controllers
             return RenderTagsOrCategoriesRss(model, "ArticulateCategories", "categories", maxItems.Value);
         }
 
-        public ActionResult Tags(RenderModel model, string tag, int? maxItems)
+        public ActionResult Tags(ContentModel model, string tag, int? maxItems)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -98,7 +104,7 @@ namespace Articulate.Controllers
             return RenderTagsOrCategoriesRss(model, "ArticulateTags", "tags", maxItems.Value);
         }
 
-        public ActionResult RenderTagsOrCategoriesRss(RenderModel model, string tagGroup, string baseUrl, int maxItems)
+        public ActionResult RenderTagsOrCategoriesRss(ContentModel model, string tagGroup, string baseUrl, int maxItems)
         {
             var tagPage = model.Content as ArticulateVirtualPage;
             if (tagPage == null)

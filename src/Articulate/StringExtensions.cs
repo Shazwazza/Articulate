@@ -5,8 +5,13 @@ using Umbraco.Core;
 
 namespace Articulate
 {
-    internal static class StringExtensions
+    public static class StringExtensions
     {
+        public static string NewLinesToSpaces(this string input)
+        {
+            return input.Replace("\r", " ").Replace("\n", " ").Replace("  ", "");
+        }
+
         public static string DecodeHtml(this string text)
         {
             return HttpUtility.HtmlDecode(text);
@@ -34,12 +39,12 @@ namespace Articulate
             {
                 if (Uri.IsWellFormedUriString(urlPath, UriKind.Absolute))
                 {
-                    Uri url;
-                    if (Uri.TryCreate(urlPath, UriKind.Absolute, out url))
-                    {
-                        var pathToEncode = url.AbsolutePath;
-                        return url.GetLeftPart(UriPartial.Authority).EnsureEndsWith('/') + EncodePath(pathToEncode) + url.Query;
-                    }
+                    return urlPath;
+                }
+
+                if (Uri.TryCreate(urlPath, UriKind.Absolute, out var url))
+                {
+                    return url.GetLeftPart(UriPartial.Authority) + url.AbsolutePath + url.Query;
                 }
             }
 

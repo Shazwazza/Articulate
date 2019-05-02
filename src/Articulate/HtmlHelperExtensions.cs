@@ -9,9 +9,9 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.WebPages;
-using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate
@@ -125,13 +125,13 @@ namespace Articulate
 
             var openGraphUrl = new TagBuilder("meta");
             openGraphUrl.Attributes["property"] = "og:url";
-            openGraphUrl.Attributes["content"] = model.UrlWithDomain();
+            openGraphUrl.Attributes["content"] = model.UrlAbsolute();
             builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));            
         }
 
         public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
         {
-            var openSearchUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
+            var openSearchUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
             var tag = $@"<link rel=""search"" type=""application/opensearchdescription+xml"" href=""{openSearchUrl}"" title=""Search {model.RootBlogNode.Name}"" >";
 
             return new HtmlString(tag);
@@ -140,7 +140,7 @@ namespace Articulate
         public static IHtmlString RssFeed(this HtmlHelper html, IMasterModel model)
         {
             var url = model.CustomRssFeed.IsNullOrWhiteSpace()
-                ? model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rss"
+                ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss"
                 : model.CustomRssFeed;
 
             return new HtmlString(
@@ -157,8 +157,8 @@ namespace Articulate
 
         public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
         {
-            var rsdUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
-            var manifestUrl = model.RootBlogNode.UrlWithDomain().EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
+            var rsdUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
+            var manifestUrl = model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
 
             return new HtmlString(
                 string.Concat(
@@ -183,15 +183,15 @@ namespace Articulate
 
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
         {
-            if (model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false
-                && model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsName").IsNullOrWhiteSpace() == false)
+            if (model.RootBlogNode.Value<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false
+                && model.RootBlogNode.Value<string>("googleAnalyticsName").IsNullOrWhiteSpace() == false)
             {
                 return new HtmlString(@"<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', '" + model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsId") + @"', '" + model.RootBlogNode.GetPropertyValue<string>("googleAnalyticsName") + @"');
+  ga('create', '" + model.RootBlogNode.Value<string>("googleAnalyticsId") + @"', '" + model.RootBlogNode.Value<string>("googleAnalyticsName") + @"');
   ga('send', 'pageview');
 </script>");
             }
@@ -256,8 +256,8 @@ namespace Articulate
         {
             var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
                 .OrderByDescending(x => x.weight)
-                .Take(maxResults)
-                .RandomOrder();
+                .Take(maxResults);
+                //.RandomOrder(); //TODO: WB this is not in V8 & would need to be implemented in Articulate
 
             var ul = new TagBuilder("ul");
             ul.AddCssClass("tag-cloud");
@@ -279,10 +279,10 @@ namespace Articulate
         {
             return new HelperResult(writer =>
             {
-                var tagsAndWeight = model.Select(x => new {tag = x, weight = model.GetTagWeight(x, maxWeight)})
+                var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
                     .OrderByDescending(x => x.weight)
-                    .Take(maxResults)
-                    .RandomOrder();
+                    .Take(maxResults);
+                    //.RandomOrder(); //TODO: WB this is not in V8 & would need to be implemented in Articulate
 
                 var ul = new TagBuilder("ul");
                 ul.AddCssClass("tag-cloud");
