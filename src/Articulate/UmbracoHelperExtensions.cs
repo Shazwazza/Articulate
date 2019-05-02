@@ -178,6 +178,24 @@ namespace Articulate
         }
 
         /// <summary>
+        /// Returns a list of the most recent posts by archive
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="masterModel"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<PostModel> GetRecentPostsByArchive(this UmbracoHelper helper, IMasterModel masterModel, int page, int pageSize)
+        {
+            var pager = new PagerModel(pageSize, page - 1, 1);
+
+            var listItems = helper.GetPostsSortedByPublishedDate(pager, null, masterModel.Id);
+
+            var rootPageModel = new ListModel(masterModel, listItems, pager);
+            return rootPageModel.Posts;
+        }
+
+        /// <summary>
         /// Gets the basic tag SQL used to retrieve tags for a given articulate root node
         /// </summary>
         /// <param name="selectCols"></param>

@@ -1,32 +1,60 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 using Articulate.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
-using Umbraco.Web.Mvc;
 
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// This is used to redirect the Archive node to the root so no 404s occur
+    /// Renders the Articulate Archive node as a blog post list by date
     /// </summary>
-    public class ArticulateArchiveController : RenderMvcController
+    public class ArticulateArchiveController : ListControllerBase
     {
+        /// <summary>
+        /// Declare new Index action with optional page number
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public ActionResult Index(RenderModel model, int? p)
+        {
+            return RenderView(model, p);
+        }
+
+        /// <summary>
+        /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [NonAction]
         public override ActionResult Index(RenderModel model)
         {
-            var root = new MasterModel(model.Content);
+            return RenderView(model);
+        }
 
-            if (root.RootBlogNode.GetPropertyValue<bool>("redirectArchive"))
+        private ActionResult RenderView(IRenderModel model, int? p = null)
+        {
+            var archive = new MasterModel(model.Content);
+
+            // redirect to root node when "redirectArchive" is configured
+            if (archive.RootBlogNode.GetPropertyValue<bool>("redirectArchive"))
             {
-                return RedirectPermanent(root.RootBlogNode.Url);
+                return RedirectPermanent(archive.RootBlogNode.Url);
             }
 
-            //default
+            //Get post count by xpath is much faster than iterating all children to get a count
+            var count = Umbraco.GetPostCount(archive.Id);
 
-            var action = ControllerContext.RouteData.Values["action"].ToString();
-            if (!EnsurePhsyicalViewExists(action))
-                return new UmbracoNotFoundResult();
+            int pageSize;
+            if(!Int32.TryParse(archive.RootBlogNode.GetPropertyValue<string>("pageSize"), out pageSize))
+            {
+                pageSize = 10;
+            }
 
-            return View(action, model);            
+            var posts = Umbraco.GetRecentPostsByArchive(archive, 1, pageSize);
+
+            return GetPagedListView(archive, archive, posts, count, null);          
         }
     }
 }
