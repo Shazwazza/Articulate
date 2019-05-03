@@ -13,7 +13,7 @@
     <summary>A wonderful Blog engine built on Umbraco</summary>
     <tags>blog umbraco oss tags markdown richtext</tags>
     <copyright>$copyright$</copyright>
-    <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon_64.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</iconUrl>
     <dependencies>
       <dependency id="UmbracoCms.Web" version="[8.0.2, 9.0.0)" />
       <dependency id="xmlrpcnet" version="[3.0.0.266, 4.0.0)" />
