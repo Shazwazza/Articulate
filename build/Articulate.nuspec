@@ -15,7 +15,7 @@
     <copyright>$copyright$</copyright>
     <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon_64.png</iconUrl>
     <dependencies>
-      <dependency id="UmbracoCms.Web" version="[8.0.1, 9.0.0)" />
+      <dependency id="UmbracoCms.Web" version="[8.0.2, 9.0.0)" />
       <dependency id="xmlrpcnet" version="[3.0.0.266, 4.0.0)" />
       <dependency id="xmlrpcnet-server" version="[3.0.0.266, 4.0.0)" />
       <dependency id="Argotic.Core" version="2008.0.2" />
@@ -25,7 +25,7 @@
   <files>
     <file src="bin\Articulate.dll" target="lib\net45\" />
     <file src="App_Plugins\Articulate\**\*" target="content\App_Plugins\Articulate" />
-    <file src="media\articulate\default\*.jpg" target="content\media\articulate" />
-    <file src="media\articulate\default\*.png" target="content\media\articulate" />
+    <file src="media\articulate\original\*.jpg" target="content\media\articulate\original" />
+    <file src="media\articulate\original\*.png" target="content\media\articulate\original" />
   </files>
 </package>

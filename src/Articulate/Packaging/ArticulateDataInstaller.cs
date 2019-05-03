@@ -24,10 +24,12 @@ namespace Articulate.Packaging
         private readonly IPackagingService _packagingService;
         private readonly IDataTypeService _dataTypeService;
         private readonly ILogger _logger;
+        private readonly IMediaFileSystem _mediaFileSystem;
 
-        public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService, 
-            IPackageInstallation packageInstallation, 
-            IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger)
+        public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService,
+            IPackageInstallation packageInstallation,
+            IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger,
+            IMediaFileSystem mediaFileSystem)
         {
             _contentTypeService = contentTypeService;
             _contentService = contentService;
@@ -35,8 +37,9 @@ namespace Articulate.Packaging
             _packagingService = packagingService;
             _dataTypeService = dataTypeService;
             _logger = logger;
+            _mediaFileSystem = mediaFileSystem;
         }
-        
+
         /// <summary>
         /// Installs the Articulate package including schema and content via the package manifest and adds the package to the local repo
         /// </summary>
@@ -110,7 +113,7 @@ namespace Articulate.Packaging
             {
                 //clear out the files, we don't want to save this package manifest with files since we don't want to delete them on package 
                 //uninstallation done in the back office since this will generally only be the case when we are installing via Nuget
-                packageDefinition.Files = new List<string>(); 
+                packageDefinition.Files = new List<string>();
                 var summary = _packageInstallation.InstallPackageData(packageDefinition, compiledPackage, userId);
                 //persist this to the package repo, it will now show up as installed packages in the back office
                 _packagingService.SaveInstalledPackage(packageDefinition);
@@ -235,8 +238,25 @@ namespace Articulate.Packaging
         //    }
         //}
 
+        /// <summary>
+        /// Ensure the media is saved with the media file system
+        /// </summary>
+        /// <remarks>
+        /// Copy from the 'original' location to the 'default'
+        /// </remarks>
+        private void InstallMedia()
+        {
+            _mediaFileSystem.AddFile("articulate/default/logo.png", IOHelper.MapPath("~/media/articulate/original/logo.png"), true, true);
+            _mediaFileSystem.AddFile("articulate/default/author.jpg", IOHelper.MapPath("~/media/articulate/original/author.jpg"), true, true);
+            _mediaFileSystem.AddFile("articulate/default/banner.jpg", IOHelper.MapPath("~/media/articulate/original/banner.jpg"), true, true);
+            _mediaFileSystem.AddFile("articulate/default/post1.jpg", IOHelper.MapPath("~/media/articulate/original/post1.jpg"), true, true);
+            _mediaFileSystem.AddFile("articulate/default/post2.jpg", IOHelper.MapPath("~/media/articulate/original/post2.jpg"), true, true);
+        }
+
         private IContent InstallContentData()
         {
+            InstallMedia();
+
             //Create the root node - this will automatically create the authors and archive nodes
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = _contentService.Create("Blog", Constants.System.Root, "Articulate");
@@ -307,7 +327,7 @@ namespace Articulate.Packaging
 
             //Create a test posts
             _logger.Info<ArticulateDataInstaller>("Creating test blog post 1");
-            
+
             var post1 = _contentService.Create("Welcome", archive.Id, "ArticulateMarkdown");
             post1.SetValue("author", "Jane Doe");
             post1.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");

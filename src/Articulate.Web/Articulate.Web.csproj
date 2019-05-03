@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\UmbracoCms.8.0.1\build\UmbracoCms.props" Condition="Exists('..\packages\UmbracoCms.8.0.1\build\UmbracoCms.props')" />
+  <Import Project="..\packages\UmbracoCms.8.0.2\build\UmbracoCms.props" Condition="Exists('..\packages\UmbracoCms.8.0.2\build\UmbracoCms.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -444,19 +444,19 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Umbraco.Core, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Core.8.0.1\lib\net472\Umbraco.Core.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Core.8.0.2\lib\net472\Umbraco.Core.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Examine, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Web.8.0.1\lib\net472\Umbraco.Examine.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Web.8.0.2\lib\net472\Umbraco.Examine.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.ModelsBuilder, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Umbraco.ModelsBuilder.8.0.4\lib\net472\Umbraco.ModelsBuilder.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Web, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Web.8.0.1\lib\net472\Umbraco.Web.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Web.8.0.2\lib\net472\Umbraco.Web.dll</HintPath>
     </Reference>
     <Reference Include="Umbraco.Web.UI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UmbracoCms.Web.8.0.1\lib\net472\Umbraco.Web.UI.dll</HintPath>
+      <HintPath>..\packages\UmbracoCms.Web.8.0.2\lib\net472\Umbraco.Web.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -486,6 +486,7 @@
     <Content Include="App_Plugins\Articulate\BackOffice\theme.resource.js" />
     <Content Include="App_Plugins\Articulate\BackOffice\PackageOptions\package-options.html" />
     <Content Include="App_Plugins\Articulate\BackOffice\PropertyEditors\themepicker.controller.js" />
+    <Content Include="App_Plugins\Articulate\Lang\en-US.xml" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\styles_custom.css" />
     <Content Include="App_Plugins\Articulate\Themes\Material\Assets\css\styles.css" />
     <Content Include="App_Plugins\Articulate\Themes\Mini\Assets\css\base.css" />
@@ -537,106 +538,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="media\1007\capture3.png" />
-    <Content Include="media\1008\random-mask.jpg" />
-    <Content Include="media\1009\ck4w3374-smaller.jpg" />
-    <Content Include="media\1010\hermit_bg.jpg" />
-    <Content Include="media\1011\7406981406_1aff1cb527_o.jpg" />
-    <Content Include="media\1012\random-mask.jpg" />
-    <Content Include="media\1013\facebook-20140617-023126.jpg" />
-    <Content Include="media\1014\img_2992.jpg" />
-    <Content Include="media\1015\facebook-20140617-023105.jpg" />
-    <Content Include="media\1015\facebook-20140617-023105_big-thumb.jpg" />
-    <Content Include="media\1015\facebook-20140617-023105_thumb.jpg" />
-    <Content Include="media\1016\facebook-20140617-023118.jpg" />
-    <Content Include="media\1016\facebook-20140617-023118_big-thumb.jpg" />
-    <Content Include="media\1016\facebook-20140617-023118_thumb.jpg" />
-    <Content Include="media\1017\facebook-20140617-023133.jpg" />
-    <Content Include="media\1017\facebook-20140617-023133_big-thumb.jpg" />
-    <Content Include="media\1017\facebook-20140617-023133_thumb.jpg" />
-    <Content Include="media\1018\facebook-20140617-023126.jpg" />
-    <Content Include="media\1018\facebook-20140617-023126_big-thumb.jpg" />
-    <Content Include="media\1018\facebook-20140617-023126_thumb.jpg" />
-    <Content Include="media\1019\facebook-20140617-023118.jpg" />
-    <Content Include="media\1020\ck4w3374-smaller.jpg" />
-    <Content Include="media\1022\hermit_bg.jpg" />
-    <Content Include="media\1023\cognac_profile.jpeg" />
-    <Content Include="media\1024\img_2055.jpg" />
-    <Content Include="media\207\capture3.png" />
-    <Content Include="media\230\random-mask.jpg" />
-    <Content Include="media\70\capture3.png" />
-    <Content Include="media\93\random-mask.jpg" />
-    <Content Include="media\articulate\2b9415e2629246c5b405aa28da3dcdd4\2015-07-02_10-51-13.png" />
-    <Content Include="media\articulate\3126ad7cf5d84d218aa9bb35fe9febaf\grumpy-old-man.jpg" />
-    <Content Include="media\articulate\6dabd54c41b24d11b1382b4a3930dcb3\Birthdayze-Flyer-Small.jpg" />
-    <Content Include="media\articulate\bf894df992bd4510bdcbb77b19186229\profile-wedding1.jpg" />
-    <Content Include="media\articulate\default\7406981406_1aff1cb527_o.jpg" />
-    <Content Include="media\articulate\default\capture3.png" />
-    <Content Include="media\articulate\default\random-mask.jpg" />
-    <Content Include="media\articulate\DisqusXmlExport.xml" />
-    <Content Include="media\articulate\windows-live-writer-a-test-from-live-writer_1069a-ck4w3374-even-smaller_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-a-test-from-live-writer_1069a-ck4w3374-even-smaller_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-20120615_003839_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-20120615_003839_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-capture2.png" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-capture2_thumb.png" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-cognac_profile.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-cognac_profile_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-img_2980.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-img_2980_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-profile_cowboy_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-profile_cowboy_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-random-mask_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-random-mask_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-from-live-writer_110a6-save-the-date_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-yet-another-one_a1aa-cognac_profile.jpg" />
-    <Content Include="media\articulate\windows-live-writer-yet-another-one_a1aa-cognac_profile_thumb.jpg" />
-    <Content Include="media\articulate\windows-live-writer-yet-another-one_a1aa-evilrabbit_2.jpg" />
-    <Content Include="media\articulate\windows-live-writer-yet-another-one_a1aa-evilrabbit_thumb.jpg" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\3a51c2b0-ca5f-4785-a56b-34afa45e2202_Installer.ascx" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\55ea0caa-c678-4fc1-8226-0db2a13ae900_style.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\7406981406_1aff1cb527_o.jpg" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\7723b59c-1cb6-4bca-81a4-d638e2e9fe11_normalize.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\90f31cf4-3bf3-4595-858c-86384a80577f_style.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Argotic.Common.dll" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Argotic.Core.dll" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Argotic.Extensions.dll" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Articulate.dll" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Articulate.pdb" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\author.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\background.png" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\base.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\bg70.png" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\bg80.png" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\bgcode.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\blogimporter.controller.js" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\blogimporter.html" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\c439444e-07e2-4867-b982-a96b910044de_normalize.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\capture3.png" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\comments.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\favicon.ico" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\frogMini.png" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\icons.svg" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Installer.ascx" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\li.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\MarkdownDeep.dll" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\md-editor.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\md-editor.js" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\modernizr.js" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\nav_li.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\normalize.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\package.xml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\phantom.svg" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\quote.gif" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\random-mask.jpg" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\responsive.ie10mobilefix.min.js" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\responsive.min.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\screen.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\site.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\style.css" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\themepicker.controller.js" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\ThemePicker.html" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\timeicon.gif" />
+    <Content Include="media\articulate\original\author.jpg" />
+    <Content Include="media\articulate\original\banner.jpg" />
+    <Content Include="media\articulate\original\logo.png" />
+    <Content Include="media\articulate\original\post1.jpg" />
+    <Content Include="media\articulate\original\post2.jpg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -708,90 +614,6 @@
     <Content Include="packages.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="media\created-packages\Articulate_1.0.4.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.5.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.6.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.7.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.8.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.9.zip" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\008cc99d-89b9-430d-8faa-ce25a94db831_List.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\011273a9-4ed4-461f-a512-7d3a8b2f4578_SearchBox.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\063cbb7d-ef06-42c4-ad38-7f13be79d188_Menu.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\08d0b6e6-6c20-40d0-b58a-3d8eea7a484b_Master.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\161eb058-bf22-4254-819d-6c3f05743628_Web.config" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\177b451d-7b62-483d-83bb-65c95ddd590e_Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\26a7bdf2-56e2-4240-8026-2e7714b7a8da_Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\2e51a293-5397-47b7-b42a-5a61dcbc5a4c_Tags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\305665c9-0d00-4590-965e-6d10e1fb5e10_Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\36d294d6-95e0-44e5-937a-286aced0ef14_CommentsDisqus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\3a7475a7-37f2-4392-a756-3d649a90ffa5_Menu.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\3f089b20-5c3c-4a49-bf12-5c1729d6766b_PostTags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\42feb632-7882-47fb-9558-7ebd62208e53_Web.config" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\51e8a47e-d887-42e3-af94-7d73091d13b6_Menu.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\53fdc7bf-8d0b-4cd6-bc3a-a5f962eaa1eb_Pager.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\5501ab14-8b42-44f6-a521-4ec757a04a41_Header.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\5660c95a-482d-40a8-b357-9200318e00da_CommentsFacebook.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\56ab2247-4377-4d0e-a637-cb388df4e41a_List.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\659c1021-0ce1-4598-980e-c59c942d0cbc_Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\6b10e03b-8830-4a70-a350-6ac305c0c1ae_CommentsDisqus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\78b910bc-f79e-4809-93c3-acfc29202a45_PostTags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\7c727a8a-18fd-485a-8569-2bd5d7fc72e9_Web.config" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\82edba33-d632-46fc-ac4c-d0476c9e30ff_Master.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\87130356-c1f1-4e50-a42d-2a3b23240020_Web.config" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\891973ab-fed8-47ab-9cc9-bd66b5681011_CommentsGooglePlus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\990deed0-b349-4d3e-bb52-0837c4797f49_CommentsGooglePlus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\9d2d7dae-808c-49f9-aea3-0c54e0bc970b_Pager.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\9e3816dd-4d5f-4bea-9ee6-4e2952375514_Pager.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\ad63d62c-9ceb-48be-8a6b-4f673438721d_PostTags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\b4fe5daf-ec2d-4c1c-b04d-75d647a0083e_PostTags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\ba14c5f4-299d-4055-bfe1-ff09da53e038_CommentsDisqus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\c17b77c9-448f-4882-811a-c8b51d3f5366_Master.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\c4733103-0644-4949-b4fd-6d5576e4bdfd_SearchBox.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Categories.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\cc623ac5-e155-4a96-9843-66a539d1e3dd_Web.config" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\cca87322-abab-415e-9229-e7ab8a1ddb5d_CommentsFacebook.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\CommentsDisqus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\CommentsFacebook.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\CommentsGooglePlus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\config.json" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\d69a3623-3d17-44d6-ab5b-378703d2512d_List.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\d81dd647-c9fa-42f9-96df-82871801e1f7_List.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\e987bb7d-f775-477e-a3f5-1044f7bd08be_Master.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\eae0cfbc-c49d-4ba3-b792-fcd26ca46186_Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\f546757f-3798-4e29-8a64-40737a4c473e_CommentsGooglePlus.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\fba6c098-d19b-46ae-8341-4ff8c7929dad_Pager.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\fd001a82-3abb-4428-b575-077a6a4fcf00_CommentsFacebook.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\FeedDelicious.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\FeedGitHub.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Follow.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Footer.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\FooterDescription.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Header.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\HeaderDescription.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\icons.eot" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\icons.ttf" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\icons.woff" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\List.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\MarkdownEditor.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Master.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Menu.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\package.manifest" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Pager.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\phantom.eot" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\phantom.ttf" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\phantom.woff" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Post.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\PostTags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Recent.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\SearchBox.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Share.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Sharing.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Sidebar.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\SideWidgets.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\TagCloud.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Tags.cshtml" />
-    <Content Include="media\created-packages\Articulate_1.0.9\bf5ff19f-a27a-4e07-8b1a-49734549f378\Web.config" />
-    <Content Include="media\created-packages\Articulate_2.0.2.zip" />
     <Content Include="config\imageprocessor\security.config" />
     <Content Include="config\imageprocessor\processing.config" />
     <Content Include="config\imageprocessor\cache.config" />
@@ -828,7 +650,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\packages\" />
-    <Folder Include="media\1021\" />
+    <Folder Include="media\created-packages\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -865,8 +687,8 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props'))" />
     <Error Condition="!Exists('..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets'))" />
-    <Error Condition="!Exists('..\packages\UmbracoCms.8.0.1\build\UmbracoCms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.8.0.1\build\UmbracoCms.props'))" />
-    <Error Condition="!Exists('..\packages\UmbracoCms.8.0.1\build\UmbracoCms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.8.0.1\build\UmbracoCms.targets'))" />
+    <Error Condition="!Exists('..\packages\UmbracoCms.8.0.2\build\UmbracoCms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.8.0.2\build\UmbracoCms.props'))" />
+    <Error Condition="!Exists('..\packages\UmbracoCms.8.0.2\build\UmbracoCms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UmbracoCms.8.0.2\build\UmbracoCms.targets'))" />
   </Target>
   <Import Project="..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets" Condition="Exists('..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets')" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
@@ -874,7 +696,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
     <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
   </Target>
-  <Import Project="..\packages\UmbracoCms.8.0.1\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.8.0.1\build\UmbracoCms.targets')" />
+  <Import Project="..\packages\UmbracoCms.8.0.2\build\UmbracoCms.targets" Condition="Exists('..\packages\UmbracoCms.8.0.2\build\UmbracoCms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
