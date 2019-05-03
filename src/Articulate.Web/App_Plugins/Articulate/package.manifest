@@ -1,14 +1,21 @@
 {
-  "javascript": [
-    "~/App_Plugins/Articulate/BackOffice/PackageOptions/options.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/PackageOptions/articulatemgmt.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/PropertyEditors/themepicker.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/edit.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/create.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/delete.controller.js",
-    "~/App_Plugins/Articulate/BackOffice/theme.resource.js"
-  ]
+    "javascript": [
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/options.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/articulatemgmt.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PropertyEditors/themepicker.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/edit.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/create.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/ArticulateThemes/delete.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/theme.resource.js"
+    ],
+    "dashboards": [
+        {
+            "alias": "articulate",
+            "view": "~/App_Plugins/Articulate/BackOffice/PackageOptions/package-options.html",
+            "sections": [ "settings" ]
+        }
+    ]
 }
