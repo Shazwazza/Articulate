@@ -25,6 +25,8 @@ using Umbraco.Web.Cache;
 using Umbraco.Web.Editors;
 using Umbraco.Web.JavaScript;
 using IComponent = Umbraco.Core.Composing.IComponent;
+using Umbraco.Core.Services.Changes;
+using System.Web.Hosting;
 
 namespace Articulate.Components
 {
@@ -144,8 +146,11 @@ namespace Articulate.Components
         private void App_PostRequestHandlerExecute(object sender, EventArgs e)
         {
             if (_appCaches?.RequestCache.Get("articulate-refresh-routes") == null) return;
-            //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
-            _articulateRoutes.MapRoutes(RouteTable.Routes);
+
+            //the token was found so that means one or more articulate root nodes were changed in this request,
+            //rebuild the routes on a background thread.
+
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => _articulateRoutes.MapRoutes(RouteTable.Routes, cancellationToken));
         }
 
         private void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
@@ -286,16 +291,20 @@ namespace Articulate.Components
         {
             switch (e.MessageType)
             {
-                case MessageType.RefreshById:
-                case MessageType.RemoveById:
-                    var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById((int)e.MessageObject);
-                    if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
+                case MessageType.RefreshByPayload:
+                    //This is the standard case for content cache refresher
+                    foreach (var payload in (ContentCacheRefresher.JsonPayload[])e.MessageObject)
                     {
-                        //ensure routes are rebuilt
-                        _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        if (payload.ChangeTypes.HasTypesAny(TreeChangeTypes.Remove | TreeChangeTypes.RefreshBranch | TreeChangeTypes.RefreshNode))
+                        {
+                            RefreshById(payload.Id);
+                        }
                     }
                     break;
-
+                case MessageType.RefreshById:
+                case MessageType.RemoveById:
+                    RefreshById((int)e.MessageObject);
+                    break;
                 case MessageType.RefreshByInstance:
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
@@ -312,11 +321,45 @@ namespace Articulate.Components
             }
         }
 
+        private void RefreshById(int id)
+        {
+            var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById(id);
+            if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
+            {
+                //ensure routes are rebuilt
+                _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+            }
+        }
+
         private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, CacheRefresherEventArgs e)
         {
             //ensure routes are rebuilt
             _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
         }
 
+    }
+
+    //annoyingly these are not available till 8.1
+    internal static class TreeChangeExtensions
+    {        
+        public static bool HasType(this TreeChangeTypes change, TreeChangeTypes type)
+        {
+            return (change & type) != TreeChangeTypes.None;
+        }
+
+        public static bool HasTypesAll(this TreeChangeTypes change, TreeChangeTypes types)
+        {
+            return (change & types) == types;
+        }
+
+        public static bool HasTypesAny(this TreeChangeTypes change, TreeChangeTypes types)
+        {
+            return (change & types) != TreeChangeTypes.None;
+        }
+
+        public static bool HasTypesNone(this TreeChangeTypes change, TreeChangeTypes types)
+        {
+            return (change & types) == TreeChangeTypes.None;
+        }
     }
 }

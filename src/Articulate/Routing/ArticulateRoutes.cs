@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Articulate.Components;
@@ -29,16 +30,18 @@ namespace Articulate.Routing
             _contentUrls = contentUrls;
         }
 
-        public void MapRoutes(RouteCollection routes)
+        public void MapRoutes(RouteCollection routes) => MapRoutes(routes, CancellationToken.None);
+
+        public void MapRoutes(RouteCollection routes, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             using (var umbCtxAccessor = _umbracoContextFactory.EnsureUmbracoContext())
             {
                 //find all articulate root nodes
                 var contentCache = umbCtxAccessor?.UmbracoContext?.ContentCache;
                 if (contentCache == null)
-                {
-                    throw new InvalidOperationException("Could not create Articulate routes, the content cache instance was null");
-                }
+                    throw new InvalidOperationException("Could not create Articulate routes, the content cache instance was null");                
 
                 var articulateCt = contentCache.GetContentType("Articulate");
                 if (articulateCt == null)
@@ -53,7 +56,7 @@ namespace Articulate.Routing
                 using (routes.GetWriteLock())
                 {
                     //clear the existing articulate routes (if any)
-                    RemoveExisting(routes);
+                    RemoveExisting(routes, cancellationToken);
 
                     // For each articulate root, we need to create some custom route, BUT routes can overlap
                     // based on multi-tenency so we need to deal with that. 
@@ -77,26 +80,28 @@ namespace Articulate.Routing
 
                         var uriPath = nodeByPathGroup.Key;
 
-                        MapRssRoute(routes, uriPath, nodesAsArray);
-                        MapSearchRoute(routes, uriPath, nodesAsArray);
-                        MapTagsAndCategoriesRoute(routes, uriPath, nodesAsArray);
-                        MapMarkdownEditorRoute(routes, uriPath, nodesAsArray);
-                        MapAuthorsRssRoute(routes, uriPath, nodesAsArray);
+                        MapRssRoute(routes, uriPath, nodesAsArray, cancellationToken);
+                        MapSearchRoute(routes, uriPath, nodesAsArray, cancellationToken);
+                        MapTagsAndCategoriesRoute(routes, uriPath, nodesAsArray, cancellationToken);
+                        MapMarkdownEditorRoute(routes, uriPath, nodesAsArray, cancellationToken);
+                        MapAuthorsRssRoute(routes, uriPath, nodesAsArray, cancellationToken);
 
                         foreach (var articulateRootNode in nodeByPathGroup)
                         {
-                            MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
-                            MapManifestRoute(routes, uriPath, articulateRootNode);
-                            MapRsdRoute(routes, uriPath, articulateRootNode);
-                            MapOpenSearchRoute(routes, uriPath, articulateRootNode);
+                            MapMetaWeblogRoute(routes, uriPath, articulateRootNode, cancellationToken);
+                            MapManifestRoute(routes, uriPath, articulateRootNode, cancellationToken);
+                            MapRsdRoute(routes, uriPath, articulateRootNode, cancellationToken);
+                            MapOpenSearchRoute(routes, uriPath, articulateRootNode, cancellationToken);
                         }
                     }
                 }
             }
         }
 
-        private void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private void MapMarkdownEditorRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             //var routePath = (nodeRoutePath.EnsureEndsWith('/') + "a-new/" + node.Id).TrimStart('/');
             var routeHash = nodeRoutePath.GetHashCode();
 
@@ -113,8 +118,10 @@ namespace Articulate.Routing
                 new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
-        private void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private void MapRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routeHash = nodeRoutePath.GetHashCode();
 
             //Create the route for the /rss results
@@ -139,8 +146,10 @@ namespace Articulate.Routing
                 new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
-        private void MapAuthorsRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private void MapAuthorsRssRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routeHash = nodeRoutePath.GetHashCode();
             
             //Create the routes for the RSS author feeds
@@ -155,8 +164,10 @@ namespace Articulate.Routing
                 new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
         }
 
-        private void MapTagsAndCategoriesRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private void MapTagsAndCategoriesRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routeHash = nodeRoutePath.GetHashCode();
 
             //Create the routes for /tags/{tag} and /categories/{category}
@@ -185,8 +196,10 @@ namespace Articulate.Routing
                 new { action = new TagsOrCategoryPathRouteConstraint(_contentUrls, nodesWithPath) });
         }
 
-        private void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        private void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog/" + node.Id).TrimStart('/');
 
             var name = "articulate_metaweblog_" + node.Id;
@@ -200,8 +213,10 @@ namespace Articulate.Routing
             routes.Add(name, route);
         }
 
-        private void MapRsdRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        private void MapRsdRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "rsd/" + node.Id).TrimStart('/');
 
             var name = "articulate_rsd_" + node.Id;
@@ -215,8 +230,10 @@ namespace Articulate.Routing
                 }).AddRouteNameToken(name);
         }
 
-        private void MapOpenSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        private void MapOpenSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routePath = (nodeRoutePath.EnsureEndsWith('/') + "opensearch/" + node.Id).TrimStart('/');
 
             var name = "articulate_opensearch_" + node.Id;
@@ -230,8 +247,10 @@ namespace Articulate.Routing
                 }).AddRouteNameToken(name);
         }
 
-        private void MapManifestRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
+        private void MapManifestRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var routePath = (nodeRoutePath + "wlwmanifest/" + node.Id).TrimStart('/');
 
             var name = "articulate_wlwmanifest_" + node.Id;
@@ -245,8 +264,10 @@ namespace Articulate.Routing
                 }).AddRouteNameToken(name);
         }
 
-        private void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
+        private void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             //we need to group by the search url name and make unique routes amongst those,
             // alternatively we could create route constraints like we do for the tags/categories routes
             foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.Value<string>("searchUrlName")))
@@ -274,8 +295,10 @@ namespace Articulate.Routing
         /// Removes existing articulate custom routes
         /// </summary>
         /// <param name="routes"></param>
-        private void RemoveExisting(ICollection<RouteBase> routes)
+        private void RemoveExisting(ICollection<RouteBase> routes, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var articulateRoutes = routes
                 .OfType<Route>()
                 .Where(x =>
