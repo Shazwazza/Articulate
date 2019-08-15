@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using Umbraco.Core;
 using Umbraco.Web;
 using RouteCollectionExtensions = Articulate.Routing.RouteCollectionExtensions;
+using Umbraco.Core.Models.PublishedContent;
 
 namespace Articulate
 {
@@ -31,7 +32,7 @@ namespace Articulate
         public static string ArticulateRssUrl(this UrlHelper url, IMasterModel model)
         {
             return model.CustomRssFeed.IsNullOrWhiteSpace()
-                ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss"
+                ? model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "rss"
                 : model.CustomRssFeed;
         }
 
@@ -82,7 +83,7 @@ namespace Articulate
             return model.RootBlogNode == null
                 ? null
                 : (includeDomain
-                      ? model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/')
+                      ? model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/')
                       : model.RootBlogNode.Url.EnsureEndsWith('/')) +
                   model.RootBlogNode.Value<string>("searchUrlName");
         }

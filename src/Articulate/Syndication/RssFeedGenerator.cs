@@ -16,6 +16,7 @@ using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate.Syndication
@@ -37,7 +38,7 @@ namespace Articulate.Syndication
             var feed = new SyndicationFeed(
               rootPageModel.BlogTitle,
               rootPageModel.BlogDescription,
-              new Uri(rootPageModel.RootBlogNode.UrlAbsolute()),
+              new Uri(rootPageModel.RootBlogNode.Url(mode: UrlMode.Absolute)),
               GetFeedItems(rootPageModel, posts))
             {
                 Generator = "Articulate, blogging built on Umbraco",
@@ -57,7 +58,7 @@ namespace Articulate.Syndication
 
         protected virtual SyndicationItem GetFeedItem(IMasterModel model, PostModel post, string rootUrl)
         {
-            var posturl = post.UrlAbsolute();
+            var posturl = post.Url(mode: UrlMode.Absolute);
 
             //Cannot continue if the url cannot be resolved - probably has publishing issues
             if (posturl.StartsWith("#"))
@@ -112,7 +113,7 @@ namespace Articulate.Syndication
 
         private IEnumerable<SyndicationItem> GetFeedItems(IMasterModel model, IEnumerable<PostModel> posts)
         {
-            var rootUrl = model.RootBlogNode.UrlAbsolute();
+            var rootUrl = model.RootBlogNode.Url(mode: UrlMode.Absolute);
             return posts.Select(post => GetFeedItem(model, post, rootUrl)).WhereNotNull().ToList();
         }
 

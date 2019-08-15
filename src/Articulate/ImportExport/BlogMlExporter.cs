@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
 using Umbraco.Web;
@@ -182,7 +183,7 @@ namespace Articulate.ImportExport
                     }
 
                     var postUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
-                    var postAbsoluteUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id, UrlProviderMode.Absolute), UriKind.Absolute);
+                    var postAbsoluteUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id, UrlMode.Absolute), UriKind.Absolute);
                     var blogMlPost = new BlogMLPost()
                     {
                         Id = child.Key.ToString(),

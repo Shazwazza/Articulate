@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using System.Xml;
 using Articulate.Models;
 using Umbraco.Core;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
 namespace Articulate.Syndication
@@ -34,7 +35,7 @@ namespace Articulate.Syndication
                 });
 
                 // Write the Processing Instruction node.
-                var xsltHeader = string.Format("type=\"text/xsl\" href=\"{0}\"", _model.RootBlogNode.UrlAbsolute().EnsureEndsWith('/') + "rss/xslt");
+                var xsltHeader = string.Format("type=\"text/xsl\" href=\"{0}\"", _model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "rss/xslt");
                 xmlWriter.WriteProcessingInstruction("xml-stylesheet", xsltHeader);
 
                 var formatter = _feed.GetRss20Formatter();
