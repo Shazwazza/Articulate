@@ -26,31 +26,24 @@ If ($FileExists -eq $False) {
 	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
 }
 
-if ($BuildServer -eq 1) {
-	$MSBuild = "MSBuild.exe";
+# ensure we have vswhere
+New-Item "$BuildFolder\vswhere" -type directory -force
+$vswhere = "$BuildFolder\vswhere.exe"
+if (-not (test-path $vswhere))
+{
+	Write-Host "Download VsWhere..."
+    $path = "$ToolsFolder\tmp"
+    &$nuget install vswhere -OutputDirectory $path
+    $dir = ls "$path\vswhere.*" | sort -property Name -descending | select -first 1
+    $file = ls -path "$dir" -name vswhere.exe -recurse
+    mv "$dir\$file" $vswhere   
 }
-else {
-	# ensure we have vswhere
-	New-Item "$BuildFolder\vswhere" -type directory -force
-	$vswhere = "$BuildFolder\vswhere.exe"
-	if (-not (test-path $vswhere))
-	{
-	   Write-Host "Download VsWhere..."
-	   $path = "$BuildFolder\tmp"
-	   &$nuget install vswhere -OutputDirectory $path -Verbosity quiet
-	   $dir = ls "$path\vswhere.*" | sort -property Name -descending | select -first 1
-	   $file = ls -path "$dir" -name vswhere.exe -recurse
-	   mv "$dir\$file" $vswhere   
-	 }
 
-	$MSBuild = &$vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
-	if ($MSBuild) {
-	  $MSBuild = join-path $MSBuild 'MSBuild\15.0\Bin\MSBuild.exe'
-	  if (-not (test-path $msbuild)) {
-		throw "MSBuild not found!"
-	  }
-	}
+$MSBuild = &$vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | select-object -first 1
+if (-not (test-path $MSBuild)) {
+    throw "MSBuild not found!"
 }
+
 
 if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 {

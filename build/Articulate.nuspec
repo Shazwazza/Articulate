@@ -1,31 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata>
-    <id>Articulate</id>
-    <version>3.0.0-beta</version>
-    <title>Articulate</title>
-    <authors>Shannon Deminick</authors>
-    <owners>Shannon Deminick</owners>
-    <projectUrl>https://github.com/Shazwazza/Articulate</projectUrl>
-    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A wonderful Blog engine built on Umbraco</description>
-    <summary>A wonderful Blog engine built on Umbraco</summary>
-    <tags>blog umbraco oss tags markdown richtext</tags>
-    <copyright>$copyright$</copyright>
-    <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</iconUrl>
-    <dependencies>
-      <dependency id="UmbracoCms.Web" version="[8.1.2, 9.0.0)" />
-      <dependency id="xmlrpcnet" version="[3.0.0.266, 4.0.0)" />
-      <dependency id="xmlrpcnet-server" version="[3.0.0.266, 4.0.0)" />
-      <dependency id="Argotic.Core" version="2008.0.2" />
-      <dependency id="MarkdownDeep.NET" version="1.5" />
-    </dependencies>
-  </metadata>
-  <files>
-    <file src="bin\Articulate.dll" target="lib\net45\" />
-    <file src="App_Plugins\Articulate\**\*" target="content\App_Plugins\Articulate" />
-    <file src="media\articulate\original\*.jpg" target="content\media\articulate\original" />
-    <file src="media\articulate\original\*.png" target="content\media\articulate\original" />
-  </files>
+    <metadata>
+        <id>Articulate</id>
+        <version>3.0.0-beta</version>
+        <title>Articulate</title>
+        <authors>Shannon Deminick</authors>
+        <owners>Shannon Deminick</owners>
+        <projectUrl>https://github.com/Shazwazza/Articulate</projectUrl>
+        <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A wonderful Blog engine built on Umbraco</description>
+        <summary>A wonderful Blog engine built on Umbraco</summary>
+        <tags>blog umbraco oss tags markdown richtext</tags>
+        <copyright>$copyright$</copyright>
+        <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</iconUrl>
+        <dependencies>
+            <group targetFramework="net472">
+                <dependency id="UmbracoCms.Web" version="[8.1.2, 9.0.0)" />
+                <dependency id="xmlrpcnet" version="[3.0.0.266, 4.0.0)" />
+                <dependency id="xmlrpcnet-server" version="[3.0.0.266, 4.0.0)" />
+                <dependency id="Argotic.Core" version="2008.0.2" />
+                <dependency id="MarkdownDeep.NET" version="1.5" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Articulate.dll" target="lib\net472\" />
+        <file src="App_Plugins\Articulate\**\*" target="content\App_Plugins\Articulate" />
+        <file src="media\articulate\original\*.jpg" target="content\media\articulate\original" />
+        <file src="media\articulate\original\*.png" target="content\media\articulate\original" />
+    </files>
 </package>
