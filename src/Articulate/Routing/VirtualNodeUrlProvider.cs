@@ -13,12 +13,12 @@ namespace Articulate.Routing
     /// There may be more benefits to this but I'm not sure yet.
     /// </summary>
     internal class VirtualNodeUrlProvider : IUrlProvider
-    {      
+    {
 
         /// <summary>
         /// Gets the nice url of a custom routed published content item
         /// </summary>
-        public UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlProviderMode mode, string culture, Uri current)
+        public UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlMode mode, string culture, Uri current)
         {
             if (umbracoContext.PublishedRequest == null) return null;
             if (umbracoContext.PublishedRequest.PublishedContent == null) return null;

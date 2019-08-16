@@ -31,7 +31,7 @@ namespace Articulate
                 //this means there are domains assigned
                 allUrls = new HashSet<string>(urls)
                 {
-                    _umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(publishedContent.Id, UrlProviderMode.Absolute)
+                    _umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(publishedContent.Id, UrlMode.Absolute)
                 };
             }
             else

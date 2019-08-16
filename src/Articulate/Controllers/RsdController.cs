@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Xml.Linq;
 using Umbraco.Core;
+using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
@@ -30,13 +31,13 @@ namespace Articulate.Controllers
                 new XElement("service",
                     new XElement("engineName", "Articulate, powered by Umbraco"),
                     new XElement("engineLink", "http://github.com/shandem/articulate"),
-                    new XElement("homePageLink", node.UrlAbsolute())),
+                    new XElement("homePageLink", node.Url(mode: UrlMode.Absolute))),
                 new XElement("apis",
                     new XElement("api",
                         new XAttribute("name", "MetaWeblog"),
                         new XAttribute("preferred", true),
-                        new XAttribute("apiLink", node.UrlAbsolute().EnsureEndsWith('/') + "metaweblog/" + id),
-                        new XAttribute("blogID", node.UrlAbsolute()))));
+                        new XAttribute("apiLink", node.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "metaweblog/" + id),
+                        new XAttribute("blogID", node.Url(mode: UrlMode.Absolute)))));
 
             return new XmlResult(new XDocument(rsd));
         }

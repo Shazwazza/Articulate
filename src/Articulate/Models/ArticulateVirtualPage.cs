@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Umbraco.Core;
 using Umbraco.Core.Models.PublishedContent;
 
@@ -41,15 +42,15 @@ namespace Articulate.Models
 
         public override string UrlSegment => _pageName.ToLowerInvariant();
 
-        public override PublishedContentType ContentType
+        public override IPublishedContentType ContentType
         {
             get
             {
                 return new PublishedContentType(int.MaxValue - Parent.ContentType.Id,
                     _pageTypeAlias,
                     base.ContentType.ItemType, 
-                    base.ContentType.CompositionAliases, 
-                    base.ContentType.PropertyTypes, 
+                    base.ContentType.CompositionAliases,
+                    x => base.ContentType.PropertyTypes,
                     base.ContentType.Variations);
             }
         }        
