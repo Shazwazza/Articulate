@@ -2,6 +2,7 @@
 
 > A wonderful Blog engine built on Umbraco
 
+---
 _❤️ If you use and like Articulate please consider [becoming a GitHub Sponsor](https://github.com/sponsors/Shazwazza/) ❤️_
 
 ## Features
