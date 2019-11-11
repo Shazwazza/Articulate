@@ -18,6 +18,7 @@ using Umbraco.Core.Events;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Core.Services.Changes;
 using Umbraco.Core.Services.Implement;
 using Umbraco.Core.Sync;
 using Umbraco.Web;
@@ -286,16 +287,20 @@ namespace Articulate.Components
         {
             switch (e.MessageType)
             {
-                case MessageType.RefreshById:
-                case MessageType.RemoveById:
-                    var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById((int)e.MessageObject);
-                    if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
+                case MessageType.RefreshByPayload:
+                    //This is the standard case for content cache refresher
+                    foreach (var payload in (ContentCacheRefresher.JsonPayload[])e.MessageObject)
                     {
-                        //ensure routes are rebuilt
-                        _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        if (payload.ChangeTypes.HasTypesAny(TreeChangeTypes.Remove | TreeChangeTypes.RefreshBranch | TreeChangeTypes.RefreshNode))
+                        {
+                            RefreshById(payload.Id);
+                        }
                     }
                     break;
-
+                case MessageType.RefreshById:
+                case MessageType.RemoveById:
+                    RefreshById((int)e.MessageObject);
+                    break;
                 case MessageType.RefreshByInstance:
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
@@ -309,6 +314,16 @@ namespace Articulate.Components
                         _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
                     }
                     break;
+            }
+        }
+
+        private void RefreshById(int id)
+        {
+            var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById(id);
+            if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
+            {
+                //ensure routes are rebuilt
+                _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
             }
         }
 
