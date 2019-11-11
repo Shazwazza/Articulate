@@ -2,6 +2,8 @@
 
 > A wonderful Blog engine built on Umbraco
 
+_❤️ If you use and like Articulate please consider [becoming a GitHub Sponsor](https://github.com/sponsors/Shazwazza/) ❤️_
+
 ## Features
 
 Supporting all the features you'd want in a blogging platform
@@ -71,6 +73,6 @@ If you wish to re-force the package installation, you can remove the Articulate 
 
 ## Copyright & Licence
 
-&copy; 2017 by Shannon Deminick
+&copy; 2019 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
