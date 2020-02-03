@@ -32,7 +32,7 @@ namespace Articulate.Components
     public class ArticulateComponent : IComponent
     {
         private const string RefreshRoutesToken = "articulate-refresh-routes";
-        private const string ArticulateContentTypeName = "Articulate";
+        private const string ArticulateContentTypeAlias = "articulate";
         private readonly ArticulateRoutes _articulateRoutes;
         private readonly AppCaches _appCaches;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
@@ -73,7 +73,7 @@ namespace Articulate.Components
         private void EditorModelEventManager_SendingContentModel(System.Web.Http.Filters.HttpActionExecutedContext sender, EditorModelEventArgs<Umbraco.Web.Models.ContentEditing.ContentItemDisplay> e)
         {
             var content = e.Model;
-            if (!content.ContentTypeAlias.InvariantEquals(ArticulateContentTypeName)) return;
+            if (!content.ContentTypeAlias.InvariantEquals(ArticulateContentTypeAlias)) return;
 
             //if it's not new don't continue
             if (content.Id != default(int))
@@ -220,7 +220,7 @@ namespace Articulate.Components
         {
             foreach (var c in e.SavedEntities)
             {
-                if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals(ArticulateContentTypeName)) continue;
+                if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals(ArticulateContentTypeAlias)) continue;
 
                 //it's a root blog node, set up the required sub nodes (archive , authors) if they don't exist
 
@@ -241,10 +241,10 @@ namespace Articulate.Components
         {
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
-            if (e.ContainsKey(ArticulateContentTypeName)) return;
+            if (e.ContainsKey(ArticulateContentTypeAlias)) return;
 
             var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));
-            e[ArticulateContentTypeName] = new Dictionary<string, object>
+            e[ArticulateContentTypeAlias] = new Dictionary<string, object>
             {
                 {"articulateImportBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.PostImportBlogMl(null))},
                 {"articulateDataInstallerBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogDataInstallController>(controller => controller.PostInstall())},
@@ -308,7 +308,7 @@ namespace Articulate.Components
                     var content = e.MessageObject as IContent;
                     if (content == null) return;
                     
-                    if (content.ContentType.Alias.InvariantEquals(ArticulateContentTypeName))
+                    if (content.ContentType.Alias.InvariantEquals(ArticulateContentTypeAlias))
                     {
                         //ensure routes are rebuilt
                         _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
@@ -322,7 +322,7 @@ namespace Articulate.Components
             var item = _umbracoContextAccessor?.UmbracoContext?.Content.GetById(id);
 
             // if it's directly related to an articulate node
-            if (item != null && item.ContentType.Alias.InvariantEquals(ArticulateContentTypeName))
+            if (item != null && item.ContentType.Alias.InvariantEquals(ArticulateContentTypeAlias))
             {
                 //ensure routes are rebuilt
                 _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
@@ -345,7 +345,7 @@ namespace Articulate.Components
                 }
             }
 
-            var articulateContentType = _umbracoContextAccessor?.UmbracoContext?.Content.GetContentType(ArticulateContentTypeName);
+            var articulateContentType = _umbracoContextAccessor?.UmbracoContext?.Content.GetContentType(ArticulateContentTypeAlias);
             if (articulateContentType != null)
             {
                 var articulateNodes = _umbracoContextAccessor?.UmbracoContext?.Content.GetByContentType(articulateContentType);
