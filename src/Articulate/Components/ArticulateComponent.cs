@@ -337,7 +337,12 @@ namespace Articulate.Components
 
                 // This will occur on delete, then what?
                 // TODO: How would we know this is a node that might be at the same level/above?
-                if (item == null) return; 
+                // For now we have no choice, rebuild routes on each delete :/
+                if (item == null)
+                {
+                    _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
+                    return;
+                }
             }
 
             var articulateContentType = _umbracoContextAccessor?.UmbracoContext?.Content.GetContentType(ArticulateContentTypeName);
@@ -351,6 +356,7 @@ namespace Articulate.Components
                     {
                         //ensure routes are rebuilt
                         _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
+                        return;
                     }
                 }
             }
