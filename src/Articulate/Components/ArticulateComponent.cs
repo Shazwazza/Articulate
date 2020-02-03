@@ -31,6 +31,8 @@ namespace Articulate.Components
 {
     public class ArticulateComponent : IComponent
     {
+        private const string RefreshRoutesToken = "articulate-refresh-routes";
+        private const string ArticulateContentTypeName = "Articulate";
         private readonly ArticulateRoutes _articulateRoutes;
         private readonly AppCaches _appCaches;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
@@ -71,7 +73,7 @@ namespace Articulate.Components
         private void EditorModelEventManager_SendingContentModel(System.Web.Http.Filters.HttpActionExecutedContext sender, EditorModelEventArgs<Umbraco.Web.Models.ContentEditing.ContentItemDisplay> e)
         {
             var content = e.Model;
-            if (!content.ContentTypeAlias.InvariantEquals("Articulate")) return;
+            if (!content.ContentTypeAlias.InvariantEquals(ArticulateContentTypeName)) return;
 
             //if it's not new don't continue
             if (content.Id != default(int))
@@ -144,7 +146,7 @@ namespace Articulate.Components
         /// </remarks>
         private void App_PostRequestHandlerExecute(object sender, EventArgs e)
         {
-            if (_appCaches?.RequestCache.Get("articulate-refresh-routes") == null) return;
+            if (_appCaches?.RequestCache.Get(RefreshRoutesToken) == null) return;
             //the token was found so that means one or more articulate root nodes were changed in this request, rebuild the routes.
             _articulateRoutes.MapRoutes(RouteTable.Routes);
         }
@@ -218,7 +220,7 @@ namespace Articulate.Components
         {
             foreach (var c in e.SavedEntities)
             {
-                if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals("Articulate")) continue;
+                if (!c.WasPropertyDirty("Id") || !c.ContentType.Alias.InvariantEquals(ArticulateContentTypeName)) continue;
 
                 //it's a root blog node, set up the required sub nodes (archive , authors) if they don't exist
 
@@ -239,10 +241,10 @@ namespace Articulate.Components
         {
             if (HttpContext.Current == null) throw new InvalidOperationException("HttpContext is null");
 
-            if (e.ContainsKey("articulate")) return;
+            if (e.ContainsKey(ArticulateContentTypeName)) return;
 
             var urlHelper = new UrlHelper(new RequestContext(new HttpContextWrapper(HttpContext.Current), new RouteData()));
-            e["articulate"] = new Dictionary<string, object>
+            e[ArticulateContentTypeName] = new Dictionary<string, object>
             {
                 {"articulateImportBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.PostImportBlogMl(null))},
                 {"articulateDataInstallerBaseUrl", urlHelper.GetUmbracoApiServiceBaseUrl<ArticulateBlogDataInstallController>(controller => controller.PostInstall())},
@@ -293,44 +295,71 @@ namespace Articulate.Components
                     {
                         if (payload.ChangeTypes.HasTypesAny(TreeChangeTypes.Remove | TreeChangeTypes.RefreshBranch | TreeChangeTypes.RefreshNode))
                         {
-                            RefreshById(payload.Id);
+                            RefreshById(payload.Id, payload.ChangeTypes);
                         }
                     }
                     break;
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
-                    RefreshById((int)e.MessageObject);
+                    RefreshById((int)e.MessageObject, TreeChangeTypes.Remove);
                     break;
                 case MessageType.RefreshByInstance:
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
                     if (content == null) return;
-                    //TODO: There is a case when there are URL conflicts with Articulate data that when the other data is unpublished
-                    // we'd want to rebuild articulate routes, but not sure how to handle that and we don't want to rebuild everytime
-                    // something is unpublished
-                    if (content.ContentType.Alias.InvariantEquals("Articulate"))
+                    
+                    if (content.ContentType.Alias.InvariantEquals(ArticulateContentTypeName))
                     {
                         //ensure routes are rebuilt
-                        _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                        _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
                     }
                     break;
             }
         }
 
-        private void RefreshById(int id)
+        private void RefreshById(int id, TreeChangeTypes changeTypes)
         {
-            var item = _umbracoContextAccessor?.UmbracoContext?.ContentCache.GetById(id);
-            if (item != null && item.ContentType.Alias.InvariantEquals("Articulate"))
+            var item = _umbracoContextAccessor?.UmbracoContext?.Content.GetById(id);
+
+            // if it's directly related to an articulate node
+            if (item != null && item.ContentType.Alias.InvariantEquals(ArticulateContentTypeName))
             {
                 //ensure routes are rebuilt
-                _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+                _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
+                return;
+            }
+
+            // We need to handle cases where the state of siblings at a lower sort order directly affect an Articulate node's routing.
+            // This will happen on copy, move, sort, unpublish, delete
+            if (item == null)
+            {
+                item = _umbracoContextAccessor?.UmbracoContext?.Content.GetById(true, id);
+
+                // This will occur on delete, then what?
+                // TODO: How would we know this is a node that might be at the same level/above?
+                if (item == null) return; 
+            }
+
+            var articulateContentType = _umbracoContextAccessor?.UmbracoContext?.Content.GetContentType(ArticulateContentTypeName);
+            if (articulateContentType != null)
+            {
+                var articulateNodes = _umbracoContextAccessor?.UmbracoContext?.Content.GetByContentType(articulateContentType);
+                foreach (var node in articulateNodes)
+                {
+                    // if the item is same level with a lower sort order it can directly affect the articulate node's route
+                    if (node.Level == item.Level && node.SortOrder > item.SortOrder)
+                    {
+                        //ensure routes are rebuilt
+                        _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
+                    }
+                }
             }
         }
 
         private void DomainCacheRefresher_CacheUpdated(DomainCacheRefresher sender, CacheRefresherEventArgs e)
         {
             //ensure routes are rebuilt
-            _appCaches.RequestCache.GetCacheItem("articulate-refresh-routes", () => true);
+            _appCaches.RequestCache.GetCacheItem(RefreshRoutesToken, () => true);
         }
 
     }

@@ -78,8 +78,7 @@ namespace Articulate.Routing
                         var uriPath = nodeByPathGroup.Key;
 
                         MapRssRoute(routes, uriPath, nodesAsArray);
-                        MapSearchRoute(routes, uriPath, nodesAsArray);
-                        MapTagsAndCategoriesRoute(routes, uriPath, nodesAsArray);
+                        MapSearchRoute(routes, uriPath, nodesAsArray);                        
                         MapMarkdownEditorRoute(routes, uriPath, nodesAsArray);
                         MapAuthorsRssRoute(routes, uriPath, nodesAsArray);
 
@@ -90,6 +89,9 @@ namespace Articulate.Routing
                             MapRsdRoute(routes, uriPath, articulateRootNode);
                             MapOpenSearchRoute(routes, uriPath, articulateRootNode);
                         }
+
+                        // tags/cats routes are the least specific
+                        MapTagsAndCategoriesRoute(routes, uriPath, nodesAsArray);
                     }
                 }
             }
