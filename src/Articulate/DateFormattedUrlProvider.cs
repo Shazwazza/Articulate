@@ -30,9 +30,9 @@ namespace Articulate
                 var date = content.Value<DateTime>("publishedDate");
                 if (date != null)
                 {
-                    var parentPath = base.GetUrl(umbracoContext, content, mode, culture, current);
+                    var parentPath = base.GetUrl(umbracoContext, content.Parent, mode, culture, current);
                     var urlFolder = string.Format("{0}/{1:d2}/{2:d2}", date.Year, date.Month, date.Day);
-                    var newUrl = parentPath.Text.EnsureEndsWith("/") + urlFolder + "/" + content.Url;
+                    var newUrl = parentPath.Text.EnsureEndsWith("/") + urlFolder + "/" + content.UrlSegment.EnsureEndsWith("/");
 
                     return UrlInfo.Url(newUrl, culture);
                 }
