@@ -65,7 +65,7 @@ namespace Articulate.Models
 
                 if (_listItems == null)
                 {
-                    _resolvedList = base.Children.Select(x => new PostModel(x)).ToArray();
+                    _resolvedList = base.ChildrenForAllCultures.Select(x => new PostModel(x)).ToArray();
                     return _resolvedList;
                 }
 
@@ -91,5 +91,7 @@ namespace Articulate.Models
         /// The list of blog posts
         /// </summary>
         public override IEnumerable<IPublishedContent> Children => Posts;
+
+        public override IEnumerable<IPublishedContent> ChildrenForAllCultures => Posts;
     }
 }
