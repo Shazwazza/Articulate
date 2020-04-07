@@ -1,8 +1,8 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2019")]
+[assembly: AssemblyCopyright("Copyright © Shannon Deminick 2020")]
 
 [assembly: AssemblyCompany("Shannon Deminick")]
 
@@ -11,6 +11,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("4.1.1")]
-[assembly: AssemblyFileVersion("4.1.1")]
-[assembly: AssemblyInformationalVersion("4.1.1")]
+[assembly: AssemblyVersion("4.1.2")]
+[assembly: AssemblyFileVersion("4.1.2")]
+[assembly: AssemblyInformationalVersion("4.1.2")]

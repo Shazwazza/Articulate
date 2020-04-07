@@ -57,15 +57,15 @@ if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 $SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
 (gc -Path $SolutionInfoPath) `
 	-replace "(?<=Version\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
-	sc -Path $SolutionInfoPath -Encoding UTF8
+	Set-Content -Path $SolutionInfoPath -Encoding UTF8
 (gc -Path $SolutionInfoPath) `
 	-replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
-	sc -Path $SolutionInfoPath -Encoding UTF8
+	Set-Content -Path $SolutionInfoPath -Encoding UTF8
 # Set the copyright
-$Copyright = "Copyright © Shannon Deminick " + (Get-Date).year;
+$Copyright = "Copyright " + [char]0x00A9 + " Shannon Deminick " + (Get-Date).year
 (gc -Path $SolutionInfoPath) `
 	-replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
-	sc -Path $SolutionInfoPath -Encoding UTF8;
+	Set-Content -Path $SolutionInfoPath -Encoding UTF8;
 
 # Build the solution in release mode
 $SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Articulate.sln";
