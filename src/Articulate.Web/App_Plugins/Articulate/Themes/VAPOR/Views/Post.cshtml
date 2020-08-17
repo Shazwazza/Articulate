@@ -1,9 +1,13 @@
 @using Articulate
 @using Umbraco.Core
-@model Articulate.Models.PostModel
+@using Umbraco.Core.Models.PublishedContent
+@using Umbraco.Core.PropertyEditors.ValueConverters
+@inherits UmbracoViewPage<Articulate.Models.PostModel>
 @{
     Layout = "Master.cshtml";
     ViewBag.CssBodyClass = "post-template";
+    //var content = Umbraco.Content(Umbraco.AssignedContentItem.Id);
+    //Response.Write(content.Value<IPublishedContent>("articulateImage").Id);
 }
 
 <main class="content" role="main">
@@ -22,9 +26,9 @@
 
         <section class="post-content">
 
-            @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+            @if (!Model.CroppedArticulateImageUrl.IsNullOrWhiteSpace())
             {
-                <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
+                <img class="postImage" alt="@Model.Name" src="@Model.CroppedArticulateImageUrl" />
             }
 
             <div>

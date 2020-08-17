@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -13,4 +13,4 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("4.1.2")]
 [assembly: AssemblyFileVersion("4.1.2")]
-[assembly: AssemblyInformationalVersion("4.1.2")]
+[assembly: AssemblyInformationalVersion("4.1.2articulate4.1.2")]

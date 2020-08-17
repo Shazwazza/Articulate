@@ -88,6 +88,8 @@ namespace Articulate.Models
 
         private ImageCropperValue _postImage;
 
+        private IPublishedContent _articulateImage;
+
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
@@ -101,7 +103,19 @@ namespace Articulate.Models
             }
         }
 
+        public IPublishedContent ArticulateImage
+        {
+            get
+            {
+                return _articulateImage ??
+                       (_articulateImage = this.Value<IPublishedContent>("articulateImage"));
+            }
+        }
+
+
         private string _croppedPostImageUrl;
+
+        private string _croppedArticulateImageUrl;
 
         /// <summary>
         /// Cropped version of the PostImageUrl
@@ -109,6 +123,11 @@ namespace Articulate.Models
         public string CroppedPostImageUrl => _croppedPostImageUrl ?? (_croppedPostImageUrl =
                                                  PostImage != null
                                                      ? PostImage.Src + PostImage.GetCropUrl("wide") + "&upscale=false"
+                                                     : null);
+
+        public string CroppedArticulateImageUrl => _croppedArticulateImageUrl ?? (_croppedArticulateImageUrl =
+                                                ArticulateImage != null
+                                                     ? ArticulateImage.GetCropUrl("wide") + "&upscale=false"
                                                      : null);
 
         /// <summary>
@@ -122,14 +141,14 @@ namespace Articulate.Models
             {
                 if (this.HasProperty("richText"))
                 {
-                    return this.Value<IHtmlString>("richText");                    
+                    return this.Value<IHtmlString>("richText");
                 }
                 else
                 {
                     var val = this.Value<IHtmlString>("markdown");
                     return val;
                 }
-                
+
             }
         }
 
