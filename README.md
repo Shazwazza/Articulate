@@ -7,7 +7,7 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform
+Supporting all the features you had want in a blogging platform
 
 * Categories & Tags
 * Themes
