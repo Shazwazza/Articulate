@@ -1,6 +1,6 @@
 ![Articulate](assets/Logo.png?raw=true)
 
-> A wonderful Blog engine built on Umbraco
+> A wonderful Blog engine built on Umbraco, really amazing blog
 
 ---
 _💓💖❤️ If you use and like Articulate please consider [becoming a GitHub Sponsor](https://github.com/sponsors/Shazwazza/) ❤️💖💓_
