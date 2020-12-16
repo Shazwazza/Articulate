@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Web.Mvc;
 using Articulate.Models;
+using Umbraco.Core.Cache;
+using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 
@@ -11,13 +15,18 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateArchiveController : ListControllerBase
     {
+        public ArticulateArchiveController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper)
+            : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        {
+        }
+
         /// <summary>
         /// Declare new Index action with optional page number
         /// </summary>
         /// <param name="model"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Index(RenderModel model, int? p)
+        public ActionResult Index(ContentModel model, int? p)
         {
             return RenderView(model, p);
         }
@@ -28,17 +37,17 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(RenderModel model)
+        public override ActionResult Index(ContentModel model)
         {
             return RenderView(model);
         }
 
-        private ActionResult RenderView(IRenderModel model, int? p = null)
+        private ActionResult RenderView(IContentModel model, int? p = null)
         {
             var archive = new MasterModel(model.Content);
 
             // redirect to root node when "redirectArchive" is configured
-            if (archive.RootBlogNode.GetPropertyValue<bool>("redirectArchive"))
+            if (archive.RootBlogNode.Value<bool>("redirectArchive"))
             {
                 return RedirectPermanent(archive.RootBlogNode.Url);
             }
@@ -47,7 +56,7 @@ namespace Articulate.Controllers
             var count = Umbraco.GetPostCount(archive.Id);
 
             int pageSize;
-            if(!Int32.TryParse(archive.RootBlogNode.GetPropertyValue<string>("pageSize"), out pageSize))
+            if(!Int32.TryParse(archive.RootBlogNode.Value<string>("pageSize"), out pageSize))
             {
                 pageSize = 10;
             }
