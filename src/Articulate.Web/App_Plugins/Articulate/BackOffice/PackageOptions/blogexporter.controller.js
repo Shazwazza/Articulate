@@ -33,7 +33,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogExporter",
 
             if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateExportForm })) {
 
-                formHelper.resetForm({ scope: $scope });
+                formHelper.resetForm({ scope: $scope, formCtrl: vm.articulateExportForm });
 
                 vm.buttonState = "busy";
                 vm.status = "Please wait...";

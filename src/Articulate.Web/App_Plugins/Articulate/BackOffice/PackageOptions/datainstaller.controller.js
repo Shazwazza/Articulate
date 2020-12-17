@@ -21,7 +21,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.DataInstaller",
 
             if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateInstallerForm })) {
 
-                formHelper.resetForm({ scope: $scope });
+                formHelper.resetForm({ scope: $scope, formCtrl: vm.articulateInstallerForm });
 
                 vm.buttonState = "busy";
                 vm.status = "Please wait...";

@@ -80,7 +80,7 @@ angular.module("umbraco").controller("Articulate.Dashboard.BlogImporter",
 
             if (formHelper.submitForm({ scope: $scope, formCtrl: vm.articulateImportForm })) {
 
-                formHelper.resetForm({ scope: $scope });
+                formHelper.resetForm({ scope: $scope, formCtrl: vm.articulateImportForm });
 
                 vm.buttonState = "busy";
                 vm.status = "Please wait...";

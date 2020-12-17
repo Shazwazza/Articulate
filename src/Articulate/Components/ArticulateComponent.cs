@@ -176,13 +176,13 @@ namespace Articulate.Components
                         "publishedDate",
                         contentTypes[content.ContentTypeId],
                         // if the publishedDate is not already set, then set it 
-                        (c, ct, culture) => c.GetValue("publishedDate", culture.Culture) == null ? (DateTime?)DateTime.Now : null);
+                        (c, ct, culture) => c.GetValue("publishedDate", culture?.Culture) == null ? (DateTime?)DateTime.Now : null);
 
                     content.SetAllPropertyCultureValues(
                         "author",
                         contentTypes[content.ContentTypeId],
                         // if the author is not already set, then set it 
-                        (c, ct, culture) => c.GetValue("author", culture.Culture) == null ? _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser?.Name : null);
+                        (c, ct, culture) => c.GetValue("author", culture?.Culture) == null ? _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser?.Name : null);
 
                     if (!content.HasIdentity)
                     {
@@ -207,7 +207,7 @@ namespace Articulate.Components
                             (c, ct, culture) =>
                             {
                                 // don't set it if it's already set
-                                var currentExcerpt = c.GetValue("excerpt", culture.Culture)?.ToString();
+                                var currentExcerpt = c.GetValue("excerpt", culture?.Culture)?.ToString();
                                 if (!currentExcerpt.IsNullOrWhiteSpace()) return null;
 
                                 if (content.HasProperty("richText"))
@@ -235,7 +235,7 @@ namespace Articulate.Components
                                 (c, ct, culture) =>
                                 {
                                     // don't set it if it's already set
-                                    var currentSocialDescription = c.GetValue("socialDescription", culture.Culture)?.ToString();
+                                    var currentSocialDescription = c.GetValue("socialDescription", culture?.Culture)?.ToString();
                                     if (!currentSocialDescription.IsNullOrWhiteSpace()) return null;
 
                                     var excerptProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "excerpt");
