@@ -285,20 +285,20 @@ namespace Articulate.Packaging
             var root = _contentService.CreateWithInvariantOrDefaultCultureName("Blog", Constants.System.Root, articulateType, _localizationService);
 
             // TODO: Deal with variants for all of these
-            root.SetValue("theme", "VAPOR");
-            root.SetValue("pageSize", 10);
-            root.SetValue("categoriesUrlName", "categories");
-            root.SetValue("tagsUrlName", "tags");
-            root.SetValue("searchUrlName", "search");
-            root.SetValue("categoriesPageName", "Categories");
-            root.SetValue("tagsPageName", "Tags");
-            root.SetValue("searchPageName", "Search results");
-            root.SetValue("blogTitle", "Articulate Blog");
-            root.SetValue("blogDescription", "Welcome to my blog");
-            root.SetValue("extractFirstImage", true);
-            root.SetValue("redirectArchive", true);
-            root.SetValue("blogLogo", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/logo.png','crops': []}");
-            root.SetValue("blogBanner", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/banner.jpg','crops': []}");
+            root.SetInvariantOrDefaultCultureValue("theme", "VAPOR", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("pageSize", 10, articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("categoriesUrlName", "categories", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("tagsUrlName", "tags", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("searchUrlName", "search", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("categoriesPageName", "Categories", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("tagsPageName", "Tags", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("searchPageName", "Search results", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("blogTitle", "Articulate Blog", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("blogDescription", "Welcome to my blog", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("extractFirstImage", true, articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("redirectArchive", true, articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("blogLogo", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/logo.png','crops': []}", articulateType, _localizationService);
+            root.SetInvariantOrDefaultCultureValue("blogBanner", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/banner.jpg','crops': []}", articulateType, _localizationService);
 
             var result = _contentService.SaveAndPublish(root);
             if (!result.Success)
@@ -348,9 +348,9 @@ namespace Articulate.Packaging
             var author = _contentService.CreateWithInvariantOrDefaultCultureName("Jane Doe", authors.Id, authorType, _localizationService);
 
             // TODO: Deal with variants for all of these
-            author.SetValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.");
-            author.SetValue("authorUrl", "https://github.com/shazwazza/articulate");
-            author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}");
+            author.SetInvariantOrDefaultCultureValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.", authorType, _localizationService);
+            author.SetInvariantOrDefaultCultureValue("authorUrl", "https://github.com/shazwazza/articulate", authorType, _localizationService);
+            author.SetInvariantOrDefaultCultureValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}", authorType, _localizationService);
 
             result = _contentService.SaveAndPublish(author);
             if (!result.Success)
