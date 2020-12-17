@@ -28,6 +28,9 @@ using File = System.IO.File;
 
 namespace Articulate.Controllers
 {
+    /// <summary>
+    /// Controller for handling the a-new mardown editor endpoint for creating blog posts
+    /// </summary>
     public class MardownEditorApiController : UmbracoAuthorizedApiController
     {
         private readonly IMediaFileSystem _mediaFileSystem;
@@ -108,50 +111,49 @@ namespace Articulate.Controllers
 
             model.Body = parsedImageResponse.BodyText;
 
-            var content = Services.ContentService.Create(
+            var contentType = Services.ContentTypeService.Get("ArticulateMarkdown");
+            if (contentType == null)
+            {
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Forbidden, "No ArticulateMarkdown content type found"));
+            }
+            var content = Services.ContentService.CreateWithInvariantOrDefaultCultureName(
                 model.Title,
                 archive,
-                "ArticulateMarkdown",
+                contentType,
+                Services.LocalizationService,
                 UmbracoContext.Security.GetUserId().Result);
 
-            // TODO: Deal with variants
-            content.SetValue("markdown", model.Body);
+            content.SetInvariantOrDefaultCultureValue("markdown", model.Body, contentType, Services.LocalizationService);
 
             if (!string.IsNullOrEmpty(parsedImageResponse.FirstImage))
             {
-                // TODO: Deal with variants
-                content.SetValue("postImage", parsedImageResponse.FirstImage);
+                content.SetInvariantOrDefaultCultureValue("postImage", parsedImageResponse.FirstImage, contentType, Services.LocalizationService);
             }
 
             if (model.Excerpt.IsNullOrWhiteSpace() == false)
             {
-                // TODO: Deal with variants
-                content.SetValue("excerpt", model.Excerpt);
+                content.SetInvariantOrDefaultCultureValue("excerpt", model.Excerpt, contentType, Services.LocalizationService);
             }
 
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                // TODO: Deal with variants
-                content.AssignTags("tags", tags);
+                content.AssignInvariantOrDefaultCultureTags("tags", tags, contentType, Services.LocalizationService);
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                // TODO: Deal with variants
-                content.AssignTags("categories", cats);
+                content.AssignInvariantOrDefaultCultureTags("categories", cats, contentType, Services.LocalizationService);
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
             {
-                // TODO: Deal with variants
-                content.SetValue("umbracoUrlName", model.Slug);
+                content.SetInvariantOrDefaultCultureValue("umbracoUrlName", model.Slug, contentType, Services.LocalizationService);
             }
 
             //author is required
-            // TODO: Deal with variants
-            content.SetValue("author", UmbracoContext?.Security?.CurrentUser?.Name ?? "Unknown");
+            content.SetInvariantOrDefaultCultureValue("author", UmbracoContext?.Security?.CurrentUser?.Name ?? "Unknown", contentType, Services.LocalizationService);
 
             var status = Services.ContentService.SaveAndPublish(content, userId: UmbracoContext.Security.GetUserId().Result);
             if (status.Success == false)
