@@ -26,6 +26,19 @@ namespace Articulate
             return content;
         }
 
+        public static IContent CreateWithInvariantOrDefaultCultureName(
+            this IContentService contentService,
+            string name,
+            int parent,
+            IContentTypeComposition contentType,
+            ILocalizationService localizationService,
+            int userId = -1)
+        {
+            var content = contentService.Create(name, parent, contentType.Alias, userId);
+            content.SetInvariantOrDefaultCultureName(name, contentType, localizationService);
+            return content;
+        }
+
         public static void SetInvariantOrDefaultCultureName(
             this IContentBase content,
             string name,

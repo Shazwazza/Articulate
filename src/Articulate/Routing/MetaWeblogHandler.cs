@@ -11,6 +11,7 @@ using Articulate.Models.MetaWeblog;
 using CookComputing.XmlRpc;
 using HeyRed.MarkdownSharp;
 using Umbraco.Core;
+using Umbraco.Core.Composing;
 using Umbraco.Core.IO;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
@@ -28,14 +29,24 @@ namespace Articulate.Routing
         private readonly ITagService _tagService;
         private readonly IUserService _userService;
         private readonly IMediaFileSystem _mediaFileSystem;
+        private readonly ILocalizationService _localizationService;
+        private readonly IContentTypeService _contentTypeService;
 
+        [Obsolete("Use ctor with all parameters instead")]
         public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem)
+            : this(umbracoContextAccessor, contentService, tagService, userService, mediaFileSystem, Current.Services.LocalizationService, Current.Services.ContentTypeService)
+        {
+        }
+
+        public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem, ILocalizationService localizationService, IContentTypeService contentTypeService)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
             _contentService = contentService;
             _tagService = tagService;
             _userService = userService;
             _mediaFileSystem = mediaFileSystem;
+            _localizationService = localizationService;
+            _contentTypeService = contentTypeService;
         }
 
         public int BlogRootId { get; internal set; }
@@ -230,10 +241,12 @@ namespace Articulate.Routing
 
         private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
+            var contentType = _contentTypeService.Get(content.ContentTypeId);
+            if (contentType == null) throw new InvalidOperationException("No content type found with id " + content.ContentTypeId);
+
             content.Name = post.Title;
 
-            // TODO: Deal with variants
-            content.SetValue("author", user.Name);
+            content.SetInvariantOrDefaultCultureValue("author", user.Name, contentType, _localizationService);
             if (content.HasProperty("richText"))
             {
                 var firstImage = "";
@@ -271,15 +284,13 @@ namespace Articulate.Routing
                     return null;
                 });
 
-                // TODO: Deal with variants
-                content.SetValue("richText", contentToSave);
+                content.SetInvariantOrDefaultCultureValue("richText", contentToSave, contentType, _localizationService);
 
                 if (extractFirstImageAsProperty
                     && content.HasProperty("postImage")
                     && !firstImage.IsNullOrWhiteSpace())
                 {
-                    // TODO: Deal with variants
-                    content.SetValue("postImage", firstImage);
+                    content.SetInvariantOrDefaultCultureValue("postImage", firstImage, contentType, _localizationService);
                     //content.SetValue("postImage", JsonConvert.SerializeObject(JObject.FromObject(new
                     //{
                     //    src = firstImage
@@ -289,39 +300,32 @@ namespace Articulate.Routing
 
             if (!post.Slug.IsNullOrWhiteSpace())
             {
-                // TODO: Deal with variants
-                content.SetValue("umbracoUrlName", post.Slug);
+                content.SetInvariantOrDefaultCultureValue("umbracoUrlName", post.Slug, contentType, _localizationService);
             }
             if (!post.Excerpt.IsNullOrWhiteSpace())
             {
-                // TODO: Deal with variants
-                content.SetValue("excerpt", post.Excerpt);
+                content.SetInvariantOrDefaultCultureValue("excerpt", post.Excerpt, contentType, _localizationService);
             }
 
             if (post.AllowComments == 1)
             {
-                // TODO: Deal with variants
-                content.SetValue("enableComments", 1);
+                content.SetInvariantOrDefaultCultureValue("enableComments", 1, contentType, _localizationService);
             }
             else if (post.AllowComments == 2)
             {
-                // TODO: Deal with variants
-                content.SetValue("enableComments", 0);
+                content.SetInvariantOrDefaultCultureValue("enableComments", 0, contentType, _localizationService);
             }
 
-            // TODO: Deal with variants
-            content.AssignTags("categories", post.Categories);
+            content.AssignInvariantOrDefaultCultureTags("categories", post.Categories, contentType, _localizationService);
             var tags = post.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
 
-            // TODO: Deal with variants
-            content.AssignTags("tags", tags);
+            content.AssignInvariantOrDefaultCultureTags("tags", tags, contentType, _localizationService);
 
             if (publish)
             {
                 if (post.CreateDate != DateTime.MinValue)
                 {
-                    // TODO: Deal with variants
-                    content.SetValue("publishedDate", post.CreateDate);
+                    content.SetInvariantOrDefaultCultureValue("publishedDate", post.CreateDate, contentType, _localizationService);
                 }
 
                 _contentService.SaveAndPublish(content, userId: user.Id);

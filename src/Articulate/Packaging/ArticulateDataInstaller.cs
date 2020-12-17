@@ -25,11 +25,26 @@ namespace Articulate.Packaging
         private readonly IDataTypeService _dataTypeService;
         private readonly ILogger _logger;
         private readonly IMediaFileSystem _mediaFileSystem;
+        private readonly ILocalizationService _localizationService;
 
+        [Obsolete("Use ctor with all parameters instead")]
         public ArticulateDataInstaller(IContentTypeService contentTypeService, IContentService contentService,
             IPackageInstallation packageInstallation,
             IPackagingService packagingService, IDataTypeService dataTypeService, ILogger logger,
             IMediaFileSystem mediaFileSystem)
+            : this(contentTypeService, contentService, packageInstallation, packagingService, dataTypeService, logger, mediaFileSystem, Current.Services.LocalizationService)
+        {
+        }
+
+        public ArticulateDataInstaller(
+            IContentTypeService contentTypeService,
+            IContentService contentService,
+            IPackageInstallation packageInstallation,
+            IPackagingService packagingService,
+            IDataTypeService dataTypeService,
+            ILogger logger,
+            IMediaFileSystem mediaFileSystem,
+            ILocalizationService localizationService)
         {
             _contentTypeService = contentTypeService;
             _contentService = contentService;
@@ -38,6 +53,7 @@ namespace Articulate.Packaging
             _dataTypeService = dataTypeService;
             _logger = logger;
             _mediaFileSystem = mediaFileSystem;
+            _localizationService = localizationService;
         }
 
         /// <summary>
@@ -257,9 +273,16 @@ namespace Articulate.Packaging
         {
             InstallMedia();
 
+            var articulateType = _contentTypeService.Get("Articulate");
+            if (articulateType == null)
+            {
+                _logger.Warn<ArticulateDataInstaller>("No 'Articulate' content type found");
+                return null;
+            }
+
             //Create the root node - this will automatically create the authors and archive nodes
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
-            var root = _contentService.Create("Blog", Constants.System.Root, "Articulate");
+            var root = _contentService.CreateWithInvariantOrDefaultCultureName("Blog", Constants.System.Root, articulateType, _localizationService);
 
             // TODO: Deal with variants for all of these
             root.SetValue("theme", "VAPOR");
@@ -313,9 +336,16 @@ namespace Articulate.Packaging
                 return null;
             }
 
+            var authorType = _contentTypeService.Get("ArticulateAuthor");
+            if (authorType == null)
+            {
+                _logger.Warn<ArticulateDataInstaller>("No 'ArticulateAuthor' content type found");
+                return null;
+            }
+
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
-            var author = _contentService.Create("Jane Doe", authors.Id, "ArticulateAuthor");
+            var author = _contentService.CreateWithInvariantOrDefaultCultureName("Jane Doe", authors.Id, authorType, _localizationService);
 
             // TODO: Deal with variants for all of these
             author.SetValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.");
@@ -333,17 +363,22 @@ namespace Articulate.Packaging
             //Create a test posts
             _logger.Info<ArticulateDataInstaller>("Creating test blog post 1");
 
-            var post1 = _contentService.Create("Welcome", archive.Id, "ArticulateMarkdown");
+            var markdownType = _contentTypeService.Get("ArticulateMarkdown");
+            if (markdownType == null)
+            {
+                _logger.Warn<ArticulateDataInstaller>("No 'ArticulateMarkdown' content type found");
+                return null;
+            }
+            var post1 = _contentService.CreateWithInvariantOrDefaultCultureName("Welcome", archive.Id, markdownType, _localizationService);
 
-            // TODO: Deal with variants for all of these
-            post1.SetValue("author", "Jane Doe");
-            post1.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
-            post1.AssignTags("categories", new[] { "Articulate" });
-            post1.AssignTags("tags", new[] { "Cafe", "Markdown" });
-            post1.SetValue("publishedDate", DateTime.Now);
-            post1.SetValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post1.jpg','crops': []}");
-            post1.SetValue("socialDescription", "Welcome to blogging with Articulate, a fully functional blog engine supporting all of the blogging features you'd want.");
-            post1.SetValue("markdown", @"## Hi! Welcome to Articulate :)
+            post1.SetInvariantOrDefaultCultureValue("author", "Jane Doe", markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.", markdownType, _localizationService);
+            post1.AssignInvariantOrDefaultCultureTags("categories", new[] { "Articulate" }, markdownType, _localizationService);
+            post1.AssignInvariantOrDefaultCultureTags("tags", new[] { "Cafe", "Markdown" }, markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now, markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post1.jpg','crops': []}", markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("socialDescription", "Welcome to blogging with Articulate, a fully functional blog engine supporting all of the blogging features you'd want.", markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("markdown", @"## Hi! Welcome to Articulate :)
 
 This is a fully functional blog engine supporting many features:
 
@@ -370,7 +405,8 @@ Live Writer integration is fully functional, to configure Live Writer just use t
 
 You can post directly from your mobile (including images and photos). This editor can be found at the path of ""/a-new"". Click [Here](../a-new) to see it in action. Now you can post your thoughts wherever you are, from a cafe, on the road, etc... all without needing your computer. 
 
-Enjoy!");
+Enjoy!", markdownType, _localizationService);
+
             result = _contentService.SaveAndPublish(post1);
             if (!result.Success)
             {
@@ -378,19 +414,19 @@ Enjoy!");
                 return null;
             }
 
-            var post2 = _contentService.Create("Latte art", archive.Id, "ArticulateMarkdown");
+            var post2 = _contentService.CreateWithInvariantOrDefaultCultureName("Latte art", archive.Id, markdownType, _localizationService);
 
-            // TODO: Deal with variants for all of these
-            post2.SetValue("author", "Jane Doe");
-            post2.SetValue("excerpt", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ");
-            post2.AssignTags("categories", new[] { "Coffee" });
-            post2.AssignTags("tags", new[] { "Cafe", "Milk", "Espresso" });
-            post2.SetValue("publishedDate", DateTime.Now.AddDays(-10));
-            post2.SetValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post2.jpg','crops': []}");
-            post2.SetValue("socialDescription", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ");
-            post2.SetValue("markdown", @"Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. Latte art is hard to create consistently because of the many factors involved with creating coffee, from the coffee acidity, temperature, to the type of milk and equipment being used. Don't expect that you'll be able to make latte art the first time you try, in fact it will probably take you a great number of tries to make something work and you'll be hoping that you're using some quality equipment, otherwise you'll stand no chance.
+            post2.SetInvariantOrDefaultCultureValue("author", "Jane Doe", markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("excerpt", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ", markdownType, _localizationService);
+            post2.AssignInvariantOrDefaultCultureTags("categories", new[] { "Coffee" }, markdownType, _localizationService);
+            post2.AssignInvariantOrDefaultCultureTags("tags", new[] { "Cafe", "Milk", "Espresso" }, markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now.AddDays(-10), markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post2.jpg','crops': []}", markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("socialDescription", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ", markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("markdown", @"Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. Latte art is hard to create consistently because of the many factors involved with creating coffee, from the coffee acidity, temperature, to the type of milk and equipment being used. Don't expect that you'll be able to make latte art the first time you try, in fact it will probably take you a great number of tries to make something work and you'll be hoping that you're using some quality equipment, otherwise you'll stand no chance.
 
-Good latte art means you've found a cafe with a good barista so there's a good chance if you're seeing a a great design in your coffee, it's also going to taste wonderful.");
+Good latte art means you've found a cafe with a good barista so there's a good chance if you're seeing a a great design in your coffee, it's also going to taste wonderful.", markdownType, _localizationService);
+
             result = _contentService.SaveAndPublish(post2);
             if (!result.Success)
             {
