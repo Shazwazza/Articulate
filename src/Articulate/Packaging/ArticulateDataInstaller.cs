@@ -284,7 +284,6 @@ namespace Articulate.Packaging
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = _contentService.CreateWithInvariantOrDefaultCultureName("Blog", Constants.System.Root, articulateType, _localizationService);
 
-            // TODO: Deal with variants for all of these
             root.SetInvariantOrDefaultCultureValue("theme", "VAPOR", articulateType, _localizationService);
             root.SetInvariantOrDefaultCultureValue("pageSize", 10, articulateType, _localizationService);
             root.SetInvariantOrDefaultCultureValue("categoriesUrlName", "categories", articulateType, _localizationService);
@@ -347,7 +346,6 @@ namespace Articulate.Packaging
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
             var author = _contentService.CreateWithInvariantOrDefaultCultureName("Jane Doe", authors.Id, authorType, _localizationService);
 
-            // TODO: Deal with variants for all of these
             author.SetInvariantOrDefaultCultureValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.", authorType, _localizationService);
             author.SetInvariantOrDefaultCultureValue("authorUrl", "https://github.com/shazwazza/articulate", authorType, _localizationService);
             author.SetInvariantOrDefaultCultureValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}", authorType, _localizationService);
