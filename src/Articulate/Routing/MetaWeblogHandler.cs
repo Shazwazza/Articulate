@@ -46,7 +46,7 @@ namespace Articulate.Routing
 
             var root = BlogRoot();
 
-            var node = root.ChildrenOfType("ArticulateArchive").FirstOrDefault();
+            var node = root.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -83,7 +83,7 @@ namespace Articulate.Routing
                 return false;
             }
 
-            var node = BlogRoot().ChildrenOfType("ArticulateArchive").FirstOrDefault();
+            var node = BlogRoot().ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -153,7 +153,7 @@ namespace Articulate.Routing
         {
             ValidateUser(username, password);
 
-            var node = BlogRoot().ChildrenOfType("ArticulateArchive").FirstOrDefault();
+            var node = BlogRoot().ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
             if (node == null)
             {
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
@@ -231,6 +231,8 @@ namespace Articulate.Routing
         private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
             content.Name = post.Title;
+
+            // TODO: Deal with variants
             content.SetValue("author", user.Name);
             if (content.HasProperty("richText"))
             {
@@ -269,12 +271,14 @@ namespace Articulate.Routing
                     return null;
                 });
 
+                // TODO: Deal with variants
                 content.SetValue("richText", contentToSave);
 
                 if (extractFirstImageAsProperty
                     && content.HasProperty("postImage")
                     && !firstImage.IsNullOrWhiteSpace())
                 {
+                    // TODO: Deal with variants
                     content.SetValue("postImage", firstImage);
                     //content.SetValue("postImage", JsonConvert.SerializeObject(JObject.FromObject(new
                     //{
@@ -285,30 +289,38 @@ namespace Articulate.Routing
 
             if (!post.Slug.IsNullOrWhiteSpace())
             {
+                // TODO: Deal with variants
                 content.SetValue("umbracoUrlName", post.Slug);
             }
             if (!post.Excerpt.IsNullOrWhiteSpace())
             {
+                // TODO: Deal with variants
                 content.SetValue("excerpt", post.Excerpt);
             }
 
             if (post.AllowComments == 1)
             {
+                // TODO: Deal with variants
                 content.SetValue("enableComments", 1);
             }
             else if (post.AllowComments == 2)
             {
+                // TODO: Deal with variants
                 content.SetValue("enableComments", 0);
             }
 
+            // TODO: Deal with variants
             content.AssignTags("categories", post.Categories);
             var tags = post.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+
+            // TODO: Deal with variants
             content.AssignTags("tags", tags);
 
             if (publish)
             {
                 if (post.CreateDate != DateTime.MinValue)
                 {
+                    // TODO: Deal with variants
                     content.SetValue("publishedDate", post.CreateDate);
                 }
 

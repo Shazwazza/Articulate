@@ -88,7 +88,7 @@ namespace Articulate.Controllers
             }
 
             var archive = Services.ContentService.GetPagedChildren(model.ArticulateNodeId.Value, 0, int.MaxValue, out long totalArchiveNodes)                
-                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"));
+                .FirstOrDefault(x => x.ContentType.Alias.InvariantEquals(ArticulateConstants.ArticulateArchiveContentTypeAlias));
             if (archive == null)
             {
                 CleanFiles(multiPartRequest);
@@ -114,36 +114,43 @@ namespace Articulate.Controllers
                 "ArticulateMarkdown",
                 UmbracoContext.Security.GetUserId().Result);
 
+            // TODO: Deal with variants
             content.SetValue("markdown", model.Body);
 
             if (!string.IsNullOrEmpty(parsedImageResponse.FirstImage))
             {
+                // TODO: Deal with variants
                 content.SetValue("postImage", parsedImageResponse.FirstImage);
             }
 
             if (model.Excerpt.IsNullOrWhiteSpace() == false)
             {
+                // TODO: Deal with variants
                 content.SetValue("excerpt", model.Excerpt);
             }
 
             if (model.Tags.IsNullOrWhiteSpace() == false)
             {
                 var tags = model.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+                // TODO: Deal with variants
                 content.AssignTags("tags", tags);
             }
 
             if (model.Categories.IsNullOrWhiteSpace() == false)
             {
                 var cats = model.Categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+                // TODO: Deal with variants
                 content.AssignTags("categories", cats);
             }
 
             if (model.Slug.IsNullOrWhiteSpace() == false)
             {
+                // TODO: Deal with variants
                 content.SetValue("umbracoUrlName", model.Slug);
             }
 
             //author is required
+            // TODO: Deal with variants
             content.SetValue("author", UmbracoContext?.Security?.CurrentUser?.Name ?? "Unknown");
 
             var status = Services.ContentService.SaveAndPublish(content, userId: UmbracoContext.Security.GetUserId().Result);

@@ -45,7 +45,7 @@ namespace Articulate.Controllers
             if (!maxItems.HasValue) maxItems = 25;
 
             var listNodes = model.Content.Children
-                .Where(x => x.ContentType.Alias.InvariantEquals("ArticulateArchive"))
+                .Where(x => x.ContentType.Alias.InvariantEquals(ArticulateConstants.ArticulateArchiveContentTypeAlias))
                 .ToArray();
             if (listNodes.Length == 0)
             {
@@ -75,7 +75,7 @@ namespace Articulate.Controllers
             //create a master model
             var masterModel = new MasterModel(author);
 
-            var listNodes = masterModel.RootBlogNode.ChildrenOfType("ArticulateArchive").ToArray();
+            var listNodes = masterModel.RootBlogNode.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).ToArray();
 
             var authorContenet = Umbraco.GetContentByAuthor(listNodes, author.Name, new PagerModel(maxItems.Value, 0, 1));
 

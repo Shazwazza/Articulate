@@ -63,7 +63,7 @@ namespace Articulate.Models
         {
             get
             {
-                var list = RootBlogNode.ChildrenOfType("ArticulateArchive").FirstOrDefault();
+                var list = RootBlogNode.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
                 _blogListNode = list ?? throw new InvalidOperationException("Could not find the ArticulateArchive document for the current rendered page");
                 return _blogListNode;
             }
@@ -77,7 +77,7 @@ namespace Articulate.Models
         {
             get
             {
-                var authors = RootBlogNode.ChildrenOfType("ArticulateAuthors").FirstOrDefault();
+                var authors = RootBlogNode.ChildrenOfType(ArticulateConstants.ArticulateAuthorsContentTypeAlias).FirstOrDefault();
                 _blogAuthorsNode = authors ?? throw new InvalidOperationException("Could not find the ArticulateAuthors document for the current rendered page");
                 return _blogAuthorsNode;
             }

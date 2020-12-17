@@ -39,6 +39,8 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Constants.cs" />
+    <Compile Include="ContentExtensions.cs" />
     <Compile Include="Controllers\ArticulateAuthorsController.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\MarkdownEditorInitModel.cs" />

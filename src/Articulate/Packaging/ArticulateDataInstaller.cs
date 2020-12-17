@@ -260,6 +260,8 @@ namespace Articulate.Packaging
             //Create the root node - this will automatically create the authors and archive nodes
             _logger.Info<ArticulateDataInstaller>("Creating Articulate root node");
             var root = _contentService.Create("Blog", Constants.System.Root, "Articulate");
+
+            // TODO: Deal with variants for all of these
             root.SetValue("theme", "VAPOR");
             root.SetValue("pageSize", 10);
             root.SetValue("categoriesUrlName", "categories");
@@ -285,7 +287,7 @@ namespace Articulate.Packaging
             //get the authors and archive nodes and publish them
             _logger.Info<ArticulateDataInstaller>("Publishing authors and archive nodes");
             var children = _contentService.GetPagedChildren(root.Id, 0, 10, out var total).ToList();
-            var archive = children.FirstOrDefault(x => x.ContentType.Alias == "ArticulateArchive");
+            var archive = children.FirstOrDefault(x => x.ContentType.Alias == ArticulateConstants.ArticulateArchiveContentTypeAlias);
             if (archive == null)
             {
                 _logger.Warn<ArticulateDataInstaller>("Articulate archive node was not created, cannot proceed to publish");
@@ -298,7 +300,7 @@ namespace Articulate.Packaging
                 return null;
             }
 
-            var authors = children.FirstOrDefault(x => x.ContentType.Alias == "ArticulateAuthors");
+            var authors = children.FirstOrDefault(x => x.ContentType.Alias == ArticulateConstants.ArticulateAuthorsContentTypeAlias);
             if (authors == null)
             {
                 _logger.Warn<ArticulateDataInstaller>("Articulate authors node was not created, cannot proceed to publish");
@@ -314,9 +316,12 @@ namespace Articulate.Packaging
             //Create the author
             _logger.Info<ArticulateDataInstaller>("Creating demo author");
             var author = _contentService.Create("Jane Doe", authors.Id, "ArticulateAuthor");
+
+            // TODO: Deal with variants for all of these
             author.SetValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.");
             author.SetValue("authorUrl", "https://github.com/shazwazza/articulate");
             author.SetValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}");
+
             result = _contentService.SaveAndPublish(author);
             if (!result.Success)
             {
@@ -329,6 +334,8 @@ namespace Articulate.Packaging
             _logger.Info<ArticulateDataInstaller>("Creating test blog post 1");
 
             var post1 = _contentService.Create("Welcome", archive.Id, "ArticulateMarkdown");
+
+            // TODO: Deal with variants for all of these
             post1.SetValue("author", "Jane Doe");
             post1.SetValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.");
             post1.AssignTags("categories", new[] { "Articulate" });
@@ -372,6 +379,8 @@ Enjoy!");
             }
 
             var post2 = _contentService.Create("Latte art", archive.Id, "ArticulateMarkdown");
+
+            // TODO: Deal with variants for all of these
             post2.SetValue("author", "Jane Doe");
             post2.SetValue("excerpt", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ");
             post2.AssignTags("categories", new[] { "Coffee" });

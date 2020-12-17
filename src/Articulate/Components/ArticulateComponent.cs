@@ -159,67 +159,38 @@ namespace Articulate.Components
             _articulateRoutes.MapRoutes(RouteTable.Routes);
         }
 
-        /// <summary>
-        /// Used to set a content item property values while taking into account if it's variant or invariant
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="propertyAlias"></param>
-        /// <param name="propertyValue"></param>
-        /// <param name="onlyIfNotSet"></param>
-        private void SetPropertyValue<T>(IContent content, string propertyAlias, Func<IContentType, ContentCultureInfos, T> propertyValueGetter, bool onlyIfNotSet = false)
-        {
-            var contentType = _contentTypeService.Get(content.ContentType.Id);
-            if (contentType == null)
-                throw new InvalidOperationException($"No content type found by id {content.ContentType.Id}");
-
-            if (content.ContentType.VariesByCulture())
-            {
-                foreach(var c in content.CultureInfos)
-                {
-                    var propertyType = contentType.CompositionPropertyTypes.FirstOrDefault(x => x.Alias == propertyAlias);
-                    if (propertyType == null)
-                        throw new InvalidOperationException($"No property type found by alias {propertyAlias}");
-
-                    var propertyValue = propertyValueGetter(contentType, c);
-                    if (propertyValue == null || (propertyValue is string propValAsString && string.IsNullOrWhiteSpace(propValAsString)))
-                        continue;
-
-                    if (onlyIfNotSet && (!content.GetValue<T>(propertyAlias, propertyType.VariesByCulture() ? c.Culture : null)?.Equals(default(T)) ?? false))
-                        continue;
-
-                    content.SetValue(propertyAlias, propertyValue, propertyType.VariesByCulture() ? c.Culture : null);
-                }
-            }
-            else
-            {
-                var propertyValue = propertyValueGetter(contentType, null);
-                if (propertyValue == null || (propertyValue is string propValAsString && string.IsNullOrWhiteSpace(propValAsString)))
-                    return;
-
-                if (onlyIfNotSet && (!content.GetValue<T>(propertyAlias)?.Equals(default(T)) ?? false))
-                    return;
-
-                content.SetValue(propertyAlias, propertyValue);
-            }
-            
-        }
-
         private void ContentService_Saving(IContentService sender, SaveEventArgs<IContent> e)
         {
-            foreach (var content in e.SavedEntities)
+            var saved = e.SavedEntities.ToList();
+            if (saved.Count == 0) return;
+
+            var contentTypes = _contentTypeService.GetAll(saved.Select(x => x.ContentTypeId).ToArray()).ToDictionary(x => x.Id);
+
+            foreach (var content in saved)
             {
 
                 if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
                     || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                 {
-                    SetPropertyValue(content, "publishedDate", (contentType, culture) => DateTime.Now, true);
+                    content.SetAllPropertyCultureValues(
+                        "publishedDate",
+                        contentTypes[content.ContentTypeId],
+                        // if the publishedDate is not already set, then set it 
+                        (c, ct, culture) => c.GetValue("publishedDate", culture.Culture) == null ? (DateTime?)DateTime.Now : null);
 
-                    SetPropertyValue(content, "author", (contentType, culture) => _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser?.Name, true);
+                    content.SetAllPropertyCultureValues(
+                        "author",
+                        contentTypes[content.ContentTypeId],
+                        // if the author is not already set, then set it 
+                        (c, ct, culture) => c.GetValue("author", culture.Culture) == null ? _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser?.Name : null);
 
                     if (!content.HasIdentity)
                     {
-                        //default values
-                        SetPropertyValue(content, "enableComments", (contentType, culture) => 1);
+                        // default values
+                        content.SetAllPropertyCultureValues(
+                            "enableComments",
+                            contentTypes[content.ContentTypeId],
+                            (c, ct, culture) => 1);
                     }
                 }
 
@@ -229,34 +200,47 @@ namespace Articulate.Components
                         || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {
 
-                        //fill in the excerpt if it is empty
-                        SetPropertyValue(content, "excerpt",
-                            (contentType, culture) =>
+                        // fill in the excerpt if it is empty
+                        content.SetAllPropertyCultureValues(
+                            "excerpt",
+                            contentTypes[content.ContentTypeId],
+                            (c, ct, culture) =>
                             {
+                                // don't set it if it's already set
+                                var currentExcerpt = c.GetValue("excerpt", culture.Culture)?.ToString();
+                                if (!currentExcerpt.IsNullOrWhiteSpace()) return null;
+
                                 if (content.HasProperty("richText"))
                                 {
-                                    var richTextProperty = contentType.CompositionPropertyTypes.First(x => x.Alias == "richText");
-                                    var val = content.GetValue<string>("richText", richTextProperty.VariesByCulture() ? culture?.Culture : null);
+                                    var richTextProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "richText");
+                                    var val = c.GetValue<string>("richText", richTextProperty.VariesByCulture() ? culture?.Culture : null);
                                     return _configs.Articulate().GenerateExcerpt(val);
                                 }
                                 else
                                 {
-                                    var markdownProperty = contentType.CompositionPropertyTypes.First(x => x.Alias == "markdown");
-                                    var val = content.GetValue<string>("markdown", markdownProperty.VariesByCulture() ? culture?.Culture : null);
+                                    var markdownProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "markdown");
+                                    var val = c.GetValue<string>("markdown", markdownProperty.VariesByCulture() ? culture?.Culture : null);
                                     var md = new Markdown();
                                     var html = md.Transform(val);
                                     return _configs.Articulate().GenerateExcerpt(html);
                                 }
-                            }, true);
+                            });
 
                         //now fill in the social description if it is empty with the excerpt
                         if (content.HasProperty("socialDescription"))
                         {
-                            SetPropertyValue(content, "socialDescription", (contentType, culture) =>
-                            {
-                                var excerptProperty = contentType.CompositionPropertyTypes.First(x => x.Alias == "excerpt");
-                                return content.GetValue<string>("excerpt", excerptProperty.VariesByCulture() ? culture?.Culture : null);
-                            }, true);
+                            content.SetAllPropertyCultureValues(
+                                "socialDescription",
+                                contentTypes[content.ContentTypeId],
+                                (c, ct, culture) =>
+                                {
+                                    // don't set it if it's already set
+                                    var currentSocialDescription = c.GetValue("socialDescription", culture.Culture)?.ToString();
+                                    if (!currentSocialDescription.IsNullOrWhiteSpace()) return null;
+
+                                    var excerptProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "excerpt");
+                                    return content.GetValue<string>("excerpt", excerptProperty.VariesByCulture() ? culture?.Culture : null);
+                                });
                         }
                     }
                 }
@@ -277,40 +261,40 @@ namespace Articulate.Components
                 var defaultLang = _languageService.GetDefaultLanguageIsoCode();
 
                 var children = contentService.GetPagedChildren(c.Id, 0, 10, out var total).ToList();
-                if (total == 0 || children.All(x => x.ContentType.Alias != "ArticulateArchive"))
+                if (total == 0 || children.All(x => x.ContentType.Alias != ArticulateConstants.ArticulateArchiveContentTypeAlias))
                 {
-                    var archiveContentType = _contentTypeService.Get("ArticulateArchive");
+                    var archiveContentType = _contentTypeService.Get(ArticulateConstants.ArticulateArchiveContentTypeAlias);
                     if (archiveContentType != null)
                     {
                         if (archiveContentType.VariesByCulture())
                         {
-                            var articles = contentService.Create("", c, "ArticulateArchive");
-                            articles.SetCultureName("Archive", defaultLang);
+                            var articles = contentService.Create("", c, ArticulateConstants.ArticulateArchiveContentTypeAlias);
+                            articles.SetCultureName(ArticulateConstants.ArticlesDefaultName, defaultLang);
                             contentService.Save(articles);
                         }
                         else
                         {
-                            var articles = contentService.CreateAndSave("Archive", c, "ArticulateArchive");
+                            var articles = contentService.CreateAndSave(ArticulateConstants.ArticlesDefaultName, c, ArticulateConstants.ArticulateArchiveContentTypeAlias);
                         }
                     }
                 }
 
-                if (total == 0 || children.All(x => x.ContentType.Alias != "ArticulateAuthors"))
+                if (total == 0 || children.All(x => x.ContentType.Alias != ArticulateConstants.ArticulateAuthorsContentTypeAlias))
                 {
-                    var authorContentType = _contentTypeService.Get("ArticulateAuthors");
+                    var authorContentType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias);
                     if (authorContentType != null)
                     {
                         if (authorContentType.VariesByCulture())
                         {
-                            var authors = contentService.Create("", c, "ArticulateAuthors");
-                            authors.SetCultureName("Authors", defaultLang);
+                            var authors = contentService.Create("", c, ArticulateConstants.ArticulateAuthorsContentTypeAlias);
+                            authors.SetCultureName(ArticulateConstants.AuthorsDefaultName, defaultLang);
                             contentService.Save(authors);
                         }
                         else
                         {
-                            var authors = contentService.CreateAndSave("Authors", c, "ArticulateAuthors");
+                            var authors = contentService.CreateAndSave(ArticulateConstants.AuthorsDefaultName, c, ArticulateConstants.ArticulateAuthorsContentTypeAlias);
                         }
-                    }                    
+                    }
                 }
             }
         }
@@ -347,7 +331,7 @@ namespace Articulate.Components
         private void ContentTypeService_SavingContentType(IContentTypeService sender, SaveEventArgs<IContentType> e)
         {
             foreach (var c in e.SavedEntities
-                .Where(c => c.Alias.InvariantEquals("ArticulateArchive") || c.Alias.InvariantEquals("ArticulateAuthors"))
+                .Where(c => c.Alias.InvariantEquals(ArticulateConstants.ArticulateArchiveContentTypeAlias) || c.Alias.InvariantEquals(ArticulateConstants.ArticulateAuthorsContentTypeAlias))
                 .Where(c => c.HasIdentity == false))
             {
                 c.IsContainer = true;
@@ -385,7 +369,7 @@ namespace Articulate.Components
                 case MessageType.RemoveByInstance:
                     var content = e.MessageObject as IContent;
                     if (content == null) return;
-                    
+
                     if (content.ContentType.Alias.InvariantEquals(ArticulateContentTypeAlias))
                     {
                         //ensure routes are rebuilt

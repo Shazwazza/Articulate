@@ -60,10 +60,10 @@ namespace Articulate.ImportExport
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
             }
             
-            var archiveContentType = _contentTypeService.Get("ArticulateArchive");
+            var archiveContentType = _contentTypeService.Get(ArticulateConstants.ArticulateArchiveContentTypeAlias);
             var archiveNodes = _contentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
 
-            var authorsContentType = _contentTypeService.Get("ArticulateAuthors");
+            var authorsContentType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias);
             var authorsNodes = _contentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
 
             if (totalArchive == 0)
