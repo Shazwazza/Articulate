@@ -4,11 +4,37 @@ using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Core.PropertyEditors.ValueConverters;
+using Umbraco.Web;
+using Umbraco.Web.Models;
 
 namespace Articulate.Models
 {
     public static class PublishedContentExtensions
     {
+        public static string GetArticulateCropUrl(this IPublishedContent content, string propertyAlias, VariationContext variationContext)
+        {
+            if (!content.ContentType.VariesByCulture())
+                return content.GetCropUrl(propertyAlias: propertyAlias, imageCropMode: ImageCropMode.Max);
+
+            var property = content.GetProperty(propertyAlias);
+            if (property == null)
+                return string.Empty;
+
+            var culture = property.PropertyType.VariesByCulture()
+                ? variationContext?.Culture
+                : string.Empty; // must be string empty, not null since that won't work :/ 
+
+            var url = content.MediaUrl(culture, UrlMode.Default, "blogBanner");
+            var cropUrl = content.Value<ImageCropperValue>("blogBanner", culture);
+            if (cropUrl != null)
+            {
+                return url.GetCropUrl(cropUrl, imageCropMode: ImageCropMode.Max);
+            }
+
+            return string.Empty;
+        }
+
         public static IPublishedContent Next(this IPublishedContent content)
         {
             var found = false;
