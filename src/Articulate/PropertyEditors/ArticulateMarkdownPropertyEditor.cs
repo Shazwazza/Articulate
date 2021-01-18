@@ -1,4 +1,7 @@
-﻿using Umbraco.Core.Logging;
+﻿using Markdig;
+using Markdig.Prism;
+using System.Web;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Web.PropertyEditors;
@@ -6,9 +9,7 @@ using Umbraco.Web.PropertyEditors.ValueConverters;
 
 namespace Articulate.PropertyEditors
 {
-    //TODO: INVESTIGATE IF THIS IS FIXED IN V8 CORE - SEEMS STUPID TO HAVE TO HACK THIS
-
-    //NOTE: THis is ONLY overridden because the core markdown editor is nvarchar not ntext!
+    
     [DataEditor("Articulate.MarkdownEditor", "Articulate Markdown editor", "markdowneditor", ValueType = "TEXT")]
     public class ArticulateMarkdownPropertyEditor : MarkdownPropertyEditor
     {
@@ -17,10 +18,25 @@ namespace Articulate.PropertyEditors
         }
     }
 
-    //Ugh, this is necessary since we have a custom one - wish we didn't ship this in this version, next major we should remove all of this
+    // using a reasonable Markdown converter
     public class ArticulateMarkdownEditorValueConverter : MarkdownEditorValueConverter
     {
+        private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .UsePrism()
+            .Build();
+
         public override bool IsConverter(IPublishedPropertyType propertyType)
             => "Articulate.MarkdownEditor" == propertyType.EditorAlias;
+
+        public override object ConvertIntermediateToObject(
+            IPublishedElement owner,
+            IPublishedPropertyType propertyType,
+            PropertyCacheLevel referenceCacheLevel,
+            object inter,
+            bool preview)
+        {            
+            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml((string)inter, MarkdownPipeline));
+        }
     }
 }
