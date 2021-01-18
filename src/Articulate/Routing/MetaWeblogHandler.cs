@@ -358,6 +358,7 @@ namespace Articulate.Routing
                 Content = post.Body.ToString(),
                 CreateDate = post.PublishedDate != default(DateTime) ? post.PublishedDate : post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
+                // TODO: Either this or the below Slug setter is incorrect 
                 Slug = post.Url,
                 Excerpt = post.Excerpt,
                 Tags = string.Join(",", post.Tags.ToArray()),
@@ -377,6 +378,7 @@ namespace Articulate.Routing
                     : new Markdown().Transform(post.GetValue<string>("markdown")),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
+                // TODO: Either this or the above Slug setter is incorrect 
                 Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()
                     ? post.Name.ToUrlSegment()
                     : post.GetValue<string>("umbracoUrlName").ToUrlSegment(),

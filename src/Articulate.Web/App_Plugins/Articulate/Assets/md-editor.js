@@ -7,10 +7,11 @@ var articulateapp = angular.module('articulateapp', [
 articulateapp.config([
     '$routeProvider',
     function ($routeProvider) {
+
         $routeProvider.
             when('/md', {
                 templateUrl: 'md.html',
-                controller: function ($scope, angularHelper) {
+                controller: function ($scope, angularHelper, $http, $location) {
                     
                     function insertAtCaretPos($el, text, pos) {
                         var content = $el.val();
@@ -40,51 +41,61 @@ articulateapp.config([
                         return 0;
                     }
 
-                    $scope.caret = 0;
-                    
-                    //TODO: when the content has changed check if a file has been removed from the markup
-                    // if it has we need to remove the file from the uploads as well - we also need to deal
-                    // with that on the server side too.
+                    //check if they are auth'd, they should be since we redirect in md too
+                    $http.get($scope.$parent.isAuthUrl).then(function (data) {
 
-                    $scope.addFile = function () {
-                        $("#insertFile").click();
-                    }
+                        if (data.data === "true") {
+                            $scope.caret = 0;
 
-                    $scope.addCamera = function() {
-                        $("#insertCamera").click();
-                    }
+                            //TODO: when the content has changed check if a file has been removed from the markup
+                            // if it has we need to remove the file from the uploads as well - we also need to deal
+                            // with that on the server side too.
 
-                    $scope.storeCaret = function () {                        
-                        var elem = $("#mdInput").get(0);
-                        $scope.caret = getCaret(elem);
-                    }
+                            $scope.addFile = function () {
+                                $("#insertFile").click();
+                            }
 
-                    $scope.$on("filesSelected", function(e, o) {
-                        if (o.files && o.files.length && o.files.length === 1) {
-                            var file = o.files[0];
+                            $scope.addCamera = function () {
+                                $("#insertCamera").click();
+                            }
 
-                            //TODO: validate that the file cannot contain a [ or ] char
+                            $scope.storeCaret = function () {
+                                var elem = $("#mdInput").get(0);
+                                $scope.caret = getCaret(elem);
+                            }
 
-                            //![Alt text](/path/to/img.jpg)
+                            $scope.$on("filesSelected", function (e, o) {
+                                if (o.files && o.files.length && o.files.length === 1) {
+                                    var file = o.files[0];
 
-                            //NOTE: for some reason angular is not in a current apply when using events
-                            // so we need to manually apply a digest here
-                            angularHelper.safeApply($scope, function () {
-                                //add to main file collection to upload
-                                $scope.$parent.files.push(file);
+                                    //TODO: validate that the file cannot contain a [ or ] char
 
-                                var token = "[i:" + ($scope.$parent.files.length - 1) + ":" + file.name + "]";
+                                    //![Alt text](/path/to/img.jpg)
 
-                                insertAtCaretPos($("#mdInput"), token, $scope.caret);                                
+                                    //NOTE: for some reason angular is not in a current apply when using events
+                                    // so we need to manually apply a digest here
+                                    angularHelper.safeApply($scope, function () {
+                                        //add to main file collection to upload
+                                        $scope.$parent.files.push(file);
+
+                                        var token = "[i:" + ($scope.$parent.files.length - 1) + ":" + file.name + "]";
+
+                                        insertAtCaretPos($("#mdInput"), token, $scope.caret);
+                                    });
+
+                                }
                             });
-                            
-                        }
-                    });
 
-                    $scope.$parent.caption = "New Blog Post";
-                    $scope.$parent.nextPath = "/optional";
-                    $scope.$parent.nextText = "&raquo;";
-                    $scope.$parent.prevPath = null;
+                            $scope.$parent.caption = "New Blog Post";
+                            $scope.$parent.nextPath = "/optional";
+                            $scope.$parent.nextText = "&raquo;";
+                            $scope.$parent.prevPath = null;
+                        }
+                        else {
+                            //need to login
+                            $location.path("/login").search({r: "md"});
+                        }
+                    });                    
                 }
             }).
             when('/optional', {
@@ -116,7 +127,8 @@ articulateapp.config([
                                 password: $scope.password
                             })
                             .success(function (data, status, headers, config) {
-                                $location.path("/submit");
+                                // redirect where you came from
+                                $location.path("/" + $location.search().r);
                             }).error(function (data, status, headers, config) {
                                 $scope.failed = true;
                             });
@@ -139,13 +151,11 @@ articulateapp.config([
                     $scope.$parent.nextText = null;
                     $scope.$parent.prevPath = null;
 
-                    //check if they are auth'd
-                    $http.get($scope.$parent.isAuthUrl)
-                        .success(function (data, status, headers, config) {
+                    //check if they are auth'd, they should be since we redirect in md too
+                    $http.get($scope.$parent.isAuthUrl).then(function (data) {
 
-                            if (data === "true") {
-
-                                httpHelper.postMultiPartRequest($scope, $scope.$parent.postUrl,
+                        if (data.data === "true") {
+                            httpHelper.postMultiPartRequest($scope, $scope.$parent.postUrl,
                                 [
                                     {
                                         key: "model",
@@ -161,13 +171,13 @@ articulateapp.config([
                                     }
                                 ], function (d, formData) {
                                     //now add all of the assigned files
-                                    for (var f in $scope.$parent.files) {                                        
+                                    for (var f in $scope.$parent.files) {
                                         formData.append($scope.$parent.files[f].name, $scope.$parent.files[f]);
                                     }
                                 },
-                                   function (d, status, headers, config) {
-                                       $scope.result = d;
-                                       $scope.$parent.caption = "Post successful";
+                                function (d, status, headers, config) {
+                                    $scope.result = d;
+                                    $scope.$parent.caption = "Post successful";
                                 }, function (d, status, headers, config) {
                                     if (d.Message) {
                                         alert(d.Message);
@@ -176,13 +186,13 @@ articulateapp.config([
                                         alert("Failed! " + angular.toJson(d));
                                     }
                                 });
-
-                            }
-                            else {
-                                //need to login
-                                $location.path("/login");
-                            }
-                        });
+                        }
+                        else {
+                            //need to login
+                            $location.path("/login").search({ r: "submit" });
+                        }
+                        
+                    });
                 }
             }).
             otherwise({
