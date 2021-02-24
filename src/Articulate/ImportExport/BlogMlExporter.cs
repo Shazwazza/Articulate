@@ -161,6 +161,9 @@ namespace Articulate.ImportExport
 
         private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
         {
+            // TODO: This won't work for variants
+
+            var md = new Markdown();
             const int pageSize = 1000;
             var pageIndex = 0;
             IContent[] posts;
@@ -170,6 +173,8 @@ namespace Articulate.ImportExport
 
                 foreach (var child in posts)
                 {
+                    if (!child.Published) continue;
+
                     string content = "";
                     if (child.ContentType.Alias.InvariantEquals("ArticulateRichText"))
                     {
@@ -177,8 +182,7 @@ namespace Articulate.ImportExport
                         content = child.GetValue<string>("richText");
                     }
                     else if (child.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
-                    {
-                        var md = new Markdown();
+                    {                        
                         content = md.Transform(child.GetValue<string>("markdown"));
                     }
 

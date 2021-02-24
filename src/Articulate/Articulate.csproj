@@ -58,7 +58,7 @@
     <Compile Include="Controllers\ArticulateAuthorController.cs" />
     <Compile Include="Controllers\ArticulateArchiveController.cs" />
     <Compile Include="Controllers\ArticulateBlogImportController.cs" />
-    <Compile Include="Controllers\ArticulateBlogImportDataController.cs" />
+    <Compile Include="Controllers\ArticulateBlogDataInstallController.cs" />
     <Compile Include="Controllers\ArticulateRssController.cs" />
     <Compile Include="Controllers\FeedController.cs" />
     <Compile Include="Controllers\FileSystemExtensions.cs" />
