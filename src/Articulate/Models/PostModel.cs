@@ -106,10 +106,25 @@ namespace Articulate.Models
         /// <summary>
         /// Cropped version of the PostImageUrl
         /// </summary>
-        public string CroppedPostImageUrl => _croppedPostImageUrl ?? (_croppedPostImageUrl =
-                                                 PostImage != null
-                                                     ? PostImage.Src + PostImage.GetCropUrl("wide") + "&upscale=false"
-                                                     : null);
+        public string CroppedPostImageUrl
+        {
+            get
+            {
+                if (_croppedPostImageUrl != null)
+                {
+                    return _croppedPostImageUrl;
+                }
+
+                if (PostImage == null)
+                {
+                    return null;
+                }
+
+                var wideCropUrl = PostImage.GetCropUrl("wide");
+                _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?") + "upscale=false";
+                return _croppedPostImageUrl;
+            }
+        }
 
         /// <summary>
         /// Social Meta Description

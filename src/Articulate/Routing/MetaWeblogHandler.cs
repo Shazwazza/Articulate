@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using Articulate.Models;
 using Articulate.Models.MetaWeblog;
 using CookComputing.XmlRpc;
 using HeyRed.MarkdownSharp;
+using Newtonsoft.Json;
 using Umbraco.Core;
 using Umbraco.Core.Composing;
 using Umbraco.Core.IO;
@@ -17,6 +19,8 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence.DatabaseModelDefinitions;
+using Umbraco.Core.PropertyEditors;
+using Umbraco.Core.PropertyEditors.ValueConverters;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 
@@ -31,6 +35,7 @@ namespace Articulate.Routing
         private readonly IMediaFileSystem _mediaFileSystem;
         private readonly ILocalizationService _localizationService;
         private readonly IContentTypeService _contentTypeService;
+        private readonly IDataTypeService _dataTypeService;
 
         [Obsolete("Use ctor with all parameters instead")]
         public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem)
@@ -38,7 +43,13 @@ namespace Articulate.Routing
         {
         }
 
+        [Obsolete("Use ctor with all parameters instead")]
         public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem, ILocalizationService localizationService, IContentTypeService contentTypeService)
+            : this(umbracoContextAccessor, contentService, tagService, userService, mediaFileSystem, localizationService, contentTypeService, Current.Services.DataTypeService)
+        {
+        }
+
+        public MetaWeblogHandler(IUmbracoContextAccessor umbracoContextAccessor, IContentService contentService, ITagService tagService, IUserService userService, IMediaFileSystem mediaFileSystem, ILocalizationService localizationService, IContentTypeService contentTypeService, IDataTypeService dataTypeService)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
             _contentService = contentService;
@@ -47,6 +58,7 @@ namespace Articulate.Routing
             _mediaFileSystem = mediaFileSystem;
             _localizationService = localizationService;
             _contentTypeService = contentTypeService;
+            _dataTypeService = dataTypeService;
         }
 
         public int BlogRootId { get; internal set; }
@@ -63,8 +75,11 @@ namespace Articulate.Routing
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
-            var content = _contentService.Create(
-                post.Title, node.Id, "ArticulateRichText", user.Id);
+            var contentType = _contentTypeService.Get("ArticulateRichText");
+            if (contentType == null) throw new InvalidOperationException("No content type found with alias 'ArticulateRichText'");
+
+            var content = _contentService.CreateWithInvariantOrDefaultCultureName(
+                post.Title, node.Id, contentType, _localizationService, user.Id);
 
             var extractFirstImageAsProperty = false;
             if (root.HasProperty("extractFirstImage"))
@@ -72,7 +87,7 @@ namespace Articulate.Routing
                 extractFirstImageAsProperty = root.Value<bool>("extractFirstImage");
             }
 
-            AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);
+            AddOrUpdateContent(content, contentType, post, user, publish, extractFirstImageAsProperty);
 
             return content.Id.ToString(CultureInfo.InvariantCulture);
         }
@@ -100,13 +115,16 @@ namespace Articulate.Routing
                 throw new XmlRpcFaultException(0, "No Articulate Archive node found");
             }
 
+            var contentType = _contentTypeService.Get(content.ContentTypeId);
+            if (contentType == null) throw new InvalidOperationException($"No content type found with id '{content.ContentTypeId}'");
+
             var extractFirstImageAsProperty = true;
             if (node.HasProperty("extractFirstImage"))
             {
                 extractFirstImageAsProperty = node.Value<bool>("extractFirstImage");
             }
 
-            AddOrUpdateContent(content, post, user, publish, extractFirstImageAsProperty);
+            AddOrUpdateContent(content, contentType, post, user, publish, extractFirstImageAsProperty);
 
             return true;
         }
@@ -196,8 +214,9 @@ namespace Articulate.Routing
             using (var ms = new MemoryStream(media.Bits))
             {
                 var fileUrl = "articulate/" + media.Name.ToSafeFileName();
-                _mediaFileSystem.AddFile(fileUrl, ms);                
-                return new { url = fileUrl };
+                _mediaFileSystem.AddFile(fileUrl, ms);
+                var absUrl = _mediaFileSystem.GetUrl(fileUrl);
+                return new { url = absUrl };
             }
         }
 
@@ -236,45 +255,52 @@ namespace Articulate.Routing
                 }).ToArray();
         }
 
-        private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:-]+?)(/media/articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private void AddOrUpdateContent(IContent content, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
+        private void AddOrUpdateContent(IContent content, IContentType contentType, MetaWeblogPost post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
-            var contentType = _contentTypeService.Get(content.ContentTypeId);
-            if (contentType == null) throw new InvalidOperationException("No content type found with id " + content.ContentTypeId);
-
-            content.Name = post.Title;
+            content.SetInvariantOrDefaultCultureName(post.Title, contentType, _localizationService);
 
             content.SetInvariantOrDefaultCultureValue("author", user.Name, contentType, _localizationService);
             if (content.HasProperty("richText"))
             {
                 var firstImage = "";
 
-                //we need to replace all absolute image paths with relative ones
+                // Extract the articulate firstImage.
+                // Re-update the URL to be the one from the media file system.
+                // Live writer will always make the urls absolute even if we return a relative path from NewMediaObject
+                // so we will re-update it. If it's the default media file system then this will become a relative path
+                // which is what we want, if it's a custom file system it will update it to it's absolute path.
                 var contentToSave = _mediaSrc.Replace(post.Content, match =>
                 {
                     if (match.Groups.Count == 2)
                     {
-                        var imageSrc = match.Groups[1].Value.EnsureStartsWith('/');
+                        var relativePath = match.Groups[1].Value;
+                        var mediaFileSystemPath = _mediaFileSystem.GetUrl(relativePath);
                         if (firstImage.IsNullOrWhiteSpace())
                         {
-                            firstImage = imageSrc;
+                            // get the first images absolute media path                            
+                            firstImage = mediaFileSystemPath;
                         }
-                        return " src=\"" + imageSrc + "\"";
+                        return " src=\"" + mediaFileSystemPath + "\"";
                     }
                     return null;
                 });
 
                 var imagesProcessed = 0;
 
-                //now replace all absolute anchor paths with relative ones
+                // Now ensure all anchors have the custom class
+                // and the media file system path is re-updated as per above
                 contentToSave = _mediaHref.Replace(contentToSave, match =>
                 {
                     if (match.Groups.Count == 2)
                     {
+                        var relativePath = match.Groups[1].Value;
+                        var mediaFileSystemPath = _mediaFileSystem.GetUrl(relativePath);
+
                         var href = " href=\"" +
-                               match.Groups[1].Value.EnsureStartsWith('/') +
+                               mediaFileSystemPath +
                                "\" class=\"a-image-" + imagesProcessed + "\" ";
 
                         imagesProcessed++;
@@ -289,12 +315,26 @@ namespace Articulate.Routing
                 if (extractFirstImageAsProperty
                     && content.HasProperty("postImage")
                     && !firstImage.IsNullOrWhiteSpace())
-                {
-                    content.SetInvariantOrDefaultCultureValue("postImage", firstImage, contentType, _localizationService);
-                    //content.SetValue("postImage", JsonConvert.SerializeObject(JObject.FromObject(new
-                    //{
-                    //    src = firstImage
-                    //})));
+                {                    
+                    var configuration = _dataTypeService.GetDataType(content.Properties["postImage"].PropertyType.DataTypeId).ConfigurationAs<ImageCropperConfiguration>();
+                    var crops = configuration?.Crops ?? Array.Empty<ImageCropperConfiguration.Crop>();
+
+                    var imageCropValue = new ImageCropperValue
+                    {
+                        Src = firstImage,
+                        Crops = crops.Select(x => new ImageCropperValue.ImageCropperCrop
+                        {
+                            Alias = x.Alias,
+                            Height = x.Height,
+                            Width = x.Width
+                        }).ToList()
+                    };
+
+                    content.SetInvariantOrDefaultCultureValue(
+                        "postImage",
+                        JsonConvert.SerializeObject(imageCropValue),
+                        contentType,
+                        _localizationService);
                 }
             }
 
@@ -358,7 +398,6 @@ namespace Articulate.Routing
                 Content = post.Body.ToString(),
                 CreateDate = post.PublishedDate != default(DateTime) ? post.PublishedDate : post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
-                // TODO: Either this or the below Slug setter is incorrect 
                 Slug = post.Url,
                 Excerpt = post.Excerpt,
                 Tags = string.Join(",", post.Tags.ToArray()),
@@ -378,7 +417,6 @@ namespace Articulate.Routing
                     : new Markdown().Transform(post.GetValue<string>("markdown")),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
-                // TODO: Either this or the above Slug setter is incorrect 
                 Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()
                     ? post.Name.ToUrlSegment()
                     : post.GetValue<string>("umbracoUrlName").ToUrlSegment(),
