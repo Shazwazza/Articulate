@@ -47,17 +47,19 @@ See here for the list of releases and their release notes
 If you would like to contribute to the Articulate project, you'll need some info on how to get started with the solution
 
 1. Clone the repository
-2. Open the /src/Articulate.sln file
-3. Build the solution - this will run a Nuget package restore
-4. Ensure that Articualte.Web is set as the startup project
-5. Start the Articulate.Web project
-6. This will run the Umbraco installer, install as per normal
-7. Open a powershell command line at the /build folder
-8. Execute build.ps1
-9. This will prompt you for a version, enter the latest Articulate version (at the time of writing this is "3.0.0")
-10. It will prompt your for a pre-release value, just press Enter to skip this
-11. Once the build has completed, it will have created the Articulate Umbraco package at /build/Release/Articulate.zip
-12. Install this package in the Umbraco back office
+1. Open the /src/Articulate.sln file
+1. Run a Nuget package restore (you can right click the solution in VS and choose Restore packages)
+1. You will need to then run this in the Package Manager Console: `Update-Package UmbracoCms -reinstall` this is needed due to the way that Nuget works for Umbraco and will install all the client files
+1. Build the solution
+1. Ensure that Articualte.Web is set as the startup project
+1. Start the Articulate.Web project
+1. This will run the Umbraco installer, install as per normal
+1. Open a powershell command line at the /build folder
+1. Execute build.ps1
+1. This will prompt you for a version, enter the latest Articulate version (at the time of writing this is "3.0.0")
+1. It will prompt your for a pre-release value, just press Enter to skip this
+1. Once the build has completed, it will have created the Articulate Umbraco package at /build/Release/Articulate.zip
+1. Install this package in the Umbraco back office
 
 Now you're all set! Any source changes you wish to make just do that in Visual Studio, build the solution when you need to and the changes will be reflected in the website.
 
