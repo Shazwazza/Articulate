@@ -540,7 +540,7 @@ Author profiles]]>
                 <GenericProperty>
                     <Name>Markdown</Name>
                     <Alias>markdown</Alias>
-                    <Type>Umbraco.MarkdownEditor</Type>
+                    <Type>Articulate.MarkdownEditor</Type>
                     <Definition>31d931c7-ce89-40a1-934e-664be25a1e8c</Definition>
                     <Tab>Content</Tab>
                     <Mandatory>False</Mandatory>
@@ -604,7 +604,7 @@ Author profiles]]>
                   Configuration="{'group': 'ArticulateCategories'}"/>
         <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext" 
                   Configuration="{'Crops':[{'alias':'blogPost','width':200,'height':200},{'alias':'square','width':480,'height':480},{'alias':'thumbnail','width':50,'height':50},{'alias':'wide','width':1024,'height':512}]}" />
-        <DataType Name="Articulate Markdown" Id="Umbraco.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext"/>        
+        <DataType Name="Articulate Markdown" Id="Articulate.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext"/>        
         <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext" 
                   Configuration="{'Editor':{'toolbar':['ace','bold','italic','underline','strikethrough','alignleft','aligncenter','alignright','bullist','numlist','link','unlink','anchor','umbmediapicker','umbembeddialog'],'mode':'distraction-free'},'HideLabel':true}"/>
         <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar" Configuration="{'group': 'ArticulateTags'}"/>
