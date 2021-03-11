@@ -80,6 +80,8 @@ namespace Articulate.Routing
             }
             else
             {
+
+
                 if (requestContext.HttpContext.Request.Url == null)
                 {
                     if (HostsAndIds.Count > 0)
@@ -93,32 +95,21 @@ namespace Articulate.Routing
                         return null;
                     }
                 }
-                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost"))
+                else if (HostsAndIds.TryGetValue(requestContext.HttpContext.Request.Url.Host, out var val))
                 {
-                    if (HostsAndIds.TryGetValue(string.Empty, out var val))
-                    {
-                        realNodeId = val;
-                    }
-                    else
-                    {
-                        _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with an empty Host value. Values: {ArticulateHostValues}", DebugHostIdsCollection(HostsAndIds));
-                        return null;
-                    }
+                    realNodeId = val;
+                }
+                else if (requestContext.HttpContext.Request.Url.Host.InvariantEquals("localhost") && HostsAndIds.TryGetValue(string.Empty, out val))
+                {
+                    realNodeId = val;
                 }
                 else
                 {
-                    if (HostsAndIds.TryGetValue(requestContext.HttpContext.Request.Url.Host, out var val))
-                    {
-                        realNodeId = val;
-                    }
-                    else
-                    {
-                        _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of {HostName}. Values: {ArticulateHostValues}",
-                            requestContext.HttpContext.Request.Url.Host,
-                            DebugHostIdsCollection(HostsAndIds));
+                    _logger.Warn<ArticulateVirtualNodeByIdRouteHandler>("No entries found in hosts/IDs map with a Host value of {HostName} or an empty Host value. Values: {ArticulateHostValues}",
+                        requestContext.HttpContext.Request.Url.Host,
+                        DebugHostIdsCollection(HostsAndIds));
 
-                        return null;
-                    }
+                    return null;
                 }
             }
 

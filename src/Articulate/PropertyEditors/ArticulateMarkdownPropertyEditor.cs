@@ -1,5 +1,6 @@
 ﻿using Markdig;
 using Markdig.Prism;
+using System.Net;
 using System.Web;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
@@ -35,8 +36,9 @@ namespace Articulate.PropertyEditors
             PropertyCacheLevel referenceCacheLevel,
             object inter,
             bool preview)
-        {            
-            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml((string)inter, MarkdownPipeline));
+        {
+            var htmlEncoded = WebUtility.HtmlEncode((string)inter);
+            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml(htmlEncoded, MarkdownPipeline));
         }
     }
 }
