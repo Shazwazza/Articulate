@@ -33,10 +33,14 @@ jobs:
       with:
         nuget-version: 'latest'
     
-    - uses: actions/setup-gitversion@v1.0.0
+    #- name: GitTools
+    #  uses: gittools/actions@v0.9.9
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
       with:
-        gitversion-version: 5.1.1
-    
+        versionSpec: '5.x'
+
     - name: Determine Version
       uses: gittools/actions/gitversion/execute@v0.9.7
     
