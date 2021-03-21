@@ -1,5 +1,7 @@
 name: Articulate Release
 
+on: [push, pull_request]
+
 jobs:
 
   build:
