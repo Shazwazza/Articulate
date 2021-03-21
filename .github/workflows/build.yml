@@ -34,7 +34,7 @@ jobs:
     - name: Configure SolutionInfo
       run: |
         # Set the version number in SolutionInfo.cs
-        $SolutionInfoPath = Get-Item $Env.SOLUTION_INFO
+        $SolutionInfoPath = Get-Item $Env:SOLUTION_INFO
         (gc -Path $SolutionInfoPath) `
           -replace "(?<=Version\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
           Set-Content -Path $SolutionInfoPath -Encoding UTF8
