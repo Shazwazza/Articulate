@@ -49,3 +49,5 @@ src/Articulate.Web/config/imageprocessor/security.config
 /build/vswhere.exe
 /build/Release/*
 /src/Articulate.Web/App_Data/Models/*
+/src/Articulate.Web/Properties/AssemblyCopyright.cs
+/src/AssemblyCopyright.cs

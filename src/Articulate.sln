@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.218
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FCB54D07-0064-4BAC-803B-465AC9D4C134}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,8 +21,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1-0587-41C4-BDD9-63FF3F8C73D7}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\Articulate.nuspec = ..\build\Articulate.nuspec
+		AssemblyCopyright.tt = AssemblyCopyright.tt
 		..\build\build.ps1 = ..\build\build.ps1
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
 		..\build\createdPackages.config = ..\build\createdPackages.config
+		..\GitVersion.yml = ..\GitVersion.yml
 		..\build\packageManifest.xml = ..\build\packageManifest.xml
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection

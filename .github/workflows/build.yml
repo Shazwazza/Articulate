@@ -21,6 +21,12 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
+
+    - name: Create copyright value
+      run: |
+        $Copyright = "Copyright " + [char]0x00A9 + " Shannon Deminick " + (Get-Date).year
+        echo ("Copyright=" + $Copyright) >> $Env:GITHUB_ENV
+      shell: pwsh
       
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
@@ -29,9 +35,6 @@ jobs:
       with:
         nuget-version: 'latest'
     
-    #- name: GitTools
-    #  uses: gittools/actions@v0.9.9
-
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.7
       with:
@@ -40,23 +43,6 @@ jobs:
     - name: Determine Version
       uses: gittools/actions/gitversion/execute@v0.9.7
     
-    - name: Configure SolutionInfo
-      run: |
-        # Set the version number in SolutionInfo.cs
-        $SolutionInfoPath = Get-Item $Env:SOLUTION_INFO
-        (gc -Path $SolutionInfoPath) `
-          -replace "(?<=Version\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
-          Set-Content -Path $SolutionInfoPath -Encoding UTF8
-        (gc -Path $SolutionInfoPath) `
-          -replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
-          Set-Content -Path $SolutionInfoPath -Encoding UTF8
-        # Set the copyright
-        $Copyright = "Copyright " + [char]0x00A9 + " Shannon Deminick " + (Get-Date).year
-        (gc -Path $SolutionInfoPath) `
-          -replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
-          Set-Content -Path $SolutionInfoPath -Encoding UTF8;
-      shell: pwsh
-
     - name: Nuget Restore
       run: nuget restore $env:Solution_File
     
@@ -66,5 +52,5 @@ jobs:
     - name: MSBuild Build
       run: msbuild $env:Solution_File /p:Configuration=$env:Configuration
 
-    #- name: Nuget Pack
-    #  run: nuget pack $env:Nuspec -BasePath $env:Web_Proj_Folder -OutputDirectory $env:Release_Folder -Version "$ReleaseVersionNumber$PreReleaseName" -Properties "copyright=$Copyright;buildFolder=$BuildFolder"
+    - name: Nuget Pack
+      run: nuget pack ${{ env.Nuspec }} -BasePath ${{ env.Web_Proj_Folder }} -OutputDirectory ${{ env.Release_Folder }} -Version "${{ env.GITVERSION_SEMVER }}" -Properties "copyright=${{ env.Copyright }}"
