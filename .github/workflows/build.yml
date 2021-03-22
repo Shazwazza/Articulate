@@ -68,6 +68,7 @@ jobs:
 
         $BuildFolder = Get-Item $Env:BUILD_FOLDER
         $ReleaseFolder = Get-Item $Env:RELEASE_FOLDER
+        $WebProjFolder = Get-Item $Env:WEB_PROJ_FOLDER
 
         $TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 
@@ -143,3 +144,8 @@ jobs:
         $DestZIP = "$ReleaseFolder\Articulate_$Env:GITVERSION_SEMVER.zip"
         Add-Type -assembly "system.io.compression.filesystem"
         [io.compression.zipfile]::CreateFromDirectory($TempFolder, $DestZIP)
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: umbraco-zip
+        path: ${{ env.Release_Folder }}/Articulate_*.zip
