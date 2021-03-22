@@ -1,4 +1,4 @@
-name: Articulate Release
+name: Articulate Build
 
 on: [push, pull_request]
 
