@@ -56,10 +56,10 @@ jobs:
     - name: Nuget Pack
       run: nuget pack ${{ env.Nuspec }} -BasePath ${{ env.Web_Proj_Folder }} -OutputDirectory ${{ env.Release_Folder }} -Version "${{ env.GITVERSION_SEMVER }}" -Properties "copyright=${{ env.Copyright }}"
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: nuget
-        path: ${{ env.Release_Folder }}/*.nupkg
+        path: ${{ env.Release_Folder }}/Articulate.*.nupkg
 
     - name: Umbraco package build
       shell: pwsh
