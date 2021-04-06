@@ -169,16 +169,22 @@ namespace Articulate
 
         public static IHtmlString MetaTags(this HtmlHelper html, IMasterModel model)
         {
-            var metaTags = $@"<meta name=""description"" content=""{ model.PageDescription }"" />";
+            StringBuilder builder = new StringBuilder();
+
+            var metaDescriptionTag = new TagBuilder("meta");
+            metaDescriptionTag.Attributes["name"] = "description";
+            metaDescriptionTag.Attributes["content"] = model.PageDescription;
+            builder.AppendLine(metaDescriptionTag.ToString(TagRenderMode.SelfClosing));
 
             if (!string.IsNullOrWhiteSpace(model.PageTags))
-                metaTags = string.Concat(
-                   metaTags,
-                    Environment.NewLine,
-                    $@"<meta name=""tags"" content=""{ model.PageTags }"" />"
-                    );
+            {
+                var tagsTag = new TagBuilder("meta");
+                tagsTag.Attributes["name"] = "tags";
+                tagsTag.Attributes["content"] = model.PageTags;
+                builder.AppendLine(tagsTag.ToString(TagRenderMode.SelfClosing));
+            }
 
-            return new HtmlString(metaTags);
+            return new HtmlString(builder.ToString());
         }
 
         public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
