@@ -243,9 +243,6 @@
     <Reference Include="Markdig, Version=0.23.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Markdig.0.23.0\lib\net452\Markdig.dll</HintPath>
     </Reference>
-    <Reference Include="Markdig.Prism, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebStoating.Markdig.Prism.1.0.0\lib\netstandard2.0\Markdig.Prism.dll</HintPath>
-    </Reference>
     <Reference Include="Markdown, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1b320cc08ad5aa89, processorArchitecture=MSIL">
       <HintPath>..\packages\Markdown.2.2.1\lib\net451\Markdown.dll</HintPath>
     </Reference>

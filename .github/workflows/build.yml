@@ -10,7 +10,6 @@ jobs:
     
     env:
       Solution_File: src\Articulate.sln
-      Solution_Info: src\SolutionInfo.cs
       Web_Proj_Folder: src\Articulate.Web
       Nuspec: build\Articulate.nuspec
       Release_Folder: build\Release

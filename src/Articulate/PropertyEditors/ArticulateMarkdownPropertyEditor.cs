@@ -1,6 +1,4 @@
 ﻿using Markdig;
-using Markdig.Prism;
-using System.Net;
 using System.Web;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
@@ -10,7 +8,7 @@ using Umbraco.Web.PropertyEditors.ValueConverters;
 
 namespace Articulate.PropertyEditors
 {
-    
+
     [DataEditor("Articulate.MarkdownEditor", "Articulate Markdown editor", "markdowneditor", ValueType = "TEXT")]
     public class ArticulateMarkdownPropertyEditor : MarkdownPropertyEditor
     {
@@ -24,7 +22,6 @@ namespace Articulate.PropertyEditors
     {
         private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
-            .UsePrism()
             .Build();
 
         public override bool IsConverter(IPublishedPropertyType propertyType)
@@ -37,8 +34,8 @@ namespace Articulate.PropertyEditors
             object inter,
             bool preview)
         {
-            var htmlEncoded = WebUtility.HtmlEncode((string)inter);
-            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml(htmlEncoded, MarkdownPipeline));
+            var md = (string)inter;
+            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml(md, MarkdownPipeline));
         }
     }
 }
