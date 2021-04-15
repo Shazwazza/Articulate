@@ -21,12 +21,12 @@ namespace Articulate
         /// <summary>
         /// Renders the Post date with Author details if author details are supplied
         /// </summary>
-        /// <param name="html"></param>        
+        /// <param name="html"></param>
         /// <param name="model"></param>
         /// <returns></returns>
         public static IHtmlString AuthorCitation(this HtmlHelper html, PostModel model)
         {
-            var sb = new StringBuilder();            
+            var sb = new StringBuilder();
             if (model.Author != null)
             {
                 sb.Append("<span>");
@@ -53,7 +53,7 @@ namespace Articulate
         /// </summary>
         /// <param name="html"></param>
         /// <param name="model"></param>
-        /// <returns></returns>        
+        /// <returns></returns>
         public static IHtmlString SocialMetaTags(this HtmlHelper html, IMasterModel model)
         {
             var builder = new StringBuilder();
@@ -110,7 +110,7 @@ namespace Articulate
         {
             var twitterTag = new TagBuilder("meta");
             twitterTag.Attributes["name"] = "twitter:card";
-            twitterTag.Attributes["value"] = "summary";
+            twitterTag.Attributes["content"] = "summary";
             builder.AppendLine(twitterTag.ToString(TagRenderMode.StartTag)); //non-closing since that's just the way it is
 
             var openGraphTitle = new TagBuilder("meta");
@@ -126,7 +126,7 @@ namespace Articulate
             var openGraphUrl = new TagBuilder("meta");
             openGraphUrl.Attributes["property"] = "og:url";
             openGraphUrl.Attributes["content"] = model.Url(mode: UrlMode.Absolute);
-            builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));            
+            builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));
         }
 
         public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
@@ -301,7 +301,7 @@ namespace Articulate
                     ul.InnerHtml += li.ToString();
                 }
 
-                writer.Write(ul.ToString());                
+                writer.Write(ul.ToString());
             });
         }
 
