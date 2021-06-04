@@ -604,15 +604,15 @@ Author profiles]]></readme>
     <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar" />
   </DataTypes>
   <files>
-    <folder path="../src/Articulate.Web/App_Plugins/Articulate" orgPath="App_Plugins/Articulate" />
-    <file path="../src/Articulate.Web/bin/Articulate.dll" orgPath="bin/Articulate.dll" />
-    <file path="../src/Articulate.Web/bin/Argotic.Common.dll" orgPath="bin/Argotic.Common.dll" />
-    <file path="../src/Articulate.Web/bin/Argotic.Extensions.dll" orgPath="bin/Argotic.Extensions.dll" />
-    <file path="../src/Articulate.Web/bin/Argotic.Core.dll" orgPath="bin/Argotic.Core.dll" />
-    <file path="../src/Articulate.Web/bin/CookComputing.XmlRpcV2.dll" orgPath="bin/CookComputing.XmlRpcV2.dll" />
-    <file path="../src/Articulate.Web/bin/CookComputing.XmlRpcServerV2.dll" orgPath="bin/CookComputing.XmlRpcServerV2.dll" />
-    <file path="../src/Articulate.Web/bin/Articulate.pdb" orgPath="bin/Articulate.pdb" />
-    <folder path="../src/Articulate.Web/media/articulate/original" orgPath="media/articulate/original" />
+    <folder path="src/Articulate.Web/App_Plugins/Articulate" orgPath="App_Plugins/Articulate" />
+    <file path="src/Articulate.Web/bin/Articulate.dll" orgPath="bin/Articulate.dll" />
+    <file path="src/Articulate.Web/bin/Argotic.Common.dll" orgPath="bin/Argotic.Common.dll" />
+    <file path="src/Articulate.Web/bin/Argotic.Extensions.dll" orgPath="bin/Argotic.Extensions.dll" />
+    <file path="src/Articulate.Web/bin/Argotic.Core.dll" orgPath="bin/Argotic.Core.dll" />
+    <file path="src/Articulate.Web/bin/CookComputing.XmlRpcV2.dll" orgPath="bin/CookComputing.XmlRpcV2.dll" />
+    <file path="src/Articulate.Web/bin/CookComputing.XmlRpcServerV2.dll" orgPath="bin/CookComputing.XmlRpcServerV2.dll" />
+    <file path="src/Articulate.Web/bin/Articulate.pdb" orgPath="bin/Articulate.pdb" />
+    <folder path="src/Articulate.Web/media/articulate/original" orgPath="media/articulate/original" />
   </files>
   <Actions>
     <Action runat="install" undo="false" alias="articulateInstall" />
