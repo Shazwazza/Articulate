@@ -24,9 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1
 		AssemblyCopyright.tt = AssemblyCopyright.tt
 		..\build\build.ps1 = ..\build\build.ps1
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
-		..\build\createdPackages.config = ..\build\createdPackages.config
 		..\GitVersion.yml = ..\GitVersion.yml
-		..\build\packageManifest.xml = ..\build\packageManifest.xml
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection
 EndProject

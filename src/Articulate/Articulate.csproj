@@ -169,8 +169,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\build\packageManifest.xml">
-      <Link>Resources\packageManifest.xml</Link>
+    <EmbeddedResource Include="..\..\build\package.xml">
+      <Link>Resources\package.xml</Link>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\AssemblyCopyright.tt">

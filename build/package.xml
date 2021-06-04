@@ -1,0 +1,620 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<umbPackage>
+  <files>
+    <!-- This gets replaced during build with the files in createdPackages.config -->
+  </files>
+  <info>
+    <package>
+      <name>Articulate</name>
+      <version>4.3.3</version>
+      <license url="http://opensource.org/licenses/MIT">MIT License</license>
+      <url>https://github.com/Shandem/Articulate/</url>
+      <iconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</iconUrl>
+      <requirements type="strict">
+        <major>8</major>
+        <minor>0</minor>
+        <patch>0</patch>
+      </requirements>
+    </package>
+    <author>
+      <name>Shannon Deminick</name>
+      <website>http://shazwazza.com</website>
+    </author>
+    <readme><![CDATA[<br/>Blogging built on Umbraco - Supports all the features you'd want in a blogging platform:<br/><br/>
+Categories & Tags<br/>
+Themes<br/>
+Multiple archives<br/>
+Live Writer support<br/>
+Markdown support<br/>
+Post from your mobile phone including photos direct from you camera<br/>
+Disqus or Facebook comment support (or build your own)<br/>
+Search<br/>
+Blogml import/export<br/>
+Customizable RSS feeds<br/>
+Customizable urls<br/>
+Author profiles]]></readme>
+  </info>
+  <DocumentTypes>
+    <DocumentType>
+      <Info>
+        <Name>Articulate</Name>
+        <Alias>Articulate</Alias>
+        <Icon>icon-voice color-blue</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>True</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <Compositions />
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure>
+        <DocumentType>ArticulateArchive</DocumentType>
+        <DocumentType>ArticulateAuthors</DocumentType>
+      </Structure>
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Blog Description</Name>
+          <Alias>blogDescription</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Custom RSS Feed Url</Name>
+          <Alias>customRssFeedUrl</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Optional custom rss feed URL (i.e. if you use feedburner, etc...)]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Blog Title</Name>
+          <Alias>blogTitle</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Disqus Shortname</Name>
+          <Alias>disqusShortname</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Google Analytics Id</Name>
+          <Alias>googleAnalyticsId</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Your Google Analytics Id (i.e. UA-123456789 )]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Google Analytics Name</Name>
+          <Alias>googleAnalyticsName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Blog</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The site name associated with your Google Analytics (i.e. mysite.com )]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>PageSize</Name>
+          <Alias>pageSize</Alias>
+          <Type>Umbraco.Integer</Type>
+          <Definition>2e6d3631-066e-44b8-aec4-96f09099b2b5</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Categories Page Name</Name>
+          <Alias>categoriesPageName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The page title for the categories listing]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Categories Url Name</Name>
+          <Alias>categoriesUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Tags Page Name</Name>
+          <Alias>tagsPageName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The page title for the tags listing]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Tags Url Name</Name>
+          <Alias>tagsUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Search Page Name</Name>
+          <Alias>searchPageName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The page title for the search results]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Search Url Name</Name>
+          <Alias>searchUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Redirect Archive</Name>
+          <Alias>redirectArchive</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[If specified this will redirect the Archive blog post container URL to this Articulate blog root]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Use yyyy/mm/dd format for Url</Name>
+          <Alias>useDateFormatForUrl</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>762ca848-ade4-4d74-964c-81a3b1980cff</Definition>
+          <Tab>Customize</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[If specified, this will generate posts' urls in the /yyyy/mm/dd/slug format, ie 2017/06/09/codegarden-rocks]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Blog Banner</Name>
+          <Alias>blogBanner</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Tab>Style</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Optional blog banner]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Blog Logo</Name>
+          <Alias>blogLogo</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Tab>Style</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Optional logo]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Theme</Name>
+          <Alias>theme</Alias>
+          <Type>ArticulateThemePicker</Type>
+          <Definition>8b57d00e-5593-45d3-affe-24203b239bd3</Definition>
+          <Tab>Style</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Extract First Image to Property</Name>
+          <Alias>extractFirstImage</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab>MetaWeblog options</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[When Windows Live Writer (or compatible WebBlog API tool) is used to create blog posts, with this option enabled it will set the first image found in the blog post to the blog's image property if one is found.]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Id>12</Id>
+          <Caption>Blog</Caption>
+          <SortOrder>0</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>13</Id>
+          <Caption>Customize</Caption>
+          <SortOrder>1</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>14</Id>
+          <Caption>Style</Caption>
+          <SortOrder>2</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>21</Id>
+          <Caption>MetaWeblog options</Caption>
+          <SortOrder>3</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Archive</Name>
+        <Alias>ArticulateArchive</Alias>
+        <Icon>icon-list color-blue</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>True</IsListView>
+        <Compositions />
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure>
+        <DocumentType>ArticulateMarkdown</DocumentType>
+        <DocumentType>ArticulateRichText</DocumentType>
+      </Structure>
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Umbraco Url Name</Name>
+          <Alias>umbracoUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab />
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[The Umbraco Url Name for this node, this will be the prefix URL for each blog post]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs />
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Author</Name>
+        <Alias>ArticulateAuthor</Alias>
+        <Icon>.sprTreeFolder</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <Compositions />
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Author Image</Name>
+          <Alias>authorImage</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Tab>Author info</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Author Url</Name>
+          <Alias>authorUrl</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Author info</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[A url to link to the author's website]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Author Bio</Name>
+          <Alias>authorBio</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Author info</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Description of the author]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Id>15</Id>
+          <Caption>Author info</Caption>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Authors</Name>
+        <Alias>ArticulateAuthors</Alias>
+        <Icon>icon-user-females-alt color-blue</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>True</IsListView>
+        <Compositions />
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure>
+        <DocumentType>ArticulateAuthor</DocumentType>
+      </Structure>
+      <GenericProperties />
+      <Tabs />
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Post</Name>
+        <Alias>ArticulatePost</Alias>
+        <Icon>.sprTreeFolder</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <Compositions />
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>umbracoUrlAlias</Name>
+          <Alias>umbracoUrlAlias</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab />
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Import Id</Name>
+          <Alias>importId</Alias>
+          <Type>Umbraco.NoEdit</Type>
+          <Definition>f0bc4bfb-b499-40d6-ba86-058885a5178c</Definition>
+          <Tab />
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[Used during a blogml import process to ensure that re-importing does not create duplicate posts.]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Tags</Name>
+          <Alias>tags</Alias>
+          <Type>Umbraco.Tags</Type>
+          <Definition>f8404fdc-7667-4184-95c3-125b1d81314d</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Slug</Name>
+          <Alias>umbracoUrlName</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[If left blank then umbraco will auto-generate the URL name based on the node name]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Categories</Name>
+          <Alias>categories</Alias>
+          <Type>Umbraco.Tags</Type>
+          <Definition>a72aeb12-5b28-4a47-b99a-fde14d49c1ac</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Excerpt</Name>
+          <Alias>excerpt</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Author</Name>
+          <Alias>author</Alias>
+          <Type>Umbraco.Textbox</Type>
+          <Definition>0cc0eba1-9960-42c9-bf9b-60e150b429ae</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>True</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Published Date</Name>
+          <Alias>publishedDate</Alias>
+          <Type>Umbraco.DateTime</Type>
+          <Definition>e4d66c0f-b935-4200-81f0-025f7256b89a</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[This is the date that the document will be shown as published on your website]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Enable Comments</Name>
+          <Alias>enableComments</Alias>
+          <Type>Umbraco.TrueFalse</Type>
+          <Definition>92897bc6-a5f3-4ffe-ae27-f2e7e33dda49</Definition>
+          <Tab>Post Attributes</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Post Image</Name>
+          <Alias>postImage</Alias>
+          <Type>Umbraco.ImageCropper</Type>
+          <Definition>c8f535ee-27b8-4d16-940d-d6c523851bb1</Definition>
+          <Tab>Image</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[An optional image for your blog post]]></Description>
+        </GenericProperty>
+        <GenericProperty>
+          <Name>Social Description</Name>
+          <Alias>socialDescription</Alias>
+          <Type>Umbraco.TextboxMultiple</Type>
+          <Definition>c6bac0dd-4ab9-45b1-8e30-e4b619ee5da3</Definition>
+          <Tab>Meta Tags</Tab>
+          <SortOrder>0</SortOrder>
+          <Mandatory>False</Mandatory>
+          <Description><![CDATA[Open Graph Description - Describe the article in one or two lines.]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Id>16</Id>
+          <Caption>Post Attributes</Caption>
+          <SortOrder>0</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>19</Id>
+          <Caption>Content</Caption>
+          <SortOrder>1</SortOrder>
+        </Tab>
+        <Tab>
+          <Id>20</Id>
+          <Caption>Image</Caption>
+          <SortOrder>2</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Markdown</Name>
+        <Alias>ArticulateMarkdown</Alias>
+        <Icon>icon-post-it color-blue</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <Master>ArticulatePost</Master>
+        <Compositions>
+          <Composition>ArticulatePost</Composition>
+        </Compositions>
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Markdown</Name>
+          <Alias>markdown</Alias>
+          <Type>Articulate.MarkdownEditor</Type>
+          <Definition>31d931c7-ce89-40a1-934e-664be25a1e8c</Definition>
+          <Tab>Content</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Id>17</Id>
+          <Caption>Content</Caption>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+    <DocumentType>
+      <Info>
+        <Name>Articulate Rich Text</Name>
+        <Alias>ArticulateRichText</Alias>
+        <Icon>icon-post-it color-blue</Icon>
+        <Thumbnail>folder.png</Thumbnail>
+        <Description />
+        <AllowAtRoot>False</AllowAtRoot>
+        <IsListView>False</IsListView>
+        <Master>ArticulatePost</Master>
+        <Compositions>
+          <Composition>ArticulatePost</Composition>
+        </Compositions>
+        <AllowedTemplates />
+        <DefaultTemplate />
+      </Info>
+      <Structure />
+      <GenericProperties>
+        <GenericProperty>
+          <Name>Rich Text</Name>
+          <Alias>richText</Alias>
+          <Type>Umbraco.TinyMCE</Type>
+          <Definition>dbcb0707-021d-4cd4-ba8b-5cc891516c28</Definition>
+          <Tab>Content</Tab>
+          <Mandatory>False</Mandatory>
+          <Validation />
+          <Description><![CDATA[]]></Description>
+        </GenericProperty>
+      </GenericProperties>
+      <Tabs>
+        <Tab>
+          <Id>18</Id>
+          <Caption>Content</Caption>
+          <SortOrder>0</SortOrder>
+        </Tab>
+      </Tabs>
+    </DocumentType>
+  </DocumentTypes>
+  <Templates />
+  <Stylesheets />
+  <Macros />
+  <DictionaryItems />
+  <Languages />
+  <DataTypes>
+    <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar" Configuration="{'group': 'ArticulateCategories'}" />
+    <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext" Configuration="{'Crops':[{'alias':'blogPost','width':200,'height':200},{'alias':'square','width':480,'height':480},{'alias':'thumbnail','width':50,'height':50},{'alias':'wide','width':1024,'height':512}]}" />
+    <DataType Name="Articulate Markdown" Id="Articulate.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext" />
+    <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext" Configuration="{'Editor':{'toolbar':['ace','bold','italic','underline','strikethrough','alignleft','aligncenter','alignright','bullist','numlist','link','unlink','anchor','umbmediapicker','umbembeddialog'],'mode':'distraction-free'},'HideLabel':true}" />
+    <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar" Configuration="{'group': 'ArticulateTags'}" />
+    <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar" />
+  </DataTypes>
+  <files>
+    <folder path="../src/Articulate.Web/App_Plugins/Articulate" orgPath="App_Plugins/Articulate" />
+    <file path="../src/Articulate.Web/bin/Articulate.dll" orgPath="bin/Articulate.dll" />
+    <file path="../src/Articulate.Web/bin/Argotic.Common.dll" orgPath="bin/Argotic.Common.dll" />
+    <file path="../src/Articulate.Web/bin/Argotic.Extensions.dll" orgPath="bin/Argotic.Extensions.dll" />
+    <file path="../src/Articulate.Web/bin/Argotic.Core.dll" orgPath="bin/Argotic.Core.dll" />
+    <file path="../src/Articulate.Web/bin/CookComputing.XmlRpcV2.dll" orgPath="bin/CookComputing.XmlRpcV2.dll" />
+    <file path="../src/Articulate.Web/bin/CookComputing.XmlRpcServerV2.dll" orgPath="bin/CookComputing.XmlRpcServerV2.dll" />
+    <file path="../src/Articulate.Web/bin/Articulate.pdb" orgPath="bin/Articulate.pdb" />
+    <folder path="../src/Articulate.Web/media/articulate/original" orgPath="media/articulate/original" />
+  </files>
+  <Actions>
+    <Action runat="install" undo="false" alias="articulateInstall" />
+  </Actions>
+</umbPackage>
