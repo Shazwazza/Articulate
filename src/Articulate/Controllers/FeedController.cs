@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 using Articulate.Models;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Macros;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Cms.Web.Common.Macros;
 
 namespace Articulate.Controllers
 {
@@ -15,17 +19,47 @@ namespace Articulate.Controllers
     /// </summary>
     public class FeedController : PluginController
     {
-        [HttpGet]
-        [OutputCache(Duration = 120)]
-        public ActionResult RenderGitHub(int id)
-        {
-            var content = Umbraco.Content(id);
-            if (content == null) return HttpNotFound();
+        private readonly IPublishedValueFallback _publishedValueFallback;
+        private readonly IVariationContextAccessor _variationContextAccessor;
+        private readonly IImageUrlGenerator _imageUrlGenerator;
+        private readonly UmbracoHelper _umbracoHelper;
+        private readonly PartialViewMacroEngine _partialViewMacroEngine;
 
-            var articulateModel = new MasterModel(content);
+        public FeedController(
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IUmbracoDatabaseFactory databaseFactory,
+            ServiceContext services,
+            AppCaches appCaches,
+            IProfilingLogger profilingLogger,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            IImageUrlGenerator imageUrlGenerator,
+            UmbracoHelper umbracoHelper,
+            PartialViewMacroEngine partialViewMacroEngine)
+            : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger)
+        {
+            _publishedValueFallback = publishedValueFallback;
+            _variationContextAccessor = variationContextAccessor;
+            _imageUrlGenerator = imageUrlGenerator;
+            _umbracoHelper = umbracoHelper;
+            _partialViewMacroEngine = partialViewMacroEngine;
+        }
+
+        [HttpGet]
+        // TODO: This won't work anymore
+        //[OutputCache(Duration = 120)]
+        public IActionResult RenderGitHub(int id)
+        {
+            var content = _umbracoHelper.Content(id);
+            if (content == null)
+            {
+                return NotFound();
+            }
+
+            var articulateModel = new MasterModel(content, _publishedValueFallback, _variationContextAccessor);
             var viewPath = PathHelper.GetThemePartialViewPath(articulateModel, "FeedGitHub");
             
-            return Content(RenderViewToString(this, viewPath, null, true));
+            return Content(RenderViewToString(content, this, viewPath));
         }        
 
         /// <summary>
@@ -36,23 +70,17 @@ namespace Articulate.Controllers
 		/// <param name="model">The model.</param>
 		/// <param name="isPartial">true if it is a Partial view, otherwise false for a normal view </param>
 		/// <returns></returns>
-        private static string RenderViewToString(ControllerBase controller, string viewName, object model, bool isPartial = false)
+        private string RenderViewToString(IPublishedContent content, ControllerBase controller, string viewName)
         {
-            if (controller.ControllerContext == null)
-                throw new ArgumentException("The controller must have an assigned ControllerContext to execute this method.");
-
-            controller.ViewData.Model = model;
-
-            using (var sw = new StringWriter())
+            MacroContent result = _partialViewMacroEngine.Execute(new MacroModel
             {
-                var viewResult = !isPartial
-                    ? ViewEngines.Engines.FindView(controller.ControllerContext, viewName, null)
-                    : ViewEngines.Engines.FindPartialView(controller.ControllerContext, viewName);
-                var viewContext = new ViewContext(controller.ControllerContext, viewResult.View, controller.ViewData, controller.TempData, sw);
-                viewResult.View.Render(viewContext, sw);
-                viewResult.ViewEngine.ReleaseView(controller.ControllerContext, viewResult.View);
-                return sw.GetStringBuilder().ToString();
-            }
+                Alias = nameof(FeedController),
+                Name = nameof(FeedController),
+                Id = 1,
+                MacroSource = viewName
+            }, content);
+
+            return result.Text;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Umbraco.Cms.Core.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Web;

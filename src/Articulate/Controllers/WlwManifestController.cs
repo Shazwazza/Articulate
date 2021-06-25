@@ -1,6 +1,6 @@
-﻿using System.Web.Mvc;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Articulate.Controllers
 {
@@ -16,7 +16,7 @@ namespace Articulate.Controllers
             var node = Umbraco.Content(id);
             if (node == null)
             {
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             }
 
             var ns = XNamespace.Get("http://schemas.microsoft.com/wlw/manifest/weblog");

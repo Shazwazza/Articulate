@@ -8,15 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FCB54D
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{250979E7-9634-49BF-8798-47FE1B4AE919}"
-	ProjectSection(SolutionItems) = preProject
-		..\LICENSE = ..\LICENSE
-		..\README.md = ..\README.md
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Articulate.Web", "Articulate.Web\Articulate.Web.csproj", "{71F8CAB9-1CC5-4B2B-842B-E966C630A360}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articulate.Web", "Articulate.Web\Articulate.Web.csproj", "{71F8CAB9-1CC5-4B2B-842B-E966C630A360}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articulate", "Articulate\Articulate.csproj", "{F0C76578-5C97-4375-A862-884E2A848A4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Articulate", "Articulate\Articulate.csproj", "{F0C76578-5C97-4375-A862-884E2A848A4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1-0587-41C4-BDD9-63FF3F8C73D7}"
 	ProjectSection(SolutionItems) = preProject
@@ -28,6 +22,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1
 		..\GitVersion.yml = ..\GitVersion.yml
 		..\build\packageManifest.xml = ..\build\packageManifest.xml
 		SolutionInfo.cs = SolutionInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FAADEFD-E6A9-4165-AA2D-E4A66BFF6679}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Global

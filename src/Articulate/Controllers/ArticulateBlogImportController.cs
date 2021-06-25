@@ -7,62 +7,69 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web.Http;
 using Articulate.ImportExport;
-using Umbraco.Core;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.IO;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Persistence;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.WebApi;
+using Umbraco.Cms.Web.BackOffice.Controllers;
+using Umbraco.Cms.Core.Hosting;
+using Umbraco.Extensions;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Security;
 
 namespace Articulate.Controllers
 {
     public class ArticulateBlogImportController : UmbracoAuthorizedApiController
     {
         private readonly BlogMlImporter _blogMlImporter;
+        private readonly UmbracoApiControllerTypeCollection _umbracoApiControllerTypeCollection;
+        private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
+        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly BlogMlExporter _blogMlExporter;
 
-        public ArticulateBlogImportController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, BlogMlImporter blogMlImporter, BlogMlExporter blogMlExporter) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        public ArticulateBlogImportController(
+            IHostingEnvironment hostingEnvironment,
+            BlogMlExporter blogMlExporter,
+            BlogMlImporter blogMlImporter,
+            UmbracoApiControllerTypeCollection umbracoApiControllerTypeCollection,
+            IBackOfficeSecurityAccessor backOfficeSecurityAccessor)
         {
             _blogMlImporter = blogMlImporter;
+            _umbracoApiControllerTypeCollection = umbracoApiControllerTypeCollection;
+            _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
+            _hostingEnvironment = hostingEnvironment;
             _blogMlExporter = blogMlExporter;
         }
-        
+
         public async Task<JObject> PostInitialize(HttpRequestMessage request)
         {
-            if (!request.Content.IsMimeMultipartContent())
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            throw new NotImplementedException("TODO: Implement file handling correctly");
+            //if (!request.Content.IsMimeMultipartContent())
+            //    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
 
-            var dir = IOHelper.MapPath("~/App_Data/TEMP/FileUploads");
-            Directory.CreateDirectory(dir);
-            var provider = new MultipartFormDataStreamProvider(dir);
-            var result = await request.Content.ReadAsMultipartAsync(provider);
+            //var dir = _hostingEnvironment.MapPathContentRoot("~/Umbraco/Data/TEMP/FileUploads");
+            //Directory.CreateDirectory(dir);
+            //var provider = new MultipartFormDataStreamProvider(dir);
+            //var result = await request.Content.ReadAsMultipartAsync(provider);
 
-            if (result.FileData.Any())
-            {
-                if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
-                {
-                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-                }
+            //if (result.FileData.Any())
+            //{
+            //    if (!Path.GetExtension(result.FileData[0].Headers.ContentDisposition.FileName.Trim('\"')).InvariantEquals(".xml"))
+            //    {
+            //        throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            //    }
 
-                //there should only be one file so we'll just use the first one
-                
-                var count = _blogMlImporter.GetPostCount(result.FileData[0].LocalFileName);
+            //    //there should only be one file so we'll just use the first one
 
-                return JObject.FromObject(new
-                {
-                    count = count,
-                    tempFile = result.FileData[0].LocalFileName
-                });
-            }
-            else
-            {
-                throw new InvalidOperationException("Not blogml file was found in the request");
-            }
+            //    var count = _blogMlImporter.GetPostCount(result.FileData[0].LocalFileName);
+
+            //    return JObject.FromObject(new
+            //    {
+            //        count = count,
+            //        tempFile = result.FileData[0].LocalFileName
+            //    });
+            //}
+            //else
+            //{
+            //    throw new InvalidOperationException("Not blogml file was found in the request");
+            //}
         }
 
         public ImportModel PostExportBlogMl(ExportBlogMlModel model)
@@ -71,15 +78,15 @@ namespace Articulate.Controllers
 
             return new ImportModel
             {
-                DownloadUrl = Url.GetUmbracoApiService<ArticulateBlogImportController>("GetBlogMlExport")
+                DownloadUrl = Url.GetUmbracoApiService<ArticulateBlogImportController>(_umbracoApiControllerTypeCollection, "GetBlogMlExport")
             };
         }
 
         public HttpResponseMessage GetBlogMlExport()
         {
             //save to Temp folder (base path)
-            var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-            var fileStream = fs.OpenFile("BlogMlExport.xml");
+            var filePath = _hostingEnvironment.MapPathContentRoot("~/Umbraco/Data/TEMP/Articulate/BlogMlExport.xml");
+            FileStream fileStream = System.IO.File.OpenRead(filePath);
 
             var result = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -95,42 +102,45 @@ namespace Articulate.Controllers
 
         public async Task<ImportModel> PostImportBlogMl(ImportBlogMlModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
-            }
+            throw new NotImplementedException("TODO: Implement file handling correctly");
 
-            //there should only be one file so we'll just use the first one
+            //if (!ModelState.IsValid)
+            //{
+            //    throw new HttpResponseException(Request.CreateValidationErrorResponse(ModelState));
+            //}
 
-            var hasErrors = await _blogMlImporter.Import(Security.CurrentUser.Id,
-                model.TempFile,
-                model.ArticulateNodeId,
-                model.Overwrite,
-                model.RegexMatch,
-                model.RegexReplace,
-                model.Publish,
-                model.ExportDisqusXml,
-                model.ImportFirstImage);
+            ////there should only be one file so we'll just use the first one
 
-            //cleanup
-            File.Delete(model.TempFile);
+            //var hasErrors = await _blogMlImporter.Import(
+            //    _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Id,
+            //    model.TempFile,
+            //    model.ArticulateNodeId,
+            //    model.Overwrite,
+            //    model.RegexMatch,
+            //    model.RegexReplace,
+            //    model.Publish,
+            //    model.ExportDisqusXml,
+            //    model.ImportFirstImage);
 
-            if (hasErrors)
-            {
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details"));
-            }
+            ////cleanup
+            //System.IO.File.Delete(model.TempFile);
 
-            return new ImportModel
-            {
-                DownloadUrl = Url.GetUmbracoApiService<ArticulateBlogImportController>("GetDisqusExport")
-            };
+            //if (hasErrors)
+            //{
+            //    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Importing failed, see umbraco log for details"));
+            //}
+
+            //return new ImportModel
+            //{
+            //    DownloadUrl = Url.GetUmbracoApiService<ArticulateBlogImportController>(_umbracoApiControllerTypeCollection, "GetDisqusExport")
+            //};
         }
 
         public HttpResponseMessage GetDisqusExport()
         {
             //save to Temp folder (base path)
-            var fs = new PhysicalFileSystem("~/App_Data/Temp/Articulate");
-            var fileStream = fs.OpenFile("DisqusXmlExport.xml");
+            var filePath = _hostingEnvironment.MapPathContentRoot("~/Umbraco/Data/TEMP/Articulate/DisqusXmlExport.xml");
+            FileStream fileStream = System.IO.File.OpenRead(filePath);
 
             var result = new HttpResponseMessage(HttpStatusCode.OK)
             {

@@ -1,12 +1,18 @@
-﻿using System.Net.Http.Formatting;
 using System.Web;
-using Umbraco.Core;
-using Umbraco.Core.Services;
-using Umbraco.Core.IO;
-using Umbraco.Web.Models.Trees;
-using Umbraco.Web.Mvc;
-using Umbraco.Web.Trees;
-using Umbraco.Web.Actions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Actions;
+using Umbraco.Cms.Core.Events;
+using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Models.Trees;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Trees;
+using Umbraco.Cms.Web.BackOffice.Trees;
+using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
@@ -17,27 +23,44 @@ namespace Articulate.Controllers
     [PluginController("Articulate")]
     public class ThemeTreeController : FileSystemTreeController
     {
-        protected override IFileSystem FileSystem => new PhysicalFileSystem(PathHelper.VirtualThemePath);
+        private static readonly string[] s_extensionsStatic = { "cshtml", "js", "css" };
+        private readonly IFileSystem _fileSystem;
 
-        private static readonly string[] ExtensionsStatic = { "cshtml", "js", "css" };
+        public ThemeTreeController(
+            ILocalizedTextService localizedTextService,
+            UmbracoApiControllerTypeCollection umbracoApiControllerTypeCollection,
+            IMenuItemCollectionFactory menuItemCollectionFactory,
+            IEventAggregator eventAggregator,
+            IIOHelper ioHelper,
+            IHostingEnvironment hostingEnvironment,
+            ILoggerFactory loggerFactory)
+            : base(localizedTextService, umbracoApiControllerTypeCollection, menuItemCollectionFactory, eventAggregator)
+            => _fileSystem = new PhysicalFileSystem(
+                ioHelper,
+                hostingEnvironment,
+                loggerFactory.CreateLogger<PhysicalFileSystem>(),
+                hostingEnvironment.MapPathContentRoot(PathHelper.VirtualThemePath),
+                hostingEnvironment.ToAbsolute(PathHelper.VirtualThemePath));
 
-        protected override string[] Extensions => ExtensionsStatic;
+        protected override IFileSystem FileSystem => _fileSystem;
+
+        protected override string[] Extensions => s_extensionsStatic;
 
         protected override string FileIcon => "icon-article";
 
         protected override void OnRenderFileNode(ref TreeNode treeNode)
         {
-            base.OnRenderFileNode(ref treeNode);           
+            base.OnRenderFileNode(ref treeNode);
         }
 
-        protected override MenuItemCollection GetMenuForNode(string id, FormDataCollection queryStrings)
+        protected override ActionResult<MenuItemCollection> GetMenuForNode(string id, FormCollection queryStrings)
         {
-            var menuItemCollection = new MenuItemCollection();
+            MenuItemCollection menuItemCollection = MenuItemCollectionFactory.Create();
             if (id == Constants.System.Root.ToString())
             {
                 menuItemCollection.DefaultMenuAlias = ActionNew.ActionAlias;
-                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.ActionAlias}"));
-                menuItemCollection.Items.Add(new RefreshNode(Services.TextService, true));
+                menuItemCollection.Items.Add<ActionNew>(LocalizedTextService);
+                menuItemCollection.Items.Add(new RefreshNode(LocalizedTextService, true));
 
                 return menuItemCollection;
             }
@@ -46,19 +69,22 @@ namespace Articulate.Controllers
             if (FileSystem.DirectoryExists(path))
             {
                 menuItemCollection.DefaultMenuAlias = ActionNew.ActionAlias;
-                menuItemCollection.Items.Add<ActionNew>(Services.TextService.Localize($"actions/{ActionNew.ActionAlias}"));                
-                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.ActionAlias}"));
-                menuItemCollection.Items.Add(new RefreshNode(Services.TextService, true));
+                menuItemCollection.Items.Add<ActionNew>(LocalizedTextService);
+                menuItemCollection.Items.Add<ActionDelete>(LocalizedTextService);
+                menuItemCollection.Items.Add(new RefreshNode(LocalizedTextService, true));
             }
             else if (dirExists)
-                menuItemCollection.Items.Add<ActionDelete>(Services.TextService.Localize($"actions/{ActionDelete.ActionAlias}"));
+            {
+                menuItemCollection.Items.Add<ActionDelete>(LocalizedTextService);
+            }
+
             return menuItemCollection;
         }
 
-        protected override TreeNode CreateRootNode(FormDataCollection queryStrings)
+        protected override ActionResult<TreeNode> CreateRootNode(FormCollection queryStrings)
         {
-            var node = base.CreateRootNode(queryStrings);
-            node.Icon = "icon-voice";
+            ActionResult<TreeNode> node = base.CreateRootNode(queryStrings);
+            node.Value.Icon = "icon-voice";
             return node;
         }
 

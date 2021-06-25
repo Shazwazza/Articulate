@@ -5,14 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
-using System.Web.WebPages;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace Articulate
 {
@@ -24,7 +25,7 @@ namespace Articulate
         /// <param name="html"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static IHtmlString AuthorCitation(this HtmlHelper html, PostModel model)
+        public static HtmlString AuthorCitation(this IHtmlHelper html, PostModel model)
         {
             var sb = new StringBuilder();
             if (model.Author != null)
@@ -54,7 +55,7 @@ namespace Articulate
         /// <param name="html"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static IHtmlString SocialMetaTags(this HtmlHelper html, IMasterModel model)
+        public static HtmlString SocialMetaTags(this IHtmlHelper html, IMasterModel model)
         {
             var builder = new StringBuilder();
             SocialMetaTags(model, builder);
@@ -65,7 +66,7 @@ namespace Articulate
                 SocialMetaTags(html, postModel, builder);
             }
 
-            return MvcHtmlString.Create(builder.ToString());
+            return HtmlString.Create(builder.ToString());
         }
 
         /// <summary>
@@ -77,17 +78,17 @@ namespace Articulate
         /// <remarks>
         /// Would be nice to add the Standard Template but need to get more author info in there
         /// </remarks>
-        public static IHtmlString SocialMetaTags(this HtmlHelper html, PostModel model)
+        public static HtmlString SocialMetaTags(this IHtmlHelper html, PostModel model)
         {
             var builder = new StringBuilder();
 
             SocialMetaTags(model, builder);
             SocialMetaTags(html, model, builder);
 
-            return MvcHtmlString.Create(builder.ToString());
+            return HtmlString.Create(builder.ToString());
         }
 
-        private static void SocialMetaTags(HtmlHelper html, PostModel model, StringBuilder builder)
+        private static void SocialMetaTags(IHtmlHelper html, PostModel model, StringBuilder builder)
         {
             if (!model.CroppedPostImageUrl.IsNullOrWhiteSpace())
             {
@@ -129,7 +130,7 @@ namespace Articulate
             builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));
         }
 
-        public static IHtmlString RenderOpenSearch(this HtmlHelper html, IMasterModel model)
+        public static HtmlString RenderOpenSearch(this IHtmlHelper html, IMasterModel model)
         {
             var openSearchUrl = model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "opensearch/" + model.RootBlogNode.Id;
             var tag = $@"<link rel=""search"" type=""application/opensearchdescription+xml"" href=""{openSearchUrl}"" title=""Search {model.RootBlogNode.Name}"" >";
@@ -137,7 +138,7 @@ namespace Articulate
             return new HtmlString(tag);
         }
 
-        public static IHtmlString RssFeed(this HtmlHelper html, IMasterModel model)
+        public static HtmlString RssFeed(this IHtmlHelper html, IMasterModel model)
         {
             var url = model.CustomRssFeed.IsNullOrWhiteSpace()
                 ? model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "rss"
@@ -147,7 +148,7 @@ namespace Articulate
                 $@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{url}"" />");
         }
 
-        public static IHtmlString AuthorRssFeed(this HtmlHelper html, AuthorModel model, UrlHelper urlHelper)
+        public static HtmlString AuthorRssFeed(this IHtmlHelper html, AuthorModel model, IUrlHelper urlHelper)
         {
             var url = urlHelper.ArticulateAuthorRssUrl(model);
 
@@ -155,7 +156,7 @@ namespace Articulate
                 $@"<link rel=""alternate"" type=""application/rss+xml"" title=""RSS"" href=""{url}"" />");
         }
 
-        public static IHtmlString AdvertiseWeblogApi(this HtmlHelper html, IMasterModel model)
+        public static HtmlString AdvertiseWeblogApi(this IHtmlHelper html, IMasterModel model)
         {
             var rsdUrl = model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "rsd/" + model.RootBlogNode.Id;
             var manifestUrl = model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "wlwmanifest/" + model.RootBlogNode.Id;
@@ -167,7 +168,7 @@ namespace Articulate
                     $@"<link rel=""wlwmanifest"" type=""application/wlwmanifest+xml"" href=""{manifestUrl}"" />"));
         }
 
-        public static IHtmlString MetaTags(this HtmlHelper html, IMasterModel model)
+        public static HtmlString MetaTags(this IHtmlHelper html, IMasterModel model)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -187,7 +188,7 @@ namespace Articulate
             return new HtmlString(builder.ToString());
         }
 
-        public static IHtmlString GoogleAnalyticsTracking(this HtmlHelper html, IMasterModel model)
+        public static HtmlString GoogleAnalyticsTracking(this IHtmlHelper html, IMasterModel model)
         {
             if (model.RootBlogNode.Value<string>("googleAnalyticsId").IsNullOrWhiteSpace() == false
                 && model.RootBlogNode.Value<string>("googleAnalyticsName").IsNullOrWhiteSpace() == false)
@@ -204,22 +205,22 @@ namespace Articulate
             return new HtmlString(string.Empty);
         }
 
-        public static HtmlHelper RequiresThemedCss(this HtmlHelper html, IMasterModel model, string filePath)
+        public static IHtmlHelper RequiresThemedCss(this IHtmlHelper html, IMasterModel model, string filePath)
         {
             return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/css" + filePath.EnsureStartsWith('/'));
         }
 
-        public static HtmlHelper RequiresThemedJs(this HtmlHelper html, IMasterModel model, string filePath)
+        public static IHtmlHelper RequiresThemedJs(this IHtmlHelper html, IMasterModel model, string filePath)
         {
             return html.RequiresJs(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
         }
 
-        public static HtmlHelper RequiresThemedCssFolder(this HtmlHelper html, IMasterModel model)
+        public static IHtmlHelper RequiresThemedCssFolder(this IHtmlHelper html, IMasterModel model)
         {
             return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
         }
 
-        public static HtmlHelper RequiresThemedJsFolder(this HtmlHelper html, IMasterModel model)
+        public static IHtmlHelper RequiresThemedJsFolder(this IHtmlHelper html, IMasterModel model)
         {
             return html.RequiresJsFolder(PathHelper.GetThemePath(model) + "Assets/js");
         }
@@ -233,7 +234,7 @@ namespace Articulate
         /// <param name="viewModel"></param>
         /// <param name="viewData"></param>
         /// <returns></returns>
-        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, object viewModel, ViewDataDictionary viewData = null)
+        public static HtmlString ThemedPartial(this IHtmlHelper html, IMasterModel model, string partialName, object viewModel, ViewDataDictionary viewData = null)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
             return html.Partial(path, viewModel, viewData);
@@ -247,7 +248,7 @@ namespace Articulate
         /// <param name="partialName"></param>
         /// <param name="viewData"></param>
         /// <returns></returns>
-        public static IHtmlString ThemedPartial(this HtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
+        public static HtmlString ThemedPartial(this IHtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
         {
             if (viewData == null)
             {
@@ -258,7 +259,7 @@ namespace Articulate
             return html.Partial(path, viewData);
         }
 
-        public static IHtmlString TagCloud(this HtmlHelper html, PostTagCollection model, decimal maxWeight, int maxResults)
+        public static HtmlString TagCloud(this IHtmlHelper html, PostTagCollection model, decimal maxWeight, int maxResults)
         {
             var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
                 .OrderByDescending(x => x.weight)
@@ -278,10 +279,10 @@ namespace Articulate
                 li.InnerHtml = a.ToString();
                 ul.InnerHtml += li.ToString();
             }
-            return MvcHtmlString.Create(ul.ToString());
+            return HtmlString.Create(ul.ToString());
         }
 
-        public static HelperResult TagCloud(this HtmlHelper html, PostTagCollection model, Func<PostsByTagModel, HelperResult> tagLink, decimal maxWeight, int maxResults)
+        public static HelperResult TagCloud(this IHtmlHelper html, PostTagCollection model, Func<PostsByTagModel, HelperResult> tagLink, decimal maxWeight, int maxResults)
         {
             return new HelperResult(writer =>
             {
@@ -305,17 +306,17 @@ namespace Articulate
             });
         }
 
-        public static HelperResult ListTags(this HtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
+        public static HelperResult ListTags(this IHtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
         {
             return html.ListCategoriesOrTags(model.Tags.ToArray(), tagLink, delimiter);
         }
 
-        public static HelperResult ListCategories(this HtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
+        public static HelperResult ListCategories(this IHtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
         {
             return html.ListCategoriesOrTags(model.Categories.ToArray(), tagLink, delimiter);
         }
 
-        public static HelperResult ListCategoriesOrTags(this HtmlHelper html, string[] items, Func<string, HelperResult> tagLink, string delimiter)
+        public static HelperResult ListCategoriesOrTags(this IHtmlHelper html, string[] items, Func<string, HelperResult> tagLink, string delimiter)
         {
             return new HelperResult(writer =>
             {
@@ -342,7 +343,7 @@ namespace Articulate
         /// <param name="cssClasses"></param>
         /// <param name="cellTemplates"></param>
         /// <returns></returns>
-        public static HelperResult Table<T>(this HtmlHelper html,
+        public static HelperResult Table<T>(this IHtmlHelper html,
             IEnumerable<T> collection,
             string[] headers,
             string[] cssClasses,
@@ -354,7 +355,7 @@ namespace Articulate
         /// <summary>
         /// Creates an Html table based on the collection
         /// </summary>
-        public static HelperResult Table<T>(this HtmlHelper html,
+        public static HelperResult Table<T>(this IHtmlHelper html,
             IEnumerable<T> collection,
             object htmlAttributes,
             string[] headers,

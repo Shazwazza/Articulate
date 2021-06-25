@@ -1,4 +1,5 @@
 ﻿using System;
+using Umbraco.Cms.Core.Routing;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Configuration.UmbracoSettings;

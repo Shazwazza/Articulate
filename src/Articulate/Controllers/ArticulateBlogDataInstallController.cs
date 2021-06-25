@@ -1,28 +1,26 @@
-using System.Web.Http;
 using Articulate.Packaging;
-using Umbraco.Core;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Persistence;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Editors;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Web.BackOffice.Controllers;
 
 namespace Articulate.Controllers
 {
     public class ArticulateBlogDataInstallController : UmbracoAuthorizedJsonController
     {
         private readonly ArticulateDataInstaller _installer;
+        private readonly IBackOfficeSecurityAccessor _security;
 
-        public ArticulateBlogDataInstallController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ISqlContext sqlContext, ServiceContext services, AppCaches appCaches, IProfilingLogger logger, IRuntimeState runtimeState, UmbracoHelper umbracoHelper, ArticulateDataInstaller installer) : base(globalSettings, umbracoContextAccessor, sqlContext, services, appCaches, logger, runtimeState, umbracoHelper)
+        public ArticulateBlogDataInstallController(
+            ArticulateDataInstaller installer,
+            IBackOfficeSecurityAccessor security)
         {
             _installer = installer;
+            _security = security;
         }
-        
-        public IHttpActionResult PostInstall()
+
+        public IActionResult PostInstall()
         {
-            var dataInstalled = _installer.InstallSchemaAndContent(Security.GetUserId().ResultOr(-1));
+            var dataInstalled = _installer.InstallSchemaAndContent(_security.BackOfficeSecurity.GetUserId().ResultOr(-1));
 
             return Ok(dataInstalled);
         }

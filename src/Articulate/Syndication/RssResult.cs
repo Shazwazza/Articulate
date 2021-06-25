@@ -1,12 +1,12 @@
 using System.IO;
 using System.ServiceModel.Syndication;
 using System.Text;
-using System.Web.Mvc;
 using System.Xml;
 using Articulate.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Articulate.Syndication
 {

@@ -1,14 +1,27 @@
-﻿using System.Web.Mvc;
 using System.Xml.Linq;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Web;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Web.Common;
 
 namespace Articulate.Controllers
 {
-    public class OpenSearchController : PluginController
+    public class OpenSearchController : Controller
     {
+        private readonly IPublishedValueFallback _publishedValueFallback;
+        private readonly IVariationContextAccessor _variationContextAccessor;
+        private readonly UmbracoHelper _umbraco;
+
+        public OpenSearchController(
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            UmbracoHelper umbraco)
+        {
+            _publishedValueFallback = publishedValueFallback;
+            _variationContextAccessor = variationContextAccessor;
+            _umbraco = umbraco;
+        }
+
         [HttpGet]
         public ActionResult Index(int id)
         {
@@ -42,13 +55,13 @@ namespace Articulate.Controllers
             //      template="http://aaron.pk/search?q={searchTerms}"/>
             //</OpenSearchDescription>
 
-            var node = Umbraco.Content(id);
+            var node = _umbraco.Content(id);
             if (node == null)
             {
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             }
 
-            var model = new MasterModel(node);
+            var model = new MasterModel(node, _publishedValueFallback, _variationContextAccessor);
             
             var searchTemplateUrl = Url.ArticulateSearchUrl(model, includeDomain:true) + "?term={searchTerms}";
 

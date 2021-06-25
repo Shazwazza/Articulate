@@ -1,14 +1,13 @@
 using System.Linq;
 using System.Text;
-using System.Web;
-using System.Web.Http.Routing;
 using Umbraco.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Articulate.Controllers
 {
     internal static class UrlHelperExtensions
     {
-        internal static string GetTreePathFromFilePath(this UrlHelper urlHelper, string virtualPath, string basePath = "")
+        internal static string GetTreePathFromFilePath(this IUrlHelper urlHelper, string virtualPath, string basePath = "")
         {
             //This reuses the Logic from umbraco.cms.helpers.DeepLink class
             //to convert a filepath to a tree syncing path string. 

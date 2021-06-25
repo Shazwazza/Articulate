@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
-using Umbraco.Core;
-using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Extensions;
 
 namespace Articulate.Models
 {
@@ -14,8 +13,13 @@ namespace Articulate.Models
         private readonly string _pageTypeAlias;
         private readonly string _urlPath;
 
-        public ArticulateVirtualPage(IPublishedContent rootBlogPage, string pageName, string pageTypeAlias, string urlPath = null)
-            : base(rootBlogPage)
+        public ArticulateVirtualPage(
+            IPublishedContent rootBlogPage,
+            string pageName,
+            string pageTypeAlias,
+            string urlPath,
+            IPublishedValueFallback publishedValueFallback)
+            : base(rootBlogPage, publishedValueFallback)
         {
             if (pageName == null) throw new ArgumentNullException("pageName");
             if (pageTypeAlias == null) throw new ArgumentNullException("pageTypeAlias");
@@ -26,10 +30,10 @@ namespace Articulate.Models
             {
                 _urlPath = urlPath.SafeEncodeUrlSegments();
             }
-            
         }
-        
-        public override string Url => base.Url.EnsureEndsWith('/') + (_urlPath ?? base.UrlSegment);
+
+        // TODO: This won't work
+        //public override string Url => base.Url.EnsureEndsWith('/') + (_urlPath ?? base.UrlSegment);
 
         /// <summary>
         /// Returns the content that was used to create this virtual node - we'll assume this virtual node's parent is based on the real node that created it

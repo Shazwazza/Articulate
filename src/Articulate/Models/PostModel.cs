@@ -1,23 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Articulate.Options;
-using CookComputing.XmlRpc;
-using HeyRed.MarkdownSharp;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors.ValueConverters;
-using Umbraco.Web;
-using Umbraco.Web.Models;
+using Microsoft.AspNetCore.Html;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Extensions;
 
 namespace Articulate.Models
 {
@@ -25,12 +13,13 @@ namespace Articulate.Models
     {
         private PostAuthorModel _author;
 
-        public PostModel(IPublishedContent content)
-            : base(content)
+        public PostModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor, IImageUrlGenerator imageUrlGenerator)
+            : base(content, publishedValueFallback, variationContextAccessor)
         {
             PageTitle = Name + " - " + BlogTitle;
             PageDescription = Excerpt;
             PageTags = string.Join(",", Tags);
+            _imageUrlGenerator = imageUrlGenerator;
         }
 
         public IEnumerable<string> Tags
@@ -75,7 +64,7 @@ namespace Articulate.Models
                     _author.Bio = authorNode.Value<string>("authorBio");
                     _author.Url = authorNode.Value<string>("authorUrl");
                     _author.Image = authorNode.Value<ImageCropperValue>("authorImage");
-                    _author.BlogUrl = authorNode.Url;
+                    _author.BlogUrl = authorNode.Url();
                 }
 
                 return _author;
@@ -102,6 +91,7 @@ namespace Articulate.Models
         }
 
         private string _croppedPostImageUrl;
+        private readonly IImageUrlGenerator _imageUrlGenerator;
 
         /// <summary>
         /// Cropped version of the PostImageUrl
@@ -120,7 +110,7 @@ namespace Articulate.Models
                     return null;
                 }
 
-                var wideCropUrl = PostImage.GetCropUrl("wide");
+                var wideCropUrl = PostImage.GetCropUrl("wide", _imageUrlGenerator);
                 _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?") + "upscale=false";
                 return _croppedPostImageUrl;
             }
@@ -131,17 +121,17 @@ namespace Articulate.Models
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription");
 
-        public IHtmlString Body
+        public HtmlString Body
         {
             get
             {
                 if (this.HasProperty("richText"))
                 {
-                    return this.Value<IHtmlString>("richText");                    
+                    return this.Value<HtmlString>("richText");                    
                 }
                 else
                 {
-                    var val = this.Value<IHtmlString>("markdown");
+                    var val = this.Value<HtmlString>("markdown");
                     return val;
                 }
                 
@@ -152,7 +142,7 @@ namespace Articulate.Models
 
         ImageCropperValue IImageModel.Image => PostImage;
         string IImageModel.Name => Name;
-        string IImageModel.Url => Url;
+        string IImageModel.Url => this.Url();
     }
 
 }

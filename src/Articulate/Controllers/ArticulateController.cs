@@ -1,13 +1,17 @@
-﻿using System;
+using System;
 using System.Linq;
-using System.Web.Mvc;
 using Articulate.Models;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
@@ -16,8 +20,20 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateController : ListControllerBase
     {
-        public ArticulateController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        private readonly UmbracoHelper _umbracoHelper;
+
+        public ArticulateController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedUrlProvider publishedUrlProvider,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            IImageUrlGenerator imageUrlGenerator,
+            UmbracoHelper umbracoHelper)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
         {
+            _umbracoHelper = umbracoHelper;
         }
 
         /// <summary>
@@ -26,10 +42,7 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Index(ContentModel model, int? p)
-        {
-            return RenderView(model, p);
-        }
+        public IActionResult Index(int? p) => RenderView(new ContentModel(CurrentPage), p);
 
         /// <summary>
         /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
@@ -37,12 +50,9 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(ContentModel model)
-        {
-            return RenderView(model);
-        }
+        public override IActionResult Index() => Index(0);
 
-        private ActionResult RenderView(ContentModel model, int? p = null)
+        private IActionResult RenderView(ContentModel model, int? p = null)
         {
             var listNodes = model.Content.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).ToArray();
             if (listNodes.Length == 0)
@@ -50,11 +60,17 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            var master = new MasterModel(model.Content);
+            var master = new MasterModel(model.Content, PublishedValueFallback, VariationContextAccessor);
 
-            var count = Umbraco.GetPostCount(listNodes.Select(x => x.Id).ToArray());
+            var count = _umbracoHelper.GetPostCount(listNodes.Select(x => x.Id).ToArray());
 
-            var posts = Umbraco.GetRecentPosts(master, p ?? 1, master.PageSize);
+            var posts = _umbracoHelper.GetRecentPosts(
+                master,
+                p ?? 1,
+                master.PageSize,
+                PublishedValueFallback,
+                VariationContextAccessor,
+                ImageUrlGenerator);
 
             return GetPagedListView(master, listNodes[0], posts, count, p);
 

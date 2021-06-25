@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Articulate.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
-using Umbraco.Web.Routing;
+using Umbraco.Cms.Core.Routing;
 
 namespace Articulate.Routing
 {
