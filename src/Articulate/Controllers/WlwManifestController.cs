@@ -1,11 +1,29 @@
-﻿using System.Xml.Linq;
-using Umbraco.Web.Mvc;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Articulate.Controllers
 {
     public class WlwManifestController : PluginController
     {
+        private readonly UmbracoHelper _umbraco;
+
+        public WlwManifestController(
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IUmbracoDatabaseFactory databaseFactory,
+            ServiceContext services,
+            AppCaches appCaches,
+            IProfilingLogger profilingLogger,
+            UmbracoHelper umbraco) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger)
+        {
+            _umbraco = umbraco;
+        }
 
         //http://msdn.microsoft.com/en-us/library/bb463260.aspx
         //http://msdn.microsoft.com/en-us/library/bb463263.aspx
@@ -13,7 +31,7 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.Content(id);
+            var node = _umbraco.Content(id);
             if (node == null)
             {
                 return new NotFoundResult();

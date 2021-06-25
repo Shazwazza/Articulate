@@ -3,11 +3,11 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Logging;
+using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
 {
@@ -18,13 +18,16 @@ namespace Articulate.ImportExport
     /// </summary>
     internal class DisqusImporter
     {
+        private readonly ILogger<DisqusXmlExporter> _logger;
+
         //private readonly string _accessToken;
         private readonly string _publicKey;
 
         //private readonly string _privateKey;
 
-        public DisqusImporter(string publicKey/*, string privateKey, string accessToken*/)
+        public DisqusImporter(ILogger<DisqusXmlExporter> logger, string publicKey/*, string privateKey, string accessToken*/)
         {
+            _logger = logger;
             //_accessToken = accessToken;
             //_privateKey = privateKey;
             _publicKey = publicKey;
@@ -93,7 +96,7 @@ namespace Articulate.ImportExport
                 {
                     var result = resp.ReadToEnd();
 
-                    Current.Logger.Error<BlogMlImporter>(new Exception(result), "Importing comment failed");
+                    _logger.LogError(new Exception(result), "Importing comment failed");
 
                     var obj = (JObject)JsonConvert.DeserializeObject(result);
                     throw;

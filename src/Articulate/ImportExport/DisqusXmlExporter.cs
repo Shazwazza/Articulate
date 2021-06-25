@@ -5,9 +5,10 @@ using System.Text;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
 using HeyRed.MarkdownSharp;
-using Umbraco.Core;
-using Umbraco.Core.Models;
-using Umbraco.Web;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
 {
@@ -15,10 +16,14 @@ namespace Articulate.ImportExport
     public class DisqusXmlExporter
     {
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly IPublishedUrlProvider _publishedUrlProvider;
 
-        public DisqusXmlExporter(IUmbracoContextAccessor umbracoContextAccessor)
+        public DisqusXmlExporter(
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedUrlProvider publishedUrlProvider)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
+            _publishedUrlProvider = publishedUrlProvider;
         }
 
         public XDocument Export(IEnumerable<IContent> posts, BlogMLDocument document)
@@ -58,7 +63,7 @@ namespace Articulate.ImportExport
 
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
-                    new XElement("link", _umbracoContextAccessor?.UmbracoContext?.UrlAbsolute(post.Id) ?? string.Empty),
+                    new XElement("link", _publishedUrlProvider.GetUrl(post.Id, Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute) ?? string.Empty),
                     new XElement(nsContent + "encoded", new XCData(body)),
                     new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),

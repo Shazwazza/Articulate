@@ -1,19 +1,17 @@
-﻿using Articulate.Models;
-using ClientDependency.Core.Mvc;
+using Articulate.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using Umbraco.Core;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Umbraco.Extensions;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using System.Threading.Tasks;
+using System.Text.Encodings.Web;
 
 namespace Articulate
 {
@@ -66,7 +64,7 @@ namespace Articulate
                 SocialMetaTags(html, postModel, builder);
             }
 
-            return HtmlString.Create(builder.ToString());
+            return new HtmlString(builder.ToString());
         }
 
         /// <summary>
@@ -85,49 +83,69 @@ namespace Articulate
             SocialMetaTags(model, builder);
             SocialMetaTags(html, model, builder);
 
-            return HtmlString.Create(builder.ToString());
+            return new HtmlString(builder.ToString());
         }
 
         private static void SocialMetaTags(IHtmlHelper html, PostModel model, StringBuilder builder)
         {
             if (!model.CroppedPostImageUrl.IsNullOrWhiteSpace())
             {
-                var openGraphImage = new TagBuilder("meta");
+                var openGraphImage = new TagBuilder("meta")
+                {
+                    TagRenderMode = TagRenderMode.SelfClosing
+                };
                 openGraphImage.Attributes["property"] = "og:image";
-                openGraphImage.Attributes["content"] = PathHelper.GetDomain(html.ViewContext.RequestContext.HttpContext.Request.Url) + model.CroppedPostImageUrl;
-                builder.AppendLine(openGraphImage.ToString(TagRenderMode.SelfClosing));
+                openGraphImage.Attributes["content"] = PathHelper.GetDomain(html.ViewContext.HttpContext.Request) + model.CroppedPostImageUrl;
+                // TODO: I don't know this works
+                builder.Append(openGraphImage);
             }
 
             if (!model.SocialMetaDescription.IsNullOrWhiteSpace() || !model.Excerpt.IsNullOrWhiteSpace())
             {
-                var openGraphDesc = new TagBuilder("meta");
+                var openGraphDesc = new TagBuilder("meta")
+                {
+                    TagRenderMode = TagRenderMode.SelfClosing
+                };
                 openGraphDesc.Attributes["property"] = "og:description";
                 openGraphDesc.Attributes["content"] = model.SocialMetaDescription.IsNullOrWhiteSpace() ? model.Excerpt : model.SocialMetaDescription;
-                builder.AppendLine(openGraphDesc.ToString(TagRenderMode.SelfClosing));
+                // TODO: I don't know this works
+                builder.Append(openGraphDesc);
             }
         }
 
         private static void SocialMetaTags(IPublishedContent model, StringBuilder builder)
         {
-            var twitterTag = new TagBuilder("meta");
+            var twitterTag = new TagBuilder("meta")
+            {
+                TagRenderMode = TagRenderMode.StartTag //non-closing since that's just the way it is
+            };
             twitterTag.Attributes["name"] = "twitter:card";
             twitterTag.Attributes["content"] = "summary";
-            builder.AppendLine(twitterTag.ToString(TagRenderMode.StartTag)); //non-closing since that's just the way it is
+            builder.Append(twitterTag);
 
-            var openGraphTitle = new TagBuilder("meta");
+            var openGraphTitle = new TagBuilder("meta")
+            {
+                TagRenderMode = TagRenderMode.SelfClosing
+            };
             openGraphTitle.Attributes["property"] = "og:title";
             openGraphTitle.Attributes["content"] = model.Name;
-            builder.AppendLine(openGraphTitle.ToString(TagRenderMode.SelfClosing));
+            builder.Append(openGraphTitle);
 
-            var openGraphType = new TagBuilder("meta");
+            var openGraphType = new TagBuilder("meta")
+            {
+                TagRenderMode = TagRenderMode.SelfClosing
+            };
             openGraphType.Attributes["property"] = "og:type";
             openGraphType.Attributes["content"] = "article";
-            builder.AppendLine(openGraphType.ToString(TagRenderMode.SelfClosing));
+            builder.AppendLine(openGraphType.ToString());
 
-            var openGraphUrl = new TagBuilder("meta");
+            var openGraphUrl = new TagBuilder("meta")
+            {
+                TagRenderMode = TagRenderMode.SelfClosing
+            };
             openGraphUrl.Attributes["property"] = "og:url";
             openGraphUrl.Attributes["content"] = model.Url(mode: UrlMode.Absolute);
-            builder.AppendLine(openGraphUrl.ToString(TagRenderMode.SelfClosing));
+            builder.AppendLine(openGraphUrl.ToString());
         }
 
         public static HtmlString RenderOpenSearch(this IHtmlHelper html, IMasterModel model)
@@ -172,17 +190,23 @@ namespace Articulate
         {
             StringBuilder builder = new StringBuilder();
 
-            var metaDescriptionTag = new TagBuilder("meta");
+            var metaDescriptionTag = new TagBuilder("meta")
+            {
+                TagRenderMode = TagRenderMode.SelfClosing
+            };
             metaDescriptionTag.Attributes["name"] = "description";
             metaDescriptionTag.Attributes["content"] = model.PageDescription;
-            builder.AppendLine(metaDescriptionTag.ToString(TagRenderMode.SelfClosing));
+            builder.AppendLine(metaDescriptionTag.ToString());
 
             if (!string.IsNullOrWhiteSpace(model.PageTags))
             {
-                var tagsTag = new TagBuilder("meta");
+                var tagsTag = new TagBuilder("meta")
+                {
+                    TagRenderMode = TagRenderMode.SelfClosing
+                };
                 tagsTag.Attributes["name"] = "tags";
                 tagsTag.Attributes["content"] = model.PageTags;
-                builder.AppendLine(tagsTag.ToString(TagRenderMode.SelfClosing));
+                builder.AppendLine(tagsTag.ToString());
             }
 
             return new HtmlString(builder.ToString());
@@ -207,22 +231,26 @@ namespace Articulate
 
         public static IHtmlHelper RequiresThemedCss(this IHtmlHelper html, IMasterModel model, string filePath)
         {
-            return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/css" + filePath.EnsureStartsWith('/'));
+            throw new NotImplementedException("TODO: Implement theme assets");
+            //return html.RequiresCss(PathHelper.GetThemePath(model) + "Assets/css" + filePath.EnsureStartsWith('/'));
         }
 
         public static IHtmlHelper RequiresThemedJs(this IHtmlHelper html, IMasterModel model, string filePath)
         {
-            return html.RequiresJs(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
+            throw new NotImplementedException("TODO: Implement theme assets");
+            //return html.RequiresJs(PathHelper.GetThemePath(model) + "Assets/js" + filePath.EnsureStartsWith('/'));
         }
 
         public static IHtmlHelper RequiresThemedCssFolder(this IHtmlHelper html, IMasterModel model)
         {
-            return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
+            throw new NotImplementedException("TODO: Implement theme assets");
+            //return html.RequiresCssFolder(PathHelper.GetThemePath(model) + "Assets/css");
         }
 
         public static IHtmlHelper RequiresThemedJsFolder(this IHtmlHelper html, IMasterModel model)
         {
-            return html.RequiresJsFolder(PathHelper.GetThemePath(model) + "Assets/js");
+            throw new NotImplementedException("TODO: Implement theme assets");
+            //return html.RequiresJsFolder(PathHelper.GetThemePath(model) + "Assets/js");
         }
 
         /// <summary>
@@ -234,10 +262,10 @@ namespace Articulate
         /// <param name="viewModel"></param>
         /// <param name="viewData"></param>
         /// <returns></returns>
-        public static HtmlString ThemedPartial(this IHtmlHelper html, IMasterModel model, string partialName, object viewModel, ViewDataDictionary viewData = null)
+        public static Task<IHtmlContent> ThemedPartialAsync(this IHtmlHelper html, IMasterModel model, string partialName, object viewModel, ViewDataDictionary viewData = null)
         {
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
-            return html.Partial(path, viewModel, viewData);
+            return html.PartialAsync(path, viewModel, viewData);
         }
 
         /// <summary>
@@ -248,7 +276,7 @@ namespace Articulate
         /// <param name="partialName"></param>
         /// <param name="viewData"></param>
         /// <returns></returns>
-        public static HtmlString ThemedPartial(this IHtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
+        public static Task<IHtmlContent> ThemedPartialAsync(this IHtmlHelper html, IMasterModel model, string partialName, ViewDataDictionary viewData = null)
         {
             if (viewData == null)
             {
@@ -256,7 +284,7 @@ namespace Articulate
             }
 
             var path = PathHelper.GetThemePartialViewPath(model, partialName);
-            return html.Partial(path, viewData);
+            return html.PartialAsync(path, viewData);
         }
 
         public static HtmlString TagCloud(this IHtmlHelper html, PostTagCollection model, decimal maxWeight, int maxResults)
@@ -264,47 +292,50 @@ namespace Articulate
             var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
                 .OrderByDescending(x => x.weight)
                 .Take(maxResults);
-                //.RandomOrder(); //TODO: WB this is not in V8 & would need to be implemented in Articulate
+            //.RandomOrder(); //TODO: WB this is not in V8 & would need to be implemented in Articulate
 
             var ul = new TagBuilder("ul");
             ul.AddCssClass("tag-cloud");
             foreach (var tag in tagsAndWeight)
             {
-                var li = new TagBuilder("li");
-                li.AddCssClass("tag-cloud-" + tag.weight);
                 var a = new TagBuilder("a");
                 a.MergeAttribute("href", tag.tag.TagUrl);
                 a.MergeAttribute("title", tag.tag.TagName);
-                a.SetInnerText(tag.tag.TagName);
-                li.InnerHtml = a.ToString();
-                ul.InnerHtml += li.ToString();
+                a.InnerHtml.SetContent(tag.tag.TagName);
+
+                var li = new TagBuilder("li");
+                li.AddCssClass("tag-cloud-" + tag.weight);
+                li.InnerHtml.AppendHtml(a);
+
+                ul.InnerHtml.AppendHtml(li);
             }
-            return HtmlString.Create(ul.ToString());
+            return new HtmlString(ul.ToString());
         }
 
         public static HelperResult TagCloud(this IHtmlHelper html, PostTagCollection model, Func<PostsByTagModel, HelperResult> tagLink, decimal maxWeight, int maxResults)
-        {
-            return new HelperResult(writer =>
-            {
-                var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
-                    .OrderByDescending(x => x.weight)
-                    .Take(maxResults);
+            => new HelperResult(writer =>
+                {
+                    var tagsAndWeight = model.Select(x => new { tag = x, weight = model.GetTagWeight(x, maxWeight) })
+                        .OrderByDescending(x => x.weight)
+                        .Take(maxResults);
                     //.RandomOrder(); //TODO: WB this is not in V8 & would need to be implemented in Articulate
 
-                var ul = new TagBuilder("ul");
-                ul.AddCssClass("tag-cloud");
-                foreach (var tag in tagsAndWeight)
-                {
-                    var li = new TagBuilder("li");
-                    li.AddCssClass("tag-cloud-" + tag.weight);
+                    var ul = new TagBuilder("ul");
+                    ul.AddCssClass("tag-cloud");
+                    foreach (var tag in tagsAndWeight)
+                    {
+                        var li = new TagBuilder("li");
+                        li.AddCssClass("tag-cloud-" + tag.weight);
 
-                    li.InnerHtml = tagLink(tag.tag).ToString();
-                    ul.InnerHtml += li.ToString();
-                }
+                        li.InnerHtml.AppendHtml(tagLink(tag.tag));
 
-                writer.Write(ul.ToString());
-            });
-        }
+                        ul.InnerHtml.AppendHtml(li);
+                    }
+
+                    writer.Write(ul.ToString());
+
+                    return Task.CompletedTask;
+                });
 
         public static HelperResult ListTags(this IHtmlHelper html, PostModel model, Func<string, HelperResult> tagLink, string delimiter = ", ")
         {
@@ -317,21 +348,20 @@ namespace Articulate
         }
 
         public static HelperResult ListCategoriesOrTags(this IHtmlHelper html, string[] items, Func<string, HelperResult> tagLink, string delimiter)
-        {
-            return new HelperResult(writer =>
-            {
-                foreach (var tag in items)
+            => new HelperResult(writer =>
                 {
-                    tagLink(tag).WriteTo(writer);
-                    if (tag != items.Last())
+                    foreach (var tag in items)
                     {
-                        writer.Write("<span>");
-                        writer.Write(delimiter);
-                        writer.Write("</span>");
+                        tagLink(tag).WriteTo(writer, HtmlEncoder.Default);
+                        if (tag != items.Last())
+                        {
+                            writer.Write("<span>");
+                            writer.Write(delimiter);
+                            writer.Write("</span>");
+                        }
                     }
-                }
-            });
-        }
+                    return Task.CompletedTask;
+                });
 
         /// <summary>
         /// Creates an Html table based on the collection
@@ -361,52 +391,53 @@ namespace Articulate
             string[] headers,
             string[] cssClasses,
             params Func<T, HelperResult>[] cellTemplates) where T : class
-        {
-            return new HelperResult(writer =>
-            {
-                var items = collection.ToArray();
-                var rows = items.Count();
-                var cols = headers.Count();
-                if (cellTemplates.Length != cols)
+            => new HelperResult(writer =>
                 {
-                    throw new InvalidOperationException("The number of cell templates must equal the number of columns defined");
-                }
-
-                var tagBuilder = new TagBuilder("table");
-                if (htmlAttributes != null)
-                {
-                    IDictionary<string, object> atts = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-                    tagBuilder.MergeAttributes(atts);
-                }
-                writer.Write(tagBuilder.ToString(TagRenderMode.StartTag));
-
-                writer.Write("<thead>");
-                writer.Write("<tr>");
-                for (int i = 0; i < cols; i++)
-                {
-                    writer.Write("<th class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[i] : "");
-                    writer.Write(headers[i]);
-                    writer.Write("</th>");
-                }
-                writer.Write("</thead>");
-                for (var rowIndex = 0; rowIndex < rows; rowIndex++)
-                {
-                    writer.Write("<tr>");
-                    for (var colIndex = 0; colIndex < cols; colIndex++)
+                    var items = collection.ToArray();
+                    var rows = items.Count();
+                    var cols = headers.Count();
+                    if (cellTemplates.Length != cols)
                     {
-                        writer.Write("<td class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[colIndex] : "");
-                        var item = items[rowIndex];
-                        if (item != null)
-                        {
-                            //if there's an item at that grid location, call its template
-                            cellTemplates[colIndex](item).WriteTo(writer);
-                        }
-                        writer.Write("</td>");
+                        throw new InvalidOperationException("The number of cell templates must equal the number of columns defined");
                     }
-                    writer.Write("</tr>");
-                }
-                writer.Write("</table>");
-            });
-        }
+
+                    // TODO: What is the point of using tag builder here???
+                    var tagBuilder = new TagBuilder("table");
+                    if (htmlAttributes != null)
+                    {
+                        IDictionary<string, object> atts = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+                        tagBuilder.MergeAttributes(atts);
+                    }
+                    writer.Write(tagBuilder.RenderStartTag());
+
+                    writer.Write("<thead>");
+                    writer.Write("<tr>");
+                    for (int i = 0; i < cols; i++)
+                    {
+                        writer.Write("<th class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[i] : "");
+                        writer.Write(headers[i]);
+                        writer.Write("</th>");
+                    }
+                    writer.Write("</thead>");
+                    for (var rowIndex = 0; rowIndex < rows; rowIndex++)
+                    {
+                        writer.Write("<tr>");
+                        for (var colIndex = 0; colIndex < cols; colIndex++)
+                        {
+                            writer.Write("<td class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[colIndex] : "");
+                            var item = items[rowIndex];
+                            if (item != null)
+                            {
+                                //if there's an item at that grid location, call its template
+                                cellTemplates[colIndex](item).WriteTo(writer, HtmlEncoder.Default);
+                            }
+                            writer.Write("</td>");
+                        }
+                        writer.Write("</tr>");
+                    }
+                    writer.Write("</table>");
+
+                    return Task.CompletedTask;
+                });
     }
 }

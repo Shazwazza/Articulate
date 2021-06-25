@@ -1,23 +1,24 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Examine;
-using Umbraco.Core;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Examine.Search;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace Articulate
 {
     public class DefaultArticulateSearcher : IArticulateSearcher
     {
-        private readonly UmbracoContext _umbracoContext;
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
         private readonly IExamineManager _examineManager;
 
-        public DefaultArticulateSearcher(UmbracoContext umbracoContext, IExamineManager examineManager)
+        public DefaultArticulateSearcher(IUmbracoContextAccessor umbracoContextAccessor, IExamineManager examineManager)
         {
-            _umbracoContext = umbracoContext ?? throw new ArgumentNullException(nameof(umbracoContext));
+            _umbracoContextAccessor = umbracoContextAccessor;
             _examineManager = examineManager;
         }
 
@@ -64,23 +65,23 @@ namespace Articulate
 
             indexName = indexName.IsNullOrWhiteSpace() ? Constants.UmbracoIndexes.ExternalIndexName : indexName;
 
-            if (!_examineManager.TryGetIndex(indexName, out var index))
+            if (!_examineManager.TryGetIndex(indexName, out IIndex index))
+            {
                 throw new InvalidOperationException("No index found by name " + indexName);
+            }
 
-            var searcher = index.GetSearcher();
+            var searcher = index.Searcher;
 
             var criteria = searcher.CreateQuery()
                 .Field("parentID", blogArchiveNodeId)
                 .And()
                 .NativeQuery($" +({fieldQuery})");
 
-            var searchResult = criteria.Execute(
-                //don't return more results than we need for the paging
-                pageSize*(pageIndex + 1));
+            var searchResult = criteria.Execute(QueryOptions.SkipTake(pageIndex * pageSize, pageSize));
 
             var result = searchResult
                 .Skip(pageIndex * pageSize)
-                .ToPublishedSearchResults(_umbracoContext.PublishedSnapshot.Content);
+                .ToPublishedSearchResults(_umbracoContextAccessor.UmbracoContext.PublishedSnapshot.Content);
 
             totalResults = searchResult.TotalItemCount;
 

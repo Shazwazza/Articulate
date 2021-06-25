@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,14 +9,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
-using Umbraco.Core.Persistence;
-using Umbraco.Core.PropertyEditors;
-using Umbraco.Core.Scoping;
-using Umbraco.Core.Services;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Extensions;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
 
@@ -24,32 +24,29 @@ namespace Articulate.ImportExport
 {
     public class BlogMlImporter
     {
-        private readonly ArticulateTempFileSystem _fileSystem;
         private readonly DisqusXmlExporter _disqusXmlExporter;
         private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
         private readonly IContentService _contentService;
         private readonly IContentTypeService _contentTypeService;
         private readonly IUserService _userService;
-        private readonly ILogger _logger;
+        private readonly ILogger<BlogMlImporter> _logger;
         private readonly IDataTypeService _dataTypeService;
         private readonly ISqlContext _sqlContext;
         private readonly IScopeProvider _scopeProvider;
         private readonly ILocalizationService _localizationService;
 
         public BlogMlImporter(
-            ArticulateTempFileSystem fileSystem,
             DisqusXmlExporter disqusXmlExporter,
             IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
             IContentService contentService,
             IContentTypeService contentTypeService,
             IUserService userService,
-            ILogger logger,
+            ILogger<BlogMlImporter> logger,
             IDataTypeService dataTypeService,
             ISqlContext sqlContext,
             IScopeProvider scopeProvider,
             ILocalizationService localizationService)
         {
-            _fileSystem = fileSystem;
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
             _contentService = contentService;
@@ -123,7 +120,9 @@ namespace Articulate.ImportExport
                             using (var memStream = new MemoryStream())
                             {
                                 xDoc.Save(memStream);
-                                _fileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
+
+                                throw new NotImplementedException("TODO: Implement file saving");
+                                //_fileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
                             }
                         }
                     }
@@ -134,7 +133,7 @@ namespace Articulate.ImportExport
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error<BlogMlImporter>(ex, "Importing failed with errors");
+                    _logger.LogError(ex, "Importing failed with errors");
                     return true;
                 }
             }
@@ -432,7 +431,7 @@ namespace Articulate.ImportExport
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
+                    _logger.LogError(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
                 }
             }
 
@@ -449,7 +448,7 @@ namespace Articulate.ImportExport
         }
 
         //borrowed from CMS core until SetValue is fixed with a stream
-        private string CreateImageCropperValue(PropertyType propertyType, object value, IDataTypeService dataTypeService)
+        private string CreateImageCropperValue(IPropertyType propertyType, object value, IDataTypeService dataTypeService)
         {
             if (value == null || string.IsNullOrEmpty(value.ToString()))
                 return null;

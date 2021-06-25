@@ -1,4 +1,4 @@
-using Umbraco.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 
 namespace Articulate.Models
 {

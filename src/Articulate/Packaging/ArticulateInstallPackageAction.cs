@@ -1,29 +1,27 @@
-﻿using System.Xml.Linq;
-using Articulate.Routing;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.PackageActions;
-using Current = Umbraco.Web.Composing.Current;
+// TODO: Convert to package action
 
-namespace Articulate.Packaging
-{
-    public class ArticulateInstallPackageAction : IPackageAction
-    {
-        public bool Execute(string packageName, XElement xmlData)
-        {
-            var dataInstaller = Current.Factory.GetInstance<ArticulateDataInstaller>();
-            var root = dataInstaller.InstallContent();
+//using System.Xml.Linq;
+//using Current = Umbraco.Web.Composing.Current;
 
-            Current.Logger.Info<ArticulateInstallPackageAction>("Articulate data installation completed");
+//namespace Articulate.Packaging
+//{
+//    public class ArticulateInstallPackageAction : IPackageAction
+//    {
+//        public bool Execute(string packageName, XElement xmlData)
+//        {
+//            var dataInstaller = Current.Factory.GetInstance<ArticulateDataInstaller>();
+//            var root = dataInstaller.InstallContent();
 
-            var articulateRoutes = Current.Factory.GetInstance<ArticulateRoutes>();
-            articulateRoutes.MapRoutes(RouteTable.Routes);
+//            Current.Logger.Info<ArticulateInstallPackageAction>("Articulate data installation completed");
 
-            return true;
-        }
+//            var articulateRoutes = Current.Factory.GetInstance<ArticulateRoutes>();
+//            articulateRoutes.MapRoutes(RouteTable.Routes);
 
-        public string Alias() => "articulateInstall";
+//            return true;
+//        }
 
-        public bool Undo(string packageName, XElement xmlData) => true;
-    }
-}
+//        public string Alias() => "articulateInstall";
+
+//        public bool Undo(string packageName, XElement xmlData) => true;
+//    }
+//}

@@ -6,37 +6,44 @@ using System.Text;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using HeyRed.MarkdownSharp;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Routing;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
 {
     public class BlogMlExporter
     {
-        private readonly ArticulateTempFileSystem _fileSystem;
         private readonly IContentService _contentService;
         private readonly IContentTypeService _contentTypeService;
         private readonly IDataTypeService _dataTypeService;
         private readonly ITagService _tagService;
-        private readonly ILogger _logger;
+        private readonly IPublishedUrlProvider _urlProvider;
+        private readonly ILogger<BlogMlExporter> _logger;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
-        public BlogMlExporter(IUmbracoContextAccessor umbracoContextAccessor, ArticulateTempFileSystem fileSystem, IContentService contentService, IContentTypeService contentTypeService, IDataTypeService dataTypeService, ITagService tagService, ILogger logger)
+        public BlogMlExporter(
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IContentService contentService,
+            IContentTypeService contentTypeService,
+            IDataTypeService dataTypeService,
+            ITagService tagService,
+            IPublishedUrlProvider urlProvider,
+            ILogger<BlogMlExporter> logger)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
-            _fileSystem = fileSystem;
             _contentService = contentService;
             _contentTypeService = contentTypeService;
             _dataTypeService = dataTypeService;
             _tagService = tagService;
+            _urlProvider = urlProvider;
             _logger = logger;
         }
 
@@ -96,7 +103,7 @@ namespace Articulate.ImportExport
 
             var blogMlDoc = new BlogMLDocument
             {
-                RootUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
+                RootUrl = new Uri(_urlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
                 GeneratedOn = DateTime.Now,
                 Title = new BlogMLTextConstruct(root.GetValue<string>("blogTitle")),
                 Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
@@ -123,7 +130,9 @@ namespace Articulate.ImportExport
                     CharacterEncoding = Encoding.UTF8
                 });
                 stream.Position = 0;
-                _fileSystem.AddFile("BlogMlExport.xml", stream, true);
+
+                throw new NotImplementedException("TODO: Implement the file exporter");
+                //_fileSystem.AddFile("BlogMlExport.xml", stream, true);
             }
         }
 
@@ -186,8 +195,8 @@ namespace Articulate.ImportExport
                         content = md.Transform(child.GetValue<string>("markdown"));
                     }
 
-                    var postUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
-                    var postAbsoluteUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id, UrlMode.Absolute), UriKind.Absolute);
+                    var postUrl = new Uri(_urlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
+                    var postAbsoluteUrl = new Uri(_urlProvider.GetUrl(child.Id, UrlMode.Absolute), UriKind.Absolute);
                     var blogMlPost = new BlogMLPost()
                     {
                         Id = child.Key.ToString(),
@@ -251,7 +260,7 @@ namespace Articulate.ImportExport
                         }
                         catch (Exception ex)
                         {
-                            _logger.Error<BlogMlExporter>(ex, "Could not add the file to the blogML post attachments");
+                            _logger.LogError(ex, "Could not add the file to the blogML post attachments");
                         }
                     }
 
