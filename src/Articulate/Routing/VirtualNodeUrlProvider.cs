@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Articulate.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Extensions;
 
 namespace Articulate.Routing
 {
@@ -16,21 +18,26 @@ namespace Articulate.Routing
         /// <summary>
         /// Gets the nice url of a custom routed published content item
         /// </summary>
-        public UrlInfo GetUrl(UmbracoContext umbracoContext, IPublishedContent content, UrlMode mode, string culture, Uri current)
+        public UrlInfo GetUrl(IPublishedContent content, UrlMode mode, string culture, Uri current)
         {
-            if (umbracoContext.PublishedRequest == null) return null;
-            if (umbracoContext.PublishedRequest.PublishedContent == null) return null;
-            var virtualPage = umbracoContext.PublishedRequest.PublishedContent as ArticulateVirtualPage;
-            if (virtualPage == null) return null;
+            if (content == null)
+            {
+                return null;
+            }
+
+            if (content is not ArticulateVirtualPage virtualPage)
+            {
+                return null;
+            }
 
             //if the ids match, then return the assigned url
-            return content.Id == virtualPage.Id ? UrlInfo.Url(virtualPage.Url, culture) : null;
+            return content.Id == virtualPage.Id ? UrlInfo.Url(virtualPage.Url(), culture) : null;
         }
 
         /// <summary>
         /// The custom implementation returns null since we are not supporting url generation with this provider
         /// </summary>
-        public IEnumerable<UrlInfo> GetOtherUrls(UmbracoContext umbracoContext, int id, Uri current)
+        public IEnumerable<UrlInfo> GetOtherUrls(int id, Uri current)
         {
             return Enumerable.Empty<UrlInfo>();
         }

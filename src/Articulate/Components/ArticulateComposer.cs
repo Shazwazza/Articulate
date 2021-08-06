@@ -18,10 +18,10 @@ namespace Articulate.Components
         public void Compose(IUmbracoBuilder builder)
         {
             var services = builder.Services;
-            services.AddSingleton<ArticulateRoutes>();
+            //services.AddSingleton<ArticulateRoutes>();
             services.AddSingleton<ContentUrls>();
             services.AddSingleton<ArticulateDataInstaller>();
-            services.AddSingleton<ArticulateTempFileSystem>(x => new ArticulateTempFileSystem("~/App_Data/Temp/Articulate"));
+            //services.AddSingleton<ArticulateTempFileSystem>(x => new ArticulateTempFileSystem("~/App_Data/Temp/Articulate"));
             services.AddSingleton<BlogMlExporter>();
             services.AddSingleton<IRssFeedGenerator, RssFeedGenerator>();
 
@@ -33,13 +33,13 @@ namespace Articulate.Components
 
             services.AddScoped<IArticulateSearcher, DefaultArticulateSearcher>();
 
-            services.AddTransient<MetaWeblogHandler>();
-            services.AddSingleton<MetaWeblogHandlerFactory>(factory => new MetaWeblogHandlerFactory(i =>
-           {
-               var instance = factory.GetRequiredService<MetaWeblogHandler>();
-               instance.BlogRootId = i;
-               return instance;
-           }));
+            //services.AddTransient<MetaWeblogHandler>();
+           // services.AddSingleton<MetaWeblogHandlerFactory>(factory => new MetaWeblogHandlerFactory(i =>
+           //{
+           //    var instance = factory.GetRequiredService<MetaWeblogHandler>();
+           //    instance.BlogRootId = i;
+           //    return instance;
+           //}));
 
             builder.UrlProviders().Append<VirtualNodeUrlProvider>();
             builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();

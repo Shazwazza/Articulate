@@ -1,31 +1,27 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
 using Articulate.Controllers;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.IO;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Extensions;
 
 namespace Articulate.Syndication
 {
     public class RssFeedGenerator : IRssFeedGenerator
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<RssFeedGenerator> _logger;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public RssFeedGenerator(ILogger logger)
+        public RssFeedGenerator(ILogger<RssFeedGenerator> logger, IHostingEnvironment hostingEnvironment)
         {
             _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         private readonly Regex _relativeMediaSrc = new Regex(" src=(?:\"|')(/media/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -64,7 +60,7 @@ namespace Articulate.Syndication
                 return null;
             }
 
-            var appPath = HttpRuntime.AppDomainAppVirtualPath;
+            var appPath = _hostingEnvironment.ApplicationVirtualPath;
             var rootUri = new Uri(rootUrl);
             var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
 
@@ -126,7 +122,7 @@ namespace Articulate.Syndication
             }
             catch (Exception ex)
             {
-                _logger.Error<ArticulateRssController>(ex, "Could not convert the blog logo path to a Uri");
+                _logger.LogError(ex, "Could not convert the blog logo path to a Uri");
             }
             return logoUri;
         }

@@ -1,9 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Extensions;
 
 namespace Articulate
@@ -98,7 +102,10 @@ namespace Articulate
             string filename,
             Stream filestream,
             IContentTypeComposition contentType,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            MediaFileManager mediaFileManager,
+            IShortStringHelper shortStringHelper,
+            IJsonSerializer jsonSerializer)
         {
             if (contentType is null)
                 throw new ArgumentNullException(nameof(contentType));
@@ -106,7 +113,10 @@ namespace Articulate
             var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
 
             content.SetValue(
+                mediaFileManager,
+                shortStringHelper,
                 contentTypeBaseServiceProvider,
+                jsonSerializer,
                 propertyTypeAlias,
                 filename,
                 filestream,
@@ -127,6 +137,9 @@ namespace Articulate
             IEnumerable<string> tags,
             IContentTypeComposition contentType,
             ILocalizationService localizationService,
+            IDataTypeService dataTypeService,
+            PropertyEditorCollection dataEditors,
+            IJsonSerializer jsonSerializer,
             bool merge = false)
         {
             if (contentType is null)
@@ -135,6 +148,9 @@ namespace Articulate
             var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
 
             content.AssignTags(
+                dataEditors,
+                dataTypeService,
+                jsonSerializer,
                 propertyTypeAlias,
                 tags,
                 merge,

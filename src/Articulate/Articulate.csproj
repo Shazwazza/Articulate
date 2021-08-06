@@ -48,6 +48,7 @@
     <PackageReference Include="Argotic.Core" Version="3000.0.1" />
     <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-*" />
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-*" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>
   <Import Project="..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets')" />
   <Import Project="..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets" Condition="Exists('..\packages\Umbraco.SqlServerCE.4.0.0.1\build\Umbraco.SqlServerCE.targets')" />

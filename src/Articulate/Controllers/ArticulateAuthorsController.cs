@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common.ActionsResults;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Extensions;
 
@@ -47,7 +48,7 @@ namespace Articulate.Controllers
 
             var action = ControllerContext.RouteData.Values["action"].ToString();
             if (!EnsurePhsyicalViewExists(action))
-                return new UmbracoNotFoundResult();
+                return new PublishedContentNotFoundResult(UmbracoContext);
 
             return View(action, new ContentModel(CurrentPage));
         }

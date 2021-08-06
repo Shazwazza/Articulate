@@ -11,10 +11,13 @@ using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Extensions;
 using File = System.IO.File;
@@ -34,6 +37,10 @@ namespace Articulate.ImportExport
         private readonly ISqlContext _sqlContext;
         private readonly IScopeProvider _scopeProvider;
         private readonly ILocalizationService _localizationService;
+        private readonly IShortStringHelper _shortStringHelper;
+        private readonly MediaFileManager _mediaFileManager;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly PropertyEditorCollection _dataEditors;
 
         public BlogMlImporter(
             DisqusXmlExporter disqusXmlExporter,
@@ -45,7 +52,11 @@ namespace Articulate.ImportExport
             IDataTypeService dataTypeService,
             ISqlContext sqlContext,
             IScopeProvider scopeProvider,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IShortStringHelper shortStringHelper,
+            MediaFileManager mediaFileManager,
+            IJsonSerializer jsonSerializer,
+            PropertyEditorCollection dataEditors)
         {
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
@@ -57,6 +68,10 @@ namespace Articulate.ImportExport
             _sqlContext = sqlContext;
             _scopeProvider = scopeProvider;
             _localizationService = localizationService;
+            _shortStringHelper = shortStringHelper;
+            _mediaFileManager = mediaFileManager;
+            _jsonSerializer = jsonSerializer;
+            _dataEditors = dataEditors;
         }
 
         public int GetPostCount(string fileName)
@@ -412,7 +427,7 @@ namespace Articulate.ImportExport
                 var bytes = Convert.FromBase64String(attachment.Content);
                 using (var stream = new MemoryStream(bytes))
                 {
-                    postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream, postType, _localizationService);
+                    postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream, postType, _localizationService, _mediaFileManager, _shortStringHelper, _jsonSerializer);
                     imageSaved = true;
                 }
             }
@@ -424,7 +439,7 @@ namespace Articulate.ImportExport
                     {
                         using (var stream = await client.GetStreamAsync(attachment.ExternalUri))
                         {
-                            postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream, postType, _localizationService);
+                            postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream, postType, _localizationService, _mediaFileManager, _shortStringHelper, _jsonSerializer);
                             imageSaved = true;
                         }
                     }
@@ -503,7 +518,7 @@ namespace Articulate.ImportExport
                 .Select(x => x.Title.Content)
                 .ToArray();
 
-            postNode.AssignInvariantOrDefaultCultureTags("categories", postCats, postType, _localizationService);
+            postNode.AssignInvariantOrDefaultCultureTags("categories", postCats, postType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
         }
 
         private void ImportTags(XDocument xdoc, IContent postNode, BlogMLPost post, IContentType postType)
@@ -523,7 +538,7 @@ namespace Articulate.ImportExport
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
 
-            postNode.AssignInvariantOrDefaultCultureTags("tags", tags, postType, _localizationService);
+            postNode.AssignInvariantOrDefaultCultureTags("tags", tags, postType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
         }
     }
 }

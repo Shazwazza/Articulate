@@ -2,6 +2,7 @@ using System.Linq;
 using System.Text;
 using Umbraco.Core;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
 namespace Articulate.Controllers
 {
@@ -14,8 +15,8 @@ namespace Articulate.Controllers
 
             //removes the basepath from the path 
             //and normalises paths - / is used consistently between trees and editors
-            basePath = basePath.TrimStart("~");
-            virtualPath = virtualPath.TrimStart("~");
+            basePath = basePath.TrimStart('~');
+            virtualPath = virtualPath.TrimStart('~');
             virtualPath = virtualPath.Substring(basePath.Length);
             virtualPath = virtualPath.Replace('\\', '/');
 
@@ -34,7 +35,7 @@ namespace Articulate.Controllers
                     sb.Append(path);
                 }
             }
-            return sb.ToString().TrimEnd(",");
+            return sb.ToString().TrimEnd(',');
         }
     }
 }

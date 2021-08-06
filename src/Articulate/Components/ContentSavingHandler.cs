@@ -1,8 +1,11 @@
 using Articulate.Options;
+using HeyRed.MarkdownSharp;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
@@ -14,11 +17,19 @@ namespace Articulate.Components
     {
         private readonly IContentTypeService _contentTypeService;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly IBackOfficeSecurityAccessor _backOfficeSecurityAccessor;
+        private readonly ArticulateOptions _articulateOptions;
 
-        public ContentSavingHandler(IContentTypeService contentTypeService, IUmbracoContextAccessor umbracoContextAccessor)
+        public ContentSavingHandler(
+            IContentTypeService contentTypeService,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
+            IOptions<ArticulateOptions> articulateOptions)
         {
             _contentTypeService = contentTypeService;
             _umbracoContextAccessor = umbracoContextAccessor;
+            _backOfficeSecurityAccessor = backOfficeSecurityAccessor;
+            _articulateOptions = articulateOptions.Value;
         }
 
         public void Handle(ContentSavingNotification notification)
@@ -43,7 +54,7 @@ namespace Articulate.Components
                         "author",
                         contentTypes[content.ContentTypeId],
                         // if the author is not already set, then set it 
-                        (c, ct, culture) => c.GetValue("author", culture?.Culture) == null ? _umbracoContextAccessor?.UmbracoContext?.Security?.CurrentUser?.Name : null);
+                        (c, ct, culture) => c.GetValue("author", culture?.Culture) == null ? _backOfficeSecurityAccessor.BackOfficeSecurity?.CurrentUser?.Name : null);
 
                     if (!content.HasIdentity)
                     {
@@ -55,7 +66,7 @@ namespace Articulate.Components
                     }
                 }
 
-                if (_configs.Articulate().AutoGenerateExcerpt)
+                if (_articulateOptions.AutoGenerateExcerpt)
                 {
                     if (content.ContentType.Alias.InvariantEquals("ArticulateRichText")
                         || content.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
@@ -75,7 +86,7 @@ namespace Articulate.Components
                                 {
                                     var richTextProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "richText");
                                     var val = c.GetValue<string>("richText", richTextProperty.VariesByCulture() ? culture?.Culture : null);
-                                    return _configs.Articulate().GenerateExcerpt(val);
+                                    return _articulateOptions.GenerateExcerpt(val);
                                 }
                                 else
                                 {
@@ -83,7 +94,7 @@ namespace Articulate.Components
                                     var val = c.GetValue<string>("markdown", markdownProperty.VariesByCulture() ? culture?.Culture : null);
                                     var md = new Markdown();
                                     var html = md.Transform(val);
-                                    return _configs.Articulate().GenerateExcerpt(html);
+                                    return _articulateOptions.GenerateExcerpt(html);
                                 }
                             });
 

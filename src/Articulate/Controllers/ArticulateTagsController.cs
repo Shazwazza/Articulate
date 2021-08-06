@@ -116,7 +116,9 @@ namespace Articulate.Controllers
                 rootPageModel,
                 tagPage.Name,
                 rootPageModel.PageSize,
-                new PostTagCollection(contentByTags));
+                new PostTagCollection(contentByTags),
+                PublishedValueFallback,
+                VariationContextAccessor);
 
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }

@@ -1,12 +1,13 @@
 using System.IO;
 using System.ServiceModel.Syndication;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Extensions;
 
 namespace Articulate.Syndication
 {
@@ -21,7 +22,8 @@ namespace Articulate.Syndication
             _model = model;
         }
 
-        public override void ExecuteResult(ControllerContext context)
+
+        public override async Task ExecuteResultAsync(ActionContext context)
         {
             context.HttpContext.Response.ContentType = "application/xml";
 
@@ -43,7 +45,7 @@ namespace Articulate.Syndication
 
                 xmlWriter.Flush();
 
-                context.HttpContext.Response.Write(txtWriter.ToString());
+                await context.HttpContext.Response.WriteAsync(txtWriter.ToString());
             }
         }
 

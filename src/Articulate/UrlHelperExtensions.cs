@@ -1,10 +1,9 @@
 using System.Linq;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Web;
-using RouteCollectionExtensions = Articulate.Routing.RouteCollectionExtensions;
-using Umbraco.Core.Models.PublishedContent;
 using Microsoft.AspNetCore.Mvc;
+using Umbraco.Extensions;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Articulate.Routing;
 
 namespace Articulate
 {
@@ -19,7 +18,7 @@ namespace Articulate
         /// <returns></returns>
         public static string ThemedAsset(this IUrlHelper url, IMasterModel model, string relativeAssetPath)
         {
-            return VirtualPathUtility.ToAbsolute(PathHelper.GetThemePath(model)).EnsureEndsWith('/') + "assets/" + relativeAssetPath;
+            return url.Content(PathHelper.GetThemePath(model)).EnsureEndsWith('/') + "assets/" + relativeAssetPath;
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') + "a-new/";
+                : model.RootBlogNode.Url().EnsureEndsWith('/') + "a-new/";
         }
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateAuthorRssUrl(this IUrlHelper url, AuthorModel model)
         {
-            var articulateRootUriPath = RouteCollectionExtensions.RoutePathFromNodeUrl(model.RootBlogNode.Url);
+            var articulateRootUriPath = RouteCollectionExtensions.RoutePathFromNodeUrl(url, model.RootBlogNode.Url());
             var routeHash = articulateRootUriPath.GetHashCode();
             var routeName = "articulate_author_rss_" + routeHash;
             return url.RouteUrl(routeName, new
@@ -83,7 +82,7 @@ namespace Articulate
                 ? null
                 : (includeDomain
                       ? model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/')
-                      : model.RootBlogNode.Url.EnsureEndsWith('/')) +
+                      : model.RootBlogNode.Url().EnsureEndsWith('/')) +
                   model.RootBlogNode.Value<string>("searchUrlName");
         }
 
@@ -92,7 +91,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateRootUrl(this IUrlHelper url, IMasterModel model)
         {
-            return model.RootBlogNode?.Url;
+            return model.RootBlogNode?.Url();
         }
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                : model.RootBlogNode.Url().EnsureEndsWith('/') +
                   model.RootBlogNode.Value<string>("categoriesUrlName");
         }
 
@@ -111,7 +110,7 @@ namespace Articulate
         /// </summary>
         public static string ArticulateAuthorsUrl(this IUrlHelper url, IMasterModel model)
         {
-            return model.RootBlogNode?.ChildrenOfType(ArticulateConstants.ArticulateAuthorsContentTypeAlias).FirstOrDefault()?.Url;
+            return model.RootBlogNode?.ChildrenOfType(ArticulateConstants.ArticulateAuthorsContentTypeAlias).FirstOrDefault()?.Url();
         }
 
         /// <summary>
@@ -124,7 +123,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                : model.RootBlogNode.Url().EnsureEndsWith('/') +
                   model.RootBlogNode.Value<string>("tagsUrlName");
         }
 
@@ -139,7 +138,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                : model.RootBlogNode.Url().EnsureEndsWith('/') +
                   model.RootBlogNode.Value<string>("tagsUrlName").EnsureEndsWith('/') +
                   tag.SafeEncodeUrlSegments();
         }
@@ -155,7 +154,7 @@ namespace Articulate
         {
             return model.RootBlogNode == null
                 ? null
-                : model.RootBlogNode.Url.EnsureEndsWith('/') +
+                : model.RootBlogNode.Url().EnsureEndsWith('/') +
                   model.RootBlogNode.Value<string>("categoriesUrlName").EnsureEndsWith('/') +
                   category.SafeEncodeUrlSegments();
         }
