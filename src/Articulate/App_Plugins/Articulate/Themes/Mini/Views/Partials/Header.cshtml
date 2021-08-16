@@ -1,0 +1,33 @@
+@using Articulate
+@model Articulate.Models.IMasterModel
+
+<div class="header-placeholder">&nbsp;</div>
+
+@{
+    var backgroundStyle = !Model.BlogBanner.IsNullOrWhiteSpace()
+        ? "background-image: url(" + Model.BlogBanner + ");"
+        : "";
+}
+
+<div class="header-content" style="@backgroundStyle">
+
+
+    @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+    {
+        <a class="logo" href="@Url.ArticulateRootUrl(Model)"><img src="@Model.BlogLogo" alt="Blog Logo" class="blog-logo" /></a>
+    }
+
+    <!--- Title --->
+    <div class="header-title">
+
+        <a href="@Url.ArticulateRootUrl(Model)">
+            <h1 class="blog-title">@Model.BlogTitle</h1>
+        </a>
+        <h2 class="blog-description">@Model.BlogDescription</h2>
+    </div>
+
+    <!--- Header Menu --->
+    @await Html.ThemedPartialAsync(Model, "Menu")
+
+</div>
+

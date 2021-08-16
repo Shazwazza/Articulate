@@ -19,7 +19,17 @@ namespace Articulate
             {
                 throw new InvalidOperationException("No theme has been set for this Articulate root, republish the root with a selected theme");
             }
-            return string.Format(VirtualThemePathToken, model.Theme);
+            return GetThemePath(model.Theme);
+        }
+
+        public static string GetThemePath(string theme)
+        {
+            if (string.IsNullOrEmpty(theme))
+            {
+                throw new ArgumentException($"'{nameof(theme)}' cannot be null or empty.", nameof(theme));
+            }
+
+            return string.Format(VirtualThemePathToken, theme);
         }
 
         public static string GetThemeViewPath(IMasterModel model, string viewName)
@@ -38,7 +48,7 @@ namespace Articulate
                 throw new InvalidOperationException("No theme has been set for this Articulate root, republish the root with a selected theme");
             }
             return string.Format(VirtualThemePartialViewPathToken, model.Theme, viewName);
-        }
+        }       
 
         /// <summary>
         /// Get the full domain of the current page

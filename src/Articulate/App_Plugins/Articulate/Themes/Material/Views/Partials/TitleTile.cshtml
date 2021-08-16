@@ -1,0 +1,33 @@
+@using Articulate
+@using Articulate.Models
+.Cache
+.Security
+.Models
+.Security
+@inherits UmbracoViewPage<IMasterModel>
+
+<div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+    @{
+        //if the user is logged in to the back office, we can put this link on the front to
+        // link to the blog post creator
+        var backofficeAuthTicket = Context.GetUmbracoAuthTicket();
+    }
+    @if (backofficeAuthTicket != null)
+    {
+        <a href="@Url.ArticulateCreateBlogEntryUrl(Model)" rel="nofollow" title="Create new blog post"
+           class="new-post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--primary">
+            <i class="material-icons mdl-color-text--white" role="presentation">add</i>
+            <span class="visuallyhidden">add</span>
+        </a>
+    }
+    <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+        <a href="@Url.ArticulateRootUrl(Model)"><img src="@Model.BlogLogo" /></a>
+    </div>
+    <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+        <div>
+            <strong>@Model.BlogTitle</strong>
+        </div>
+
+        @await Html.ThemedPartialAsync(Model, "Menu", Model)
+    </div>
+</div>

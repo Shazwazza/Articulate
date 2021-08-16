@@ -1,0 +1,26 @@
+@using Articulate.Models
+.Cache
+.Models
+@inherits UmbracoViewPage<PostModel>
+
+@if (!Model.Author.Name.IsNullOrWhiteSpace())
+{
+    if (Model.Author.Image != null)
+    {
+        var thumbnail = Url.GetCropUrl(Model.Author.Image, width: 50, height: 50, htmlEncode: false, upScale: false);
+        <div class="minilogo" style="background: url(@thumbnail)"></div>        
+    }
+    <div>
+        <strong>
+            @if (Model.Author.BlogUrl.IsNullOrWhiteSpace())
+            {
+                @Model.Author.Name
+            }
+            else
+            {
+                <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+            }
+        </strong>
+        <span>2 days ago</span>
+    </div>
+}

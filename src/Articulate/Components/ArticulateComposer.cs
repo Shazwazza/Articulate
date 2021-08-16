@@ -13,10 +13,12 @@ using Umbraco.Cms.Core.Routing;
 namespace Articulate.Components
 {
 
-    public class ArticulateComposer : IUserComposer
+    public class ArticulateComposer : ComponentComposer<ArticulateComponent>
     {
-        public void Compose(IUmbracoBuilder builder)
+        public override void Compose(IUmbracoBuilder builder)
         {
+            base.Compose(builder);
+
             var services = builder.Services;
             //services.AddSingleton<ArticulateRoutes>();
             services.AddSingleton<ContentUrls>();
