@@ -17,7 +17,7 @@ namespace Articulate.Controllers
 
         public IEnumerable<string> GetThemes()
         {
-            var dir = _hostingEnvironment.MapPathWebRoot(PathHelper.VirtualThemePath);
+            var dir = _hostingEnvironment.MapPathContentRoot(PathHelper.VirtualThemePath);
             return Directory.GetDirectories(dir).Select(x => new DirectoryInfo(x).Name);
         }
     }

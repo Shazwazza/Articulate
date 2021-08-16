@@ -104,8 +104,8 @@ namespace Articulate
             IContentTypeComposition contentType,
             ILocalizationService localizationService,
             MediaFileManager mediaFileManager,
-            IShortStringHelper shortStringHelper,
-            IJsonSerializer jsonSerializer)
+            MediaUrlGeneratorCollection mediaUrlGenerators,
+            IShortStringHelper shortStringHelper)
         {
             if (contentType is null)
                 throw new ArgumentNullException(nameof(contentType));
@@ -114,9 +114,9 @@ namespace Articulate
 
             content.SetValue(
                 mediaFileManager,
+                mediaUrlGenerators,
                 shortStringHelper,
                 contentTypeBaseServiceProvider,
-                jsonSerializer,
                 propertyTypeAlias,
                 filename,
                 filestream,

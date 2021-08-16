@@ -39,8 +39,9 @@ namespace Articulate.ImportExport
         private readonly ILocalizationService _localizationService;
         private readonly IShortStringHelper _shortStringHelper;
         private readonly MediaFileManager _mediaFileManager;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly MediaUrlGeneratorCollection _mediaUrlGenerators;
         private readonly PropertyEditorCollection _dataEditors;
+        private readonly IJsonSerializer _jsonSerializer;
 
         public BlogMlImporter(
             DisqusXmlExporter disqusXmlExporter,
@@ -55,8 +56,9 @@ namespace Articulate.ImportExport
             ILocalizationService localizationService,
             IShortStringHelper shortStringHelper,
             MediaFileManager mediaFileManager,
-            IJsonSerializer jsonSerializer,
-            PropertyEditorCollection dataEditors)
+            MediaUrlGeneratorCollection mediaUrlGenerators,
+            PropertyEditorCollection dataEditors,
+            IJsonSerializer jsonSerializer)
         {
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
@@ -70,8 +72,9 @@ namespace Articulate.ImportExport
             _localizationService = localizationService;
             _shortStringHelper = shortStringHelper;
             _mediaFileManager = mediaFileManager;
-            _jsonSerializer = jsonSerializer;
+            _mediaUrlGenerators = mediaUrlGenerators;
             _dataEditors = dataEditors;
+            _jsonSerializer = jsonSerializer;
         }
 
         public int GetPostCount(string fileName)
@@ -427,7 +430,7 @@ namespace Articulate.ImportExport
                 var bytes = Convert.FromBase64String(attachment.Content);
                 using (var stream = new MemoryStream(bytes))
                 {
-                    postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream, postType, _localizationService, _mediaFileManager, _shortStringHelper, _jsonSerializer);
+                    postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream, postType, _localizationService, _mediaFileManager, _mediaUrlGenerators, _shortStringHelper);
                     imageSaved = true;
                 }
             }
@@ -439,7 +442,7 @@ namespace Articulate.ImportExport
                     {
                         using (var stream = await client.GetStreamAsync(attachment.ExternalUri))
                         {
-                            postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream, postType, _localizationService, _mediaFileManager, _shortStringHelper, _jsonSerializer);
+                            postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream, postType, _localizationService, _mediaFileManager, _mediaUrlGenerators, _shortStringHelper);
                             imageSaved = true;
                         }
                     }

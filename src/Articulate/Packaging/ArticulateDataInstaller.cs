@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Hosting;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Packaging;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Extensions;
 
 namespace Articulate.Packaging
 {
@@ -17,51 +17,40 @@ namespace Articulate.Packaging
 
     public class ArticulateDataInstaller
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IContentTypeService _contentTypeService;
+        private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
         private readonly IContentService _contentService;
-        private readonly IPackageInstallation _packageInstallation;
-        private readonly IPackagingService _packagingService;
         private readonly IDataTypeService _dataTypeService;
+        private readonly ILocalizationService _languageService;
         private readonly ILogger<ArticulateDataInstaller> _logger;
         private readonly ILocalizationService _localizationService;
         private readonly PropertyEditorCollection _dataEditors;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly MediaFileManager _mediaFileManager;
 
         public ArticulateDataInstaller(
-            IHostingEnvironment hostingEnvironment,
             IContentTypeService contentTypeService,
+            IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
             IContentService contentService,
-            IPackageInstallation packageInstallation,
-            IPackagingService packagingService,
             IDataTypeService dataTypeService,
+            ILocalizationService languageService,
             ILogger<ArticulateDataInstaller> logger,
             ILocalizationService localizationService,
             PropertyEditorCollection dataEditors,
-            IJsonSerializer jsonSerializer)
+            IJsonSerializer jsonSerializer,
+            MediaFileManager mediaFileManager)
         {
-            _hostingEnvironment = hostingEnvironment;
             _contentTypeService = contentTypeService;
+            _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
             _contentService = contentService;
-            _packageInstallation = packageInstallation;
-            _packagingService = packagingService;
             _dataTypeService = dataTypeService;
+            _languageService = languageService;
             _logger = logger;
             _localizationService = localizationService;
             _dataEditors = dataEditors;
             _jsonSerializer = jsonSerializer;
+            _mediaFileManager = mediaFileManager;
         }
-
-        ///// <summary>
-        ///// Installs the Articulate package including schema and content via the package manifest and adds the package to the local repo
-        ///// </summary>
-        ///// <param name="userId"></param>
-        ///// <returns>Returns false if the same version is already installed, in which case nothing is altered.</returns>
-        //public bool InstallSchemaAndContent(int userId)
-        //{
-        //    //this will install the package (if it's not already installed), which will in turn run the package action to install the content
-        //    return InstallPackage(userId);
-        //}
 
         /// <summary>
         /// Called by the package action to install content
@@ -90,108 +79,6 @@ namespace Articulate.Packaging
 
             return null;
         }
-
-        ///// <summary>
-        ///// This will install the Articulate package based on the actual articulate package manifest file which is embedded
-        ///// into this assembly.
-        ///// </summary>
-        ///// <param name="userId"></param>
-        ///// <returns></returns>
-        ///// <remarks>
-        ///// This would be like installing the package in the back office to install all schema, etc... but we do this 
-        ///// without the full package file, just to install the schema and content and to add the package to the package repo.
-        ///// </remarks>
-        //private bool InstallPackage(int userId)
-        //{
-        //    //TODO: We need to reflect here because this isn't public and we're resolving the internal type from DI
-        //    var parserType = _contentService.GetType().Assembly.GetType("Umbraco.Core.Packaging.CompiledPackageXmlParser");
-        //    if (parserType == null)
-        //        throw new InvalidOperationException("Could not get type Umbraco.Core.Packaging.CompiledPackageXmlParser");
-        //    var parser = Current.Factory.GetInstance(parserType);
-
-        //    //these are the parameters required, the fake FileInfo doesn't really do anything in this context
-        //    var fakePackageFile = new FileInfo(Path.Combine(_hostingEnvironment.MapPathContentRoot("~/Articulate/TEMP"), Guid.NewGuid().ToString(), "fake-package.zip"));
-        //    var xdoc = XDocument.Parse(ArticulateResources.packageManifest); //read in the xdocument package xml
-        //    var appRoot = GetRootDirectorySafe(); //the root folder (based on what is passed in the Core)
-
-        //    //reflect, call ToCompiledPackage to get the CompiledPackage reference
-        //    CompiledPackage compiledPackage = (CompiledPackage)parser.CallMethod("ToCompiledPackage", xdoc, fakePackageFile, appRoot);
-
-        //    //TODO: Need to reflect again to get the package definition
-        //    PackageDefinition packageDefinition = (PackageDefinition)typeof(PackageDefinition).CallStaticMethod("FromCompiledPackage", compiledPackage);
-
-        //    //if it's not installed or it's not the same version, then we need to run the installer
-        //    if (!IsPackageVersionAlreadyInstalled(packageDefinition.Name, packageDefinition.Version, out var sameVersion, out var packageId) || !sameVersion)
-        //    {
-        //        //clear out the files, we don't want to save this package manifest with files since we don't want to delete them on package 
-        //        //uninstallation done in the back office since this will generally only be the case when we are installing via Nuget
-        //        packageDefinition.Files = new List<string>();
-        //        var summary = _packageInstallation.InstallPackageData(packageDefinition, compiledPackage, userId);
-        //        //persist this to the package repo, it will now show up as installed packages in the back office
-        //        _packagingService.SaveInstalledPackage(packageDefinition);
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
-        //// borrowed from Core (it's internal on IOHelper)
-        //private static string _rootDir = "";
-        //private static string GetRootDirectorySafe()
-        //{
-        //    if (String.IsNullOrEmpty(_rootDir) == false)
-        //    {
-        //        return _rootDir;
-        //    }
-
-        //    var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-        //    var uri = new Uri(codeBase);
-        //    var path = uri.LocalPath;
-        //    var baseDirectory = Path.GetDirectoryName(path);
-        //    if (String.IsNullOrEmpty(baseDirectory))
-        //        throw new Exception("No root directory could be resolved. Please ensure that your Umbraco solution is correctly configured.");
-
-        //    _rootDir = baseDirectory.Contains("bin")
-        //                   ? baseDirectory.Substring(0, baseDirectory.LastIndexOf("bin", StringComparison.OrdinalIgnoreCase) - 1)
-        //                   : baseDirectory;
-
-        //    return _rootDir;
-        //}
-
-        //private bool IsPackageVersionAlreadyInstalled(string name, string version, out bool sameVersion, out int packageId)
-        //{
-        //    var allInstalled = _packagingService.GetAllInstalledPackages();
-        //    var found = allInstalled.Where(x => x.Name == name).ToArray();
-        //    sameVersion = false;
-
-        //    if (found.Length > 0)
-        //    {
-        //        var foundVersion = found.FirstOrDefault(x =>
-        //        {
-        //            //match the exact version
-        //            if (x.Version == version)
-        //            {
-        //                return true;
-        //            }
-        //            //now try to compare the versions
-        //            if (Version.TryParse(x.Version, out Version installed) && Version.TryParse(version, out Version selected))
-        //            {
-        //                if (installed >= selected)
-        //                    return true;
-        //            }
-        //            return false;
-        //        });
-
-        //        sameVersion = foundVersion != null;
-
-        //        //this package is already installed, find the highest package id for this package name that is installed
-        //        packageId = found.Max(x => x.Id);
-        //        return true;
-        //    }
-
-        //    packageId = -1;
-        //    return false;
-        //}
 
         //private void Upgrade()
         //{
@@ -250,30 +137,12 @@ namespace Articulate.Packaging
         //    }
         //}
 
-        ///// <summary>
-        ///// Ensure the media is saved with the media file system
-        ///// </summary>
-        ///// <remarks>
-        ///// Copy from the 'original' location to the 'default'
-        ///// </remarks>
-        //private void InstallMedia()
-        //{
-        //    _mediaFileSystem.AddFile("articulate/default/logo.png", IOHelper.MapPath("~/media/articulate/original/logo.png"), true, true);
-        //    _mediaFileSystem.AddFile("articulate/default/author.jpg", IOHelper.MapPath("~/media/articulate/original/author.jpg"), true, true);
-        //    _mediaFileSystem.AddFile("articulate/default/banner.jpg", IOHelper.MapPath("~/media/articulate/original/banner.jpg"), true, true);
-        //    _mediaFileSystem.AddFile("articulate/default/post1.jpg", IOHelper.MapPath("~/media/articulate/original/post1.jpg"), true, true);
-        //    _mediaFileSystem.AddFile("articulate/default/post2.jpg", IOHelper.MapPath("~/media/articulate/original/post2.jpg"), true, true);
-        //}
-
-        private IContent InstallContentData()
+        private IContent CreateRoot()
         {
-            //InstallMedia();
-
             var articulateType = _contentTypeService.Get("Articulate");
             if (articulateType == null)
             {
-                _logger.LogWarning("No 'Articulate' content type found");
-                return null;
+                throw new InvalidOperationException("No Articulate document type");
             }
 
             //Create the root node - this will automatically create the authors and archive nodes
@@ -292,50 +161,48 @@ namespace Articulate.Packaging
             root.SetInvariantOrDefaultCultureValue("blogDescription", "Welcome to my blog", articulateType, _localizationService);
             root.SetInvariantOrDefaultCultureValue("extractFirstImage", true, articulateType, _localizationService);
             root.SetInvariantOrDefaultCultureValue("redirectArchive", true, articulateType, _localizationService);
-            root.SetInvariantOrDefaultCultureValue("blogLogo", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/logo.png','crops': []}", articulateType, _localizationService);
-            root.SetInvariantOrDefaultCultureValue("blogBanner", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/banner.jpg','crops': []}", articulateType, _localizationService);
+
+            // Deal with files...
+            SetImage(root, articulateType, "logo.png", "blogLogo");
+            SetImage(root, articulateType, "banner.jpg", "blogBanner");
 
             var result = _contentService.SaveAndPublish(root);
             if (!result.Success)
             {
-                _logger.LogWarning("Could not create Articulate root node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
-                return null;
+                throw new InvalidOperationException($"Could not create Articulate root node, saving failed with status {result.Result}, invalid properties are {string.Join(", ", result.InvalidProperties.Select(x => x.Alias))}");
             }
 
-            //get the authors and archive nodes and publish them
-            _logger.LogInformation("Publishing authors and archive nodes");
-            var children = _contentService.GetPagedChildren(root.Id, 0, 10, out var total).ToList();
-            var archive = children.FirstOrDefault(x => x.ContentType.Alias == ArticulateConstants.ArticulateArchiveContentTypeAlias);
-            if (archive == null)
-            {
-                _logger.LogWarning("Articulate archive node was not created, cannot proceed to publish");
-                return null;
-            }
-            result = _contentService.SaveAndPublish(archive);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Could not create Articulate archive node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
-                return null;
-            }
+            return result.Content;
+        }
 
-            var authors = children.FirstOrDefault(x => x.ContentType.Alias == ArticulateConstants.ArticulateAuthorsContentTypeAlias);
-            if (authors == null)
+        private IContent CreateSubNode(IContent root, string contentTypeAlias, string nodeName, string defaultLang)
+        {
+            IContentType authorContentType = _contentTypeService.Get(contentTypeAlias);
+            if (authorContentType == null)
             {
-                _logger.LogWarning("Articulate authors node was not created, cannot proceed to publish");
-                return null;
+                throw new InvalidOperationException($"No {contentTypeAlias} doc type");
             }
-            result = _contentService.SaveAndPublish(authors);
-            if (!result.Success)
+            if (authorContentType.VariesByCulture())
             {
-                _logger.LogWarning("Could not create Articulate authors node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
-                return null;
+                IContent authors = _contentService.Create("", root, contentTypeAlias);
+                authors.SetCultureName(nodeName, defaultLang);
+                _contentService.SaveAndPublish(authors);
+                return authors;
             }
+            else
+            {
+                var authors = _contentService.CreateAndSave(nodeName, root, contentTypeAlias);
+                _contentService.SaveAndPublish(authors);
+                return authors;
+            }
+        }
 
+        private void CreateAuthor(IContent authors)
+        {
             var authorType = _contentTypeService.Get("ArticulateAuthor");
             if (authorType == null)
             {
-                _logger.LogWarning("No 'ArticulateAuthor' content type found");
-                return null;
+                throw new InvalidOperationException("No 'ArticulateAuthor' content type found");
             }
 
             //Create the author
@@ -344,15 +211,26 @@ namespace Articulate.Packaging
 
             author.SetInvariantOrDefaultCultureValue("authorBio", "Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.", authorType, _localizationService);
             author.SetInvariantOrDefaultCultureValue("authorUrl", "https://github.com/shazwazza/articulate", authorType, _localizationService);
-            author.SetInvariantOrDefaultCultureValue("authorImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/author.jpg','crops': []}", authorType, _localizationService);
 
-            result = _contentService.SaveAndPublish(author);
+            // Deal with files...
+            SetImage(author, authorType, "author.jpg", "authorImage");
+
+            var result = _contentService.SaveAndPublish(author);
             if (!result.Success)
             {
-                _logger.LogWarning("Could not create Articulate author node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
-                return null;
+                throw new InvalidOperationException($"Could not create Articulate author node, saving failed with status {result.Result}, invalid properties are {string.Join(", ", result.InvalidProperties.Select(x => x.Alias))} ");
             }
+        }
 
+        private IContent InstallContentData()
+        {
+            var defaultLang = _languageService.GetDefaultLanguageIsoCode();
+
+            var root = CreateRoot();
+            var archive = CreateSubNode(root, ArticulateConstants.ArticulateArchiveContentTypeAlias, ArticulateConstants.ArticlesDefaultName, defaultLang);
+            var authors = CreateSubNode(root, ArticulateConstants.ArticulateAuthorsContentTypeAlias, ArticulateConstants.AuthorsDefaultName, defaultLang);
+
+            CreateAuthor(authors);
 
             //Create a test posts
             _logger.LogInformation("Creating test blog post 1");
@@ -369,8 +247,7 @@ namespace Articulate.Packaging
             post1.SetInvariantOrDefaultCultureValue("excerpt", "Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.", markdownType, _localizationService);
             post1.AssignInvariantOrDefaultCultureTags("categories", new[] { "Articulate" }, markdownType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
             post1.AssignInvariantOrDefaultCultureTags("tags", new[] { "Cafe", "Markdown" }, markdownType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
-            post1.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now, markdownType, _localizationService);
-            post1.SetInvariantOrDefaultCultureValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post1.jpg','crops': []}", markdownType, _localizationService);
+            post1.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now, markdownType, _localizationService);            
             post1.SetInvariantOrDefaultCultureValue("socialDescription", "Welcome to blogging with Articulate, a fully functional blog engine supporting all of the blogging features you'd want.", markdownType, _localizationService);
             post1.SetInvariantOrDefaultCultureValue("markdown", @"## Hi! Welcome to Articulate :)
 
@@ -401,7 +278,10 @@ You can post directly from your mobile (including images and photos). This edito
 
 Enjoy!", markdownType, _localizationService);
 
-            result = _contentService.SaveAndPublish(post1);
+            // Deal with files...
+            SetImage(post1, markdownType, "post1.jpg", "postImage");
+
+            var result = _contentService.SaveAndPublish(post1);
             if (!result.Success)
             {
                 _logger.LogWarning("Could not create Articulate post node, saving failed with status {Status}, invalid properties are {InvalidProperties} ", result.Result, string.Join(", ", result.InvalidProperties.Select(x => x.Alias)));
@@ -414,12 +294,14 @@ Enjoy!", markdownType, _localizationService);
             post2.SetInvariantOrDefaultCultureValue("excerpt", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ", markdownType, _localizationService);
             post2.AssignInvariantOrDefaultCultureTags("categories", new[] { "Coffee" }, markdownType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
             post2.AssignInvariantOrDefaultCultureTags("tags", new[] { "Cafe", "Milk", "Espresso" }, markdownType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
-            post2.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now.AddDays(-10), markdownType, _localizationService);
-            post2.SetInvariantOrDefaultCultureValue("postImage", @"{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/articulate/default/post2.jpg','crops': []}", markdownType, _localizationService);
+            post2.SetInvariantOrDefaultCultureValue("publishedDate", DateTime.Now.AddDays(-10), markdownType, _localizationService);            
             post2.SetInvariantOrDefaultCultureValue("socialDescription", "Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ", markdownType, _localizationService);
             post2.SetInvariantOrDefaultCultureValue("markdown", @"Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. Latte art is hard to create consistently because of the many factors involved with creating coffee, from the coffee acidity, temperature, to the type of milk and equipment being used. Don't expect that you'll be able to make latte art the first time you try, in fact it will probably take you a great number of tries to make something work and you'll be hoping that you're using some quality equipment, otherwise you'll stand no chance.
 
 Good latte art means you've found a cafe with a good barista so there's a good chance if you're seeing a a great design in your coffee, it's also going to taste wonderful.", markdownType, _localizationService);
+
+            // Deal with files...
+            SetImage(post2, markdownType, "post2.jpg", "postImage");
 
             result = _contentService.SaveAndPublish(post2);
             if (!result.Success)
@@ -429,6 +311,28 @@ Good latte art means you've found a cafe with a good barista so there's a good c
             }
 
             return root;
+        }
+
+        private void SetImage(IContent content, IContentTypeComposition contentTypeComposition, string imageName, string propertyAlias)
+        {
+            using (var imageStream = GetEmbeddedImage(imageName))
+            {
+                var imagePath = content.StoreFile(_mediaFileManager, _contentTypeBaseServiceProvider, propertyAlias, imageName, imageStream, null);
+                content.SetInvariantOrDefaultCultureValue(propertyAlias, $@"{{'focalPoint': {{'left': 0.5,'top': 0.5}},'src': '{_mediaFileManager.FileSystem.GetUrl(imagePath)}','crops': []}}", contentTypeComposition, _localizationService);
+            }
+        }
+
+        private Stream GetEmbeddedImage(string imageFile)
+        {
+            // lookup the embedded resource by convention
+            Assembly currentAssembly = GetType().Assembly;
+            var fileName = $"{GetType().Namespace}.{imageFile}";
+            Stream stream = currentAssembly.GetManifestResourceStream(fileName);
+            if (stream == null)
+            {
+                throw new FileNotFoundException("Cannot find the embedded file.", fileName);
+            }
+            return stream;
         }
     }
 }

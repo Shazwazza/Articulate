@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Umbraco.Cms.Core.Packaging;
 
 namespace Articulate.Packaging
@@ -11,7 +11,9 @@ namespace Articulate.Packaging
 
         protected override void DefinePlan()
         {
-            To<ArticulatePackageInstall>(new Guid("72A35073-9C56-4B69-873E-15E3536E9811"));
+            To<ArticulateSchemaInstall>(new Guid("72A35073-9C56-4B69-873E-15E3536E9811"));
+            To<ArticulateContentInstall>(new Guid("D1DE9B8E-4EBC-47D3-9C06-D6584E8A441B"));
+
         }
     }
 }

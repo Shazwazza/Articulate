@@ -1,0 +1,27 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <ArticulateContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\Articulate\**\*.*</ArticulateContentFilesPath>
+    </PropertyGroup>
+
+    <Target Name="CopyArticulateAssets" BeforeTargets="Build">
+        <ItemGroup>
+            <ArticulateContentFiles Include="$(ArticulateContentFilesPath)" />
+        </ItemGroup>
+        <Message Text="Copying Articulate files: $(ArticulateContentFilesPath) - #@(ArticulateContentFiles->Count()) files"  Importance="high" />
+        <Copy
+            SourceFiles="@(ArticulateContentFiles)"
+            DestinationFiles="@(ArticulateContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\Articulate\%(RecursiveDir)%(Filename)%(Extension)')"
+            SkipUnchangedFiles="true" />
+
+    </Target>
+
+    <Target Name="ClearArticulateAssets" BeforeTargets="Clean">
+        <ItemGroup>
+            <ArticulateDir Include="$(MSBuildProjectDirectory)\App_Plugins\Articulate\" />
+        </ItemGroup>
+        <Message Text="Clear old Articulate data"  Importance="high" />
+        <RemoveDir Directories="@(ArticulateDir)"  />
+    </Target>
+
+</Project>
