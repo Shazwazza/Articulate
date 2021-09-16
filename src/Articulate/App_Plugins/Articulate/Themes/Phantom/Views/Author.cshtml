@@ -18,7 +18,7 @@
     <section class="post-content">
         @if (Model.Image != null)
         {
-            var imgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+            var imgUrl = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false);
             <img class="postImage" alt="@Model.Name" src="@imgUrl" />
         }
         <p>@Model.Bio</p>

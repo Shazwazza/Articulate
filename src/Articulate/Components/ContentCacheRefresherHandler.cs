@@ -66,7 +66,12 @@ namespace Articulate.Components
 
         private void RefreshById(int id, TreeChangeTypes changeTypes)
         {
-            var item = _umbracoContextAccessor?.UmbracoContext?.Content.GetById(id);
+            if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
+            {
+                return;
+            }
+
+            var item = umbracoContext.Content.GetById(id);
 
             // if it's directly related to an articulate node
             if (item != null && item.ContentType.Alias.InvariantEquals(ArticulateConstants.ArticulateContentTypeAlias))
@@ -80,7 +85,7 @@ namespace Articulate.Components
             // This will happen on copy, move, sort, unpublish, delete
             if (item == null)
             {
-                item = _umbracoContextAccessor?.UmbracoContext?.Content.GetById(true, id);
+                item = umbracoContext.Content.GetById(true, id);
 
                 // This will occur on delete, then what?
                 // TODO: How would we know this is a node that might be at the same level/above?
@@ -92,10 +97,10 @@ namespace Articulate.Components
                 }
             }
 
-            var articulateContentType = _umbracoContextAccessor?.UmbracoContext?.Content.GetContentType(ArticulateConstants.ArticulateContentTypeAlias);
+            var articulateContentType = umbracoContext.Content.GetContentType(ArticulateConstants.ArticulateContentTypeAlias);
             if (articulateContentType != null)
             {
-                var articulateNodes = _umbracoContextAccessor?.UmbracoContext?.Content.GetByContentType(articulateContentType);
+                var articulateNodes = umbracoContext.Content.GetByContentType(articulateContentType);
                 foreach (var node in articulateNodes)
                 {
                     // if the item is same level with a lower sort order it can directly affect the articulate node's route

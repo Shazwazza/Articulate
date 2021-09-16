@@ -111,7 +111,7 @@ namespace Articulate.Models
                 }
 
                 var wideCropUrl = PostImage.GetCropUrl("wide", _imageUrlGenerator);
-                _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?") + "upscale=false";
+                _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?");
                 return _croppedPostImageUrl;
             }
         }

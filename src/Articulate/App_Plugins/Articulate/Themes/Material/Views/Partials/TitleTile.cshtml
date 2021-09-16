@@ -1,18 +1,30 @@
 @using Articulate
 @using Articulate.Models
-.Cache
-.Security
-.Models
-.Security
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.Extensions.Options
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Web.Common.Security
+@using Umbraco.Cms.Web.Common.Views
+@inject BackOfficeUserManager backOfficeUserManager
+@inject IOptionsMonitor<CookieAuthenticationOptions> backOfficeCookieOptions
+
 @inherits UmbracoViewPage<IMasterModel>
 
 <div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
     @{
-        //if the user is logged in to the back office, we can put this link on the front to
-        // link to the blog post creator
-        var backofficeAuthTicket = Context.GetUmbracoAuthTicket();
+		// This code checks if the back office user is logged in.
+		// TODO: Move this to a service.
+		var backOfficeLogggedIn = false;
+		var cookieOptions = backOfficeCookieOptions.Get(Constants.Security.BackOfficeAuthenticationType);
+		var cookie = Context.Request.Cookies[cookieOptions.Cookie.Name];
+		if (cookie != null)
+		{
+			var unprotected = cookieOptions.TicketDataFormat.Unprotect(cookie);			
+			backOfficeLogggedIn = unprotected != null && unprotected.AuthenticationScheme == Constants.Security.BackOfficeAuthenticationType;
+		}		
     }
-    @if (backofficeAuthTicket != null)
+
+    @if (backOfficeLogggedIn)
     {
         <a href="@Url.ArticulateCreateBlogEntryUrl(Model)" rel="nofollow" title="Create new blog post"
            class="new-post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--primary">

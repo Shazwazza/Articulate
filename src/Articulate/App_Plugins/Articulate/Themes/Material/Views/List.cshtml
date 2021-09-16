@@ -1,12 +1,10 @@
 @using System.Text
 @using Articulate
 @using Articulate.Models
+@using Umbraco.Extensions
+@using Microsoft.AspNetCore.Html
 
-.Cache;
-.Security
-
-.Models
-@inherits UmbracoViewPage<Articulate.Models.ListModel>
+@model Articulate.Models.ListModel
 @{
     Layout = "Master.cshtml";
     ViewBag.CssWrapperClass = Model.ContentType.Alias == "ArticulateArchive" ? null : "demo-blog--blogpost";
@@ -25,14 +23,14 @@
 
             @await Html.ThemedPartialAsync(Model, "SearchBox")
 
-            @if (!Request.QueryString["term"].IsNullOrWhiteSpace())
+            @if (Context.Request.Query.TryGetValue("term", out var term) && !((string)term).IsNullOrWhiteSpace())
             {
                 <div class="mdl-card__media mdl-color-text--grey-50">
                     <h3>No blog posts found</h3>
                 </div>
             }
         </div>
-    }
+	}
     else
     {
         var doneFirst = false;
@@ -42,16 +40,16 @@
             {
                 doneFirst = true;
 
-                <div class="mdl-card mdl-cell mdl-cell--8-col">
-                    @PostInfo(post, false)
+				<div class="mdl-card mdl-cell mdl-cell--8-col">
+                    @{await PostInfo(post, false);}
                 </div>
 
                 @await Html.ThemedPartialAsync(Model, "TitleTile")
-            }
+	}
             else
             {
-                <div class="mdl-card mdl-cell mdl-cell--12-col">
-                    @PostInfo(post)
+				<div class="mdl-card mdl-cell mdl-cell--12-col">
+                    @{await PostInfo(post);}
                 </div>                
             }
         }
@@ -62,24 +60,21 @@
 
 </div>
 
+@functions{
+	public async Task PostInfo(PostModel post, bool withExcerpt = true)
+	{
+		@await Html.ThemedPartialAsync(Model, "PostImageHeader", post);
+
+		if (withExcerpt)
+		{
+			<div class="mdl-card__supporting-text mdl-color-text--grey-600">
+				@post.Excerpt&hellip;
+			</div>
+		}
 
 
-
-
-
-@helper PostInfo(PostModel post, bool withExcerpt = true)
-{
-    @await Html.ThemedPartialAsync(Model, "PostImageHeader", post)
-
-    if (withExcerpt)
-    {
-        <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-            @post.Excerpt&hellip;
-        </div>
-    }
-
-
-    <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-        @await Html.ThemedPartialAsync(Model, "AuthorInfo", post)
-    </div>
+		<div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+			@await Html.ThemedPartialAsync(Model, "AuthorInfo", post)
+		</div>
+	}
 }

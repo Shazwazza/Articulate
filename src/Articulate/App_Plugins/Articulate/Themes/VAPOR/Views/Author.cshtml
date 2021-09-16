@@ -24,7 +24,7 @@
 
             @if (Model.Image != null)
             {
-                var img = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false, upScale: false);
+                var img = Url.GetCropUrl(Model.Image, cropAlias: "wide", useCropDimensions: true, htmlEncode: false);
                 <img class="postImage" src="@img" />
             }
             <p>@Model.Bio</p>

@@ -18,6 +18,9 @@ namespace Articulate.Components
         {
             _bundleManager.CreateJs("articulate-vapor-js", RequiredThemedJsFolder("VAPOR"));
             _bundleManager.CreateCss("articulate-vapor-css", RequiredThemedCssFolder("VAPOR"));
+
+            _bundleManager.CreateJs("articulate-material-js", RequiredThemedJsFolder("Material"));
+            _bundleManager.CreateCss("articulate-material-css", RequiredThemedCssFolder("Material"));
         }
 
         public void Terminate()

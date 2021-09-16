@@ -57,7 +57,7 @@
                 <section class="author">
                     @if (Model.Author.Image != null)
                     {
-                        var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false, upScale: false);
+                        var thumbnail = Url.GetCropUrl(Model.Author.Image, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false);
                         if (thumbnail != null)
                         {
                             <div class="authorimage" style="background: url(@thumbnail)"></div>

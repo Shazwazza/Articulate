@@ -29,7 +29,7 @@ namespace Articulate.Controllers
             _imageUrlGenerator = imageUrlGenerator;
         }
 
-        public override ActionResult Index()
+        public override IActionResult Index()
         {
             var post = new PostModel(CurrentPage, _publishedValueFallback, _variationContextAccessor, _imageUrlGenerator);
             return View(PathHelper.GetThemeViewPath(post, "Post"), post);

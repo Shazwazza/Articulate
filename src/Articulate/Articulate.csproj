@@ -16,7 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="build\**" Pack="true" PackagePath="build\" />
+    <None Include="build\**\*.*">
+      <Pack>True</Pack>
+      <PackagePath>buildTransitive</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Packaging\package.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,32 +32,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="Resources\ArticulateResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ArticulateResources.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Controllers\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Resources\ArticulateResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ArticulateResources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\build\packageManifest.xml">
-      <Link>Resources\packageManifest.xml</Link>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Packaging\author.jpg" />
     <EmbeddedResource Include="Packaging\banner.jpg" />
     <EmbeddedResource Include="Packaging\logo.png" />
-    <EmbeddedResource Include="Packaging\package.zip" />
+    <EmbeddedResource Include="Packaging\package.xml" />
     <EmbeddedResource Include="Packaging\post1.jpg" />
     <EmbeddedResource Include="Packaging\post2.jpg" />
   </ItemGroup>
@@ -61,8 +54,8 @@
     <PackageReference Include="Kveer.XmlRPC" Version="1.1.1" />
     <PackageReference Include="Markdig" Version="0.23.0" />
     <PackageReference Include="Argotic.Core" Version="3000.0.1" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-preview20210806.69325" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-preview20210806.69325" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="9.0.0-rc003" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="9.0.0-rc003" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>
   
