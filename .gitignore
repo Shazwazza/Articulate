@@ -49,3 +49,11 @@ src/Articulate.Web/config/imageprocessor/security.config
 /build/vswhere.exe
 /build/Release/*
 /src/Articulate.Web/App_Data/Models/*
+/src/Articulate.Tests.Website/App_Plugins/Articulate/*
+/src/Articulate.Tests.Website/bin/*
+/src/Articulate.Tests.Website/obj/*
+/src/Articulate.Tests.Website/appsettings.Local.json
+/src/Articulate.Tests.Website/umbraco/*
+/src/Articulate.Tests.Website/wwwroot/media/*
+/src/Articulate.Tests.Website/wwwroot/umbraco/*
+/src/Articulate.Web.bak/*
