@@ -116,12 +116,7 @@ namespace Articulate.Routing
 
         /// <summary>
         /// Generically caches a url path for a particular controller
-        /// </summary>
-        /// <param name="urlSegment"></param>
-        /// <param name="httpContext"></param>
-        /// <param name="rootNodePath"></param>
-        /// <param name="articulateRootNode"></param>
-        /// <param name="domains"></param>
+        /// </summary>       
         private void MapRoute(
             string controllerName,
             string actionName,
