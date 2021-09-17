@@ -76,7 +76,7 @@ namespace Articulate.Controllers
 
             return tag.IsNullOrWhiteSpace()
                 ? RenderTagsOrCategories("ArticulateCategories", caturlName)
-                : RenderByTagOrCategory(p, "ArticulateCategories", caturlName);
+                : RenderByTagOrCategory(tag, p, "ArticulateCategories", caturlName);
         }
 
         /// <summary>
@@ -92,16 +92,11 @@ namespace Articulate.Controllers
 
             return tag.IsNullOrWhiteSpace()
                 ? RenderTagsOrCategories("ArticulateTags", tagurlName)
-                : RenderByTagOrCategory(p, "ArticulateTags", tagurlName);
+                : RenderByTagOrCategory(tag, p, "ArticulateTags", tagurlName);
         }
 
         private IActionResult RenderTagsOrCategories(string tagGroup, string baseUrl)
         {
-            if (CurrentPage is not ArticulateVirtualPage tagPage)
-            {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a blog model of the main page
             var rootPageModel = new MasterModel(CurrentPage.Parent, PublishedValueFallback, VariationContextAccessor);
 
@@ -114,7 +109,7 @@ namespace Articulate.Controllers
 
             var tagListModel = new TagListModel(
                 rootPageModel,
-                tagPage.Name,
+                CurrentPage.Name,
                 rootPageModel.PageSize,
                 new PostTagCollection(contentByTags),
                 PublishedValueFallback,
@@ -123,20 +118,15 @@ namespace Articulate.Controllers
             return View(PathHelper.GetThemeViewPath(tagListModel, "Tags"), tagListModel);
         }
 
-        private IActionResult RenderByTagOrCategory(int? p, string tagGroup, string baseUrl)
+        private IActionResult RenderByTagOrCategory(string tag, int? p, string tagGroup, string baseUrl)
         {
-            if (CurrentPage is not ArticulateVirtualPage tagPage)
-            {
-                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a master model
             var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, VariationContextAccessor);
 
             PostsByTagModel contentByTag = _articulateTagService.GetContentByTag(
                 _umbracoHelper,
                 masterModel,
-                tagPage.Name,
+                tag,
                 tagGroup,
                 baseUrl,
                 p ?? 1,
@@ -145,12 +135,12 @@ namespace Articulate.Controllers
             //this is a special case in the event that a tag contains a '.', when this happens we change it to a '-'
             // when generating the URL. So if the above doesn't return any tags and the tag contains a '-', then we
             // will replace them with '.' and do the lookup again
-            if ((contentByTag == null || contentByTag.PostCount == 0) && tagPage.Name.Contains("-"))
+            if ((contentByTag == null || contentByTag.PostCount == 0) && tag.Contains("-"))
             {
                 contentByTag = _articulateTagService.GetContentByTag(
                     _umbracoHelper,
                     masterModel,
-                    tagPage.Name.Replace('-', '.'),
+                    tag.Replace('-', '.'),
                     tagGroup,
                     baseUrl,
                     p ?? 1, masterModel.PageSize);
@@ -161,7 +151,7 @@ namespace Articulate.Controllers
                 return new NotFoundResult();
             }
 
-            return GetPagedListView(masterModel, tagPage, contentByTag.Posts, contentByTag.PostCount, p);
+            return GetPagedListView(masterModel, CurrentPage, contentByTag.Posts, contentByTag.PostCount, p);
         }
     }
 }

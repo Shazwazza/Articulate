@@ -155,35 +155,7 @@
 //                new ArticulateVirtualNodeByIdRouteHandler(_logger, _contentUrls, nodesWithPath));
 //        }
 
-//        private void MapTagsAndCategoriesRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
-//        {
-//            var routeHash = nodeRoutePath.GetHashCode();
 
-//            //Create the routes for /tags/{tag} and /categories/{category}
-//            routes.MapUmbracoRoute(
-//                "articulate_tags_" + routeHash,
-//                (nodeRoutePath.EnsureEndsWith('/') + "{action}/{tag}").TrimStart('/'),
-//                new
-//                {
-//                    controller = "ArticulateTags",
-//                    tag = UrlParameter.Optional
-//                },
-//                new ArticulateTagsRouteHandler(_logger, _contentUrls, nodesWithPath),
-//                //Constraints: only match either the tags or categories url names
-//                new { action = new TagsOrCategoryPathRouteConstraint(_contentUrls, nodesWithPath) });
-
-//            //Create the routes for the RSS specific feeds
-//            routes.MapUmbracoRoute(
-//                "articulate_tags_rss_" + routeHash,
-//                (nodeRoutePath.EnsureEndsWith('/') + "{action}/{tag}/rss").TrimStart('/'),
-//                new
-//                {
-//                    controller = "ArticulateRss"
-//                },
-//                new ArticulateTagsRouteHandler(_logger, _contentUrls, nodesWithPath),
-//                //Constraints: only match either the tags or categories url names
-//                new { action = new TagsOrCategoryPathRouteConstraint(_contentUrls, nodesWithPath) });
-//        }
 
 //        private void MapMetaWeblogRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent node)
 //        {

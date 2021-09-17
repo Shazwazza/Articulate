@@ -1,5 +1,8 @@
-﻿using Articulate.Controllers;
+using Articulate.Controllers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +18,10 @@ namespace Articulate.Routing
 {
     internal class ArticulateRouter
     {
-        private readonly Dictionary<string, ArticulateRootNodeCache> _routeCache = new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> _routeCache = new();
         private readonly IControllerActionSearcher _controllerActionSearcher;
-        private static readonly string s_articulateSearchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
+        private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
+        private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
 
         /// <summary>
         /// Constructor
@@ -26,8 +30,21 @@ namespace Articulate.Routing
         public ArticulateRouter(IControllerActionSearcher controllerActionSearcher)
             => _controllerActionSearcher = controllerActionSearcher;
 
-        public bool TryMatch(string path, out ArticulateRootNodeCache articulateRootNodeCache)
-            => _routeCache.TryGetValue(path, out articulateRootNodeCache);
+        public bool TryMatch(PathString path, RouteValueDictionary routeValues, out ArticulateRootNodeCache articulateRootNodeCache)
+        {
+            foreach(var item in _routeCache)
+            {
+                var templateMatcher = new TemplateMatcher(item.Key.RouteTemplate, routeValues);
+                if (templateMatcher.TryMatch(path, routeValues))
+                {
+                    articulateRootNodeCache = item.Value;
+                    return true;
+                }
+            }
+
+            articulateRootNodeCache = null;
+            return false;
+        }
 
         /// <summary>
         /// Builds all route caches.
@@ -73,41 +90,98 @@ namespace Articulate.Routing
             {
                 IPublishedContent[] nodesAsArray = nodeByPathGroup.ToArray();
 
-                var uriPath = nodeByPathGroup.Key;
+                var rootNodePath = nodeByPathGroup.Key.EnsureEndsWith('/');
 
-                //MapRssRoute(routes, uriPath, nodesAsArray);                
-                //MapMarkdownEditorRoute(routes, uriPath, nodesAsArray);
-                //MapAuthorsRssRoute(routes, uriPath, nodesAsArray);
+                
 
                 foreach (IPublishedContent articulateRootNode in nodeByPathGroup)
                 {
-                    MapSearchRoute(httpContext, uriPath, articulateRootNode, domains);
+                    //MapRssRoute(routes, uriPath, nodesAsArray)
+                    //MapMarkdownEditorRoute(routes, uriPath, nodesAsArray);
+                    //MapAuthorsRssRoute(routes, uriPath, nodesAsArray);
+
+                    MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
                     //MapManifestRoute(routes, uriPath, articulateRootNode);
                     //MapRsdRoute(routes, uriPath, articulateRootNode);
                     //MapOpenSearchRoute(routes, uriPath, articulateRootNode);
+
+                    // tags/cats routes are the least specific
+                    MapTagsAndCategoriesRoute(httpContext, rootNodePath, articulateRootNode, domains);
                 }
 
-                // tags/cats routes are the least specific
-                //MapTagsAndCategoriesRoute(routes, uriPath, nodesAsArray);
+
             }
         }
 
-        private void MapSearchRoute(HttpContext httpContext, string nodeRoutePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        /// <summary>
+        /// Generically caches a url path for a particular controller
+        /// </summary>
+        /// <param name="urlSegment"></param>
+        /// <param name="httpContext"></param>
+        /// <param name="rootNodePath"></param>
+        /// <param name="articulateRootNode"></param>
+        /// <param name="domains"></param>
+        private void MapRoute(
+            string controllerName,
+            string actionName,
+            RouteTemplate routeTemplate,
+            HttpContext httpContext,
+            IPublishedContent articulateRootNode,
+            IReadOnlyList<Domain> domains)
         {
-            var searchUrlName = articulateRootNode.Value<string>("searchUrlName");
-            var searchPath = nodeRoutePath.EnsureEndsWith('/') + searchUrlName;
-
-            if (!_routeCache.TryGetValue(searchPath, out ArticulateRootNodeCache dynamicRouteValues))
+            var art = new ArticulateRouteTemplate(routeTemplate);
+            if (!_routeCache.TryGetValue(art, out ArticulateRootNodeCache dynamicRouteValues))
             {
-                dynamicRouteValues = new ArticulateRootNodeCache(_controllerActionSearcher.Find<IRenderController>(
-                    httpContext,
-                    s_articulateSearchControllerName,
-                    nameof(ArticulateSearchController.Search)));
-                _routeCache[searchPath] = dynamicRouteValues;
+                ControllerActionDescriptor controllerActionDescriptor = _controllerActionSearcher.Find<IRenderController>(httpContext, controllerName, actionName);
+                if (_controllerActionSearcher == null)
+                {
+                    throw new InvalidOperationException("No controller found with name " + controllerName);
+                }
+                dynamicRouteValues = new ArticulateRootNodeCache(controllerActionDescriptor);
+
+                _routeCache[art] = dynamicRouteValues;
             }
 
             dynamicRouteValues.Add(articulateRootNode.Id, domains.Where(x => x.ContentId == articulateRootNode.Id).ToList());
+        }
+
+        private void MapSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        {
+            var searchUrlName = articulateRootNode.Value<string>("searchUrlName");
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}{searchUrlName}");
+            MapRoute(
+                s_searchControllerName,
+                nameof(ArticulateSearchController.Search),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapTagsAndCategoriesRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        {
+            var categoriesUrlName = articulateRootNode.Value<string>("categoriesUrlName");
+            RouteTemplate categoriesTemplate = TemplateParser.Parse($"{rootNodePath}{categoriesUrlName}/{{tag?}}");
+            MapRoute(
+                s_tagsControllerName,
+                nameof(ArticulateTagsController.Categories),
+                categoriesTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
+
+            var tagsUrlName = articulateRootNode.Value<string>("tagsUrlName");
+            RouteTemplate tagsTemplate = TemplateParser.Parse($"{rootNodePath}{tagsUrlName}/{{tag?}}");
+            MapRoute(
+                s_tagsControllerName,
+                nameof(ArticulateTagsController.Tags),
+                tagsTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
+
+            // TODO: RSS for tags
         }
     }
 }

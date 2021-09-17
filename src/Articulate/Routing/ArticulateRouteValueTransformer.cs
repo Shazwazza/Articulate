@@ -81,7 +81,7 @@ namespace Articulate.Routing
             {
                 if (_hasCache)
                 {
-                    if (_articulateRouter.TryMatch(httpContext.Request.Path, out ArticulateRootNodeCache dynamicRouteValues))
+                    if (_articulateRouter.TryMatch(httpContext.Request.Path, values, out ArticulateRootNodeCache dynamicRouteValues))
                     {
                         await WriteRouteValues(umbracoContext, httpContext, dynamicRouteValues, umbracoRouteValues, values);
                         return (true, true);
