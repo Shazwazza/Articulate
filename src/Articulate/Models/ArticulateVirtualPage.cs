@@ -4,6 +4,8 @@ using Umbraco.Extensions;
 
 namespace Articulate.Models
 {
+    // TODO: I don't think we need this anymore.
+
     /// <summary>
     /// Used to create a fake dynamic umbraco page for rendering tag lists, tag pages and search results (any virtual route)
     /// </summary>

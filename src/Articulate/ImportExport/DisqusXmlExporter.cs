@@ -15,14 +15,11 @@ namespace Articulate.ImportExport
     // ReSharper disable once ClassNeverInstantiated.Global
     public class DisqusXmlExporter
     {
-        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
         private readonly IPublishedUrlProvider _publishedUrlProvider;
 
         public DisqusXmlExporter(
-            IUmbracoContextAccessor umbracoContextAccessor,
             IPublishedUrlProvider publishedUrlProvider)
         {
-            _umbracoContextAccessor = umbracoContextAccessor;
             _publishedUrlProvider = publishedUrlProvider;
         }
 

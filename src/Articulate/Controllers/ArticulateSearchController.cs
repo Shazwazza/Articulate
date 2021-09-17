@@ -10,6 +10,7 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Media;
 using Umbraco.Cms.Web.Website.ActionResults;
+using Umbraco.Cms.Web.Common.Routing;
 
 namespace Articulate.Controllers
 {
@@ -34,6 +35,10 @@ namespace Articulate.Controllers
             _articulateSearcher = articulateSearcher;
         }
 
+        protected override UmbracoRouteValues UmbracoRouteValues => base.UmbracoRouteValues;
+
+        public override IActionResult Index() => base.Index();
+
         /// <summary>
         /// Used to render the search result listing (virtual node)
         /// </summary>
@@ -47,11 +52,6 @@ namespace Articulate.Controllers
         /// <returns></returns>
         public IActionResult Search(string term, string provider = null, int? p = null)
         {
-            if (CurrentPage is not ArticulateVirtualPage searchPage)
-            {
-                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a master model
             var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, VariationContextAccessor);
 
@@ -59,7 +59,7 @@ namespace Articulate.Controllers
             {
                 //nothing to search, just render the view
                 var emptyList = new ListModel(
-                    searchPage,
+                    CurrentPage,
                     new PagerModel(masterModel.PageSize, 0, 0),
                     Enumerable.Empty<IPublishedContent>(),
                     PublishedValueFallback,
@@ -84,7 +84,7 @@ namespace Articulate.Controllers
 
             var searchResult = _articulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out var totalPosts);
 
-            return GetPagedListView(masterModel, searchPage, searchResult, totalPosts, p);
+            return GetPagedListView(masterModel, CurrentPage, searchResult, totalPosts, p);
         }
     }
 }

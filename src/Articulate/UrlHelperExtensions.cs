@@ -60,7 +60,10 @@ namespace Articulate
         /// <returns></returns>
         public static string ArticulateAuthorRssUrl(this IUrlHelper url, AuthorModel model)
         {
-            var articulateRootUriPath = RouteCollectionExtensions.RoutePathFromNodeUrl(url, model.RootBlogNode.Url());
+            var articulateRootUriPath = RouteCollectionExtensions.RoutePathFromNodeUrl(
+                url.ActionContext.HttpContext,
+                model.RootBlogNode.Url());
+
             var routeHash = articulateRootUriPath.GetHashCode();
             var routeName = "articulate_author_rss_" + routeHash;
             return url.RouteUrl(routeName, new

@@ -245,30 +245,7 @@
 //                }).AddRouteNameToken(name);
 //        }
 
-//        private void MapSearchRoute(RouteCollection routes, string nodeRoutePath, IPublishedContent[] nodesWithPath)
-//        {
-//            //we need to group by the search url name and make unique routes amongst those,
-//            // alternatively we could create route constraints like we do for the tags/categories routes
-//            foreach (var nodeSearch in nodesWithPath.GroupBy(x => x.Value<string>("searchUrlName")))
-//            {
-//                //the hash needs to be the combination of the nodeRoutePath and the searchUrl group
-//                var routeHash = (nodeRoutePath + nodeSearch.Key).GetHashCode();
 
-//                //Create the route for the /search/{term} results
-//                routes.MapUmbracoRoute(
-//                    "articulate_search_" + routeHash,
-//                    (nodeRoutePath.EnsureEndsWith('/') + nodeSearch.Key + "/{term}").TrimStart('/'),
-//                    new
-//                    {
-//                        controller = "ArticulateSearch",
-//                        action = "Search",
-//                        term = UrlParameter.Optional
-//                    },
-//                    new ArticulateSearchRouteHandler(_logger, _contentUrls, nodesWithPath));
-//            }
-
-            
-//        }
 
 //        /// <summary>
 //        /// Removes existing articulate custom routes

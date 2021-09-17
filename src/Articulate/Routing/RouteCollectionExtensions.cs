@@ -1,5 +1,7 @@
 using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Umbraco.Extensions;
 
 namespace Articulate.Routing
@@ -59,9 +61,9 @@ namespace Articulate.Routing
         /// </summary>
         /// <param name="routePath"></param>
         /// <returns></returns>
-        internal static string RoutePathFromNodeUrl(IUrlHelper urlHelper, string routePath)
+        internal static string RoutePathFromNodeUrl(HttpContext httpContext, string routePath)
         {
-            var virtualPath = urlHelper.Content("~/");
+            var virtualPath = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}";
 
             var rootRoutePath = (Uri.TryCreate(routePath, UriKind.Absolute, out Uri result)
                 ? result.PathAndQuery
@@ -74,6 +76,5 @@ namespace Articulate.Routing
                 ? rootRoutePath.Substring(virtualPath.Length)
                 : rootRoutePath.TrimStart('/');
         }
-
     }
 }

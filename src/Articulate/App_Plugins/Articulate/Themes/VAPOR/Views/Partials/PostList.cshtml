@@ -1,5 +1,6 @@
 @using Articulate
 @using Articulate.Models
+@using Umbraco.Extensions
 @model IEnumerable<PostModel>
 
 
@@ -24,7 +25,7 @@
 
                 <a href="@post.Url()">@post.Name</a>
                 <div>
-                    <a data-disqus-identifier="@post.Key" class="comment-count" href="@post.Url#disqus_thread"></a>
+                    <a data-disqus-identifier="@post.Key" class="comment-count" href="@post.Url()#disqus_thread"></a>
                 </div>
             </li>
         }

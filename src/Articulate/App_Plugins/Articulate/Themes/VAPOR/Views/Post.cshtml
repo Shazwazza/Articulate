@@ -1,9 +1,12 @@
 @using Articulate
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Extensions
 
 @model Articulate.Models.PostModel
 @{
     Layout = "Master.cshtml";
     ViewBag.CssBodyClass = "post-template";
+	var absUrl = Model.Url(mode: UrlMode.Absolute);
 }
 
 @section header
@@ -40,11 +43,11 @@
 
         <section class="share">
             <p class="info prompt">Share this post</p>
-            <a href="http://twitter.com/share?text=@Model.Name&url=@UmbracoContext.UrlAbsolute(Model.Id)"
+            <a href="http://twitter.com/share?text=@Model.Name&url=@absUrl"
                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                 <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
             </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=@UmbracoContext.UrlAbsolute(Model.Id)"
+            <a href="https://www.facebook.com/sharer/sharer.php?u=@absUrl"
                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
                 <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
             </a>

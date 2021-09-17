@@ -4,11 +4,15 @@ using Articulate.Packaging;
 using Articulate.Routing;
 using Articulate.Services;
 using Articulate.Syndication;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Routing;
+using static Microsoft.Extensions.DependencyInjection.ServiceDescriptor;
 
 namespace Articulate.Components
 {
@@ -30,18 +34,22 @@ namespace Articulate.Components
             services.AddSingleton<IArticulateTagRepository, ArticulateTagRepository>();
             services.AddSingleton<ArticulateTagService>();
 
-            services.AddScoped<DisqusXmlExporter>();
-            services.AddScoped<BlogMlImporter>();
+            services.AddSingleton<DisqusXmlExporter>();
+            services.AddSingleton<BlogMlImporter>();
 
-            services.AddScoped<IArticulateSearcher, DefaultArticulateSearcher>();
+            services.AddSingleton<IArticulateSearcher, DefaultArticulateSearcher>();
+            services.AddSingleton<ArticulateRouteValueTransformer>();
+            services.AddSingleton<ArticulateRouteValueTransformer2>();
+            //services.TryAddEnumerable(Singleton<MatcherPolicy, ArticulateSelectorPolicy>());
+            //services.AddSingleton<ArticulateEndpointDataSource>();
 
             //services.AddTransient<MetaWeblogHandler>();
-           // services.AddSingleton<MetaWeblogHandlerFactory>(factory => new MetaWeblogHandlerFactory(i =>
-           //{
-           //    var instance = factory.GetRequiredService<MetaWeblogHandler>();
-           //    instance.BlogRootId = i;
-           //    return instance;
-           //}));
+            // services.AddSingleton<MetaWeblogHandlerFactory>(factory => new MetaWeblogHandlerFactory(i =>
+            //{
+            //    var instance = factory.GetRequiredService<MetaWeblogHandler>();
+            //    instance.BlogRootId = i;
+            //    return instance;
+            //}));
 
             builder.UrlProviders().Append<VirtualNodeUrlProvider>();
             builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
@@ -58,7 +66,7 @@ namespace Articulate.Components
             builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
             builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
 
-            builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
+            builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();            
 
         }
 
