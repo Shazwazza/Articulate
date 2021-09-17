@@ -39,7 +39,7 @@ namespace Articulate.Components
 
             services.AddSingleton<IArticulateSearcher, DefaultArticulateSearcher>();
             services.AddSingleton<ArticulateRouteValueTransformer>();
-            services.AddSingleton<ArticulateRouteValueTransformer2>();
+            services.AddSingleton<ArticulateRouter>();
             //services.TryAddEnumerable(Singleton<MatcherPolicy, ArticulateSelectorPolicy>());
             //services.AddSingleton<ArticulateEndpointDataSource>();
 

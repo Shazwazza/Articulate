@@ -14,20 +14,12 @@ namespace Articulate.Components
                 {
                     // TODO: Here's where we create our routes.
 
-                    //endpoints.UseArticulateEndpoints();
-
                     endpoints.MapDynamicControllerRoute<ArticulateRouteValueTransformer>(
                         "/{any}/{**slug}",
                         null,
                         100); // Ensure it runs AFTER Umbraco so that we can check if things are already matched.
-
-                    //endpoints.MapDynamicControllerRoute<ArticulateRouteValueTransformer2>(
-                    //    "/Test/{**slug}");
-                    //    //,
-                    //    //null,
-                    //    //101); // Ensure it runs AFTER Umbraco.
-
                 })
+
             });
 
 
