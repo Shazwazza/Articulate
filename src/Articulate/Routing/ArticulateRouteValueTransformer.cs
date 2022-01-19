@@ -122,7 +122,6 @@ namespace Articulate.Routing
 
             requestBuilder.SetPublishedContent(publishedContent);
 
-
             IPublishedRequest publishedRequest = requestBuilder.Build();
 
             umbracoRouteValues = new UmbracoRouteValues(
@@ -138,8 +137,6 @@ namespace Articulate.Routing
                 values[ActionToken] = dynamicRouteValues.ControllerActionDescriptor.ActionName;
             }
         }
-
-        
 
         private bool ShouldCheck(
             HttpContext httpContext,

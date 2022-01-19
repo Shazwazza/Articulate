@@ -22,6 +22,8 @@ namespace Articulate.Routing
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
+        private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
+        private static readonly string s_markdownEditorControllerName = ControllerExtensions.GetControllerName<MarkdownEditorController>();
 
         /// <summary>
         /// Constructor
@@ -67,8 +69,8 @@ namespace Articulate.Routing
             var domains = umbracoContext.Domains.GetAll(false).ToList();
 
             // TODO: Enable this in some way
-            //clear the existing articulate routes (if any)
-            //RemoveExisting(routes);
+            // clear the existing articulate routes (if any)
+            // RemoveExisting(routes);
 
             // For each articulate root, we need to create some custom route, BUT routes can overlap
             // based on multi-tenency so we need to deal with that. 
@@ -86,19 +88,18 @@ namespace Articulate.Routing
                 // This is required to ensure that we create routes that are more specific first
                 // before creating routes that are less specific
                 .OrderByDescending(x => x.Key.Split('/').Length);
+
             foreach (var nodeByPathGroup in articulateNodesGroupedByUriPath)
             {
                 IPublishedContent[] nodesAsArray = nodeByPathGroup.ToArray();
 
                 var rootNodePath = nodeByPathGroup.Key.EnsureEndsWith('/');
 
-                
-
                 foreach (IPublishedContent articulateRootNode in nodeByPathGroup)
                 {
-                    //MapRssRoute(routes, uriPath, nodesAsArray)
-                    //MapMarkdownEditorRoute(routes, uriPath, nodesAsArray);
-                    //MapAuthorsRssRoute(routes, uriPath, nodesAsArray);
+                    MapRssRoute(httpContext, rootNodePath, articulateRootNode, domains);
+                    MapMarkdownEditorRoute(httpContext, rootNodePath, articulateRootNode, domains);
+                    MapAuthorsRssRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                     MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
@@ -109,8 +110,6 @@ namespace Articulate.Routing
                     // tags/cats routes are the least specific
                     MapTagsAndCategoriesRoute(httpContext, rootNodePath, articulateRootNode, domains);
                 }
-
-
             }
         }
 
@@ -141,6 +140,58 @@ namespace Articulate.Routing
             dynamicRouteValues.Add(articulateRootNode.Id, domains.Where(x => x.ContentId == articulateRootNode.Id).ToList());
         }
 
+        /// <summary>
+        /// Create route for root RSS
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <param name="rootNodePath"></param>
+        /// <param name="articulateRootNode"></param>
+        /// <param name="domains"></param>
+        private void MapRssRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        {
+            RouteTemplate rssTemplate = TemplateParser.Parse($"{rootNodePath}rss");
+            MapRoute(
+                s_rssControllerName,
+                nameof(ArticulateRssController.Index),
+                rssTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
+
+            RouteTemplate xsltTemplate = TemplateParser.Parse($"{rootNodePath}rss/xslt");
+            MapRoute(
+                s_rssControllerName,
+                nameof(ArticulateRssController.FeedXslt),
+                xsltTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapAuthorsRssRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        {
+            RouteTemplate rssTemplate = TemplateParser.Parse($"{rootNodePath}author/{{authorId}}/rss");
+            MapRoute(
+                s_rssControllerName,
+                nameof(ArticulateRssController.Author),
+                rssTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapMarkdownEditorRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}a-new");
+            MapRoute(
+                s_markdownEditorControllerName,
+                nameof(MarkdownEditorController.NewPost),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
         private void MapSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, IReadOnlyList<Domain> domains)
         {
             var searchUrlName = articulateRootNode.Value<string>("searchUrlName");
@@ -165,6 +216,14 @@ namespace Articulate.Routing
                 httpContext,
                 articulateRootNode,
                 domains);
+            RouteTemplate categoriesRssTemplate = TemplateParser.Parse($"{rootNodePath}{categoriesUrlName}/{{tag}}/rss");
+            MapRoute(
+                s_rssControllerName,
+                nameof(ArticulateRssController.Categories),
+                categoriesRssTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
 
             var tagsUrlName = articulateRootNode.Value<string>("tagsUrlName");
             RouteTemplate tagsTemplate = TemplateParser.Parse($"{rootNodePath}{tagsUrlName}/{{tag?}}");
@@ -175,8 +234,14 @@ namespace Articulate.Routing
                 httpContext,
                 articulateRootNode,
                 domains);
-
-            // TODO: RSS for tags
+            RouteTemplate tagsRssTemplate = TemplateParser.Parse($"{rootNodePath}{tagsUrlName}/{{tag}}/rss");
+            MapRoute(
+                s_rssControllerName,
+                nameof(ArticulateRssController.Tags),
+                tagsRssTemplate,
+                httpContext,
+                articulateRootNode,
+                domains);
         }
     }
 }

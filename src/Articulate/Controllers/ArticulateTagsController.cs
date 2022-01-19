@@ -98,7 +98,7 @@ namespace Articulate.Controllers
         private IActionResult RenderTagsOrCategories(string tagGroup, string baseUrl)
         {
             //create a blog model of the main page
-            var rootPageModel = new MasterModel(CurrentPage.Parent, PublishedValueFallback, VariationContextAccessor);
+            var rootPageModel = new MasterModel(CurrentPage, PublishedValueFallback, VariationContextAccessor);
 
             IEnumerable<PostsByTagModel> contentByTags = _articulateTagService.GetContentByTags(
                 _umbracoHelper,
