@@ -25,6 +25,8 @@ namespace Articulate.Routing
 
         private readonly List<UrlNames> _urlNames;
 
+        private const string DetectDomainAbsoluteUrl = "//";
+
         public TagsOrCategoryPathRouteConstraint(ContentUrls contentUrls, IEnumerable<IPublishedContent> itemsForRoute)
         {
             if (itemsForRoute == null) throw new ArgumentNullException(nameof(itemsForRoute));
@@ -38,7 +40,7 @@ namespace Articulate.Routing
                 foreach (var url in allUrls)
                 {
                     //if there is a double slash, it will have a domain
-                    if (url.Contains("//"))
+                    if (url.Contains(DetectDomainAbsoluteUrl))
                     {
                         var uri = new Uri(url, UriKind.Absolute);
                         urlNames.Add(new UrlNames
@@ -77,10 +79,10 @@ namespace Articulate.Routing
             else
             {
                 urlNames = httpContext.Request.Url == null
-                    ? _urlNames.FirstOrDefault()  //cannot be determined
-                    : httpContext.Request.Url.Host.InvariantEquals("localhost")
-                        ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
-                        : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                   ? _urlNames.FirstOrDefault()  //cannot be determined
+                   : !httpContext.Request.Url.AbsoluteUri.Contains(DetectDomainAbsoluteUrl)
+                       ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
+                       : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
 
             if (urlNames == null) return false;
