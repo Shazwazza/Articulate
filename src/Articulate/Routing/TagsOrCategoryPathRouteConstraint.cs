@@ -79,10 +79,10 @@ namespace Articulate.Routing
             else
             {
                 urlNames = httpContext.Request.Url == null
-                   ? _urlNames.FirstOrDefault()  //cannot be determined
-                   : !httpContext.Request.Url.AbsoluteUri.Contains(DetectDomainAbsoluteUrl)
-                       ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
-                       : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
+                    ? _urlNames.FirstOrDefault()  //cannot be determined
+                    : !httpContext.Request.Url.AbsoluteUri.Contains(DetectDomainAbsoluteUrl)
+                        ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
+                        : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
 
             if (urlNames == null) return false;
