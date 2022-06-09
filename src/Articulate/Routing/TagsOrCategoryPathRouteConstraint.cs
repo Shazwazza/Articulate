@@ -80,7 +80,7 @@ namespace Articulate.Routing
             {
                 urlNames = httpContext.Request.Url == null
                     ? _urlNames.FirstOrDefault()  //cannot be determined
-                                       : !httpContext.Request.Url.AbsoluteUri.Contains(DetectDomainAbsoluteUrl)
+                                       : !httpContext.Request.Url.AbsoluteUri.InvariantContains(DetectDomainAbsoluteUrl)
                         ? _urlNames.FirstOrDefault(x => x.Host == string.Empty)
                         : _urlNames.FirstOrDefault(x => x.Host.InvariantEquals(httpContext.Request.Url.Host));
             }
