@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="9.0.0-preview20210917.72662" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="9.0.0-preview20210917.72662" />
-    <PackageReference Include="Umbraco.Cms.SqlCe" Version="9.0.0-preview20210917.72662" />
+    <PackageReference Include="Umbraco.Cms" Version="9.0.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="9.0.0" />
+    <PackageReference Include="Umbraco.Cms.SqlCe" Version="9.0.0" />
     <PackageReference Include="Umbraco.SqlServerCE" Version="4.0.0.1" />
   </ItemGroup>
 
