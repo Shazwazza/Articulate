@@ -1,6 +1,7 @@
+@addTagHelper *, Smidge
 @using Articulate;
+
 @model Articulate.Models.IMasterModel
-@inject Smidge.SmidgeHelper Smidge
 
 <!DOCTYPE html>
 <html>
@@ -19,25 +20,22 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    @{ Smidge.RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js")
-           .RequiresCss("~/App_Plugins/Articulate/Themes/Phantom/Assets/css/site.css")
-           .RequiresCss("~/App_Plugins/Articulate/Themes/Phantom/Assets/css/normalize.css");
-    }
+    
+    <link href="articulate-phantom-css" rel="stylesheet" />
     @RenderSection("Header", false)
-    @await Smidge.CssHereAsync()
+
 </head>
 <body class="@ViewBag.CssBodyClass">
 
-@await Html.ThemedPartialAsync(Model, "Sidebar")
+    @await Html.ThemedPartialAsync(Model, "Sidebar")
 
-<div class="content">
-    @RenderBody()
-</div>
-    
-@await Smidge.JsHereAsync()
+    <div class="content">
+        @RenderBody()
+    </div>
 
-@Html.GoogleAnalyticsTracking(Model)
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+
+    @Html.GoogleAnalyticsTracking(Model)
 
 </body>
 </html>
