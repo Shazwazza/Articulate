@@ -23,6 +23,8 @@ namespace Articulate.Components
             _bundleManager.CreateCss("articulate-material-css", RequiredThemedCssFolder("Material"));
             
             _bundleManager.CreateCss("articulate-phantom-css", RequiredThemedCssFolder("Phantom"));
+
+            _bundleManager.CreateCss("articulate-mini-css", RequiredThemedCssFolder("Mini"));
         }
 
         public void Terminate()
