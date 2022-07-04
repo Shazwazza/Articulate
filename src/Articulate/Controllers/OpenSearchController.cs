@@ -22,7 +22,7 @@ namespace Articulate.Controllers
             UmbracoHelper umbraco,
             ILogger<RenderController> logger,
             ICompositeViewEngine compositeViewEngine,
-            IUmbracoContextAccessor umbracoContextAccessor,)
+            IUmbracoContextAccessor umbracoContextAccessor)
             :base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _publishedValueFallback = publishedValueFallback;
