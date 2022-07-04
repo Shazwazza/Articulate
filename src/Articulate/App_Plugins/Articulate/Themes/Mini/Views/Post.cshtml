@@ -48,7 +48,7 @@
                     </div>
                     <div class="hrule"></div>
                     <div class="postContent">
-                        @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+                        @if (!string.IsNullOrWhiteSpace(Model.CroppedPostImageUrl))
                         {
                             <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
                         }

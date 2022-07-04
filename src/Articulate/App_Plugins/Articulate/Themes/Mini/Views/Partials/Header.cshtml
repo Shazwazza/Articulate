@@ -4,7 +4,7 @@
 <div class="header-placeholder">&nbsp;</div>
 
 @{
-    var backgroundStyle = !Model.BlogBanner.IsNullOrWhiteSpace()
+    var backgroundStyle = !string.IsNullOrWhiteSpace(Model.BlogBanner)
         ? "background-image: url(" + Model.BlogBanner + ");"
         : "";
 }
@@ -12,7 +12,7 @@
 <div class="header-content" style="@backgroundStyle">
 
 
-    @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+    @if (!string.IsNullOrWhiteSpace(Model.BlogLogo))
     {
         <a class="logo" href="@Url.ArticulateRootUrl(Model)"><img src="@Model.BlogLogo" alt="Blog Logo" class="blog-logo" /></a>
     }
