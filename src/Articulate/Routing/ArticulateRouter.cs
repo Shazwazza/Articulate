@@ -105,7 +105,6 @@ namespace Articulate.Routing
                     MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
                     //MapManifestRoute(routes, uriPath, articulateRootNode);
-                    //MapRsdRoute(routes, uriPath, articulateRootNode);
                     MapRsdRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapOpenSearchRoute(routes, uriPath, articulateRootNode);
 
