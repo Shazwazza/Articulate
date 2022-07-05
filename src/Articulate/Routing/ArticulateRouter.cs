@@ -116,7 +116,7 @@ namespace Articulate.Routing
 
         private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
-            RouteTemplate template = TemplateParser.Parse($"opensearch/{{id}}");
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}opensearch/{{id}}");
             MapRoute(
                 s_openSearchControllerName,
                 nameof(OpenSearchController.Index),
