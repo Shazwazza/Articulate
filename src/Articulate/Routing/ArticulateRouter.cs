@@ -117,7 +117,7 @@ namespace Articulate.Routing
 
         private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
-            RouteTemplate template = TemplateParser.Parse($"rsd/{{id}}");
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}rsd/{{id}}");
             MapRoute(
                 s_rsdControllerName,
                 nameof(RsdController.Index),
