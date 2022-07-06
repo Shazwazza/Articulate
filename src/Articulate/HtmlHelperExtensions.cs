@@ -376,42 +376,56 @@ namespace Articulate
                         throw new InvalidOperationException("The number of cell templates must equal the number of columns defined");
                     }
 
-                    // TODO: What is the point of using tag builder here???
-                    var tagBuilder = new TagBuilder("table");
+                    var table = new TagBuilder("table");
                     if (htmlAttributes != null)
                     {
                         IDictionary<string, object> atts = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-                        tagBuilder.MergeAttributes(atts);
+                        table.MergeAttributes(atts);
                     }
-                    writer.Write(tagBuilder.RenderStartTag());
 
-                    writer.Write("<thead>");
-                    writer.Write("<tr>");
+                    var thead = new TagBuilder("thead");
+                    var tr = new TagBuilder("tr");
+
                     for (int i = 0; i < cols; i++)
                     {
-                        writer.Write("<th class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[i] : "");
-                        writer.Write(headers[i]);
-                        writer.Write("</th>");
+                        var th = new TagBuilder("th");
+                        th.AddCssClass((cssClasses.Length - 1) >= 1 ? cssClasses[i] : "");
+                        th.InnerHtml.SetContent(headers[i]);
+                        tr.InnerHtml.AppendHtml(th);
                     }
-                    writer.Write("</thead>");
+
+                    thead.InnerHtml.AppendHtml(tr);
+
+                    table.InnerHtml.AppendHtml(thead);
+
+                    var tbody = new TagBuilder("tbody");
                     for (var rowIndex = 0; rowIndex < rows; rowIndex++)
                     {
-                        writer.Write("<tr>");
+                        var trContent = new TagBuilder("tr");
+
                         for (var colIndex = 0; colIndex < cols; colIndex++)
                         {
-                            writer.Write("<td class='{0}'>", (cssClasses.Length - 1) >= 1 ? cssClasses[colIndex] : "");
+                            var tdContent = new TagBuilder("td");
+                            tdContent.AddCssClass((cssClasses.Length - 1) >= 1 ? cssClasses[colIndex] : "");
+
                             var item = items[rowIndex];
                             if (item != null)
                             {
                                 //if there's an item at that grid location, call its template
-                                cellTemplates[colIndex](item).WriteTo(writer, HtmlEncoder.Default);
-                            }
-                            writer.Write("</td>");
-                        }
-                        writer.Write("</tr>");
-                    }
-                    writer.Write("</table>");
+                                tdContent.InnerHtml.SetHtmlContent(cellTemplates[colIndex](item));
 
+                                //cellTemplates[colIndex](item).WriteTo(writer, HtmlEncoder.Default);
+                            }
+
+                            trContent.InnerHtml.AppendHtml(tdContent);
+                        }
+
+                        tbody.InnerHtml.AppendHtml(trContent);
+                    }
+
+                    table.InnerHtml.AppendHtml(tbody);
+
+                    table.WriteTo(writer, HtmlEncoder.Default);
                     return Task.CompletedTask;
                 });
     }

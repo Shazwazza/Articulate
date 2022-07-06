@@ -21,7 +21,8 @@ namespace Articulate.Routing
         private readonly Dictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> _routeCache = new();
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
-        private static readonly string s_wlwControllerName = ControllerExtensions.GetControllerName<WlwManifestController>();        
+		private static readonly string s_openSearchControllerName = ControllerExtensions.GetControllerName<OpenSearchController>();
+		private static readonly string s_wlwControllerName = ControllerExtensions.GetControllerName<WlwManifestController>();
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
         private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
         private static readonly string s_markdownEditorControllerName = ControllerExtensions.GetControllerName<MarkdownEditorController>();
@@ -106,7 +107,7 @@ namespace Articulate.Routing
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
                     MapManifestRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapRsdRoute(routes, uriPath, articulateRootNode);
-                    //MapOpenSearchRoute(routes, uriPath, articulateRootNode);
+                    MapOpenSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                     // tags/cats routes are the least specific
                     MapTagsAndCategoriesRoute(httpContext, rootNodePath, articulateRootNode, domains);
@@ -114,7 +115,19 @@ namespace Articulate.Routing
             }
         }
 
-        private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+		private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}opensearch/{{id}}");
+            MapRoute(
+                s_openSearchControllerName,
+                nameof(OpenSearchController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+		private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
             RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
             MapRoute(
@@ -125,7 +138,7 @@ namespace Articulate.Routing
                 articulateRootNode,
                 domains);
         }
-
+		
         /// <summary>
         /// Generically caches a url path for a particular controller
         /// </summary>       
