@@ -21,7 +21,8 @@ namespace Articulate.Routing
         private readonly Dictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> _routeCache = new();
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
-        private static readonly string s_rsdControllerName = ControllerExtensions.GetControllerName<RsdController>();
+		private static readonly string s_openSearchControllerName = ControllerExtensions.GetControllerName<OpenSearchController>();
+		private static readonly string s_rsdControllerName = ControllerExtensions.GetControllerName<RsdController>();
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
         private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
         private static readonly string s_markdownEditorControllerName = ControllerExtensions.GetControllerName<MarkdownEditorController>();
@@ -106,25 +107,13 @@ namespace Articulate.Routing
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
                     //MapManifestRoute(routes, uriPath, articulateRootNode);
                     MapRsdRoute(httpContext, rootNodePath, articulateRootNode, domains);
-                    //MapOpenSearchRoute(routes, uriPath, articulateRootNode);
+                    MapOpenSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                     // tags/cats routes are the least specific
                     MapTagsAndCategoriesRoute(httpContext, rootNodePath, articulateRootNode, domains);
                 }
             }
-        }
-
-        private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
-        {
-            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}rsd/{{id}}");
-            MapRoute(
-                s_rsdControllerName,
-                nameof(RsdController.Index),
-                template,
-                httpContext,
-                articulateRootNode,
-                domains);
-        }
+        }		
 
         /// <summary>
         /// Generically caches a url path for a particular controller
@@ -151,6 +140,30 @@ namespace Articulate.Routing
             }
 
             dynamicRouteValues.Add(articulateRootNode.Id, domains.Where(x => x.ContentId == articulateRootNode.Id).ToList());
+        }
+
+        private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}opensearch/{{id}}");
+            MapRoute(
+                s_openSearchControllerName,
+                nameof(OpenSearchController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}rsd/{{id}}");
+            MapRoute(
+                s_rsdControllerName,
+                nameof(RsdController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
         }
 
         /// <summary>

@@ -116,7 +116,7 @@ namespace Articulate.Services
             return GetResult();
 #else
             //cache this result for a short amount of time
-            return (IEnumerable<PostsByTagModel>)Current.AppCaches.RuntimeCache.Get(
+            return (IEnumerable<PostsByTagModel>)AppCaches.RuntimeCache.Get(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTags", masterModel.RootBlogNode.Id, tagGroup),
                 GetResult, TimeSpan.FromSeconds(30));
 #endif
@@ -187,7 +187,7 @@ WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AN
 #else
             //cache this result for a short amount of time
             
-            return (PostsByTagModel)Current.AppCaches.RuntimeCache.Get(
+            return (PostsByTagModel)AppCaches.RuntimeCache.Get(
                 string.Concat(typeof(UmbracoHelperExtensions).Name, "GetContentByTag", masterModel.RootBlogNode.Id, tagGroup, tag, page, pageSize),
                 GetResult, TimeSpan.FromSeconds(30));
 #endif
