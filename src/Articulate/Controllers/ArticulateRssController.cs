@@ -121,7 +121,7 @@ namespace Articulate.Controllers
 
             if (!maxItems.HasValue) maxItems = 25;
 
-            return RenderTagsOrCategoriesRss("ArticulateCategories", "categories", maxItems.Value);
+            return RenderTagsOrCategoriesRss("ArticulateCategories", "categories", maxItems.Value, tag);
         }
 
         public IActionResult Tags(string tag, int? maxItems)
@@ -130,23 +130,18 @@ namespace Articulate.Controllers
 
             if (!maxItems.HasValue) maxItems = 25;
 
-            return RenderTagsOrCategoriesRss("ArticulateTags", "tags", maxItems.Value);
+            return RenderTagsOrCategoriesRss("ArticulateTags", "tags", maxItems.Value, tag);
         }
 
-        public IActionResult RenderTagsOrCategoriesRss(string tagGroup, string baseUrl, int maxItems)
+        public IActionResult RenderTagsOrCategoriesRss(string tagGroup, string baseUrl, int maxItems, string tag)
         {
-            if (CurrentPage is not ArticulateVirtualPage tagPage)
-            {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a blog model of the main page
-            var rootPageModel = new MasterModel(CurrentPage.Parent, _publishedValueFallback, _variationContextAccessor);
+            var rootPageModel = new MasterModel(CurrentPage, _publishedValueFallback, _variationContextAccessor);
 
             PostsByTagModel contentByTag = _articulateTagService.GetContentByTag(
                 _umbracoHelper,
                 rootPageModel,
-                tagPage.Name,
+                tag,
                 tagGroup,
                 baseUrl,
                 1,
@@ -159,7 +154,7 @@ namespace Articulate.Controllers
                 contentByTag = _articulateTagService.GetContentByTag(
                     _umbracoHelper,
                     rootPageModel,
-                    tagPage.Name.Replace('-', '.'),
+                    tag.Replace('-', '.'),
                     tagGroup,
                     baseUrl,
                     1, maxItems);
