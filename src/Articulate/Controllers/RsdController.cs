@@ -2,8 +2,12 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Extensions;
 
 namespace Articulate.Controllers
@@ -11,11 +15,18 @@ namespace Articulate.Controllers
     /// <summary>
     /// Really simple discovery controller
     /// </summary>
-    public class RsdController : Controller
+    public class RsdController : RenderController
     {
         private readonly UmbracoHelper _umbracoHelper;
 
-        public RsdController(UmbracoHelper umbracoHelper) => _umbracoHelper = umbracoHelper;
+        public RsdController(UmbracoHelper umbracoHelper,
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor)
+           : base(logger, compositeViewEngine, umbracoContextAccessor)
+        {
+            _umbracoHelper = umbracoHelper;
+        }
 
         /// <summary>
         /// Renders the RSD for the articulate node id
@@ -35,7 +46,7 @@ namespace Articulate.Controllers
                 new XAttribute("version", "1.0"),
                 new XElement("service",
                     new XElement("engineName", "Articulate, powered by Umbraco"),
-                    new XElement("engineLink", "http://github.com/shandem/articulate"),
+                    new XElement("engineLink", "http://github.com/shazwazza/articulate"),
                     new XElement("homePageLink", node.Url(mode: UrlMode.Absolute))),
                 new XElement("apis",
                     new XElement("api",
