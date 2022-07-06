@@ -114,30 +114,6 @@ namespace Articulate.Routing
                 }
             }
         }
-
-		private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
-        {
-            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}opensearch/{{id}}");
-            MapRoute(
-                s_openSearchControllerName,
-                nameof(OpenSearchController.Index),
-                template,
-                httpContext,
-                articulateRootNode,
-                domains);
-        }
-
-		private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
-        {
-            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
-            MapRoute(
-                s_wlwControllerName,
-                nameof(WlwManifestController.Index),
-                template,
-                httpContext,
-                articulateRootNode,
-                domains);
-        }
 		
         /// <summary>
         /// Generically caches a url path for a particular controller
@@ -164,6 +140,30 @@ namespace Articulate.Routing
             }
 
             dynamicRouteValues.Add(articulateRootNode.Id, domains.Where(x => x.ContentId == articulateRootNode.Id).ToList());
+        }
+
+        private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}opensearch/{{id}}");
+            MapRoute(
+                s_openSearchControllerName,
+                nameof(OpenSearchController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
+            MapRoute(
+                s_wlwControllerName,
+                nameof(WlwManifestController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
         }
 
         /// <summary>
