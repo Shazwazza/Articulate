@@ -22,6 +22,7 @@ namespace Articulate.Routing
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
 		private static readonly string s_openSearchControllerName = ControllerExtensions.GetControllerName<OpenSearchController>();
+		private static readonly string s_rsdControllerName = ControllerExtensions.GetControllerName<RsdController>();
 		private static readonly string s_wlwControllerName = ControllerExtensions.GetControllerName<WlwManifestController>();
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
         private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
@@ -106,7 +107,7 @@ namespace Articulate.Routing
                     MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
                     MapManifestRoute(httpContext, rootNodePath, articulateRootNode, domains);
-                    //MapRsdRoute(routes, uriPath, articulateRootNode);
+                    MapRsdRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     MapOpenSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                     // tags/cats routes are the least specific
@@ -114,7 +115,7 @@ namespace Articulate.Routing
                 }
             }
         }
-		
+
         /// <summary>
         /// Generically caches a url path for a particular controller
         /// </summary>       
@@ -154,7 +155,19 @@ namespace Articulate.Routing
                 domains);
         }
 
-        private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+		private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}rsd/{{id}}");
+            MapRoute(
+                s_rsdControllerName,
+                nameof(RsdController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+		private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
             RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
             MapRoute(
