@@ -105,7 +105,7 @@ namespace Articulate.Routing
                     MapAuthorsRssRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                     MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
-                    //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
+                    MapMetaWeblogRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     MapManifestRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     MapRsdRoute(httpContext, rootNodePath, articulateRootNode, domains);
                     MapOpenSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
@@ -167,7 +167,29 @@ namespace Articulate.Routing
                 domains);
         }
 
-		private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        private void MapMetaWeblogRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+
+            // var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog/" + node.Id).TrimStart('/');
+
+            //var name = "articulate_metaweblog_" + node.Id;
+            //var route = new Route(
+            //    routePath,
+            //    new RouteValueDictionary(),
+            //    new RouteValueDictionary(new { controller = new MetaWeblogRouteConstraint() }),
+            //    _metaWeblogHandlerFactory.Create(node.Id))
+            //    .AddRouteNameToken(name);
+
+            //routes.Add(name, route);
+
+
+            // WARREN: HELP !?!
+            // I have NO idea to add a route with a handler
+            // with current routing magic of RouteTransformers
+                        
+        }
+
+        private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
             RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
             MapRoute(
