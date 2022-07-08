@@ -1,6 +1,6 @@
-﻿@using Articulate.Controllers
+@addTagHelper *, Smidge
+@using Articulate.Controllers
 
-.Editors
 @model Articulate.Models.MarkdownEditorInitModel
 
 @{
@@ -14,22 +14,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Articulate - Create New Post</title>
 
-    @{
-        Html
-            .RequiresCss("//storage.googleapis.com/code.getmdl.io/1.0.0/material.pink-blue.min.css")
-            .RequiresCss("//fonts.googleapis.com/css?family=Roboto:300,400,500,700")
-            .RequiresCss("//fonts.googleapis.com/icon?family=Material+Icons")
-            .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css")
-            .RequiresJs("//storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js")
-            .RequiresJs("//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-            .RequiresJs("//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js")
-            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js")
-            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js")
-            .RequiresJs("//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js")
-            .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js");
-    }
-    @Html.RenderCssHere()
-    @Html.RenderJsHere()
+    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.pink-blue.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/App_Plugins/Articulate/Assets/md-editor.css">
+
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js" type="text/javascript"></script>
+    <script src="/App_Plugins/Articulate/Assets/md-editor.js" type="text/javascript"></script>
 
     <script type="text/ng-template" id="md.html">
 
