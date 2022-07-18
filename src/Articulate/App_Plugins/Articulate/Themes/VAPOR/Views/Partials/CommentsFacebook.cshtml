@@ -1,3 +1,5 @@
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Extensions
 @model Articulate.Models.PostModel
 
 @*Facebook comments aren't responsive. Use at your own risk.*@
@@ -11,4 +13,4 @@
   js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-<div class="fb-comments" data-href="@UmbracoContext.UrlAbsolute(Model.Id)" data-numposts="5" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="@Model.Url(mode: UrlMode.Absolute)" data-numposts="5" data-colorscheme="light"></div>
