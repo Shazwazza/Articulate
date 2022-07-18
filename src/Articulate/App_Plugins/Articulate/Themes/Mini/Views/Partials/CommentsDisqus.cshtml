@@ -1,4 +1,6 @@
 @using Articulate.Models
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Extensions
 @model Articulate.Models.PostModel
 
 <div class="post-comment">
@@ -24,7 +26,7 @@
                 /** DO NOT MODIFY BELOW THIS LINE **/
 
                 var disqus_identifier = '@Model.Key';
-                var disqus_url = '@UmbracoContext.UrlAbsolute(Model.Id)';
+                var disqus_url = '@Model.Url(mode: UrlMode.Absolute)';
 
                 (function () {
                     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
