@@ -15,6 +15,8 @@ $BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
 $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Release";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
+$CodeProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate";
+$CodeCSProj = Join-Path -Path $CodeProjFolder -ChildPath "Articulate.csproj";
 
 # Go get nuget.exe if we don't hae it
 $NuGet = "$BuildFolder\nuget.exe"
@@ -87,6 +89,5 @@ if (-not $?)
 	throw "The MSBuild process returned an error code."
 }
 
-# Nuget Pack
-$nuSpec = Join-Path -Path $BuildFolder -ChildPath "Articulate.nuspec";
-& $NuGet pack $nuSpec -BasePath $WebProjFolder -OutputDirectory $ReleaseFolder -Version "$ReleaseVersionNumber$PreReleaseName" -Properties "copyright=$Copyright;buildFolder=$BuildFolder"
+# dotnet pack (As its a SDK style project, nuget pack was not reading info stored in csproj)
+& dotnet pack $CodeCSProj --output $ReleaseFolder --configuration Release -p:PackageVersion=$ReleaseVersionNumber$PreReleaseName -p:copyright=$Copyright
