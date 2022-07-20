@@ -90,4 +90,4 @@ if (-not $?)
 }
 
 # dotnet pack (As its a SDK style project, nuget pack was not reading info stored in csproj)
-& dotnet pack $CodeCSProj --output $ReleaseFolder --configuration Release -p:PackageVersion=$ReleaseVersionNumber$PreReleaseName -p:copyright=$Copyright
+& dotnet pack $CodeCSProj --output $ReleaseFolder --configuration Release -p:PackageVersion=$ReleaseVersionNumber$PreReleaseName -p:copyright="$Copyright"
