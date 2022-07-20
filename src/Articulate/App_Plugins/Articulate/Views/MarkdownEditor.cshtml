@@ -8,18 +8,8 @@
     Layout = null;
 
     SmidgeHelper
-        .RequiresJs("https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js")
-        .RequiresJs("https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-        .RequiresJs("https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js")
-        .RequiresJs("https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js")
-        .RequiresJs("https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js")
         .RequiresJs("~/App_Plugins/Articulate/Assets/md-editor.js")
-
-        .RequiresCss("https://storage.googleapis.com/code.getmdl.io/1.0.0/material.pink-blue.min.css")
-        .RequiresCss("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700")
-        .RequiresCss("https://fonts.googleapis.com/icon?family=Material+Icons")
         .RequiresCss("~/App_Plugins/Articulate/Assets/md-editor.css");
-
 }
 
 <!DOCTYPE html>
@@ -29,9 +19,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Articulate - Create New Post</title>
 
-    @* Smidge JS & CSS Bundles *@
+    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.pink-blue.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    @* Smidge CSS Bundle (Only a single file for now) *@
     @await SmidgeHelper.CssHereAsync()
+
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-route.min.js" type="text/javascript"></script>
+
+    @* Smidge JS Bundle (Only a single file for now) *@
     @await SmidgeHelper.JsHereAsync()
+
 
     <script type="text/ng-template" id="md.html">
 
