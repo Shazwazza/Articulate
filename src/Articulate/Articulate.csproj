@@ -6,15 +6,21 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!-- Nuget Package -->
+  <PropertyGroup>
+    <PackageId>Articulate</PackageId>
     <VersionPrefix>5.0.0</VersionPrefix>
     <Authors>Shannon Deminick</Authors>
     <Description>A wonderful Blog engine built on Umbraco</Description>
+    <PackageIconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</PackageIconUrl>
+    <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
     <PackageProjectUrl>https://github.com/Shazwazza/Articulate</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>$copyright$</Copyright>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="build\**\*.*">
       <Pack>True</Pack>
