@@ -10,8 +10,8 @@ jobs:
     
     env:
       Solution_File: src\Articulate.sln
+      Code_CSProj_File: src\Articulate\Articulate.csproj
       Web_Proj_Folder: src\Articulate.Web
-      Nuspec: build\Articulate.nuspec
       Release_Folder: build\Release
       Build_Folder: build
       Configuration: Release
@@ -53,7 +53,7 @@ jobs:
       run: msbuild $env:Solution_File /p:Configuration=${{ env.Configuration }}
 
     - name: Dotnet Pack
-      run: dotnet pack ${{ env.Nuspec }} --output ${{ env.Release_Folder }} --configuration ${{ env.Configuration }} -p:PackageVersion=${{ env.GITVERSION_SEMVER }} -p:copyright="${{ env.Copyright }}"
+      run: dotnet pack ${{ env.Code_CSProj_File }} --output ${{ env.Release_Folder }} --configuration ${{ env.Configuration }} -p:PackageVersion=${{ env.GITVERSION_SEMVER }} -p:copyright="${{ env.Copyright }}"
       
     - uses: actions/upload-artifact@v2
       with:
