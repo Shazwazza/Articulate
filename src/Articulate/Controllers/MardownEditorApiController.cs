@@ -197,28 +197,30 @@ namespace Articulate.Controllers
 
                     var rndId = Guid.NewGuid().ToString("N");
 
-                    var stream = new MemoryStream();
-                    file.CopyTo(stream);
-
-                    var fileUrl = "articulate/" + rndId + "/" + file.FileName.TrimStart("\"").TrimEnd("\"");
-                    _mediaFileManager.FileSystem.AddFile(fileUrl, stream);
-
-                    // UmbracoMediaPath default setting = ~/media
-                    // Resolved mediaRootPath = /media
-                    var mediaRootPath = _hostingEnvironment.ToAbsolute(_globalSettings.UmbracoMediaPath);
-                    var mediaFilePath = $"{mediaRootPath}/{fileUrl}";
-                    var result = $"![{mediaFilePath}]({mediaFilePath})";
-
-                    if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
+                    using (var stream = new MemoryStream())
                     {
-                        firstImage = mediaFilePath;
+                        file.CopyTo(stream);
 
-                        //in this case, we've extracted the image, we don't want it to be displayed
-                        // in the content too so don't return it.
-                        return string.Empty;
+                        var fileUrl = "articulate/" + rndId + "/" + file.FileName.TrimStart("\"").TrimEnd("\"");
+                        _mediaFileManager.FileSystem.AddFile(fileUrl, stream);
+
+                        // UmbracoMediaPath default setting = ~/media
+                        // Resolved mediaRootPath = /media
+                        var mediaRootPath = _hostingEnvironment.ToAbsolute(_globalSettings.UmbracoMediaPath);
+                        var mediaFilePath = $"{mediaRootPath}/{fileUrl}";
+                        var result = $"![{mediaFilePath}]({mediaFilePath})";
+
+                        if (extractFirstImageAsProperty && string.IsNullOrEmpty(firstImage))
+                        {
+                            firstImage = mediaFilePath;
+
+                            //in this case, we've extracted the image, we don't want it to be displayed
+                            // in the content too so don't return it.
+                            return string.Empty;
+                        }
+
+                        return result;
                     }
-
-                    return result;
                 }
                 
                 return m.Value;
