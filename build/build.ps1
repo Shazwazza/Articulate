@@ -14,7 +14,7 @@ $RepoRoot = $PSScriptFilePath.Directory.Parent.FullName
 $BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
 $WebProjFolder = Join-Path -Path $RepoRoot -ChildPath "src\Articulate.Web";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Release";
-$TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
+#$TempFolder = Join-Path -Path $ReleaseFolder -ChildPath "Temp";
 $SolutionRoot = Join-Path -Path $RepoRoot "src";
 
 # Go get nuget.exe if we don't hae it
