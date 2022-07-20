@@ -52,9 +52,9 @@ jobs:
     - name: MSBuild Build
       run: msbuild $env:Solution_File /p:Configuration=$env:Configuration
 
-    - name: Nuget Pack
-      run: nuget pack ${{ env.Nuspec }} -BasePath ${{ env.Web_Proj_Folder }} -OutputDirectory ${{ env.Release_Folder }} -Version "${{ env.GITVERSION_SEMVER }}" -Properties "copyright=${{ env.Copyright }}"
-
+    - name: Dotnet Pack
+      run: dotnet pack ${{ env.Nuspec }} --output ${{ env.Release_Folder }} --configuration $env:Configuration -p:PackageVersion=${{ env.GITVERSION_SEMVER }} -p:copyright=${{ env.Copyright }}
+      
     - uses: actions/upload-artifact@v2
       with:
         name: nuget
