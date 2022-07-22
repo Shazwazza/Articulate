@@ -71,6 +71,14 @@
     <EmbeddedResource Include="Packaging\post1.jpg" />
     <EmbeddedResource Include="Packaging\post2.jpg" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Plugins/**/*.*">
+      <Pack>true</Pack>
+      <PackagePath>content/App_Plugins</PackagePath>
+    </Content>
+  </ItemGroup>
+  
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
