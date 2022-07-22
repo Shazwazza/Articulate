@@ -54,6 +54,7 @@
     <PackageReference Include="Kveer.XmlRPC" Version="1.1.1" />
     <PackageReference Include="Markdig" Version="0.23.0" />
     <PackageReference Include="Argotic.Core" Version="3000.0.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.0.1" />
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.0.1" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
