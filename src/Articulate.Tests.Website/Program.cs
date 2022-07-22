@@ -14,14 +14,11 @@ namespace Articulate.Tests.Website
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-#if DEBUG
-                .ConfigureAppConfiguration(config
-                    => config.AddJsonFile(
-                            "appsettings.Local.json",
-                            optional: true,
-                            reloadOnChange: true))
-#endif
-                .ConfigureLogging(x => x.ClearProviders())
-                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+                .ConfigureUmbracoDefaults()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStaticWebAssets();
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Scoping;
-using Umbraco.Cms.Core.Services.Implement;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common;
 
 namespace Articulate.Services
@@ -30,7 +30,7 @@ namespace Articulate.Services
             string tagGroup,
             string baseUrlName)
         {
-            using (ScopeProvider.CreateScope(autoComplete: true))
+            using (ScopeProvider.CreateCoreScope(autoComplete: true))
             {
                 return _repository.GetContentByTags(
                     helper,
@@ -50,7 +50,7 @@ namespace Articulate.Services
             long page,
             long pageSize)
         {
-            using (ScopeProvider.CreateScope(autoComplete: true))
+            using (ScopeProvider.CreateCoreScope(autoComplete: true))
             {
                 return _repository.GetContentByTag(
                     helper,
