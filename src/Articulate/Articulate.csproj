@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Library</OutputType>
@@ -10,7 +10,6 @@
   <!-- Nuget Package -->
   <PropertyGroup>
     <PackageId>Articulate</PackageId>
-    <VersionPrefix>5.0.0</VersionPrefix>
     <Authors>Shannon Deminick</Authors>
     <Description>A wonderful Blog engine built on Umbraco</Description>
     <PackageIcon>Icon-transparent.png</PackageIcon>
@@ -20,7 +19,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>$copyright$</Copyright>
   </PropertyGroup>
-
+  
   <!--
   Nuget - Dotnet SourceLink & Symbol Package
   https://github.com/dotnet/sourcelink#using-source-link-in-net-projects
