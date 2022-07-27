@@ -14,7 +14,7 @@
     <VersionPrefix>5.0.0</VersionPrefix>
     <Authors>Shannon Deminick</Authors>
     <Description>A wonderful Blog engine built on Umbraco</Description>
-    <PackageIconUrl>https://raw.githubusercontent.com/Shazwazza/Articulate/master/assets/Icon-transparent.png</PackageIconUrl>
+    <PackageIcon>Icon-transparent.png</PackageIcon>
     <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
     <PackageProjectUrl>https://github.com/Shazwazza/Articulate</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
@@ -99,4 +99,13 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
+  <!-- Uses Package Icon on disk in repo -->
+  <ItemGroup>
+    <None Include="..\..\assets\Icon-transparent.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>
