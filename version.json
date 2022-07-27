@@ -3,7 +3,7 @@
   "version": "5.0.0-beta",
   "publicReleaseRefSpec": [
     "^refs/heads/main$", // main releases ship from main
-    "^refs/heads/v\\d+\\.\\d+$" // servicing releases ship from vX.Y branches
+    "^refs/heads/release/v\\d+\\.\\d+$" // servicing releases ship from vX.Y branches
   ],
   "cloudBuild": {
     "buildNumber": {
