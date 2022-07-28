@@ -1,14 +1,3 @@
-param (
-	[Parameter(Mandatory=$true)]
-	[ValidatePattern("^\d\.\d\.(?:\d\.\d$|\d$)")]
-	[string]
-	$ReleaseVersionNumber,
-	[Parameter(Mandatory=$true)]
-	[string]
-	[AllowEmptyString()]
-	$PreReleaseName
-)
-
 $PSScriptFilePath = Get-Item $MyInvocation.MyCommand.Path
 $RepoRoot = $PSScriptFilePath.Directory.Parent.FullName
 $BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
@@ -54,20 +43,6 @@ if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 
 ####### DO THE SLN BUILD PART #############
 
-# Set the version number in SolutionInfo.cs
-$SolutionInfoPath = Join-Path -Path $SolutionRoot -ChildPath "SolutionInfo.cs"
-(gc -Path $SolutionInfoPath) `
-	-replace "(?<=Version\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
-	Set-Content -Path $SolutionInfoPath -Encoding UTF8
-(gc -Path $SolutionInfoPath) `
-	-replace "(?<=AssemblyInformationalVersion\(`")[.\w-]*(?=`"\))", "$ReleaseVersionNumber$PreReleaseName" |
-	Set-Content -Path $SolutionInfoPath -Encoding UTF8
-# Set the copyright
-$Copyright = "Copyright " + [char]0x00A9 + " Shannon Deminick " + (Get-Date).year
-(gc -Path $SolutionInfoPath) `
-	-replace "(?<=AssemblyCopyright\(`").*(?=`"\))", $Copyright |
-	Set-Content -Path $SolutionInfoPath -Encoding UTF8;
-
 # Build the solution in release mode
 $SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Articulate.sln";
 
@@ -90,4 +65,4 @@ if (-not $?)
 }
 
 # dotnet pack (As its a SDK style project, nuget pack was not reading info stored in csproj)
-& dotnet pack $CodeCSProj --output $ReleaseFolder --configuration Release -p:PackageVersion=$ReleaseVersionNumber$PreReleaseName -p:copyright="$Copyright"
+& dotnet pack $CodeCSProj --output $ReleaseFolder --configuration Release

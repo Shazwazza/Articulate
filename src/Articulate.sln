@@ -12,12 +12,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Articulate", "Articulate\Ar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1-0587-41C4-BDD9-63FF3F8C73D7}"
 	ProjectSection(SolutionItems) = preProject
-		AssemblyCopyright.tt = AssemblyCopyright.tt
 		..\build\build.ps1 = ..\build\build.ps1
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\GitVersion.yml = ..\GitVersion.yml
-		SolutionInfo.cs = SolutionInfo.cs
 		..\version.json = ..\version.json
 	EndProjectSection
 EndProject

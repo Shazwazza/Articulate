@@ -4,7 +4,6 @@
     <OutputType>Library</OutputType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <!-- Nuget Package -->
@@ -17,7 +16,8 @@
     <PackageProjectUrl>https://github.com/Shazwazza/Articulate</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>$copyright$</Copyright>
+    <Company>Shannon Deminick</Company>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
   </PropertyGroup>
   
   <!--

@@ -20,13 +20,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
-
-    - name: Create copyright value
-      run: |
-        $Copyright = "Copyright " + [char]0x00A9 + " Shannon Deminick " + (Get-Date).year
-        echo ("Copyright=" + $Copyright) >> $Env:GITHUB_ENV
-      shell: pwsh
+        fetch-depth: 0    
       
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
@@ -45,7 +39,7 @@ jobs:
       run: msbuild $env:Solution_File /p:Configuration=${{ env.Configuration }}
 
     - name: Dotnet Pack
-      run: dotnet pack ${{ env.Code_CSProj_File }} --output ${{ env.Release_Folder }} --configuration ${{ env.Configuration }} -p:copyright="${{ env.Copyright }}"
+      run: dotnet pack ${{ env.Code_CSProj_File }} --output ${{ env.Release_Folder }} --configuration ${{ env.Configuration }}
       
     - uses: actions/upload-artifact@v2
       with:
