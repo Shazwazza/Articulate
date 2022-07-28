@@ -8,7 +8,7 @@ namespace Articulate.Routing
     /// <summary>
     /// Used to create all of the dynamic routes.
     /// </summary>
-    internal class ArticulateRootNodeCache
+    public class ArticulateRootNodeCache
     {
         private readonly Dictionary<int, IReadOnlyList<Domain>> _content = new Dictionary<int, IReadOnlyList<Domain>>();
 
