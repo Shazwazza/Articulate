@@ -76,7 +76,7 @@
   <ItemGroup>
     <Content Include="App_Plugins/**/*.*">
       <Pack>true</Pack>
-      <PackagePath>content/App_Plugins</PackagePath>
+      <PackagePath>App_Plugins</PackagePath>
     </Content>
   </ItemGroup>
   
