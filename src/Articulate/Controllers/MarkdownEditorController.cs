@@ -1,36 +1,31 @@
-using System;
 using System.Collections.Generic;
 using Articulate.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Cache;
-using Umbraco.Cms.Core.Logging;
-using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Controllers;
-using Umbraco.Cms.Web.Common.Routing;
 using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
-    public class MarkdownEditorController : PluginController
+    public class MarkdownEditorController : RenderController
     {
         private readonly UmbracoApiControllerTypeCollection _apiControllers;
         private readonly LinkGenerator _linkGenerator;
 
         public MarkdownEditorController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
-            IUmbracoDatabaseFactory databaseFactory,
-            ServiceContext services,
-            AppCaches appCaches,
-            IProfilingLogger profilingLogger,
             LinkGenerator linkGenerator)
-            : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger)
-            => _linkGenerator = linkGenerator;
+            : base(logger, compositeViewEngine, umbracoContextAccessor)
+        {
+            _linkGenerator = linkGenerator;
+        }
 
         [HttpGet]
         public IActionResult NewPost()
@@ -47,23 +42,6 @@ namespace Articulate.Controllers
             };
             
             return View("~/App_Plugins/Articulate/Views/MarkdownEditor.cshtml", vm);
-        }
-
-        /// <summary>
-        /// Gets the current page.
-        /// </summary>
-        private IPublishedContent CurrentPage
-        {
-            get
-            {
-                UmbracoRouteValues umbracoRouteValues = HttpContext.Features.Get<UmbracoRouteValues>();
-                if (umbracoRouteValues is null)
-                {
-                    throw new InvalidOperationException($"No {nameof(UmbracoRouteValues)} feature was found in the HttpContext");
-                }
-
-                return umbracoRouteValues.PublishedRequest.PublishedContent;
-            }
         }
     }
 }

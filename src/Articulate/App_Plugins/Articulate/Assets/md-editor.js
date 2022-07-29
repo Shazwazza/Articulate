@@ -175,8 +175,8 @@ articulateapp.config([
                                         formData.append($scope.$parent.files[f].name, $scope.$parent.files[f]);
                                     }
                                 },
-                                function (d, status, headers, config) {
-                                    $scope.result = d;
+                              function (d, status, headers, config) {
+                                    $scope.result = d.url;
                                     $scope.$parent.caption = "Post successful";
                                 }, function (d, status, headers, config) {
                                     if (d.Message) {

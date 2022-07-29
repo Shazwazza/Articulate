@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
@@ -12,12 +13,13 @@ namespace Articulate
     public class DateFormattedUrlProvider : DefaultUrlProvider
     {
         public DateFormattedUrlProvider(
-            IOptions<RequestHandlerSettings> requestSettings,
+            IOptionsMonitor<RequestHandlerSettings> requestSettings,
             ILogger<DefaultUrlProvider> logger,
             ISiteDomainMapper siteDomainMapper,
             IUmbracoContextAccessor umbracoContextAccessor,
-            UriUtility uriUtility)
-            : base(requestSettings, logger, siteDomainMapper, umbracoContextAccessor, uriUtility)
+            UriUtility uriUtility,
+            ILocalizationService localizationService)
+            : base(requestSettings, logger, siteDomainMapper, umbracoContextAccessor, uriUtility, localizationService)
         {
         }
 
