@@ -66,8 +66,10 @@ namespace Articulate.Components
             builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
             builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
 
-            builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();            
+            builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
 
+            // MetaWeblog - https://github.com/shawnwildermuth/MetaWeblog
+            builder.Services.AddMetaWeblog<ArticulateMetaWeblogService>();
         }
 
     }

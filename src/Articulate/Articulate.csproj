@@ -58,6 +58,7 @@
     <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.0.1" />
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.0.1" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
+    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.0.0" />
   </ItemGroup>
   
   <ItemGroup>

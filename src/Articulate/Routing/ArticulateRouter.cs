@@ -27,6 +27,9 @@ namespace Articulate.Routing
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
         private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
         private static readonly string s_markdownEditorControllerName = ControllerExtensions.GetControllerName<MarkdownEditorController>();
+        private static readonly string s_metaWeblogControllerName = ControllerExtensions.GetControllerName<MetaWeblogController>();
+
+        
 
         /// <summary>
         /// Constructor
@@ -170,23 +173,15 @@ namespace Articulate.Routing
         private void MapMetaWeblogRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
 
-            // var routePath = (nodeRoutePath.EnsureEndsWith('/') + "metaweblog/" + node.Id).TrimStart('/');
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}metaweblog/{{id}}");
+            MapRoute(
+                s_metaWeblogControllerName,
+                nameof(MetaWeblogController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
 
-            //var name = "articulate_metaweblog_" + node.Id;
-            //var route = new Route(
-            //    routePath,
-            //    new RouteValueDictionary(),
-            //    new RouteValueDictionary(new { controller = new MetaWeblogRouteConstraint() }),
-            //    _metaWeblogHandlerFactory.Create(node.Id))
-            //    .AddRouteNameToken(name);
-
-            //routes.Add(name, route);
-
-
-            // WARREN: HELP !?!
-            // I have NO idea to add a route with a handler
-            // with current routing magic of RouteTransformers
-                        
         }
 
         private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
