@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using CookComputing.XmlRpc;
 using HeyRed.MarkdownSharp;
 using Newtonsoft.Json;
 using Umbraco.Cms.Core;
@@ -142,7 +141,7 @@ namespace Articulate.MetaWeblog
             var node = BlogRoot().ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
             if (node == null)
             {
-                throw new XmlRpcFaultException(0, "No Articulate Archive node found");
+                throw new InvalidOperationException("No Articulate Archive node found");
             }
 
             var recent = _contentService
@@ -163,7 +162,7 @@ namespace Articulate.MetaWeblog
             var node = root.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).FirstOrDefault();
             if (node == null)
             {
-                throw new XmlRpcFaultException(0, "No Articulate Archive node found");
+                throw new InvalidOperationException("No Articulate Archive node found");
             }
 
             var contentType = _contentTypeService.Get("ArticulateRichText");
@@ -215,7 +214,7 @@ namespace Articulate.MetaWeblog
             var asInt = postid.TryConvertTo<int>();
             if (!asInt)
             {
-                throw new XmlRpcFaultException(0, "The id could not be parsed to an integer");
+                throw new InvalidOperationException("The id could not be parsed to an integer");
             }
 
             //first see if it's published
@@ -229,7 +228,7 @@ namespace Articulate.MetaWeblog
             var content = _contentService.GetById(asInt.Result);
             if (content == null)
             {
-                throw new XmlRpcFaultException(0, "No post found with id " + postid);
+                throw new InvalidOperationException("No post found with id " + postid);
             }
 
             var fromContent = FromContent(content);
@@ -265,7 +264,7 @@ namespace Articulate.MetaWeblog
             var asInt = postid.TryConvertTo<int>();
             if (!asInt)
             {
-                throw new XmlRpcFaultException(0, "The id could not be parsed to an integer");
+                throw new InvalidOperationException("The id could not be parsed to an integer");
             }
 
             var umbracoContent = _contentService.GetById(asInt.Result);
@@ -492,7 +491,7 @@ namespace Articulate.MetaWeblog
 
             if (node == null)
             {
-                throw new XmlRpcFaultException(0, "No node found by route");
+                throw new InvalidOperationException("No node found by route");
             }
 
             return node;
@@ -503,7 +502,7 @@ namespace Articulate.MetaWeblog
         {
             if(_backOfficeUserManager.ValidateCredentialsAsync(username, password).Result == false){
                 // Throw some error if not valid credentials - so we exit out early of stuff
-                throw new XmlRpcFaultException(0, "Credentials issue");
+                throw new InvalidOperationException("Credentials issue");
             }
 
             return _userService.GetByUsername(username);
