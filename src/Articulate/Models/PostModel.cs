@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Umbraco.Cms.Core.Media;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Extensions;
 
 namespace Articulate.Models
@@ -121,21 +122,19 @@ namespace Articulate.Models
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription");
 
-        public HtmlString Body
+        public IHtmlEncodedString Body
         {
             get
             {
                 if (this.HasProperty("richText"))
                 {
-                    // TODO: Investigate why .Value<HtmlSting> is not working
-                    // this.Value<HtmlString>("richText");
-                    var val = this.Value<string>("richText");
-                    var html = new HtmlString(val);
-                    return html;
+                    // Worth noting that newer Umbraco returns RTE as IHtmlEncodedString and not HtmlString
+                    var val = this.Value<IHtmlEncodedString>("richText");
+                    return val;
                 }
                 else
                 {
-                    var val = this.Value<HtmlString>("markdown");
+                    var val = this.Value<IHtmlEncodedString>("markdown");
                     return val;
                 }
                 

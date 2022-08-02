@@ -4,6 +4,7 @@ using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Templates;
 
 namespace Articulate.PropertyEditors
@@ -39,7 +40,7 @@ namespace Articulate.PropertyEditors
             bool preview)
         {
             var md = (string)inter;
-            return new HtmlString((inter == null) ? string.Empty : Markdown.ToHtml(md, s_markdownPipeline));
+            return new HtmlEncodedString((inter == null) ? string.Empty : Markdown.ToHtml(md, s_markdownPipeline));
         }
     }
 }
