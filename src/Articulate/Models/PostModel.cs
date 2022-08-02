@@ -127,7 +127,11 @@ namespace Articulate.Models
             {
                 if (this.HasProperty("richText"))
                 {
-                    return this.Value<HtmlString>("richText");                    
+                    // TODO: Investigate why .Value<HtmlSting> is not working
+                    // this.Value<HtmlString>("richText");
+                    var val = this.Value<string>("richText");
+                    var html = new HtmlString(val);
+                    return html;
                 }
                 else
                 {
