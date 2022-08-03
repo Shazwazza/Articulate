@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Articulate.MetaWeblog;
 using Examine;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -13,13 +14,17 @@ namespace Articulate.Controllers
 {
     public class MetaWeblogController : RenderController
     {
+        private readonly ArticulateMetaWeblogProvider _articulateMetaWeblogProvider;
         private readonly MetaWeblogService _metaWeblogService;
 
         public MetaWeblogController(ILogger<RenderController> logger,
             ICompositeViewEngine compositeViewEngine,
-            IUmbracoContextAccessor umbracoContextAccessor, MetaWeblogService metaWeblogService, IExamineManager examineManager)
+            IUmbracoContextAccessor umbracoContextAccessor,
+            ArticulateMetaWeblogProvider articulateMetaWeblogProvider,
+            MetaWeblogService metaWeblogService)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
+            _articulateMetaWeblogProvider = articulateMetaWeblogProvider;
             _metaWeblogService = metaWeblogService;
         }
 
@@ -33,8 +38,10 @@ namespace Articulate.Controllers
                 rawContent = reader.ReadToEnd();
             }
 
-            // TODO: Pass the ID to the metaWeblogService
+            // Set the Blog Root Node ID in the implementation
+            _articulateMetaWeblogProvider.ArticulateBlogRootNodeId = id;
 
+            // This service call from the Nuget package - consumes our implmentation/service of Metaweblog above
             string result = await _metaWeblogService.InvokeAsync(rawContent);
             return Content(result, "text/xml", Encoding.UTF8);
         }

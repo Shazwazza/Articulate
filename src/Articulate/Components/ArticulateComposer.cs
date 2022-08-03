@@ -59,8 +59,10 @@ namespace Articulate.Components
             builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
 
             // MetaWeblog - https://github.com/shawnwildermuth/MetaWeblog
-            builder.Services.AddMetaWeblog<ArticulateMetaWeblogService>();
+            //services.AddMetaWeblog<ArticulateMetaWeblogProvider>();
+            services.AddScoped<ArticulateMetaWeblogProvider>();
+            services.AddScoped<IMetaWeblogProvider, ArticulateMetaWeblogProvider>();
+            services.AddScoped<MetaWeblogService>();
         }
-
     }
 }

@@ -25,7 +25,7 @@ using System.IO;
 
 namespace Articulate.MetaWeblog
 {
-    public class ArticulateMetaWeblogService : IMetaWeblogProvider
+    public class ArticulateMetaWeblogProvider : IMetaWeblogProvider
     {
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
         private readonly IUserService _userService;
@@ -47,7 +47,9 @@ namespace Articulate.MetaWeblog
         private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
-        public ArticulateMetaWeblogService(
+        public int ArticulateBlogRootNodeId { get; set; }
+
+        public ArticulateMetaWeblogProvider(
             IUmbracoContextAccessor umbracoContextAccessor,
             IUserService userService,
             IContentTypeService contentTypeService,
@@ -81,7 +83,6 @@ namespace Articulate.MetaWeblog
             _tagService = tagService;
         }
 
-
         public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         {
             ValidateUser(username, password);
@@ -99,8 +100,6 @@ namespace Articulate.MetaWeblog
 
             return Task.FromResult(blogs);
         }
-
-
 
         public Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         {
@@ -486,8 +485,10 @@ namespace Articulate.MetaWeblog
 
         private IPublishedContent BlogRoot()
         {
-            // TODO: Do not hardcode 1068 - need to pass it through
-            var node = _umbracoContextAccessor.GetRequiredUmbracoContext().Content.GetById(1068);
+            // Why is ArticulateBlogRootNodeId always 0 & not the value set in the Controller ?
+            // TODO: Need Shan help to fix this hardcoded 1068
+            ArticulateBlogRootNodeId = 1068;
+            var node = _umbracoContextAccessor.GetRequiredUmbracoContext().Content.GetById(ArticulateBlogRootNodeId);
 
             if (node == null)
             {
