@@ -25,8 +25,8 @@ namespace Articulate.Models
                 ? variationContext?.Culture
                 : string.Empty; // must be string empty, not null since that won't work :/ 
 
-            var url = content.MediaUrl(culture, UrlMode.Default, "blogBanner");
-            var cropUrl = content.Value<ImageCropperValue>("blogBanner", culture);
+            var url = content.MediaUrl(culture, UrlMode.Default, propertyAlias);
+            var cropUrl = content.Value<ImageCropperValue>(propertyAlias, culture);
             if (cropUrl != null)
             {
                 return url.GetCropUrl(cropUrl, imageCropMode: ImageCropMode.Max);
