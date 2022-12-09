@@ -12,6 +12,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace Articulate
@@ -406,8 +407,82 @@ WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AN
             }
             return listNodes;
         }
-        
-        
+
+        /// <summary>
+        /// Get all recent blog articles sorted
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="id"></param>
+        /// <param name="sortType"></param>
+        /// <returns>IEnumerable<PostModel></returns>
+        public static IEnumerable<PostModel> GetSortedAllPosts(UmbracoHelper helper, int id, string sortType)
+        {           
+            IContentService contentService = Current.Services.ContentService;
+
+            var publishedContent = new MasterModel(helper.Content(id));
+
+            var listNodes = publishedContent.RootBlogNode.Children("ArticulateArchive").ToArray();
+
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
+
+            var totalPosts = GetPostCount(helper, listNodes.Select(x => x.Id).ToArray());
+
+            var pager = new PagerModel(totalPosts, 0, 1);
+
+            var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
+            var posts = new ListModel(listNodes[0], listItems, pager).Posts;
+
+            List<PostModel> PublishedPostList = new List<PostModel>();
+            List<PostModel> UnPublishedPostList = new List<PostModel>();
+
+            if (sortType == "recent-edited-published")
+            {
+
+                foreach (var nodes in posts)
+                {
+                    var content = contentService.GetById(nodes.Id);
+                    if (content != null)
+                    {
+                        if (content.Published == true)//published
+                        {
+                            PublishedPostList.Add(nodes);
+                        }
+                        else
+                        {
+                            UnPublishedPostList.Add(nodes);
+                        }
+                    }
+                }
+                UnPublishedPostList = UnPublishedPostList.OrderByDescending(x => x.UpdateDate).ToList();
+                PublishedPostList = PublishedPostList.OrderByDescending(x => x.UpdateDate).ToList();
+            }
+
+            List<PostModel> SortedPostList = new List<PostModel>();
+            if (sortType == "recent-published")
+            {
+                SortedPostList = posts.OrderByDescending(o => o.PublishedDate).ToList();
+            }
+            else if (sortType == "recent-created")
+            {
+                SortedPostList = posts.OrderByDescending(o => o.CreateDate).ToList();
+            }
+            else if (sortType == "by-author")
+            {
+                SortedPostList = posts.OrderBy(o => o.Author.Name).ToList();
+            }
+            else if (sortType == "asc")
+            {
+                SortedPostList = posts.OrderBy(o => o.PageTitle).ToList();
+            }
+            else if (sortType == "recent-edited-published")
+            {
+                SortedPostList = PublishedPostList.OrderByDescending(c => c.UpdateDate).ToList();
+                SortedPostList.AddRange(UnPublishedPostList.OrderByDescending(c => c.UpdateDate).ToList());
+
+            }
+
+            return SortedPostList;
+        }
         private class TagDto
         {
             public int NodeId { get; set; }
