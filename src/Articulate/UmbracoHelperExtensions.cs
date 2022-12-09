@@ -437,22 +437,21 @@ WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AN
 
             if (sortType == "recent-edited-published")
             {
-
-                foreach (var nodes in posts)
+                foreach (var (nodes, content) in from nodes in posts
+                                                 let content = contentService.GetById(nodes.Id)
+                                                 where content != null
+                                                 select (nodes, content))
                 {
-                    var content = contentService.GetById(nodes.Id);
-                    if (content != null)
+                    if (content.Published == true)//published
                     {
-                        if (content.Published == true)//published
-                        {
-                            PublishedPostList.Add(nodes);
-                        }
-                        else
-                        {
-                            UnPublishedPostList.Add(nodes);
-                        }
+                        PublishedPostList.Add(nodes);
+                    }
+                    else
+                    {
+                        UnPublishedPostList.Add(nodes);
                     }
                 }
+
                 UnPublishedPostList = UnPublishedPostList.OrderByDescending(x => x.UpdateDate).ToList();
                 PublishedPostList = PublishedPostList.OrderByDescending(x => x.UpdateDate).ToList();
             }
