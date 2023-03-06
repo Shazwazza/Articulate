@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -414,7 +414,7 @@ namespace Articulate.Routing
                 Categories = post.GetValue<string>("categories").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries),
                 Content = post.ContentType.Alias == "ArticulateRichText"
                     ? post.GetValue<string>("richText")
-                    : new Markdown().Transform(post.GetValue<string>("markdown")),
+                    : MarkdownHelper.ToHtml(post.GetValue<string>("markdown")),
                 CreateDate = post.UpdateDate,
                 Id = post.Id.ToString(CultureInfo.InvariantCulture),
                 Slug = post.GetValue<string>("umbracoUrlName").IsNullOrWhiteSpace()

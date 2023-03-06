@@ -1,4 +1,4 @@
-﻿using Articulate.Controllers;
+using Articulate.Controllers;
 using Articulate.Options;
 using System;
 using System.Collections.Generic;
@@ -220,8 +220,8 @@ namespace Articulate.Components
                                 {
                                     var markdownProperty = ct.CompositionPropertyTypes.First(x => x.Alias == "markdown");
                                     var val = c.GetValue<string>("markdown", markdownProperty.VariesByCulture() ? culture?.Culture : null);
-                                    var md = new Markdown();
-                                    var html = md.Transform(val);
+                                    
+                                    var html = MarkdownHelper.ToHtml(val);
                                     return _configs.Articulate().GenerateExcerpt(html);
                                 }
                             });

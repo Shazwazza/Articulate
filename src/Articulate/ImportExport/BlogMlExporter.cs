@@ -163,7 +163,6 @@ namespace Articulate.ImportExport
         {
             // TODO: This won't work for variants
 
-            var md = new Markdown();
             const int pageSize = 1000;
             var pageIndex = 0;
             IContent[] posts;
@@ -183,7 +182,7 @@ namespace Articulate.ImportExport
                     }
                     else if (child.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {                        
-                        content = md.Transform(child.GetValue<string>("markdown"));
+                        content = MarkdownHelper.ToHtml(child.GetValue<string>("markdown"));
                     }
 
                     var postUrl = new Uri(_umbracoContextAccessor.UmbracoContext.UrlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);

@@ -49,6 +49,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ContentExtensions.cs" />
     <Compile Include="Controllers\ArticulateAuthorsController.cs" />
+    <Compile Include="MarkdownHelper.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\MarkdownEditorInitModel.cs" />
     <Compile Include="Packaging\ArticulateInstallPackageAction.cs" />
