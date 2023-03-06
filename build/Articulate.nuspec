@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>Articulate</id>
@@ -20,7 +20,7 @@
                 <dependency id="xmlrpcnet" version="[3.0.0.266, 4.0.0)" />
                 <dependency id="xmlrpcnet-server" version="[3.0.0.266, 4.0.0)" />
                 <dependency id="Argotic.Core" version="2008.0.2" />
-                <dependency id="Markdig" version="[0.23.0, 1.0.0)" />
+                <dependency id="Markdig" version="[0.31.0, 1.0.0)" />
             </group>
         </dependencies>
     </metadata>
