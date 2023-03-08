@@ -325,8 +325,5 @@ namespace Articulate.Controllers
             //    return display;
             //}
         }
-
-
-
     }
 }

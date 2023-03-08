@@ -28,8 +28,6 @@ namespace Articulate.Tests.Website
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-
-
         /// <summary>
         /// Configures the services
         /// </summary>

@@ -68,6 +68,7 @@ namespace Articulate.Routing
                 {
                     _lock.ExitWriteLock();
                 }
+
                 routeResult = await TryRoute(umbracoContext, umbracoRouteValues, httpContext, newValues);
             }
 
@@ -94,6 +95,7 @@ namespace Articulate.Routing
             {
                 _lock.ExitReadLock();
             }
+
             return (false, false);
         }
 
@@ -178,6 +180,7 @@ namespace Articulate.Routing
                 {
                     _lock.Dispose();
                 }
+
                 _disposedValue = true;
             }
         }

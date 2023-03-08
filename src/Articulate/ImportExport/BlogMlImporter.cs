@@ -214,7 +214,6 @@ namespace Articulate.ImportExport
                 out long totalAuthorNodes,
                 _sqlContext.Query<IContent>().Where(x => x.ParentId == authorsNode.Id && x.Trashed == false));
 
-
             foreach (var author in authors)
             {
                 //first check if a user exists by email

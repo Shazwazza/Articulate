@@ -10,6 +10,8 @@ namespace Articulate.Components
         public void Configure(UmbracoPipelineOptions options)
             => options.AddFilter(new UmbracoPipelineFilter(nameof(ArticulatePipelineStartupFilter))
             {
+                PrePipeline = app => app.UseMiddleware<RouteCacheRefresherMiddleware>(),
+
                 Endpoints = app => app.UseEndpoints(endpoints =>
                 {
                     // TODO: Here's where we create our routes.
@@ -19,19 +21,6 @@ namespace Articulate.Components
                         null,
                         100); // Ensure it runs AFTER Umbraco so that we can check if things are already matched.
                 })
-
             });
-
-
-        //private static void InitializeRoutes(ArticulateRoutes articulateRoutes, RouteCollection routes)
-        //{
-        //    //map routes
-        //    routes.MapRoute(
-        //        "ArticulateFeeds",
-        //        "ArticulateFeeds/{action}/{id}",
-        //        new { controller = "Feed", action = "RenderGitHubFeed", id = 0 }
-        //    );
-        //    articulateRoutes.MapRoutes(routes);
-        //}
     }
 }

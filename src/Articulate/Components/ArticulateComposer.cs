@@ -40,6 +40,8 @@ namespace Articulate.Components
             services.AddSingleton<IArticulateSearcher, DefaultArticulateSearcher>();
             services.AddSingleton<ArticulateRouteValueTransformer>();
             services.AddSingleton<ArticulateRouter>();
+            services.AddSingleton<RouteCacheRefresherMiddleware>();
+
             //services.TryAddEnumerable(Singleton<MatcherPolicy, ArticulateSelectorPolicy>());
             //services.AddSingleton<ArticulateEndpointDataSource>();
 
@@ -65,8 +67,9 @@ namespace Articulate.Components
             builder.AddNotificationHandler<ContentCacheRefresherNotification, ContentCacheRefresherHandler>();
             builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
             builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
-
+                        
             builder.AddNotificationHandler<ContentPublishedNotification, ContentPublishedHandler>();
+            builder.AddNotificationHandler<ContentUnpublishedNotification, ContentUnpublishedHandler>();
 
             builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();            
 
