@@ -101,18 +101,15 @@ namespace Articulate.Routing
         {
             // Since we are executing after Umbraco's dynamic transformer, it means Umbraco has already
             // gone ahead and matched a domain (if any). So we will use this to match our document.
-            DomainAndUri assignedDomain = umbracoRouteValues.PublishedRequest?.Domain;
-            int contentId = dynamicRouteValues.GetContentId(assignedDomain);
+            var assignedDomain = umbracoRouteValues.PublishedRequest?.Domain;
+            var contentId = dynamicRouteValues.GetContentId(assignedDomain);
 
-            IPublishedContent publishedContent = umbracoContext.Content.GetById(contentId);
-            if (publishedContent == null)
-            {
-                throw new InvalidOperationException("Could not resolve content by id " + contentId);
-            }
+            var publishedContent = umbracoContext.Content.GetById(contentId)
+                ?? throw new InvalidOperationException("Could not resolve content by id " + contentId);
 
             // instantiate, prepare and process the published content request
             // important to use CleanedUmbracoUrl - lowercase path-only version of the current url
-            IPublishedRequestBuilder requestBuilder = await _publishedRouter.CreateRequestAsync(umbracoContext.CleanedUmbracoUrl);
+            var requestBuilder = await _publishedRouter.CreateRequestAsync(umbracoContext.CleanedUmbracoUrl);
 
             // re-assign the domain if there was one.
             if (assignedDomain != null)

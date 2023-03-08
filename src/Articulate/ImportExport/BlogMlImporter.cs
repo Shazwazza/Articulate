@@ -114,6 +114,7 @@ namespace Articulate.ImportExport
                     {
                         throw new InvalidOperationException("No node found with id " + blogRootNode);
                     }
+
                     if (!root.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");

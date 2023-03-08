@@ -111,7 +111,7 @@ namespace Articulate.Controllers
             if (themeFile == null)
                 throw new ArgumentNullException("themeFile");
 
-            if (ModelState.IsValid == false)
+            if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
-using HeyRed.MarkdownSharp;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -56,6 +55,7 @@ namespace Articulate.ImportExport
             {
                 throw new InvalidOperationException("No node found with id " + blogRootNode);
             }
+
             if (!root.ContentType.Alias.InvariantEquals("Articulate"))
             {
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
@@ -87,7 +87,8 @@ namespace Articulate.ImportExport
             if (categoryDataType == null)
             {
                 throw new InvalidOperationException("No Articulate Categories data type found");
-            }            
+            }
+            
             var categoryConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
             var categoryGroup = categoryConfiguration.Group;
 
@@ -96,6 +97,7 @@ namespace Articulate.ImportExport
             {
                 throw new InvalidOperationException("No Articulate Tags data type found");
             }
+
             var tagConfiguration = tagDataType.ConfigurationAs<TagConfiguration>();
             var tagGroup = tagConfiguration.Group;
 
@@ -113,11 +115,13 @@ namespace Articulate.ImportExport
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
+
             AddBlogCategories(blogMlDoc, categoryGroup);
             foreach (var archiveNode in archiveNodes)
             {
                 AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup);
             }
+
             WriteFile(blogMlDoc);
         }
 
@@ -171,8 +175,6 @@ namespace Articulate.ImportExport
         private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
         {
             // TODO: This won't work for variants
-
-            var md = new Markdown();
             const int pageSize = 1000;
             var pageIndex = 0;
             IContent[] posts;
@@ -192,7 +194,7 @@ namespace Articulate.ImportExport
                     }
                     else if (child.ContentType.Alias.InvariantEquals("ArticulateMarkdown"))
                     {                        
-                        content = md.Transform(child.GetValue<string>("markdown"));
+                        content = MarkdownHelper.ToHtml(child.GetValue<string>("markdown"));
                     }
 
                     var postUrl = new Uri(_urlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
