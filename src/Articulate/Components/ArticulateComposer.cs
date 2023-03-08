@@ -66,6 +66,8 @@ namespace Articulate.Components
             builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
             builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
 
+            builder.AddNotificationHandler<ContentPublishedNotification, ContentPublishedHandler>();
+
             builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();            
 
         }

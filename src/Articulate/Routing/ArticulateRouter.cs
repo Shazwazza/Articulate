@@ -16,7 +16,7 @@ using Umbraco.Extensions;
 
 namespace Articulate.Routing
 {
-    internal class ArticulateRouter
+    public class ArticulateRouter
     {
         private readonly Dictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> _routeCache = new();
         private readonly IControllerActionSearcher _controllerActionSearcher;
@@ -70,9 +70,12 @@ namespace Articulate.Routing
 
             var domains = umbracoContext.Domains.GetAll(false).ToList();
 
-            // TODO: Enable this in some way
-            // clear the existing articulate routes (if any)
-            // RemoveExisting(routes);
+            // Ensure we always start with an empty cache
+            // We may call this MapRoutes method again when Articulate root node is published
+            // and any of the dynamic URLs from the content node change
+            // So we clear this out, otherwise we will have the previous working URL and the updated URL (Until the site restarts)
+            _routeCache.Clear();
+
 
             // For each articulate root, we need to create some custom route, BUT routes can overlap
             // based on multi-tenency so we need to deal with that. 
