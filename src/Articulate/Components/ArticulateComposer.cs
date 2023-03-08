@@ -36,7 +36,7 @@ namespace Articulate.Components
 
             services.AddSingleton<DisqusXmlExporter>();
             services.AddSingleton<BlogMlImporter>();
-
+            services.AddSingleton<CacheRefreshKey>();
             services.AddSingleton<IArticulateSearcher, DefaultArticulateSearcher>();
             services.AddSingleton<ArticulateRouteValueTransformer>();
             services.AddSingleton<ArticulateRouter>();

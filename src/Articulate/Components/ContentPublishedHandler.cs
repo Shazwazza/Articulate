@@ -14,10 +14,12 @@ namespace Articulate.Components
     public class ContentPublishedHandler : INotificationHandler<ContentPublishedNotification>
     {
         private readonly IKeyValueService _keyValueService;
+        private readonly CacheRefreshKey _appKey;
 
-        public ContentPublishedHandler(IKeyValueService keyValueService)
+        public ContentPublishedHandler(IKeyValueService keyValueService, CacheRefreshKey appKey)
         {
-            _keyValueService = keyValueService ?? throw new System.ArgumentNullException(nameof(keyValueService));
+            _keyValueService = keyValueService ?? throw new ArgumentNullException(nameof(keyValueService));
+            _appKey = appKey ?? throw new ArgumentNullException(nameof(appKey));
         }
 
         public void Handle(ContentPublishedNotification notification)
@@ -35,10 +37,10 @@ namespace Articulate.Components
 
                 // Using WereDirty as the content has been published/saved now
                 var dirtyProps = c.GetWereDirtyProperties();
-                var urlPropsToCheck = new List<string>{ "categoriesUrlName", "tagsUrlName", "searchUrlName" };
+                var urlPropsToCheck = new List<string>{ "categoriesUrlName", "tagsUrlName", "searchUrlName", "Published" };
                 if (dirtyProps.ContainsAny(urlPropsToCheck))
                 {
-                    _keyValueService.SetValue("Articulate.CacheRefresh", DateTime.UtcNow.ToString("o"));
+                    _keyValueService.SetValue(_appKey.Key, DateTime.UtcNow.ToString("o"));
                 }
             }
         }
