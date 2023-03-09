@@ -343,7 +343,6 @@ namespace Articulate.MetaWeblog
                         var relativePath = match.Groups[1].Value;
                         var mediaFileSystemPath = _mediaFileManager.FileSystem.GetUrl(relativePath);
 
-                        // TODO: Shouldn't this class only be set if 
                         var href = " href=\"" +
                                mediaFileSystemPath +
                                "\" class=\"a-image-" + imagesProcessed + "\" ";
@@ -358,8 +357,8 @@ namespace Articulate.MetaWeblog
 
                 content.SetInvariantOrDefaultCultureValue("richText", contentToSave, contentType, _localizationService);
                 if (extractFirstImageAsProperty
-                && content.HasProperty("postImage")
-                    && !firstImage.IsNullOrWhiteSpace())
+                    && content.HasProperty("postImage")
+                        && !firstImage.IsNullOrWhiteSpace())
                 {
                     var configuration = _dataTypeService.GetDataType(content.Properties["postImage"].PropertyType.DataTypeId).ConfigurationAs<ImageCropperConfiguration>();
                     var crops = configuration?.Crops ?? Array.Empty<ImageCropperConfiguration.Crop>();
@@ -393,7 +392,7 @@ namespace Articulate.MetaWeblog
                 content.SetInvariantOrDefaultCultureValue("excerpt", post.mt_excerpt, contentType, _localizationService);
             }
 
-            // TODO: Investigate why this not supported ?!
+            // TODO: This will be avilable when this PR is merged: https://github.com/shawnwildermuth/MetaWeblog/pull/16
             //if (post.AllowComments == 1)
             //{
             //    content.SetInvariantOrDefaultCultureValue("enableComments", 1, contentType, _localizationService);
@@ -404,7 +403,11 @@ namespace Articulate.MetaWeblog
             //}
 
             content.AssignInvariantOrDefaultCultureTags("categories", post.categories, contentType, _localizationService, _dataTypeService, _propertyEditors, _jsonSerializer);
-            var tags = post.mt_keywords.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+            var tags = post.mt_keywords
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToArray();
 
             content.AssignInvariantOrDefaultCultureTags("tags", tags, contentType, _localizationService, _dataTypeService, _propertyEditors, _jsonSerializer);
 
@@ -445,19 +448,6 @@ namespace Articulate.MetaWeblog
             mt_excerpt = post.Excerpt,
             mt_keywords = string.Join(",", post.Tags.ToArray()),
             title = post.Name
-
-            // TODO: AllowComments & Author
-
-            //AllowComments = post.EnableComments ? 1 : 2,
-            //Author = post.Author.Name,
-            //Categories = post.Categories.ToArray(),
-            //Content = post.Body.ToString(),
-            //CreateDate = post.PublishedDate != default(DateTime) ? post.PublishedDate : post.UpdateDate,
-            //Id = post.Id.ToString(CultureInfo.InvariantCulture),
-            //Slug = post.Url(),
-            //Excerpt = post.Excerpt,
-            //Tags = string.Join(",", post.Tags.ToArray()),
-            //Title = post.Name
         };
 
         private Post FromContent(IContent post) => new Post
