@@ -40,6 +40,11 @@ namespace Articulate.Controllers
         [HttpPost]
         public async Task<ActionResult> IndexAsync(int id)
         {
+            if (id <= 0)
+            {
+                return Problem("Invalid root node id");
+            }
+
             // create the provider using the start node
             var provider = ActivatorUtilities.CreateInstance<ArticulateMetaWeblogProvider>(
                 _serviceProvider,
