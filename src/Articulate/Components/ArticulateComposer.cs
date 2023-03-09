@@ -57,17 +57,11 @@ namespace Articulate.Components
             builder.AddNotificationHandler<ContentCacheRefresherNotification, ContentCacheRefresherHandler>();
             builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
             builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
-                        
+
             builder.AddNotificationHandler<ContentPublishedNotification, ContentPublishedHandler>();
             builder.AddNotificationHandler<ContentUnpublishedNotification, ContentUnpublishedHandler>();
 
             builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
-
-            // MetaWeblog - https://github.com/shawnwildermuth/MetaWeblog
-            //services.AddMetaWeblog<ArticulateMetaWeblogProvider>();
-            services.AddScoped<ArticulateMetaWeblogProvider>();
-            services.AddScoped<IMetaWeblogProvider, ArticulateMetaWeblogProvider>();
-            services.AddScoped<MetaWeblogService>();
         }
     }
 }

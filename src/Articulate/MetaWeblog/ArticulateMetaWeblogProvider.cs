@@ -1,27 +1,27 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Articulate.Models;
 using HeyRed.MarkdownSharp;
 using Newtonsoft.Json;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Media;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Membership;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 using WilderMinds.MetaWeblog;
-using System.Text.RegularExpressions;
-using Umbraco.Cms.Core.IO;
-using Umbraco.Cms.Core.Serialization;
-using Articulate.Models;
-using Umbraco.Cms.Core.Media;
-using System.IO;
 
 namespace Articulate.MetaWeblog
 {
@@ -33,7 +33,7 @@ namespace Articulate.MetaWeblog
         private readonly ILocalizationService _localizationService;
         private readonly IBackOfficeUserManager _backOfficeUserManager;
         private readonly IContentService _contentService;
-        private readonly IShortStringHelper _shortStringHelper;        
+        private readonly IShortStringHelper _shortStringHelper;
         private readonly IDataTypeService _dataTypeService;
         private readonly PropertyEditorCollection _propertyEditors;
         private readonly IJsonSerializer _jsonSerializer;
@@ -42,12 +42,9 @@ namespace Articulate.MetaWeblog
         private readonly IVariationContextAccessor _variationContextAccessor;
         private readonly IImageUrlGenerator _imageUrlGenerator;
         private readonly ITagService _tagService;
-
+        private readonly int _articulateBlogRootNodeId;
         private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly Regex _mediaHref = new Regex(" href=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-
-        public int ArticulateBlogRootNodeId { get; set; }
 
         public ArticulateMetaWeblogProvider(
             IUmbracoContextAccessor umbracoContextAccessor,
@@ -64,7 +61,8 @@ namespace Articulate.MetaWeblog
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
             IImageUrlGenerator imageUrlGenerator,
-            ITagService tagService)
+            ITagService tagService,
+            int articulateBlogRootNodeId)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
             _userService = userService;
@@ -81,6 +79,7 @@ namespace Articulate.MetaWeblog
             _variationContextAccessor = variationContextAccessor;
             _imageUrlGenerator = imageUrlGenerator;
             _tagService = tagService;
+            _articulateBlogRootNodeId = articulateBlogRootNodeId;
         }
 
         public Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
@@ -151,7 +150,6 @@ namespace Articulate.MetaWeblog
             return Task.FromResult(recent);
         }
 
-
         public Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
             var user = ValidateUser(username, password);
@@ -166,7 +164,9 @@ namespace Articulate.MetaWeblog
 
             var contentType = _contentTypeService.Get("ArticulateRichText");
             if (contentType == null)
+            {
                 throw new InvalidOperationException("No content type found with alias 'ArticulateRichText'");
+            }
 
             var content = _contentService.CreateWithInvariantOrDefaultCultureName(
                 post.title, node.Id, contentType, _localizationService, user.Id);
@@ -270,7 +270,9 @@ namespace Articulate.MetaWeblog
 
             var contentType = _contentTypeService.Get("ArticulateRichText");
             if (contentType == null)
+            {
                 throw new InvalidOperationException("No content type found with alias 'ArticulateRichText'");
+            }
 
             var root = BlogRoot();
 
@@ -286,7 +288,6 @@ namespace Articulate.MetaWeblog
             return Task.FromResult(true);
         }
 
-
         // Seems these are not used/supported
         public Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category) => throw new NotImplementedException();
         public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password) => throw new NotImplementedException();
@@ -298,8 +299,6 @@ namespace Articulate.MetaWeblog
         public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) => throw new NotImplementedException();
         public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password) => throw new NotImplementedException();
         public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) => throw new NotImplementedException();
-
-
 
         private void AddOrUpdateContent(IContent content, IContentType contentType, Post post, IUser user, bool publish, bool extractFirstImageAsProperty)
         {
@@ -326,8 +325,10 @@ namespace Articulate.MetaWeblog
                             // get the first images absolute media path                            
                             firstImage = mediaFileSystemPath;
                         }
+
                         return " src=\"" + mediaFileSystemPath + "\"";
                     }
+
                     return null;
                 });
 
@@ -342,6 +343,7 @@ namespace Articulate.MetaWeblog
                         var relativePath = match.Groups[1].Value;
                         var mediaFileSystemPath = _mediaFileManager.FileSystem.GetUrl(relativePath);
 
+                        // TODO: Shouldn't this class only be set if 
                         var href = " href=\"" +
                                mediaFileSystemPath +
                                "\" class=\"a-image-" + imagesProcessed + "\" ";
@@ -350,6 +352,7 @@ namespace Articulate.MetaWeblog
 
                         return href;
                     }
+
                     return null;
                 });
 
@@ -384,6 +387,7 @@ namespace Articulate.MetaWeblog
             {
                 content.SetInvariantOrDefaultCultureValue("umbracoUrlName", post.link, contentType, _localizationService);
             }
+
             if (!post.mt_excerpt.IsNullOrWhiteSpace())
             {
                 content.SetInvariantOrDefaultCultureValue("excerpt", post.mt_excerpt, contentType, _localizationService);
@@ -459,9 +463,9 @@ namespace Articulate.MetaWeblog
         private Post FromContent(IContent post) => new Post
         {
             title = post.Name,
-            postid = post.Id.ToString(CultureInfo.InvariantCulture),            
+            postid = post.Id.ToString(CultureInfo.InvariantCulture),
             dateCreated = post.UpdateDate,
-            mt_excerpt = post.GetValue<string>("excerpt"),            
+            mt_excerpt = post.GetValue<string>("excerpt"),
             link = "",
 
             mt_keywords = string.IsNullOrWhiteSpace(post.GetValue<string>("tags")) == false
@@ -481,14 +485,9 @@ namespace Articulate.MetaWeblog
             : post.GetValue<string>("umbracoUrlName").ToUrlSegment(_shortStringHelper)
         };
 
-
-
         private IPublishedContent BlogRoot()
         {
-            // Why is ArticulateBlogRootNodeId always 0 & not the value set in the Controller ?
-            // TODO: Need Shan help to fix this hardcoded 1068
-            ArticulateBlogRootNodeId = 1068;
-            var node = _umbracoContextAccessor.GetRequiredUmbracoContext().Content.GetById(ArticulateBlogRootNodeId);
+            var node = _umbracoContextAccessor.GetRequiredUmbracoContext().Content.GetById(_articulateBlogRootNodeId);
 
             if (node == null)
             {
@@ -498,10 +497,10 @@ namespace Articulate.MetaWeblog
             return node;
         }
 
-
         private IUser ValidateUser(string username, string password)
         {
-            if(_backOfficeUserManager.ValidateCredentialsAsync(username, password).Result == false){
+            if (_backOfficeUserManager.ValidateCredentialsAsync(username, password).Result == false)
+            {
                 // Throw some error if not valid credentials - so we exit out early of stuff
                 throw new InvalidOperationException("Credentials issue");
             }
