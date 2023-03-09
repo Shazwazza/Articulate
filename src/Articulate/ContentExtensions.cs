@@ -77,7 +77,9 @@ namespace Articulate
             ILocalizationService localizationService)
         {
             if (contentType is null)
+            {
                 throw new ArgumentNullException(nameof(contentType));
+            }
 
             var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
 

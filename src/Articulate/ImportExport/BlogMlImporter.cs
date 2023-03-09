@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
+using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Umbraco.Cms.Core.IO;
@@ -351,7 +352,9 @@ namespace Articulate.ImportExport
                         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
                 }
 
-                postNode.SetInvariantOrDefaultCultureValue("richText", content, postType, _localizationService);
+                // This apparently now needs to be saved as an HtmlString before hand,
+                // see https://docs.umbraco.com/umbraco-cms/fundamentals/backoffice/property-editors/built-in-umbraco-property-editors/rich-text-editor#add-values-programmatically
+                postNode.SetInvariantOrDefaultCultureValue("richText", new HtmlString(content), postType, _localizationService);
 
                 postNode.SetInvariantOrDefaultCultureValue("enableComments", true, postType, _localizationService);
 

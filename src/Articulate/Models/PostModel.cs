@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Umbraco.Cms.Core.Media;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Extensions;
 
 namespace Articulate.Models
@@ -121,26 +122,27 @@ namespace Articulate.Models
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription");
 
-        public HtmlString Body
+        public IHtmlContent Body
         {
             get
             {
                 if (this.HasProperty("richText"))
                 {
-                    return this.Value<HtmlString>("richText");                    
+                    return new HtmlString(this.Value<IHtmlEncodedString>("richText").ToHtmlString());
                 }
                 else
                 {
                     var val = this.Value<HtmlString>("markdown");
                     return val;
                 }
-                
+
             }
         }
 
         public string ExternalUrl => this.Value<string>("externalUrl");
 
         ImageCropperValue IImageModel.Image => PostImage;
+
         string IImageModel.Name => Name;
         string IImageModel.Url => this.Url();
     }
