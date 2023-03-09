@@ -22,9 +22,13 @@ namespace Articulate.Routing
         private static readonly string s_searchControllerName = ControllerExtensions.GetControllerName<ArticulateSearchController>();
 		private static readonly string s_openSearchControllerName = ControllerExtensions.GetControllerName<OpenSearchController>();
 		private static readonly string s_rsdControllerName = ControllerExtensions.GetControllerName<RsdController>();
+		private static readonly string s_wlwControllerName = ControllerExtensions.GetControllerName<WlwManifestController>();
         private static readonly string s_tagsControllerName = ControllerExtensions.GetControllerName<ArticulateTagsController>();
         private static readonly string s_rssControllerName = ControllerExtensions.GetControllerName<ArticulateRssController>();
         private static readonly string s_markdownEditorControllerName = ControllerExtensions.GetControllerName<MarkdownEditorController>();
+        private static readonly string s_metaWeblogControllerName = ControllerExtensions.GetControllerName<MetaWeblogController>();
+
+        
 
         private readonly Dictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> _routeCache = new();
         private readonly IControllerActionSearcher _controllerActionSearcher;
@@ -112,8 +116,8 @@ namespace Articulate.Routing
                         MapAuthorsRssRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
                         MapSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
-                        //MapMetaWeblogRoute(routes, uriPath, articulateRootNode);
-                        //MapManifestRoute(routes, uriPath, articulateRootNode);
+                    MapMetaWeblogRoute(httpContext, rootNodePath, articulateRootNode, domains);
+                    MapManifestRoute(httpContext, rootNodePath, articulateRootNode, domains);
                         MapRsdRoute(httpContext, rootNodePath, articulateRootNode, domains);
                         MapOpenSearchRoute(httpContext, rootNodePath, articulateRootNode, domains);
 
@@ -164,12 +168,38 @@ namespace Articulate.Routing
                 domains);
         }
 
-        private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+		private void MapRsdRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
         {
             RouteTemplate template = TemplateParser.Parse($"{rootNodePath}rsd/{{id}}");
             MapRoute(
                 s_rsdControllerName,
                 nameof(RsdController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+        }
+
+        private void MapMetaWeblogRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}metaweblog/{{id}}");
+            MapRoute(
+                s_metaWeblogControllerName,
+                nameof(MetaWeblogController.Index),
+                template,
+                httpContext,
+                articulateRootNode,
+                domains);
+
+        }
+
+        private void MapManifestRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
+        {
+            RouteTemplate template = TemplateParser.Parse($"{rootNodePath}wlwmanifest/{{id}}");
+            MapRoute(
+                s_wlwControllerName,
+                nameof(WlwManifestController.Index),
                 template,
                 httpContext,
                 articulateRootNode,

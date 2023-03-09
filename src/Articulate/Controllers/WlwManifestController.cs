@@ -1,26 +1,23 @@
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Core.Cache;
-using Umbraco.Cms.Core.Logging;
-using Umbraco.Cms.Core.Services;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Articulate.Controllers
 {
-    public class WlwManifestController : PluginController
+    public class WlwManifestController : RenderController
     {
         private readonly UmbracoHelper _umbraco;
 
-        public WlwManifestController(
-            IUmbracoContextAccessor umbracoContextAccessor,
-            IUmbracoDatabaseFactory databaseFactory,
-            ServiceContext services,
-            AppCaches appCaches,
-            IProfilingLogger profilingLogger,
-            UmbracoHelper umbraco) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger)
+        public WlwManifestController(            
+            UmbracoHelper umbraco,
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor)
+            : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _umbraco = umbraco;
         }
