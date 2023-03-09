@@ -1,19 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" />
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <VersionPrefix>5.0.0</VersionPrefix>
+  </PropertyGroup>
+
+  <!-- Nuget Package -->
+  <PropertyGroup>
+    <PackageId>Articulate</PackageId>
     <Authors>Shannon Deminick</Authors>
     <Description>A wonderful Blog engine built on Umbraco</Description>
+    <PackageIcon>Icon-transparent.png</PackageIcon>
+    <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
     <PackageProjectUrl>https://github.com/Shazwazza/Articulate</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Company>Shannon Deminick</Company>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
   </PropertyGroup>
+  
+  <!--
+  Nuget - Dotnet SourceLink & Symbol Package
+  https://github.com/dotnet/sourcelink#using-source-link-in-net-projects
+  https://devblogs.microsoft.com/dotnet/producing-packages-with-source-link/
+
+  Newer recommended way from Claire Novotny - Nuget PM
+  Use package Dotnet.ReproducibleBuilds
+  This sets the same properties as above URLs and a few additional build properties
+  ie less work - just include this package & be done...
+  https://github.com/dotnet/reproducible-builds  
+  -->
+  <ItemGroup>
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>  
 
   <ItemGroup>
     <None Include="build\**\*.*">
@@ -33,12 +56,14 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Update="Controllers\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Packaging\author.jpg" />
     <EmbeddedResource Include="Packaging\banner.jpg" />
@@ -47,20 +72,40 @@
     <EmbeddedResource Include="Packaging\post1.jpg" />
     <EmbeddedResource Include="Packaging\post2.jpg" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Plugins/**/*.*">
+      <Pack>true</Pack>
+      <PackagePath>App_Plugins</PackagePath>
+    </Content>
+  </ItemGroup>
+  
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+
+  <!-- Nuget Package Dependencies -->
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.23.0" />
     <PackageReference Include="Argotic.Core" Version="3000.0.1" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />    
     <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.0.1" />
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.0.1" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="6.0.14" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="5.0.0" />
   </ItemGroup>
   
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
+  <!-- Uses Package Icon on disk in repo -->
+  <ItemGroup>
+    <None Include="..\..\assets\Icon-transparent.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>

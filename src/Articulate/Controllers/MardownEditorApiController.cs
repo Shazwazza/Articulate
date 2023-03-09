@@ -29,7 +29,7 @@ using Umbraco.Extensions;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Controller for handling the a-new mardown editor endpoint for creating blog posts
+    /// Controller for handling the a-new markdown editor endpoint for creating blog posts
     /// </summary>
     public class MardownEditorApiController : UmbracoAuthorizedApiController
     {
@@ -72,7 +72,9 @@ namespace Articulate.Controllers
         {
 
             if (!Request.HasFormContentType && !Request.Form.Files.Any())
+            {
                 return StatusCode((int)HttpStatusCode.UnsupportedMediaType);
+            }
 
             if (Request.Form.ContainsKey("model") == false)
             {
@@ -132,6 +134,7 @@ namespace Articulate.Controllers
             {
                 return BadRequest("No ArticulateMarkdown content type found");
             }
+
             var content = _services.ContentService.CreateWithInvariantOrDefaultCultureName(
                 model.Title,
                 archive,
@@ -242,6 +245,7 @@ namespace Articulate.Controllers
                 if (entityPermission == null || !entityPermission.AssignedPermissions.Contains(ch.ToString(CultureInfo.InvariantCulture)))
                     flag = false;
             }
+
             return flag;
         }
     }

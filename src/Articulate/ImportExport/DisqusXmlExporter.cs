@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
-using HeyRed.MarkdownSharp;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -54,8 +53,7 @@ namespace Articulate.ImportExport
                 var body = post.GetValue<string>("richText");
                 if (body.IsNullOrWhiteSpace())
                 {
-                    var md = new Markdown();
-                    body = md.Transform(post.GetValue<string>("markdown"));
+                    body = MarkdownHelper.ToHtml(post.GetValue<string>("markdown"));
                 }
 
                 var xItem = new XElement("item",

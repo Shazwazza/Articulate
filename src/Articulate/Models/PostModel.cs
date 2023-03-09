@@ -122,28 +122,27 @@ namespace Articulate.Models
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription");
 
-        public IHtmlEncodedString Body
+        public IHtmlContent Body
         {
             get
             {
                 if (this.HasProperty("richText"))
                 {
-                    // Worth noting that newer Umbraco returns RTE as IHtmlEncodedString and not HtmlString
-                    var val = this.Value<IHtmlEncodedString>("richText");
-                    return val;
+                    return new HtmlString(this.Value<IHtmlEncodedString>("richText").ToHtmlString());
                 }
                 else
                 {
-                    var val = this.Value<IHtmlEncodedString>("markdown");
+                    var val = this.Value<HtmlString>("markdown");
                     return val;
                 }
-                
+
             }
         }
 
         public string ExternalUrl => this.Value<string>("externalUrl");
 
         ImageCropperValue IImageModel.Image => PostImage;
+
         string IImageModel.Name => Name;
         string IImageModel.Url => this.Url();
     }
