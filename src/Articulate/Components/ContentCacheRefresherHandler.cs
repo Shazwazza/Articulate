@@ -44,6 +44,7 @@ namespace Articulate.Components
                             RefreshById(payload.Id, payload.ChangeTypes);
                         }
                     }
+
                     break;
                 case MessageType.RefreshById:
                 case MessageType.RemoveById:
@@ -53,19 +54,24 @@ namespace Articulate.Components
                 case MessageType.RemoveByInstance:
                     var content = notification.MessageObject as IContent;
                     if (content == null)
+                    {
                         return;
+                    }
 
                     if (content.ContentType.Alias.InvariantEquals(ArticulateConstants.ArticulateContentTypeAlias))
                     {
                         //ensure routes are rebuilt
                         _appCaches.RequestCache.GetCacheItem(ArticulateConstants.RefreshRoutesToken, () => true);
                     }
+
                     break;
             }
         }
 
         private void RefreshById(int id, TreeChangeTypes changeTypes)
         {
+            // TODO: What did old articulate do with the request cache? Same request!
+
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
             {
                 return;

@@ -10,12 +10,8 @@ namespace Articulate.Components
         public void Configure(UmbracoPipelineOptions options)
             => options.AddFilter(new UmbracoPipelineFilter(nameof(ArticulatePipelineStartupFilter))
             {
-                PrePipeline = app => app.UseMiddleware<RouteCacheRefresherMiddleware>(),
-
                 Endpoints = app => app.UseEndpoints(endpoints =>
                 {
-                    // TODO: Here's where we create our routes.
-
                     endpoints.MapDynamicControllerRoute<ArticulateRouteValueTransformer>(
                         "/{any}/{**slug}",
                         null,
