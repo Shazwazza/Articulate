@@ -115,7 +115,7 @@ namespace Articulate.Controllers
 
             //there should only be one file so we'll just use the first one
 
-            var hasErrors = await _blogMlImporter.Import(
+            var successful = await _blogMlImporter.Import(
                 _backOfficeSecurityAccessor.BackOfficeSecurity.CurrentUser.Id,
                 model.TempFile,
                 model.ArticulateNodeId,
@@ -129,7 +129,7 @@ namespace Articulate.Controllers
             //cleanup
             System.IO.File.Delete(model.TempFile);
 
-            if (hasErrors)
+            if (!successful)
             {
                 return Problem("Importing failed, see umbraco log for details");
             }

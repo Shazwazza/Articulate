@@ -87,8 +87,7 @@ namespace Articulate.ImportExport
         /// <summary>
         /// Imports the blogml file to articulate
         /// </summary>
-        /// <returns>Returns true if any errors occur</returns>
-        // TODO: That is pretty silly, why return true for errors?! that's backwards, but need to maintain compat.
+        /// <returns>Returns true if successful</returns>
         public async Task<bool> Import(
             int userId,
             string fileName,
@@ -149,12 +148,12 @@ namespace Articulate.ImportExport
 
                     // commit
                     scope.Complete();
-                    return false;
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Importing failed with errors");
-                    return true;
+                    return false;
                 }
             }
         }

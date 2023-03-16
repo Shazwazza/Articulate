@@ -33,7 +33,7 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            //TODO: Seems hanslemans is slightly wrong compared to the other ones found on the interwebs
+            //NOTE: Seems hanslemans is slightly wrong compared to the other ones found on the interwebs
 
             //<opensearchdescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
             //  <shortname>Hanselman Search</shortname>

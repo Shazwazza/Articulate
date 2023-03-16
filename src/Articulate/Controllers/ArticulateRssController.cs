@@ -150,7 +150,7 @@ namespace Articulate.Controllers
 
             //super hack - but this is because we are replacing '.' with '-' in StringExtensions.EncodePath method
             // so if we get nothing, we'll retry with replacing back
-            if (contentByTag == null)
+            if ((contentByTag == null || contentByTag.PostCount == 0) && tag.Contains('-'))
             {
                 contentByTag = _articulateTagService.GetContentByTag(
                     _umbracoHelper,
@@ -161,7 +161,7 @@ namespace Articulate.Controllers
                     1, maxItems);
             }
 
-            if (contentByTag == null)
+            if (contentByTag == null || contentByTag.PostCount == 0)
             {
                 return NotFound();
             }

@@ -14,7 +14,6 @@ namespace Articulate.Routing
     /// </summary>
     internal class VirtualNodeUrlProvider : IUrlProvider
     {
-
         /// <summary>
         /// Gets the nice url of a custom routed published content item
         /// </summary>

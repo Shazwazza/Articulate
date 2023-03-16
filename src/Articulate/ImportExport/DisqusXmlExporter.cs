@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -15,11 +16,14 @@ namespace Articulate.ImportExport
     public class DisqusXmlExporter
     {
         private readonly IPublishedUrlProvider _publishedUrlProvider;
+        private readonly ILogger<DisqusXmlExporter> _logger;
 
         public DisqusXmlExporter(
-            IPublishedUrlProvider publishedUrlProvider)
+            IPublishedUrlProvider publishedUrlProvider,
+            ILogger<DisqusXmlExporter> logger)
         {
             _publishedUrlProvider = publishedUrlProvider;
+            _logger = logger;
         }
 
         public XDocument Export(IEnumerable<IContent> posts, BlogMLDocument document)
@@ -44,8 +48,11 @@ namespace Articulate.ImportExport
             {
                 var blogMlPost = document.Posts.FirstOrDefault(x => x.Title.Content == post.Name);
 
-                //TODO: Add logging here if we cant find it
-                if (blogMlPost == null) continue;
+                if (blogMlPost == null)
+                {
+                    _logger.LogWarning("Cannot find blog ml post XML element with post name " + post.Name);
+                    continue;
+                }
 
                 //no comments to import
                 if (blogMlPost.Comments.Any() == false) continue;
