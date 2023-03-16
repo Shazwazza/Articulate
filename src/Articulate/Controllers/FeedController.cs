@@ -1,5 +1,8 @@
 using Articulate.Models;
 using Microsoft.AspNetCore.Mvc;
+#if NET7_0_OR_GREATER 
+using Microsoft.AspNetCore.OutputCaching;
+#endif
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Macros;
@@ -46,8 +49,9 @@ namespace Articulate.Controllers
         }
 
         [HttpGet]
-        // TODO: This won't work anymore
-        //[OutputCache(Duration = 120)]
+#if NET7_0_OR_GREATER
+        [OutputCache(PolicyName = "Articulate120")]
+#endif
         public IActionResult RenderGitHub(int id)
         {
             var content = _umbracoHelper.Content(id);

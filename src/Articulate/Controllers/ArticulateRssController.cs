@@ -12,6 +12,9 @@ using Umbraco.Cms.Web.Common;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Media;
 using Articulate.Services;
+#if NET7_0_OR_GREATER 
+using Microsoft.AspNetCore.OutputCaching;
+#endif
 
 namespace Articulate.Controllers
 {
@@ -21,11 +24,9 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
-#if (!DEBUG)
-    // TODO: This doesn't exist!
-    //[OutputCache(Duration = 300, VaryByHeader = "host")]
+#if NET7_0_OR_GREATER 
+    [OutputCache(PolicyName = "Articulate300")]
 #endif
-
     public class ArticulateRssController : RenderController
     {
         private readonly IRssFeedGenerator _feedGenerator;

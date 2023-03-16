@@ -1,23 +1,15 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Articulate.ImportExport;
-using Articulate.MetaWeblog;
 using Articulate.Options;
 using Articulate.Packaging;
 using Articulate.Routing;
 using Articulate.Services;
 using Articulate.Syndication;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Routing;
-using Umbraco.Cms.Web.Common.ApplicationModels;
-using Umbraco.Cms.Web.Common.Attributes;
-using Umbraco.Cms.Web.Common.Filters;
-using WilderMinds.MetaWeblog;
 
 namespace Articulate.Components
 {
@@ -63,6 +55,18 @@ namespace Articulate.Components
 
             builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
             builder.Services.ConfigureOptions<ConfigureArticulateMvcOptions>();
+
+#if NET7_0_OR_GREATER
+            builder.Services.AddOutputCache(options =>
+            {               
+                options.AddPolicy("Articulate120", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(120)));
+                options.AddPolicy("Articulate300", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(300)));
+                options.AddPolicy("Articulate60", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(60)));
+            });
+#endif
         }
     }
 }

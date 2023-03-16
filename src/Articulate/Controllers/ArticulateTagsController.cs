@@ -13,6 +13,9 @@ using Umbraco.Cms.Web.Common;
 using Articulate.Services;
 using Umbraco.Cms.Core.PublishedCache;
 using System.Collections.Generic;
+#if NET7_0_OR_GREATER 
+using Microsoft.AspNetCore.OutputCaching;
+#endif
 
 namespace Articulate.Controllers
 {
@@ -22,9 +25,8 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
-#if !DEBUG
-    // TODO: This won't work
-    //[OutputCache(Duration = 60, VaryByHeader = "host")]
+#if NET7_0_OR_GREATER
+    [OutputCache(PolicyName = "Articulate60")]
 #endif
 
     public class ArticulateTagsController : ListControllerBase

@@ -70,8 +70,6 @@ namespace Articulate.Components
 
         private void RefreshById(int id, TreeChangeTypes changeTypes)
         {
-            // TODO: What did old articulate do with the request cache? Same request!
-
             if (!_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
             {
                 return;
