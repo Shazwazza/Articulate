@@ -21,7 +21,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0    
-      
+    - uses: dotnet/nbgv@master
+      with:
+        setAllVars: true
+    - run: echo "NBGV_SemVer2 $NBGV_SemVer2"
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
     
@@ -43,5 +47,5 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: nuget
+        name: Articulate.${{ env.NBGV_SemVer2 }}.zip
         path: ${{ env.Release_Folder }}/Articulate.*
