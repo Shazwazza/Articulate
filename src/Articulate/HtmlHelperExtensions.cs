@@ -28,7 +28,7 @@ namespace Articulate
             var builder = new HtmlContentBuilder();
             if (model.Author != null)
             {
-                builder.Append("<span>");
+                builder.AppendHtml("<span>");
                 builder.Append("By ");
 
                 //TODO: Check if the current theme has an Author.cshtml theme file otherwise don't render a link!
@@ -39,11 +39,11 @@ namespace Articulate
                 }
                 else
                 {
-                    builder.Append($@"<a href=""{model.Author.BlogUrl}"">{model.Author.Name}</a>");
+                    builder.AppendHtml($@"<a href=""{model.Author.BlogUrl}"">{model.Author.Name}</a>");
                 }
 
-                builder.Append("&nbsp;on&nbsp;");
-                builder.Append("</span>");
+                builder.AppendHtml("&nbsp;on&nbsp;");
+                builder.AppendHtml("</span>");
             }
 
             return builder;

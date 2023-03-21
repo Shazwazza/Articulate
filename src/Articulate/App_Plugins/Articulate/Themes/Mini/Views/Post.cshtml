@@ -1,6 +1,6 @@
 @using Articulate
 
-@model Articulate.Models.PostModel
+@model global::Articulate.Models.PostModel
 @{
     Layout = "Master.cshtml";
     ViewBag.CssBodyClass = "post-template";
@@ -33,6 +33,7 @@
                     <h1 class="post-title">@Model.Name</h1>
 
                     @Html.AuthorCitation(Model)
+
                     <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")" itemprop="datePublished">
                         <span class="datetime-full">@Model.PublishedDate.ToString("dd.MM.yyyy")</span>
                     </time>
