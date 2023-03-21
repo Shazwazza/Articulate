@@ -22,7 +22,6 @@ namespace Articulate.Components
 
             var services = builder.Services;
             services.AddSingleton<ContentUrls>();
-            services.AddSingleton<ArticulateDataInstaller>();
             services.AddSingleton<BlogMlExporter>();
             services.AddSingleton<IRssFeedGenerator, RssFeedGenerator>();
 

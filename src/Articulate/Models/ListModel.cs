@@ -76,7 +76,6 @@ namespace Articulate.Models
                     return _resolvedList;
                 }
 
-
                 if (_listItems != null && Pages != null)
                 {
                     _resolvedList = _listItems

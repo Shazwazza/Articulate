@@ -67,6 +67,7 @@ namespace Articulate
                         type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                         .Where(x => x.Name == methodName));
                 }
+
                 type = type.BaseType;
             }
             while (methodInfo == null && type != null);
@@ -90,6 +91,7 @@ namespace Articulate
                     propInfo = filter(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                         .Where(x => x.Name == propertyName));
                 }
+
                 type = type.BaseType;
             }
             while (propInfo == null && type != null);
