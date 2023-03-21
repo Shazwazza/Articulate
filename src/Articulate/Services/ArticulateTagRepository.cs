@@ -88,7 +88,6 @@ namespace Articulate.Services
                             tagGroup = tagGroup
                         });
 
-
                     var dbTags = Database.Fetch<TagDto>(sql);
 
                     taggedContent.AddRange(dbTags);
@@ -181,7 +180,6 @@ WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AN
 
                 return result.FirstOrDefault();
             }
-
 
 #if DEBUG
             return GetResult();

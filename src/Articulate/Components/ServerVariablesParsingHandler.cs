@@ -39,21 +39,9 @@ namespace Articulate.Components
             {
                 {"articulateImportBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ArticulateBlogImportController>(controller => controller.PostImportBlogMl(null))},
                 //{"articulateDataInstallerBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ArticulateBlogDataInstallController>(controller => controller.PostInstall())},
-                {"articulatePropertyEditorsBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ArticulatePropertyEditorsController>(controller => controller.GetThemes())}
+                {"articulatePropertyEditorsBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ArticulatePropertyEditorsController>(controller => controller.GetThemes())},
+                {"articulateThemeEditorBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ThemeEditorController>(controller => controller.GetThemes())}
             };
-
-            if (e.ServerVariables.TryGetValue("umbracoUrls", out object found))
-            {
-                var umbUrls = (Dictionary<string, object>)found;
-                umbUrls["articulateThemeEditorApiBaseUrl"] = _linkGenerator.GetUmbracoApiServiceBaseUrl<ThemeEditorController>(controller => controller.GetByPath(null));
-            }
-            else
-            {
-                e.ServerVariables["umbracoUrls"] = new Dictionary<string, object>
-                {
-                    {"articulateThemeEditorApiBaseUrl", _linkGenerator.GetUmbracoApiServiceBaseUrl<ThemeEditorController>(controller => controller.GetByPath(null))}
-                };
-            }
         }
     }
 }

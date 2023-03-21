@@ -58,3 +58,4 @@ src/Articulate.Web/config/imageprocessor/security.config
 /src/Articulate.Tests.Website/wwwroot/umbraco/*
 /src/Articulate.Web.bak/*
 /src/Articulate.Tests.Website/wwwroot/umbraco.bak/*
+/src/Articulate.Tests.Website/Views/Articulate/*

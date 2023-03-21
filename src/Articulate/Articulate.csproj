@@ -46,6 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="App_Plugins\Articulate\BackOffice\assets\themes.css" />
     <None Remove="Packaging\package.xml" />
   </ItemGroup>
 

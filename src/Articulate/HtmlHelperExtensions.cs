@@ -41,9 +41,11 @@ namespace Articulate
                 {
                     builder.Append($@"<a href=""{model.Author.BlogUrl}"">{model.Author.Name}</a>");
                 }
+
                 builder.Append("&nbsp;on&nbsp;");
                 builder.Append("</span>");
             }
+
             return builder;
         }
 
@@ -225,6 +227,7 @@ namespace Articulate
   ga('send', 'pageview');
 </script>");
             }
+
             return new HtmlString(string.Empty);
         }
 
@@ -284,6 +287,7 @@ namespace Articulate
 
                 ul.InnerHtml.AppendHtml(li);
             }
+
             return ul;
         }
 
@@ -335,6 +339,7 @@ namespace Articulate
                             writer.Write("</span>");
                         }
                     }
+
                     return Task.CompletedTask;
                 });
 

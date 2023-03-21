@@ -8,7 +8,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
-namespace Articulate
+namespace Articulate.Routing
 {
     public class DateFormattedUrlProvider : DefaultUrlProvider
     {
@@ -34,10 +34,10 @@ namespace Articulate
                         return null;
                 }
 
-                DateTime? date = content.Value<DateTime?>("publishedDate");
+                var date = content.Value<DateTime?>("publishedDate");
                 if (date != null)
                 {
-                    UrlInfo parentPath = base.GetUrl(content.Parent, mode, culture, current);
+                    var parentPath = base.GetUrl(content.Parent, mode, culture, current);
                     var urlFolder = string.Format("{0}/{1:d2}/{2:d2}", date.Value.Year, date.Value.Month, date.Value.Day);
                     var newUrl = parentPath.Text.EnsureEndsWith("/") + urlFolder + "/" + content.UrlSegment.EnsureEndsWith("/");
 

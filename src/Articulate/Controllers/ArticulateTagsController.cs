@@ -52,19 +52,7 @@ namespace Articulate.Controllers
             _articulateTagService = articulateTagService;
             _tagQuery = tagQuery;
         }
-
-        // TODO: This won't work anymore:
-
-        ///// <summary>
-        ///// Sets a custom action invoker so that the correct action is executed based on the specified tag/category url defined on the articulate root
-        ///// </summary>
-        ///// <param name="requestContext">The HTTP context and route data.</param>
-        //protected override void Initialize(RequestContext requestContext)
-        //{
-        //    ActionInvoker = new TagsControllerActionInvoker();
-        //    base.Initialize(requestContext);
-        //}
-
+                
         /// <summary>
         /// Used to render the category listing (virtual node)
         /// </summary>

@@ -42,9 +42,13 @@
                 "name": "Articulate Data Installer",
                 "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.html",
                 "icon": "icon-stacked-disks"
+            },
+            {
+                "name": "Articulate Themes",
+                "view": "../App_Plugins/Articulate/BackOffice/PackageOptions/themes.html",
+                "icon": "icon-stacked-disks"
             }
         ];
-
     }
 
     var articulateOptionsMgmtComponent = {

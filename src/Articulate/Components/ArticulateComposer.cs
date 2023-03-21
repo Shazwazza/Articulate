@@ -23,7 +23,6 @@ namespace Articulate.Components
             var services = builder.Services;
             services.AddSingleton<ContentUrls>();
             services.AddSingleton<ArticulateDataInstaller>();
-            //services.AddSingleton<ArticulateTempFileSystem>(x => new ArticulateTempFileSystem("~/App_Data/Temp/Articulate"));
             services.AddSingleton<BlogMlExporter>();
             services.AddSingleton<IRssFeedGenerator, RssFeedGenerator>();
 

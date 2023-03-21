@@ -127,11 +127,11 @@ namespace Articulate.Models
                 {
                     _pageSize = base.Unwrap().Value<int>("pageSize", fallback: Fallback.To(Fallback.Ancestors, Fallback.DefaultValue), defaultValue: 10);
                 }
+
                 return _pageSize.Value;
             }
             protected set => _pageSize = value;
         }
-
 
         public string PageTitle
         {
