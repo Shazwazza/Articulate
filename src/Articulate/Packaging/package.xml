@@ -5,6 +5,89 @@
       <name>Articulate</name>
     </package>
   </info>
+  <Documents>
+    <DocumentSet importMode="root">
+      <Articulate id="1068" key="287ce3a2-f2f6-42d5-8eb5-8ac23650d1aa" parentID="-1" level="1" creatorID="-1" sortOrder="0" createDate="2023-03-07T15:31:45" updateDate="2023-03-15T11:08:28" nodeName="Blog" urlName="blog" path="-1,1068" isDoc="" nodeType="1061" nodeTypeAlias="Articulate" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="false">
+        <blogDescription><![CDATA[Welcome to my blog!]]></blogDescription>
+        <blogTitle><![CDATA[Articulate Blog]]></blogTitle>
+        <pageSize>10</pageSize>
+        <categoriesPageName><![CDATA[Categories]]></categoriesPageName>
+        <categoriesUrlName><![CDATA[categories]]></categoriesUrlName>
+        <tagsPageName><![CDATA[Tags]]></tagsPageName>
+        <tagsUrlName><![CDATA[tags]]></tagsUrlName>
+        <searchPageName><![CDATA[Search results]]></searchPageName>
+        <searchUrlName><![CDATA[search]]></searchUrlName>
+        <redirectArchive>1</redirectArchive>
+        <useDateFormatForUrl>0</useDateFormatForUrl>
+        <blogBanner><![CDATA[{"src":"/media/14ek5sbh/banner.jpg"}]]></blogBanner>
+        <blogLogo><![CDATA[{"src":"/media/rcsnvtys/logo.png"}]]></blogLogo>
+        <theme><![CDATA[VAPOR]]></theme>
+        <extractFirstImage>1</extractFirstImage>
+        <ArticulateArchive id="1069" key="f079a99a-f736-42e3-a52e-12d4bd5d3d6e" parentID="1068" level="2" creatorID="-1" sortOrder="0" createDate="2023-03-07T15:31:46" updateDate="2023-03-07T15:31:46" nodeName="Articles" urlName="articles" path="-1,1068,1069" isDoc="" nodeType="1062" nodeTypeAlias="ArticulateArchive" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="true">
+          <ArticulateMarkdown id="1072" key="7355953d-cf88-4228-8fd4-5f34b1672e8b" parentID="1069" level="3" creatorID="-1" sortOrder="0" createDate="2023-03-07T15:31:46" updateDate="2023-03-07T15:31:46" nodeName="Welcome" urlName="welcome" path="-1,1068,1069,1072" isDoc="" nodeType="1066" nodeTypeAlias="ArticulateMarkdown" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="true">
+            <tags><![CDATA[["Cafe","Markdown"]]]></tags>
+            <categories><![CDATA[["Articulate"]]]></categories>
+            <excerpt><![CDATA[Hi! Welcome to blogging with Articulate :) This is a fully functional blog engine supporting many features.]]></excerpt>
+            <author><![CDATA[Jane Doe]]></author>
+            <publishedDate>2023-03-07T15:31:46</publishedDate>
+            <postImage><![CDATA[{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/irlp5dez/post1.jpg','crops': []}]]></postImage>
+            <socialDescription><![CDATA[Welcome to blogging with Articulate, a fully functional blog engine supporting all of the blogging features you'd want.]]></socialDescription>
+            <markdown>
+              <![CDATA[## Hi! Welcome to Articulate :)
+
+This is a fully functional blog engine supporting many features:
+
+* Categories & Tags
+* Themes
+* Live Writer support
+* Markdown support
+* Easily post from your mobile phone including adding images and photos direct from you camera
+* Disqus or Facebook comment support (or build your own)
+* Search
+* Blogml import/export
+* RSS
+* Customizable urls
+* Author profiles
+
+Articulate is open source and hosted on GitHub:
+[https://github.com/Shandem/Articulate/](https://github.com/Shandem/Articulate)
+
+It comes with a few themes which have different features enabled. You can easily change themes on the root Articulate node on the style tab. Themes are super easy to create and in fact the 4 themes shipped with Articulate are MIT licensed themes originally built for the Ghost blogging platform.
+
+Comments are powered by Disqus (Facebook or custom comment engines can be used which can be enabled in the templates).
+
+Live Writer integration is fully functional, to configure Live Writer just use the URL of the Articulate root node and use your Umbraco username/password.
+
+You can post directly from your mobile (including images and photos). This editor can be found at the path of "/a-new". Click [Here](../a-new) to see it in action. Now you can post your thoughts wherever you are, from a cafe, on the road, etc... all without needing your computer. 
+
+Enjoy!]]>
+            </markdown>
+          </ArticulateMarkdown>
+          <ArticulateMarkdown id="1073" key="e58d2999-c1d5-4197-a59c-3dd4c9192322" parentID="1069" level="3" creatorID="-1" sortOrder="1" createDate="2023-03-07T15:31:46" updateDate="2023-03-07T15:31:46" nodeName="Latte art" urlName="latte-art" path="-1,1068,1069,1073" isDoc="" nodeType="1066" nodeTypeAlias="ArticulateMarkdown" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="true">
+            <tags><![CDATA[["Cafe","Milk","Espresso"]]]></tags>
+            <categories><![CDATA[["Coffee"]]]></categories>
+            <excerpt><![CDATA[Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ]]></excerpt>
+            <author><![CDATA[Jane Doe]]></author>
+            <publishedDate>2023-02-25T15:31:46</publishedDate>
+            <postImage><![CDATA[{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/2dvcogwe/post2.jpg','crops': []}]]></postImage>
+            <socialDescription><![CDATA[Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. ]]></socialDescription>
+            <markdown>
+              <![CDATA[Latte art is a method of preparing coffee created by pouring steamed milk into a shot of espresso, resulting in a pattern or design on the surface of the latte. Latte art is hard to create consistently because of the many factors involved with creating coffee, from the coffee acidity, temperature, to the type of milk and equipment being used. Don't expect that you'll be able to make latte art the first time you try, in fact it will probably take you a great number of tries to make something work and you'll be hoping that you're using some quality equipment, otherwise you'll stand no chance.
+
+Good latte art means you've found a cafe with a good barista so there's a good chance if you're seeing a a great design in your coffee, it's also going to taste wonderful.]]>
+            </markdown>
+          </ArticulateMarkdown>
+        </ArticulateArchive>
+        <ArticulateAuthors id="1070" key="033daa41-1de7-423a-b839-647e4bf5a365" parentID="1068" level="2" creatorID="-1" sortOrder="1" createDate="2023-03-07T15:31:46" updateDate="2023-03-07T15:31:46" nodeName="Authors" urlName="authors" path="-1,1068,1070" isDoc="" nodeType="1064" nodeTypeAlias="ArticulateAuthors" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="true">
+          <ArticulateAuthor id="1071" key="e1f58541-7a3c-49e2-967c-2f15e365ad9b" parentID="1070" level="3" creatorID="-1" sortOrder="0" createDate="2023-03-07T15:31:46" updateDate="2023-03-07T15:31:46" nodeName="Jane Doe" urlName="jane-doe" path="-1,1068,1070,1071" isDoc="" nodeType="1063" nodeTypeAlias="ArticulateAuthor" creatorName="Shannon" writerName="Shannon" writerID="-1" template="" isPublished="true">
+            <authorImage><![CDATA[{'focalPoint': {'left': 0.5,'top': 0.5},'src': '/media/opuch5d5/author.jpg','crops': []}]]></authorImage>
+            <authorUrl><![CDATA[https://github.com/shazwazza/articulate]]></authorUrl>
+            <authorBio><![CDATA[Jane Doe writes articles for businesses who love coffee as much as she does. Her articles have appeared in a number of coffee related magazines such as beanscenemag.com.au and dailycoffeenews.com. Her articles focus on the health benefits coffee has to offer –but never at the expense of providing an entertaining read.]]></authorBio>
+          </ArticulateAuthor>
+        </ArticulateAuthors>
+      </Articulate>
+    </DocumentSet>
+  </Documents>
   <DocumentTypes>
     <DocumentType>
       <Info>
@@ -366,6 +449,7 @@
           <SortOrder>3</SortOrder>
         </Tab>
       </Tabs>
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -405,6 +489,7 @@
         </GenericProperty>
       </GenericProperties>
       <Tabs />
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -483,6 +568,7 @@
           <SortOrder>0</SortOrder>
         </Tab>
       </Tabs>
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -505,6 +591,7 @@
       </Structure>
       <GenericProperties />
       <Tabs />
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -708,7 +795,7 @@
           <SortOrder>0</SortOrder>
         </Tab>
         <Tab>
-          <Id>63</Id>
+          <Id>62</Id>
           <Key>56af7e40-b9d7-4e24-bbe0-8d24ef026913</Key>
           <Type>Group</Type>
           <Caption>Image</Caption>
@@ -716,7 +803,7 @@
           <SortOrder>2</SortOrder>
         </Tab>
         <Tab>
-          <Id>64</Id>
+          <Id>63</Id>
           <Key>85ad1071-bdea-4ca9-83ef-57afb3141eb9</Key>
           <Type>Group</Type>
           <Caption>Meta Tags</Caption>
@@ -724,6 +811,7 @@
           <SortOrder>3</SortOrder>
         </Tab>
       </Tabs>
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -765,7 +853,7 @@
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>65</Id>
+          <Id>64</Id>
           <Key>184b5f5f-1a4d-4ab2-8172-b42c4f43fe0e</Key>
           <Type>Group</Type>
           <Caption>Content</Caption>
@@ -773,6 +861,7 @@
           <SortOrder>0</SortOrder>
         </Tab>
       </Tabs>
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
     <DocumentType>
       <Info>
@@ -814,7 +903,7 @@
       </GenericProperties>
       <Tabs>
         <Tab>
-          <Id>66</Id>
+          <Id>65</Id>
           <Key>4f49ea41-3e4b-43d7-99cd-50a6254c8bf4</Key>
           <Type>Group</Type>
           <Caption>Content</Caption>
@@ -822,6 +911,7 @@
           <SortOrder>0</SortOrder>
         </Tab>
       </Tabs>
+      <HistoryCleanupPolicy preventCleanup="false" />
     </DocumentType>
   </DocumentTypes>
   <MediaTypes />
@@ -836,8 +926,8 @@
   <DataTypes>
     <DataType Name="Articulate Categories" Id="Umbraco.Tags" Definition="a72aeb12-5b28-4a47-b99a-fde14d49c1ac" DatabaseType="Nvarchar" Configuration="{&quot;group&quot;:&quot;ArticulateCategories&quot;,&quot;storageType&quot;:&quot;Json&quot;,&quot;Delimiter&quot;:&quot;\u0000&quot;}" />
     <DataType Name="Articulate Cropper" Id="Umbraco.ImageCropper" Definition="c8f535ee-27b8-4d16-940d-d6c523851bb1" DatabaseType="Ntext" Configuration="{&quot;crops&quot;:[{&quot;alias&quot;:&quot;blogPost&quot;,&quot;width&quot;:200,&quot;height&quot;:200},{&quot;alias&quot;:&quot;square&quot;,&quot;width&quot;:480,&quot;height&quot;:480},{&quot;alias&quot;:&quot;thumbnail&quot;,&quot;width&quot;:50,&quot;height&quot;:50},{&quot;alias&quot;:&quot;wide&quot;,&quot;width&quot;:1024,&quot;height&quot;:512}]}" />
-    <DataType Name="Articulate Markdown" Id="Articulate.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext" Configuration="{&quot;preview&quot;:false,&quot;defaultValue&quot;:null,&quot;overlayWidthSize&quot;:null}" />
-    <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext" Configuration="{&quot;editor&quot;:{&quot;toolbar&quot;:[&quot;ace&quot;,&quot;bold&quot;,&quot;italic&quot;,&quot;underline&quot;,&quot;strikethrough&quot;,&quot;alignleft&quot;,&quot;aligncenter&quot;,&quot;alignright&quot;,&quot;bullist&quot;,&quot;numlist&quot;,&quot;link&quot;,&quot;unlink&quot;,&quot;anchor&quot;,&quot;umbmediapicker&quot;,&quot;umbembeddialog&quot;],&quot;mode&quot;:&quot;distraction-free&quot;},&quot;hideLabel&quot;:true,&quot;ignoreUserStartNodes&quot;:false,&quot;mediaParentId&quot;:null}" />
+    <DataType Name="Articulate Markdown" Id="Articulate.MarkdownEditor" Definition="31d931c7-ce89-40a1-934e-664be25a1e8c" DatabaseType="Ntext" Configuration="{&quot;preview&quot;:false}" />
+    <DataType Name="Articulate Rich Text" Id="Umbraco.TinyMCE" Definition="dbcb0707-021d-4cd4-ba8b-5cc891516c28" DatabaseType="Ntext" Configuration="{&quot;editor&quot;:{&quot;toolbar&quot;:[&quot;ace&quot;,&quot;bold&quot;,&quot;italic&quot;,&quot;underline&quot;,&quot;strikethrough&quot;,&quot;alignleft&quot;,&quot;aligncenter&quot;,&quot;alignright&quot;,&quot;bullist&quot;,&quot;numlist&quot;,&quot;link&quot;,&quot;unlink&quot;,&quot;anchor&quot;,&quot;umbmediapicker&quot;,&quot;umbembeddialog&quot;],&quot;mode&quot;:&quot;distraction-free&quot;},&quot;hideLabel&quot;:true,&quot;ignoreUserStartNodes&quot;:false}" />
     <DataType Name="Articulate Tags" Id="Umbraco.Tags" Definition="f8404fdc-7667-4184-95c3-125b1d81314d" DatabaseType="Nvarchar" Configuration="{&quot;group&quot;:&quot;ArticulateTags&quot;,&quot;storageType&quot;:&quot;Json&quot;,&quot;Delimiter&quot;:&quot;\u0000&quot;}" />
     <DataType Name="Articulate Theme Picker" Id="ArticulateThemePicker" Definition="8b57d00e-5593-45d3-affe-24203b239bd3" DatabaseType="Nvarchar" Configuration="{}" />
   </DataTypes>

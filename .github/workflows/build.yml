@@ -47,5 +47,5 @@ jobs:
       
     - uses: actions/upload-artifact@v2
       with:
-        name: Articulate.${{ env.NBGV_SemVer2 }}.zip
+        name: Articulate.${{ env.NBGV_SemVer2 }}
         path: ${{ env.Release_Folder }}/Articulate.*
