@@ -28,9 +28,8 @@ namespace Articulate.Controllers
             IPublishedUrlProvider publishedUrlProvider,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             IArticulateSearcher articulateSearcher)
-            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
             _articulateSearcher = articulateSearcher;
         }
@@ -63,8 +62,7 @@ namespace Articulate.Controllers
                     new PagerModel(masterModel.PageSize, 0, 0),
                     Enumerable.Empty<IPublishedContent>(),
                     PublishedValueFallback,
-                    VariationContextAccessor,
-                    ImageUrlGenerator);
+                    VariationContextAccessor);
 
                 return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
             }

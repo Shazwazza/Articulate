@@ -29,8 +29,7 @@ namespace Articulate.Models
             PagerModel pager,
             IEnumerable<IPublishedContent> listItems,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
             : base(content, publishedValueFallback, variationContextAccessor)
         {
             
@@ -39,7 +38,6 @@ namespace Articulate.Models
             if (pager == null) throw new ArgumentNullException(nameof(pager));
 
             Pages = pager;
-            ImageUrlGenerator = imageUrlGenerator;
             _listItems = listItems;
             if (content.ContentType.Alias.Equals(ArticulateConstants.ArticulateArchiveContentTypeAlias))
                 PageTitle = BlogTitle + " - " + BlogDescription;
@@ -72,7 +70,7 @@ namespace Articulate.Models
 
                 if (_listItems == null)
                 {
-                    _resolvedList = base.ChildrenForAllCultures.Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor, ImageUrlGenerator)).ToArray();
+                    _resolvedList = base.ChildrenForAllCultures.Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor)).ToArray();
                     return _resolvedList;
                 }
 
@@ -81,7 +79,7 @@ namespace Articulate.Models
                     _resolvedList = _listItems
                     //Skip will already be done in this case, but we'll take again anyways just to be safe                    
                         .Take(Pages.PageSize)
-                        .Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor, ImageUrlGenerator))
+                        .Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor))
                         .ToArray();
                 }
                 else

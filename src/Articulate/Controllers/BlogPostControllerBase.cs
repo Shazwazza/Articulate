@@ -13,25 +13,22 @@ namespace Articulate.Controllers
     {
         private readonly IPublishedValueFallback _publishedValueFallback;
         private readonly IVariationContextAccessor _variationContextAccessor;
-        private readonly IImageUrlGenerator _imageUrlGenerator;
 
         protected BlogPostControllerBase(
             ILogger<RenderController> logger,
             ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _publishedValueFallback = publishedValueFallback;
             _variationContextAccessor = variationContextAccessor;
-            _imageUrlGenerator = imageUrlGenerator;
         }
 
         public override IActionResult Index()
         {
-            var post = new PostModel(CurrentPage, _publishedValueFallback, _variationContextAccessor, _imageUrlGenerator);
+            var post = new PostModel(CurrentPage, _publishedValueFallback, _variationContextAccessor);
             return View(PathHelper.GetThemeViewPath(post, "Post"), post);
         }
     }

@@ -23,7 +23,9 @@ namespace Articulate.Controllers
             var defaultThemes = Directory.GetDirectories(defaultThemeDir).Select(x => new DirectoryInfo(x).Name);
 
             var userThemeDir = _hostingEnvironment.MapPathContentRoot(PathHelper.UserVirtualThemePath);
-            var userThemes = Directory.GetDirectories(userThemeDir).Select(x => new DirectoryInfo(x).Name);
+            var userThemes = Directory.Exists(userThemeDir)
+                ? Directory.GetDirectories(userThemeDir).Select(x => new DirectoryInfo(x).Name)
+                : Enumerable.Empty<string>();
 
             return userThemes.Union(defaultThemes);
         }

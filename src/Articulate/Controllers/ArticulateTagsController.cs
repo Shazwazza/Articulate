@@ -42,11 +42,10 @@ namespace Articulate.Controllers
             IPublishedUrlProvider publishedUrlProvider,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             UmbracoHelper umbracoHelper,
             ArticulateTagService articulateTagService,
             ITagQuery tagQuery)
-            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
             _umbracoHelper = umbracoHelper;
             _articulateTagService = articulateTagService;

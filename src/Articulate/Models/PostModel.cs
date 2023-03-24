@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Html;
 using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Cms.Core.Strings;
@@ -14,13 +15,12 @@ namespace Articulate.Models
     {
         private PostAuthorModel _author;
 
-        public PostModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor, IImageUrlGenerator imageUrlGenerator)
+        public PostModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor)
             : base(content, publishedValueFallback, variationContextAccessor)
         {
             PageTitle = Name + " - " + BlogTitle;
             PageDescription = Excerpt;
             PageTags = string.Join(",", Tags);
-            _imageUrlGenerator = imageUrlGenerator;
         }
 
         public IEnumerable<string> Tags
@@ -64,7 +64,7 @@ namespace Articulate.Models
                 {
                     _author.Bio = authorNode.Value<string>("authorBio");
                     _author.Url = authorNode.Value<string>("authorUrl");
-                    _author.Image = authorNode.Value<ImageCropperValue>("authorImage");
+                    _author.Image = authorNode.Value<MediaWithCrops>("authorImage");
                     _author.BlogUrl = authorNode.Url();
                 }
 
@@ -76,24 +76,15 @@ namespace Articulate.Models
 
         public DateTime PublishedDate => base.Unwrap().Value<DateTime>("publishedDate");
 
-        private ImageCropperValue _postImage;
+        private MediaWithCrops _postImage;
 
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public ImageCropperValue PostImage
-        {
-            get
-            {
-                if (_postImage == null)
-                    _postImage = base.Unwrap().Value<ImageCropperValue>("postImage");
-                return _postImage == null || _postImage.Src.IsNullOrWhiteSpace() ? null : _postImage;
-            }
-        }
+        public MediaWithCrops PostImage => _postImage ??= base.Unwrap().Value<MediaWithCrops>("postImage");
 
         private string _croppedPostImageUrl;
-        private readonly IImageUrlGenerator _imageUrlGenerator;
-
+        
         /// <summary>
         /// Cropped version of the PostImageUrl
         /// </summary>
@@ -111,8 +102,8 @@ namespace Articulate.Models
                     return null;
                 }
 
-                var wideCropUrl = PostImage.GetCropUrl("wide", _imageUrlGenerator);
-                _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?");
+                var wideCropUrl = PostImage.GetCropUrl("wide");
+                _croppedPostImageUrl = (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?");
                 return _croppedPostImageUrl;
             }
         }
@@ -126,22 +117,17 @@ namespace Articulate.Models
         {
             get
             {
-                if (this.HasProperty("richText"))
-                {
-                    return new HtmlString(this.Value<IHtmlEncodedString>("richText").ToHtmlString());
-                }
-                else
-                {
-                    var val = this.Value<HtmlString>("markdown");
-                    return val;
-                }
+                return new HtmlString(
+                    this.Value<IHtmlEncodedString>(
+                        this.HasProperty("richText") ? "richText" : "markdown")
+                    .ToHtmlString());
 
             }
         }
 
         public string ExternalUrl => this.Value<string>("externalUrl");
 
-        ImageCropperValue IImageModel.Image => PostImage;
+        MediaWithCrops IImageModel.Image => PostImage;
 
         string IImageModel.Name => Name;
         string IImageModel.Url => this.Url();

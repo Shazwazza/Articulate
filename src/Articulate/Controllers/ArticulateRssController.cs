@@ -32,7 +32,6 @@ namespace Articulate.Controllers
         private readonly IRssFeedGenerator _feedGenerator;
         private readonly IPublishedValueFallback _publishedValueFallback;
         private readonly IVariationContextAccessor _variationContextAccessor;
-        private readonly IImageUrlGenerator _imageUrlGenerator;
         private readonly UmbracoHelper _umbracoHelper;
         private readonly ArticulateTagService _articulateTagService;
 
@@ -43,7 +42,6 @@ namespace Articulate.Controllers
             IRssFeedGenerator feedGenerator,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             UmbracoHelper umbracoHelper,
             ArticulateTagService articulateTagService)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
@@ -51,7 +49,6 @@ namespace Articulate.Controllers
             _feedGenerator = feedGenerator;
             _publishedValueFallback = publishedValueFallback;
             _variationContextAccessor = variationContextAccessor;
-            _imageUrlGenerator = imageUrlGenerator;
             _umbracoHelper = umbracoHelper;
             _articulateTagService = articulateTagService;
         }
@@ -83,8 +80,7 @@ namespace Articulate.Controllers
                 pager,
                 listItems,
                 _publishedValueFallback,
-                _variationContextAccessor,
-                _imageUrlGenerator);
+                _variationContextAccessor);
             
             var feed = _feedGenerator.GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
 
@@ -108,10 +104,9 @@ namespace Articulate.Controllers
                 author.Name,
                 new PagerModel(maxItems.Value, 0, 1),
                 _publishedValueFallback,
-                _variationContextAccessor,
-                _imageUrlGenerator);
+                _variationContextAccessor);
 
-            var feed = _feedGenerator.GetFeed(masterModel, authorContenet.Select(x => new PostModel(x, _publishedValueFallback, _variationContextAccessor, _imageUrlGenerator)));
+            var feed = _feedGenerator.GetFeed(masterModel, authorContenet.Select(x => new PostModel(x, _publishedValueFallback, _variationContextAccessor)));
 
             return new RssResult(feed, masterModel);
         }

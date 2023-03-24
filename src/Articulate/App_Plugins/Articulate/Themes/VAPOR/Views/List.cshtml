@@ -29,7 +29,7 @@
                 <section class="post-excerpt">
                     @if (post.PostImage != null)
                     {
-                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "blogPost", useCropDimensions: true, htmlEncode: false);
+                        var thumbnail = post.PostImage.GetCropUrl("blogPost");
                         if (thumbnail != null)
                         {
                             <div class="postthumb" style="background: url(@thumbnail)"></div>

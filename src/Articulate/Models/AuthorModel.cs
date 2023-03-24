@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 using Umbraco.Extensions;
@@ -18,9 +19,8 @@ namespace Articulate.Models
             PagerModel pager,
             int postCount,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
-            : base(content, pager, listItems, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
+            : base(content, pager, listItems, publishedValueFallback, variationContextAccessor)
         {
             PostCount = postCount;
         }        
@@ -29,8 +29,8 @@ namespace Articulate.Models
 
         public string AuthorUrl => this.Value<string>("authorUrl");
 
-        private ImageCropperValue _image;
-        public ImageCropperValue Image => (_image ?? (_image = base.Unwrap().Value<ImageCropperValue>("authorImage"))).Src.IsNullOrWhiteSpace() ? null : _image;
+        private MediaWithCrops _image;
+        public MediaWithCrops Image => (_image ??= base.Unwrap().Value<MediaWithCrops>("authorImage"));
        
         public int PostCount { get; }
 

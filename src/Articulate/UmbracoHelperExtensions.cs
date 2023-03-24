@@ -114,8 +114,7 @@ namespace Articulate
             IMasterModel masterModel,
             int count,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
         {
             var listNodes = GetListNodes(masterModel);
 
@@ -125,7 +124,7 @@ namespace Articulate
 
             var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
-            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, variationContextAccessor, imageUrlGenerator);
+            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, variationContextAccessor);
             return rootPageModel.Posts;
         }
 
@@ -143,8 +142,7 @@ namespace Articulate
             int page,
             int pageSize,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
         {
             var listNodes = GetListNodes(masterModel);
 
@@ -154,7 +152,7 @@ namespace Articulate
 
             var listItems = helper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
-            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, variationContextAccessor, imageUrlGenerator);
+            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, variationContextAccessor);
             return rootPageModel.Posts;
         }
 
@@ -172,14 +170,13 @@ namespace Articulate
             int page,
             int pageSize,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
         {
             var pager = new PagerModel(pageSize, page - 1, 1);
 
             var listItems = helper.GetPostsSortedByPublishedDate(pager, null, masterModel.Id);
 
-            var rootPageModel = new ListModel(masterModel, pager, listItems, publishedValueFallback, variationContextAccessor, imageUrlGenerator);
+            var rootPageModel = new ListModel(masterModel, pager, listItems, publishedValueFallback, variationContextAccessor);
             return rootPageModel.Posts;
         }
 
@@ -189,14 +186,13 @@ namespace Articulate
             string authorName,
             PagerModel pager,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
         {            
             var listNodeIds = listNodes.Select(x => x.Id).ToArray();           
 
             var postWithAuthor = helper.GetPostsSortedByPublishedDate(pager, x => string.Equals(x.Value<string>("author"), authorName.Replace("-", " "), StringComparison.InvariantCultureIgnoreCase), listNodeIds);
 
-            var rootPageModel = new ListModel(listNodes[0], pager, postWithAuthor, publishedValueFallback, variationContextAccessor, imageUrlGenerator);
+            var rootPageModel = new ListModel(listNodes[0], pager, postWithAuthor, publishedValueFallback, variationContextAccessor);
             return rootPageModel.Posts;
         }
 
@@ -208,6 +204,7 @@ namespace Articulate
                 throw new InvalidOperationException(
                     "An ArticulateArchive document must exist under the root Articulate document");
             }
+
             return listNodes;
         }
         

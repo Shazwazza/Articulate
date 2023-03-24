@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,6 +49,22 @@ namespace Articulate.Tests.Website
 
             services.AddRazorPages();
 
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = int.MaxValue;
+            });
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = int.MaxValue;
+            });
+
+            services.Configure<FormOptions>(x =>
+            {
+                x.ValueLengthLimit = int.MaxValue;
+                x.MultipartBodyLengthLimit = int.MaxValue; // if don't set default value is: 128 MB
+                x.MultipartHeadersLengthLimit = int.MaxValue;
+            });
         }
 
         /// <summary>

@@ -29,9 +29,8 @@ namespace Articulate.Controllers
             IPublishedUrlProvider publishedUrlProvider,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             UmbracoHelper umbracoHelper)
-            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
             _umbracoHelper = umbracoHelper;
         }
@@ -69,8 +68,7 @@ namespace Articulate.Controllers
                 p ?? 1,
                 master.PageSize,
                 PublishedValueFallback,
-                VariationContextAccessor,
-                ImageUrlGenerator);
+                VariationContextAccessor);
 
             return GetPagedListView(master, listNodes[0], posts, count, p);
 

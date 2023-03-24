@@ -41,7 +41,8 @@ namespace Articulate.Controllers
             _blogMlExporter = blogMlExporter;
         }
 
-        public async Task<ActionResult> PostInitialize()
+        [DisableRequestSizeLimit]
+        public ActionResult PostInitialize()
         {
             if (!Request.HasFormContentType && !Request.Form.Files.Any())
             {

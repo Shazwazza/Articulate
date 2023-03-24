@@ -8,7 +8,7 @@
 {
     if (Model.Author.Image != null)
     {
-        var thumbnail = Url.GetCropUrl(Model.Author.Image, "thumbnail", htmlEncode: false);
+        var thumbnail = Model.Author.Image.GetCropUrl("thumbnail");
         <div class="minilogo" style="background: url(@thumbnail)"></div>        
     }
     <div>

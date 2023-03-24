@@ -27,22 +27,19 @@ namespace Articulate.Controllers
             IUmbracoContextAccessor umbracoContextAccessor,
             IPublishedUrlProvider publishedUrlProvider,
             IPublishedValueFallback publishedValueFallback,
-            IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator)
+            IVariationContextAccessor variationContextAccessor)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             UmbracoContextAccessor = umbracoContextAccessor;
             PublishedUrlProvider = publishedUrlProvider;
             PublishedValueFallback = publishedValueFallback;
             VariationContextAccessor = variationContextAccessor;
-            ImageUrlGenerator = imageUrlGenerator;
         }
 
         public IUmbracoContextAccessor UmbracoContextAccessor { get; }
         public IPublishedUrlProvider PublishedUrlProvider { get; }
         public IPublishedValueFallback PublishedValueFallback { get; }
         public IVariationContextAccessor VariationContextAccessor { get; }
-        public IImageUrlGenerator ImageUrlGenerator { get; }
 
         /// <summary>
         /// Gets a paged list view for a given posts by author/tags/categories model
@@ -61,7 +58,7 @@ namespace Articulate.Controllers
                     UmbracoContextAccessor);
             }
 
-            var listModel = new ListModel(pageNode, pager, listItems, PublishedValueFallback, VariationContextAccessor, ImageUrlGenerator);
+            var listModel = new ListModel(pageNode, pager, listItems, PublishedValueFallback, VariationContextAccessor);
 
             return View(PathHelper.GetThemeViewPath(listModel, "List"), listModel);
         }

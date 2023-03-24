@@ -27,9 +27,8 @@ namespace Articulate.Controllers
             IPublishedUrlProvider publishedUrlProvider,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             UmbracoHelper umbracoHelper)
-            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor, imageUrlGenerator)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
             _umbracoHelper = umbracoHelper;
         }
@@ -68,8 +67,7 @@ namespace Articulate.Controllers
                 CurrentPage.Name,
                 pager,
                 PublishedValueFallback,
-                VariationContextAccessor,
-                ImageUrlGenerator);
+                VariationContextAccessor);
 
             var author = new AuthorModel(
                 CurrentPage,
@@ -77,8 +75,7 @@ namespace Articulate.Controllers
                 pager,
                 totalPosts,
                 PublishedValueFallback,
-                VariationContextAccessor,
-                ImageUrlGenerator);
+                VariationContextAccessor);
             
             return View(PathHelper.GetThemeViewPath(author, "Author"), author);
         }

@@ -90,42 +90,6 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Sets the file value for a property type with the correct variance
-        /// </summary>
-        /// <remarks>
-        /// Used to safely set a value for a property taking into account if the property type varies by culture/segment.
-        /// If varying by culture it will assign the value to the default language only.
-        /// If varying by segment it will assign the value to no segment.
-        /// </remarks>
-        public static void SetInvariantOrDefaultCultureValue(
-            this IContentBase content,
-            IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
-            string propertyTypeAlias,
-            string filename,
-            Stream filestream,
-            IContentTypeComposition contentType,
-            ILocalizationService localizationService,
-            MediaFileManager mediaFileManager,
-            MediaUrlGeneratorCollection mediaUrlGenerators,
-            IShortStringHelper shortStringHelper)
-        {
-            if (contentType is null)
-                throw new ArgumentNullException(nameof(contentType));
-
-            var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
-
-            content.SetValue(
-                mediaFileManager,
-                mediaUrlGenerators,
-                shortStringHelper,
-                contentTypeBaseServiceProvider,
-                propertyTypeAlias,
-                filename,
-                filestream,
-                variesByCulture ? localizationService.GetDefaultLanguageIsoCode() : null);
-        }
-
-        /// <summary>
         /// Sets the tags for a property type with the correct variance
         /// </summary>
         /// <remarks>

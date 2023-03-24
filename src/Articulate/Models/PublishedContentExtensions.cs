@@ -14,24 +14,21 @@ namespace Articulate.Models
         public static string GetArticulateCropUrl(this IPublishedContent content, string propertyAlias, VariationContext variationContext)
         {
             if (!content.ContentType.VariesByCulture())
-                return content.GetCropUrl(propertyAlias: propertyAlias, imageCropMode: ImageCropMode.Max);
+            {
+                return content.Value<MediaWithCrops>(propertyAlias)?.GetCropUrl(imageCropMode: ImageCropMode.Max) ?? string.Empty;
+            }
 
             var property = content.GetProperty(propertyAlias);
             if (property == null)
+            {
                 return string.Empty;
+            }
 
             var culture = property.PropertyType.VariesByCulture()
                 ? variationContext?.Culture
                 : string.Empty; // must be string empty, not null since that won't work :/ 
 
-            var url = content.MediaUrl(culture, UrlMode.Default, "blogBanner");
-            var cropUrl = content.Value<ImageCropperValue>("blogBanner", culture);
-            if (cropUrl != null)
-            {
-                return url.GetCropUrl(cropUrl, imageCropMode: ImageCropMode.Max);
-            }
-
-            return string.Empty;
+            return content.Value<MediaWithCrops>(propertyAlias, culture)?.GetCropUrl(imageCropMode: ImageCropMode.Max) ?? string.Empty;
         }
 
         public static IPublishedContent Next(this IPublishedContent content)
@@ -42,7 +39,7 @@ namespace Articulate.Models
                 if (found)
                     return sibling;
 
-                if (sibling.Id == content.Id) 
+                if (sibling.Id == content.Id)
                     found = true;
             }
 
@@ -87,17 +84,20 @@ namespace Articulate.Models
         /// <remarks>Based on int Enumerable.Count() method.</remarks>
         public static bool HasMoreThan<TSource>(this IEnumerable<TSource> source, int count)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
             var collection = source as ICollection<TSource>;
             if (collection != null)
             {
                 return collection.Count > count;
             }
+
             var collection2 = source as ICollection;
             if (collection2 != null)
             {
                 return collection2.Count > count;
             }
+
             int num = 0;
             checked
             {
@@ -113,8 +113,9 @@ namespace Articulate.Models
                     }
                 }
             }
+
             return false; // < count
         }
-               
+
     }
 }

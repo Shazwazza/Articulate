@@ -40,7 +40,6 @@ namespace Articulate.MetaWeblog
         private readonly MediaFileManager _mediaFileManager;
         private readonly IPublishedValueFallback _publishedValueFallback;
         private readonly IVariationContextAccessor _variationContextAccessor;
-        private readonly IImageUrlGenerator _imageUrlGenerator;
         private readonly ITagService _tagService;
         private readonly int _articulateBlogRootNodeId;
         private readonly Regex _mediaSrc = new Regex(" src=(?:\"|')(?:http|https)://(?:[\\w\\d:/-]+?)(articulate/.*?)(?:\"|')", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -60,7 +59,6 @@ namespace Articulate.MetaWeblog
             MediaFileManager mediaFileManager,
             IPublishedValueFallback publishedValueFallback,
             IVariationContextAccessor variationContextAccessor,
-            IImageUrlGenerator imageUrlGenerator,
             ITagService tagService,
             int articulateBlogRootNodeId)
         {
@@ -77,7 +75,6 @@ namespace Articulate.MetaWeblog
             _mediaFileManager = mediaFileManager;
             _publishedValueFallback = publishedValueFallback;
             _variationContextAccessor = variationContextAccessor;
-            _imageUrlGenerator = imageUrlGenerator;
             _tagService = tagService;
             _articulateBlogRootNodeId = articulateBlogRootNodeId;
         }
@@ -220,7 +217,7 @@ namespace Articulate.MetaWeblog
             var post = _umbracoContextAccessor.GetRequiredUmbracoContext().Content.GetById(asInt.Result);
             if (post != null)
             {
-                var fromPost = FromPost(new PostModel(post, _publishedValueFallback, _variationContextAccessor, _imageUrlGenerator));
+                var fromPost = FromPost(new PostModel(post, _publishedValueFallback, _variationContextAccessor));
                 return Task.FromResult(fromPost);
             }
 

@@ -40,7 +40,7 @@
                                     <h2>@post.Name</h2>
                                     @if (post.PostImage != null)
                                     {
-                                        var thumbnail = Url.GetCropUrl(post.PostImage, cropAlias: "thumbnail", useCropDimensions: true, htmlEncode: false);
+                                        var thumbnail = post.PostImage.GetCropUrl("thumbnail");
                                         if (thumbnail != null)
                                         {
                                             <img class="thumb" src="@thumbnail" alt="@post.Name" />
