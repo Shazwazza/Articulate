@@ -2,20 +2,23 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Mail;
 using System.Text;
+using System.Threading.Tasks;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
-using HeyRed.MarkdownSharp;
+using MySql.Data.MySqlClient.Memcached;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
 using Umbraco.Web;
-using Umbraco.Web.Routing;
 
 namespace Articulate.ImportExport
 {
@@ -28,10 +31,12 @@ namespace Articulate.ImportExport
         private readonly ITagService _tagService;
         private readonly ILogger _logger;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly IMediaFileSystem _mediaFileSystem;
 
-        public BlogMlExporter(IUmbracoContextAccessor umbracoContextAccessor, ArticulateTempFileSystem fileSystem, IContentService contentService, IContentTypeService contentTypeService, IDataTypeService dataTypeService, ITagService tagService, ILogger logger)
+        public BlogMlExporter(IUmbracoContextAccessor umbracoContextAccessor, IMediaFileSystem mediaFileSystem, ArticulateTempFileSystem fileSystem, IContentService contentService, IContentTypeService contentTypeService, IDataTypeService dataTypeService, ITagService tagService, ILogger logger)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
+            _mediaFileSystem = mediaFileSystem;
             _fileSystem = fileSystem;
             _contentService = contentService;
             _contentTypeService = contentTypeService;
@@ -40,9 +45,14 @@ namespace Articulate.ImportExport
             _logger = logger;
         }
 
+        [Obsolete("Use the other Export method instead")]
         public void Export(
             string fileName,
-            int blogRootNode)
+            int blogRootNode) => Export(blogRootNode);
+
+        public void Export(
+            int blogRootNode,
+            bool exportImagesAsBase64 = false)
         {
             var root = _contentService.GetById(blogRootNode);
             if (root == null)
@@ -109,8 +119,9 @@ namespace Articulate.ImportExport
             AddBlogCategories(blogMlDoc, categoryGroup);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup);
+                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64);
             }
+
             WriteFile(blogMlDoc);
         }
 
@@ -159,7 +170,7 @@ namespace Articulate.ImportExport
             }
         }
 
-        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
+        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup, bool exportImagesAsBase64)
         {
             // TODO: This won't work for variants
 
@@ -238,14 +249,40 @@ namespace Articulate.ImportExport
                             if (!mime.IsNullOrWhiteSpace())
                             {
                                 var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + src.EnsureStartsWith('/'), UriKind.Absolute);
-                                blogMlPost.Attachments.Add(new BlogMLAttachment
+
+                                if (exportImagesAsBase64)
                                 {
-                                    Content = string.Empty, //this is used for embedded resources
-                                    Url = imageUrl,
-                                    ExternalUri = imageUrl,
-                                    IsEmbedded = false,
-                                    MimeType = mime
-                                });
+                                    var mediaPath = _mediaFileSystem.GetFullPath(src);
+                                    using (var mediaFileStream = _mediaFileSystem.OpenFile(mediaPath))
+                                    {
+                                        byte[] bytes;
+                                        using (var memoryStream = new MemoryStream())
+                                        {
+                                            mediaFileStream.CopyTo(memoryStream);
+                                            bytes = memoryStream.ToArray();
+                                        }
+
+                                        blogMlPost.Attachments.Add(new BlogMLAttachment
+                                        {
+                                            Content = Convert.ToBase64String(bytes),
+                                            Url = imageUrl,
+                                            ExternalUri = imageUrl,
+                                            IsEmbedded = true,
+                                            MimeType = mime
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    blogMlPost.Attachments.Add(new BlogMLAttachment
+                                    {
+                                        Content = string.Empty,
+                                        Url = imageUrl,
+                                        ExternalUri = imageUrl,
+                                        IsEmbedded = false,
+                                        MimeType = mime
+                                    });
+                                }
                             }
                         }
                         catch (Exception ex)

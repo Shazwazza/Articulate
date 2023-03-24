@@ -9,5 +9,8 @@ namespace Articulate.Models
         [DataMember(Name = "articulateNode", IsRequired = true)]
         [Required]
         public int ArticulateNodeId { get; set; }
+
+        [DataMember(Name = "exportImagesAsBase64")]
+        public bool ExportImagesAsBase64 { get; set; } = false;
     }
 }

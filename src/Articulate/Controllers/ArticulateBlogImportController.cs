@@ -67,7 +67,7 @@ namespace Articulate.Controllers
 
         public ImportModel PostExportBlogMl(ExportBlogMlModel model)
         {
-            _blogMlExporter.Export("BlogMlExport.xml", model.ArticulateNodeId);
+            _blogMlExporter.Export(model.ArticulateNodeId, model.ExportImagesAsBase64);
 
             return new ImportModel
             {
