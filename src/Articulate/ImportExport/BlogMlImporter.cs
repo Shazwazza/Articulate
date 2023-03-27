@@ -11,7 +11,6 @@ using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
@@ -22,7 +21,6 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Extensions;
-using static Umbraco.Cms.Core.Constants.Conventions;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
 
@@ -46,6 +44,7 @@ namespace Articulate.ImportExport
         private readonly MediaUrlGeneratorCollection _mediaUrlGenerators;
         private readonly PropertyEditorCollection _dataEditors;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly ArticulateTempFileSystem _articulateTempFileSystem;
         private readonly Lazy<IMedia> _articulateRootMediaFolder;
 
         public BlogMlImporter(
@@ -64,7 +63,8 @@ namespace Articulate.ImportExport
             MediaFileManager mediaFileManager,
             MediaUrlGeneratorCollection mediaUrlGenerators,
             PropertyEditorCollection dataEditors,
-            IJsonSerializer jsonSerializer)
+            IJsonSerializer jsonSerializer,
+            ArticulateTempFileSystem articulateTempFileSystem)
         {
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
@@ -82,7 +82,7 @@ namespace Articulate.ImportExport
             _mediaUrlGenerators = mediaUrlGenerators;
             _dataEditors = dataEditors;
             _jsonSerializer = jsonSerializer;
-
+            _articulateTempFileSystem = articulateTempFileSystem;
             _articulateRootMediaFolder = new Lazy<IMedia>(() =>
             {
                 var root = _mediaService.GetRootMedia().FirstOrDefault(x => x.Name == "Articulate" && x.ContentType.Alias.InvariantEquals("folder"));
@@ -151,9 +151,7 @@ namespace Articulate.ImportExport
                             using (var memStream = new MemoryStream())
                             {
                                 xDoc.Save(memStream);
-
-                                throw new NotImplementedException("TODO: Implement file saving");
-                                //_fileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
+                                _articulateTempFileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
                             }
                         }
                     }
@@ -327,7 +325,9 @@ namespace Articulate.ImportExport
 
                 //it exists and we don't wanna overwrite, skip it
                 if (!overwrite && postNode != null)
+                {
                     continue;
+                }
 
                 //create it if it doesn't exist
                 if (postNode == null)
@@ -345,7 +345,9 @@ namespace Articulate.ImportExport
                     var excerpt = post.Excerpt.Content;
 
                     if (post.Excerpt.ContentType == BlogMLContentType.Base64)
+                    {
                         excerpt = Encoding.UTF8.GetString(Convert.FromBase64String(post.Excerpt.Content));
+                    }
 
                     postNode.SetInvariantOrDefaultCultureValue("excerpt", excerpt, postType, _localizationService);
                 }
@@ -355,7 +357,9 @@ namespace Articulate.ImportExport
                 var content = post.Content.Content;
 
                 if (post.Content.ContentType == BlogMLContentType.Base64)
+                {
                     content = Encoding.UTF8.GetString(Convert.FromBase64String(post.Content.Content));
+                }
 
                 if (!regexMatch.IsNullOrWhiteSpace() && !regexReplace.IsNullOrWhiteSpace())
                 {
@@ -375,7 +379,9 @@ namespace Articulate.ImportExport
                     var slug = string.Empty;
                     //we take the post-name BlogML element as slug for the post
                     if (post.Name != null)
+                    {
                         slug = post.Name.Content;
+                    }
                     //If post-name is not available we take the URL and remove the extension
                     else
                     {
@@ -435,7 +441,9 @@ namespace Articulate.ImportExport
 
             var attachment = post.Attachments.FirstOrDefault(p => imageMimeTypes.Contains(p.MimeType));
             if (attachment == null)
+            {
                 return;
+            }
 
             Stream stream = null;
             if (!attachment.Content.IsNullOrWhiteSpace())
@@ -544,7 +552,9 @@ namespace Articulate.ImportExport
             };
 
             if (xmlPost == null)
+            {
                 return;
+            }
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
 
