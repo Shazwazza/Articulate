@@ -4,7 +4,8 @@
   "publicReleaseRefSpec": [
     "^refs/heads/main$", // main releases ship from main
     "^refs/heads/release/v\\d+\\.\\d+$", // servicing releases ship from vX.Y branches
-    "^refs/heads/release/\\d+\\.\\d+\\.\\d+$" // servicing releases ship from X.Y.Z branches
+    "^refs/heads/release/\\d+\\.\\d+\\.\\d+$", // servicing releases ship from X.Y.Z branches
+    "^refs/tags/v\\d+\\.\\d+\\.\\d+" // we also release tags starting with vN.N.N
   ],
   "cloudBuild": {
     "buildNumber": {
