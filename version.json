@@ -12,6 +12,9 @@
       "enabled": true
     }
   },
+  "nugetPackageVersion": {
+    "semVer": 2
+  },
   "release": {
     "branchName": "release/{version}"
   }
