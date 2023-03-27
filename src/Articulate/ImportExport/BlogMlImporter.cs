@@ -116,7 +116,7 @@ namespace Articulate.ImportExport
             {
                 try
                 {
-                    if (!File.Exists(fileName))
+                    if (!_articulateTempFileSystem.FileExists(fileName))
                     {
                         throw new FileNotFoundException("File not found: " + fileName);
                     }
@@ -132,7 +132,7 @@ namespace Articulate.ImportExport
                         throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
                     }
 
-                    using (var stream = File.OpenRead(fileName))
+                    using (var stream = _articulateTempFileSystem.OpenFile(fileName))
                     {
                         var document = new BlogMLDocument();
                         document.Load(stream);
@@ -170,12 +170,12 @@ namespace Articulate.ImportExport
 
         private BlogMLDocument GetDocument(string fileName)
         {
-            if (!File.Exists(fileName))
+            if (!_articulateTempFileSystem.FileExists(fileName))
             {
                 throw new FileNotFoundException("File not found: " + fileName);
             }
 
-            using (var stream = File.OpenRead(fileName))
+            using (var stream = _articulateTempFileSystem.OpenFile(fileName))
             {
                 var document = new BlogMLDocument();
                 document.Load(stream);

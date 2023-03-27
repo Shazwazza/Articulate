@@ -1,17 +1,22 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using Microsoft.Extensions.Logging;
+using Polly.Caching;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Infrastructure.Persistence.Querying;
 using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
@@ -24,6 +29,7 @@ namespace Articulate.ImportExport
         private readonly IDataTypeService _dataTypeService;
         private readonly ITagService _tagService;
         private readonly IPublishedUrlProvider _urlProvider;
+        private readonly ISqlContext _sqlContext;
         private readonly ILogger<BlogMlExporter> _logger;
         private readonly MediaFileManager _mediaFileManager;
         private readonly ArticulateTempFileSystem _articulateTempFileSystem;
@@ -37,6 +43,7 @@ namespace Articulate.ImportExport
             MediaFileManager mediaFileSystem,
             ArticulateTempFileSystem articulateTempFileSystem,
             IPublishedUrlProvider urlProvider,
+            ISqlContext sqlContext,
             ILogger<BlogMlExporter> logger)
         {
             _mediaFileManager = mediaFileSystem;
@@ -47,6 +54,7 @@ namespace Articulate.ImportExport
             _dataTypeService = dataTypeService;
             _tagService = tagService;
             _urlProvider = urlProvider;
+            _sqlContext = sqlContext;
             _logger = logger;
         }
 
@@ -54,53 +62,21 @@ namespace Articulate.ImportExport
             int blogRootNode,
             bool exportImagesAsBase64 = false)
         {
-            var root = _contentService.GetById(blogRootNode);
-            if (root == null)
-            {
-                throw new InvalidOperationException("No node found with id " + blogRootNode);
-            }
+            var root = _contentService.GetById(blogRootNode) ?? throw new InvalidOperationException("No node found with id " + blogRootNode);
 
             if (!root.ContentType.Alias.InvariantEquals("Articulate"))
             {
                 throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
             }
 
-            var postType = _contentTypeService.Get("ArticulateRichText");
-            if (postType == null)
-            {
-                throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
-            }
+            var postType = _contentTypeService.Get("ArticulateRichText") ?? throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
 
-            var archiveContentType = _contentTypeService.Get(ArticulateConstants.ArticulateArchiveContentTypeAlias);
-            var archiveNodes = _contentService.GetPagedOfType(archiveContentType.Id, 0, int.MaxValue, out long totalArchive, null);
-
-            var authorsContentType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias);
-            var authorsNodes = _contentService.GetPagedOfType(authorsContentType.Id, 0, int.MaxValue, out long totalAuthors, null);
-
-            if (totalArchive == 0)
-            {
-                throw new InvalidOperationException("No ArticulateArchive found under the blog root node");
-            }
-
-            if (totalAuthors == 0)
-            {
-                throw new InvalidOperationException("No ArticulateAuthors found under the blog root node");
-            }
-
-            var categoryDataType = _dataTypeService.GetDataType("Articulate Categories");
-            if (categoryDataType == null)
-            {
-                throw new InvalidOperationException("No Articulate Categories data type found");
-            }
+            var categoryDataType = _dataTypeService.GetDataType("Articulate Categories") ?? throw new InvalidOperationException("No Articulate Categories data type found");
 
             var categoryConfiguration = categoryDataType.ConfigurationAs<TagConfiguration>();
             var categoryGroup = categoryConfiguration.Group;
 
-            var tagDataType = _dataTypeService.GetDataType("Articulate Tags");
-            if (tagDataType == null)
-            {
-                throw new InvalidOperationException("No Articulate Tags data type found");
-            }
+            var tagDataType = _dataTypeService.GetDataType("Articulate Tags") ?? throw new InvalidOperationException("No Articulate Tags data type found");
 
             var tagConfiguration = tagDataType.ConfigurationAs<TagConfiguration>();
             var tagGroup = tagConfiguration.Group;
@@ -115,12 +91,25 @@ namespace Articulate.ImportExport
                 Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
             };
 
+            var authorsContentType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias)
+                ?? throw new InvalidOperationException($"Articulate is not installed properly, the {ArticulateConstants.ArticulateAuthorsContentTypeAlias} doc type could not be found");
+            var authorsNodes = _contentService.GetPagedDescendants(root.Id, 0, int.MaxValue, out var total,
+                    _sqlContext.Query<IContent>().Where(x => x.ContentTypeId == authorsContentType.Id),
+                    Ordering.By("CreateDate", Umbraco.Cms.Core.Direction.Descending));
+
             foreach (var authorsNode in authorsNodes)
             {
                 AddBlogAuthors(authorsNode, blogMlDoc);
             }
 
             AddBlogCategories(blogMlDoc, categoryGroup);
+
+            var archiveContentType = _contentTypeService.Get(ArticulateConstants.ArticulateArchiveContentTypeAlias)
+                ?? throw new InvalidOperationException($"Articulate is not installed properly, the {ArticulateConstants.ArticulateArchiveContentTypeAlias} doc type could not be found");
+            var archiveNodes = _contentService.GetPagedDescendants(root.Id, 0, int.MaxValue, out total,
+                    _sqlContext.Query<IContent>().Where(x => x.ContentTypeId == archiveContentType.Id),
+                    Ordering.By("CreateDate", Umbraco.Cms.Core.Direction.Descending));
+
             foreach (var archiveNode in archiveNodes)
             {
                 AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64);
@@ -250,51 +239,59 @@ namespace Articulate.ImportExport
                     {
                         try
                         {
-                            var mediaWithCrops = child.GetValue<MediaWithCrops>("postImage")
-                                ?? throw new InvalidOperationException("Could not resolve MediaWithCrops value for content " + child.Id);
+                            var mediaUdi = child.GetValue<string>("postImage");
 
-                            var mime = BlogMlExporter.ImageMimeType(mediaWithCrops.LocalCrops.Src);
-
-                            if (!mime.IsNullOrWhiteSpace())
+                            if (!string.IsNullOrWhiteSpace(mediaUdi))
                             {
-                                var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + mediaWithCrops.LocalCrops.Src.EnsureStartsWith('/'), UriKind.Absolute);
+                                var udi = (GuidUdi)UdiParser.Parse(mediaUdi);
+                                var media = _mediaService.GetById(udi.Guid)
+                                    ?? throw new InvalidOperationException("No media found by id " + udi);
 
-                                if (exportImagesAsBase64)
+                                var mediaPath = _mediaFileManager.GetMediaPath(
+                                    media.GetValue(Constants.Conventions.Media.File).ToString(),
+                                    media.Key,
+                                    media.Properties[Constants.Conventions.Media.File].PropertyType.Key);
+
+                                var mime = BlogMlExporter.ImageMimeType(mediaPath);
+
+                                if (!mime.IsNullOrWhiteSpace())
                                 {
-                                    var media = _mediaService.GetById(mediaWithCrops.Content.Id)
-                                        ?? throw new InvalidOperationException("No media found by id " + mediaWithCrops.Content.Id);
+                                    var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + mediaPath.EnsureStartsWith('/'), UriKind.Absolute);
 
-                                    using (var mediaFileStream = _mediaFileManager.GetFile(media, out _))
+                                    if (exportImagesAsBase64)
                                     {
-                                        byte[] bytes;
-                                        using (var memoryStream = new MemoryStream())
+                                        using (var mediaFileStream = _mediaFileManager.GetFile(media, out _))
                                         {
-                                            mediaFileStream.CopyTo(memoryStream);
-                                            bytes = memoryStream.ToArray();
-                                        }
+                                            byte[] bytes;
+                                            using (var memoryStream = new MemoryStream())
+                                            {
+                                                mediaFileStream.CopyTo(memoryStream);
+                                                bytes = memoryStream.ToArray();
+                                            }
 
+                                            blogMlPost.Attachments.Add(new BlogMLAttachment
+                                            {
+                                                Content = Convert.ToBase64String(bytes),
+                                                Url = imageUrl,
+                                                ExternalUri = imageUrl,
+                                                IsEmbedded = true,
+                                                MimeType = mime
+                                            });
+                                        }
+                                    }
+                                    else
+                                    {
                                         blogMlPost.Attachments.Add(new BlogMLAttachment
                                         {
-                                            Content = Convert.ToBase64String(bytes),
+                                            Content = string.Empty,
                                             Url = imageUrl,
                                             ExternalUri = imageUrl,
-                                            IsEmbedded = true,
+                                            IsEmbedded = false,
                                             MimeType = mime
                                         });
                                     }
                                 }
-                                else
-                                {
-                                    blogMlPost.Attachments.Add(new BlogMLAttachment
-                                    {
-                                        Content = string.Empty,
-                                        Url = imageUrl,
-                                        ExternalUri = imageUrl,
-                                        IsEmbedded = false,
-                                        MimeType = mime
-                                    });
-                                }
-                            }
+                            }                            
                         }
                         catch (Exception ex)
                         {
