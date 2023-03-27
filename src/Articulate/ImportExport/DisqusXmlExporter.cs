@@ -43,7 +43,7 @@ namespace Articulate.ImportExport
                     new XAttribute(XNamespace.Xmlns + "dc", nsDc),
                     new XAttribute(XNamespace.Xmlns + "wp", nsWp),
                     xChannel));
-            
+
             foreach (var post in posts)
             {
                 var blogMlPost = document.Posts.FirstOrDefault(x => x.Title.Content == post.Name);
@@ -59,7 +59,7 @@ namespace Articulate.ImportExport
 
                 var body = post.GetValue<string>("richText");
                 if (body.IsNullOrWhiteSpace())
-                {
+                {                    
                     body = MarkdownHelper.ToHtml(post.GetValue<string>("markdown"));
                 }
 

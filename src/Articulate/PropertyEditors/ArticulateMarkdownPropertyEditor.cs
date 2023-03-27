@@ -21,10 +21,6 @@ namespace Articulate.PropertyEditors
     // using a reasonable Markdown converter
     public class ArticulateMarkdownEditorValueConverter : MarkdownEditorValueConverter
     {
-        private static readonly MarkdownPipeline s_markdownPipeline = new MarkdownPipelineBuilder()
-            .UseAdvancedExtensions()
-            .Build();
-
         public ArticulateMarkdownEditorValueConverter(HtmlLocalLinkParser localLinkParser, HtmlUrlParser urlParser) : base(localLinkParser, urlParser)
         {
         }
@@ -40,7 +36,7 @@ namespace Articulate.PropertyEditors
             bool preview)
         {
             var md = (string)inter;
-            return new HtmlEncodedString((inter == null) ? string.Empty : Markdown.ToHtml(md, s_markdownPipeline));
+            return new HtmlEncodedString((inter == null) ? string.Empty : MarkdownHelper.ToHtml(md));
         }
     }
 }

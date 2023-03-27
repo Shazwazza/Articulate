@@ -8,6 +8,7 @@ using Argotic.Syndication.Specialized;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
@@ -21,24 +22,30 @@ namespace Articulate.ImportExport
     public class BlogMlExporter
     {
         private readonly IContentService _contentService;
+        private readonly IMediaService _mediaService;
         private readonly IContentTypeService _contentTypeService;
         private readonly IDataTypeService _dataTypeService;
         private readonly ITagService _tagService;
         private readonly IPublishedUrlProvider _urlProvider;
         private readonly ILogger<BlogMlExporter> _logger;
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly MediaFileManager _mediaFileManager;
 
         public BlogMlExporter(
             IUmbracoContextAccessor umbracoContextAccessor,
             IContentService contentService,
+            IMediaService mediaService,
             IContentTypeService contentTypeService,
             IDataTypeService dataTypeService,
             ITagService tagService,
+            MediaFileManager mediaFileSystem,
             IPublishedUrlProvider urlProvider,
             ILogger<BlogMlExporter> logger)
         {
             _umbracoContextAccessor = umbracoContextAccessor;
+            _mediaFileManager = mediaFileSystem;
             _contentService = contentService;
+            _mediaService = mediaService;
             _contentTypeService = contentTypeService;
             _dataTypeService = dataTypeService;
             _tagService = tagService;
@@ -46,9 +53,14 @@ namespace Articulate.ImportExport
             _logger = logger;
         }
 
+        [Obsolete("Use the other Export method instead")]
         public void Export(
             string fileName,
-            int blogRootNode)
+            int blogRootNode) => Export(blogRootNode);
+
+        public void Export(
+            int blogRootNode,
+            bool exportImagesAsBase64 = false)
         {
             var root = _contentService.GetById(blogRootNode);
             if (root == null)
@@ -119,7 +131,7 @@ namespace Articulate.ImportExport
             AddBlogCategories(blogMlDoc, categoryGroup);
             foreach (var archiveNode in archiveNodes)
             {
-                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup);
+                AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64);
             }
 
             WriteFile(blogMlDoc);
@@ -172,7 +184,7 @@ namespace Articulate.ImportExport
             }
         }
 
-        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup)
+        private void AddBlogPosts(IContent archiveNode, BlogMLDocument blogMlDoc, string categoryGroup, string tagGroup, bool exportImagesAsBase64)
         {
             // TODO: This won't work for variants
             const int pageSize = 1000;
@@ -241,23 +253,50 @@ namespace Articulate.ImportExport
                     {
                         try
                         {
-                            var val = child.GetValue<string>("postImage");
-                            var json = JsonConvert.DeserializeObject<JObject>(val);
-                            var src = json.Value<string>("src");
+                            var mediaWithCrops = child.GetValue<MediaWithCrops>("postImage")
+                                ?? throw new InvalidOperationException("Could not resolve MediaWithCrops value for content " + child.Id);
 
-                            var mime = ImageMimeType(src);
+                            var mime = BlogMlExporter.ImageMimeType(mediaWithCrops.LocalCrops.Src);
 
                             if (!mime.IsNullOrWhiteSpace())
                             {
-                                var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + src.EnsureStartsWith('/'), UriKind.Absolute);
-                                blogMlPost.Attachments.Add(new BlogMLAttachment
+                                var imageUrl = new Uri(postAbsoluteUrl.GetLeftPart(UriPartial.Authority) + mediaWithCrops.LocalCrops.Src.EnsureStartsWith('/'), UriKind.Absolute);
+
+                                if (exportImagesAsBase64)
                                 {
-                                    Content = string.Empty, //this is used for embedded resources
-                                    Url = imageUrl,
-                                    ExternalUri = imageUrl,
-                                    IsEmbedded = false,
-                                    MimeType = mime
-                                });
+                                    var media = _mediaService.GetById(mediaWithCrops.Content.Id)
+                                        ?? throw new InvalidOperationException("No media found by id " + mediaWithCrops.Content.Id);
+
+                                    using (var mediaFileStream = _mediaFileManager.GetFile(media, out _))
+                                    {
+                                        byte[] bytes;
+                                        using (var memoryStream = new MemoryStream())
+                                        {
+                                            mediaFileStream.CopyTo(memoryStream);
+                                            bytes = memoryStream.ToArray();
+                                        }
+
+                                        blogMlPost.Attachments.Add(new BlogMLAttachment
+                                        {
+                                            Content = Convert.ToBase64String(bytes),
+                                            Url = imageUrl,
+                                            ExternalUri = imageUrl,
+                                            IsEmbedded = true,
+                                            MimeType = mime
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    blogMlPost.Attachments.Add(new BlogMLAttachment
+                                    {
+                                        Content = string.Empty,
+                                        Url = imageUrl,
+                                        ExternalUri = imageUrl,
+                                        IsEmbedded = false,
+                                        MimeType = mime
+                                    });
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -275,7 +314,7 @@ namespace Articulate.ImportExport
             } while (posts.Length == pageSize);
         }
 
-        private string ImageMimeType(string src)
+        private static string ImageMimeType(string src)
         {
             var ext = Path.GetExtension(src)?.ToLowerInvariant();
             switch (ext)
