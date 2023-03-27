@@ -47,7 +47,7 @@
 
   <ItemGroup>
     <None Remove="App_Plugins\Articulate\BackOffice\assets\themes.css" />
-    <None Remove="Packaging\package.xml" />
+    <None Remove="Packaging\package.zip" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,7 +69,7 @@
     <EmbeddedResource Include="Packaging\author.jpg" />
     <EmbeddedResource Include="Packaging\banner.jpg" />
     <EmbeddedResource Include="Packaging\logo.png" />
-    <EmbeddedResource Include="Packaging\package.xml" />
+    <EmbeddedResource Include="Packaging\package.zip" />
     <EmbeddedResource Include="Packaging\post1.jpg" />
     <EmbeddedResource Include="Packaging\post2.jpg" />
   </ItemGroup>
@@ -90,9 +90,9 @@
     <PackageReference Include="Markdig" Version="0.31.0" />
     <PackageReference Include="Argotic.Core" Version="3000.0.3" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />    
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.0.1" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.0.1" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="10.0.1" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.1.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.1.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="10.1.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="6.0.14" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.0" />
