@@ -12,12 +12,13 @@
     <Authors>Shannon Deminick</Authors>
     <Description>A wonderful Blog engine built on Umbraco</Description>
     <PackageIcon>Icon-transparent.png</PackageIcon>
-    <PackageTags>blog umbraco oss tags markdown richtext</PackageTags>
+    <PackageTags>blog umbraco umbraco-marketplace oss tags markdown richtext</PackageTags>
     <PackageProjectUrl>https://github.com/Shazwazza/Articulate</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Shannon Deminick</Company>
     <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
+    <PackageReadmeFile>../../README.md</PackageReadmeFile>
   </PropertyGroup>
   
   <!--
