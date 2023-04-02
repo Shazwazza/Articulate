@@ -96,7 +96,7 @@
     <PackageReference Include="Umbraco.Cms.Core" Version="10.1.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="6.0.14" />
-    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.0" />
+    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.0.0" />
   </ItemGroup>
   
   <ItemGroup>
