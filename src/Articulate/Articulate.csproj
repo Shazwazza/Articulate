@@ -19,6 +19,7 @@
     <Company>Shannon Deminick</Company>
     <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
     <PackageReadmeFile>../../README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   
   <!--
@@ -106,6 +107,10 @@
   <!-- Uses Package Icon on disk in repo -->
   <ItemGroup>
     <None Include="..\..\assets\Icon-transparent.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
