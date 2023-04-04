@@ -37,7 +37,6 @@ namespace Articulate.Components
             services.AddSingleton<RouteCacheRefresherFilter>();
             services.AddSingleton<ArticulateFrontEndFilterConvention>();
 
-            builder.UrlProviders().Append<VirtualNodeUrlProvider>();
             builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
 
             builder.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
