@@ -389,15 +389,14 @@ namespace Articulate.MetaWeblog
                 content.SetInvariantOrDefaultCultureValue("excerpt", post.mt_excerpt, contentType, _localizationService);
             }
 
-            // TODO: This will be avilable when this PR is merged: https://github.com/shawnwildermuth/MetaWeblog/pull/16
-            //if (post.AllowComments == 1)
-            //{
-            //    content.SetInvariantOrDefaultCultureValue("enableComments", 1, contentType, _localizationService);
-            //}
-            //else if (post.AllowComments == 2)
-            //{
-            //    content.SetInvariantOrDefaultCultureValue("enableComments", 0, contentType, _localizationService);
-            //}
+            if (post.mt_allow_comments == 1)
+            {
+                content.SetInvariantOrDefaultCultureValue("enableComments", 1, contentType, _localizationService);
+            }
+            else if (post.mt_allow_comments == 2)
+            {
+                content.SetInvariantOrDefaultCultureValue("enableComments", 0, contentType, _localizationService);
+            }
 
             content.AssignInvariantOrDefaultCultureTags("categories", post.categories, contentType, _localizationService, _dataTypeService, _propertyEditors, _jsonSerializer);
             var tags = post.mt_keywords
