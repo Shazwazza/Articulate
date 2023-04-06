@@ -78,6 +78,6 @@ If you wish to re-force the package installation, you can remove the Articulate 
 
 ## Copyright & Licence
 
-&copy; 2019 by Shannon Deminick
+&copy; 2023 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
