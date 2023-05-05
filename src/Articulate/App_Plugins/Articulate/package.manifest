@@ -2,7 +2,6 @@
     "javascript": [
         "~/App_Plugins/Articulate/BackOffice/PackageOptions/options.controller.js",
         "~/App_Plugins/Articulate/BackOffice/PackageOptions/articulatemgmt.controller.js",
-        "~/App_Plugins/Articulate/BackOffice/PackageOptions/datainstaller.controller.js",
         "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.controller.js",
         "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.controller.js",
         "~/App_Plugins/Articulate/BackOffice/PackageOptions/themes.controller.js",
