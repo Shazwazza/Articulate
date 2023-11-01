@@ -1,0 +1,31 @@
+@using Articulate.Models
+@using Umbraco.Extensions
+
+@model IImageModel
+@{
+    var postBg = "none";
+
+    if (Model.Image != null)
+    {
+        var bgUrl = Model.Image.GetCropUrl("wide");
+        if (bgUrl != null)
+        {
+            postBg = "url('" + bgUrl + "')";
+        }
+
+        <div class="mdl-card__media mdl-color-text--grey-50"
+             style="background-image: @(postBg);">
+            <h3>
+                <a href="@Model.Url">@Model.Name</a>
+            </h3>
+        </div>
+    }
+    else
+    {
+        <div class="mdl-card__title mdl-color-text--grey-50">
+            <h3 class="quote">
+                <a href="@Model.Url">@Model.Name</a>
+            </h3>
+        </div>
+    }
+}

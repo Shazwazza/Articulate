@@ -1,0 +1,28 @@
+@using Articulate
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Web.Common.Views
+@using Umbraco.Extensions
+@inherits UmbracoViewPage
+
+@{
+	var absUrl = Model.Url(mode: UrlMode.Absolute);
+}
+
+<footer class="mdl-mini-footer">
+    <div class="mdl-mini-footer--left-section">
+        <a title="Share on Facebook" target="_blank" href="http://www.facebook.com/sharer.php?u=@absUrl"
+           class="mdl-mini-footer--social-btn social-btn social-btn__blogger">
+            <span class="visuallyhidden">Facebook</span>
+        </a>
+        <a title="Share on Twitter" target="_blank" href="http://twitter.com/share?text=@Model.Name&amp;url=@absUrl"
+           class="mdl-mini-footer--social-btn social-btn social-btn__twitter">
+            <span class="visuallyhidden">Twitter</span>
+        </a>
+    </div>
+    <div class="mdl-mini-footer--right-section">
+        <button class="mdl-mini-footer--social-btn social-btn__share">
+            <i class="material-icons" role="presentation">share</i>
+            <span class="visuallyhidden">share</span>
+        </button>
+    </div>
+</footer>

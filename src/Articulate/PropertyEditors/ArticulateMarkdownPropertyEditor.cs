@@ -1,10 +1,11 @@
 using Markdig;
-using System.Web;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors;
-using Umbraco.Web.PropertyEditors;
-using Umbraco.Web.PropertyEditors.ValueConverters;
+using Microsoft.AspNetCore.Html;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Core.Templates;
 
 namespace Articulate.PropertyEditors
 {
@@ -12,7 +13,7 @@ namespace Articulate.PropertyEditors
     [DataEditor("Articulate.MarkdownEditor", "Articulate Markdown editor", "markdowneditor", ValueType = "TEXT")]
     public class ArticulateMarkdownPropertyEditor : MarkdownPropertyEditor
     {
-        public ArticulateMarkdownPropertyEditor(ILogger logger) : base(logger)
+        public ArticulateMarkdownPropertyEditor(IDataValueEditorFactory dataValueEditorFactory, IIOHelper ioHelper) : base(dataValueEditorFactory, ioHelper)
         {
         }
     }
@@ -20,6 +21,10 @@ namespace Articulate.PropertyEditors
     // using a reasonable Markdown converter
     public class ArticulateMarkdownEditorValueConverter : MarkdownEditorValueConverter
     {
+        public ArticulateMarkdownEditorValueConverter(HtmlLocalLinkParser localLinkParser, HtmlUrlParser urlParser) : base(localLinkParser, urlParser)
+        {
+        }
+
         public override bool IsConverter(IPublishedPropertyType propertyType)
             => "Articulate.MarkdownEditor" == propertyType.EditorAlias;
 
@@ -31,7 +36,7 @@ namespace Articulate.PropertyEditors
             bool preview)
         {
             var md = (string)inter;
-            return new HtmlString((inter == null) ? string.Empty : MarkdownHelper.ToHtml(md));
+            return new HtmlEncodedString((inter == null) ? string.Empty : MarkdownHelper.ToHtml(md));
         }
     }
 }

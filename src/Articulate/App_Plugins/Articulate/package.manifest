@@ -1,0 +1,17 @@
+{
+    "javascript": [
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/options.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/articulatemgmt.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogimporter.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/blogexporter.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PackageOptions/themes.controller.js",
+        "~/App_Plugins/Articulate/BackOffice/PropertyEditors/themepicker.controller.js"
+    ],
+    "dashboards": [
+        {
+            "alias": "articulate",
+            "view": "~/App_Plugins/Articulate/BackOffice/PackageOptions/package-options.html",
+            "sections": [ "settings" ]
+        }
+    ]
+}

@@ -1,18 +1,39 @@
-﻿using System.Web.Mvc;
 using System.Xml.Linq;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Web;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Articulate.Controllers
 {
-    public class OpenSearchController : PluginController
+    public class OpenSearchController : RenderController
     {
+        private readonly IPublishedValueFallback _publishedValueFallback;
+        private readonly IVariationContextAccessor _variationContextAccessor;
+        private readonly UmbracoHelper _umbraco;
+
+        public OpenSearchController(
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            UmbracoHelper umbraco,
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor)
+            :base(logger, compositeViewEngine, umbracoContextAccessor)
+        {
+            _publishedValueFallback = publishedValueFallback;
+            _variationContextAccessor = variationContextAccessor;
+            _umbraco = umbraco;
+        }
+
         [HttpGet]
         public ActionResult Index(int id)
         {
-            //TODO: Seems hanslemans is slightly wrong compared to the other ones found on the interwebs
+            //NOTE: Seems hanslemans is slightly wrong compared to the other ones found on the interwebs
 
             //<opensearchdescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
             //  <shortname>Hanselman Search</shortname>
@@ -42,13 +63,13 @@ namespace Articulate.Controllers
             //      template="http://aaron.pk/search?q={searchTerms}"/>
             //</OpenSearchDescription>
 
-            var node = Umbraco.Content(id);
+            var node = _umbraco.Content(id);
             if (node == null)
             {
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             }
 
-            var model = new MasterModel(node);
+            var model = new MasterModel(node, _publishedValueFallback, _variationContextAccessor);
             
             var searchTemplateUrl = Url.ArticulateSearchUrl(model, includeDomain:true) + "?term={searchTerms}";
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+  "version": "5.0.0",
+  "publicReleaseRefSpec": [
+    "^refs/heads/main$", // main releases ship from main
+    "^refs/heads/release/v\\d+\\.\\d+$", // servicing releases ship from vX.Y branches
+    "^refs/heads/release/\\d+\\.\\d+\\.\\d+$", // servicing releases ship from X.Y.Z branches
+    "^refs/tags/v\\d+\\.\\d+\\.\\d+" // we also release tags starting with vN.N.N
+  ],
+  "cloudBuild": {
+    "buildNumber": {
+      "enabled": true
+    }
+  },
+  "nugetPackageVersion": {
+    "semVer": 2
+  },
+  "release": {
+    "branchName": "release/{version}"
+  }
+}

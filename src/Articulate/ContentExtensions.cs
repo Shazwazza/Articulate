@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Umbraco.Core;
-using Umbraco.Core.Models;
-using Umbraco.Core.Services;
-using Umbraco.Web.PublishedCache;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Serialization;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
+using Umbraco.Extensions;
 
 namespace Articulate
 {
@@ -76,43 +77,15 @@ namespace Articulate
             ILocalizationService localizationService)
         {
             if (contentType is null)
+            {
                 throw new ArgumentNullException(nameof(contentType));
+            }
 
             var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
 
             content.SetValue(
                 propertyTypeAlias,
                 value,
-                variesByCulture ? localizationService.GetDefaultLanguageIsoCode() : null);
-        }
-
-        /// <summary>
-        /// Sets the file value for a property type with the correct variance
-        /// </summary>
-        /// <remarks>
-        /// Used to safely set a value for a property taking into account if the property type varies by culture/segment.
-        /// If varying by culture it will assign the value to the default language only.
-        /// If varying by segment it will assign the value to no segment.
-        /// </remarks>
-        public static void SetInvariantOrDefaultCultureValue(
-            this IContentBase content,
-            IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
-            string propertyTypeAlias,
-            string filename,
-            Stream filestream,
-            IContentTypeComposition contentType,
-            ILocalizationService localizationService)
-        {
-            if (contentType is null)
-                throw new ArgumentNullException(nameof(contentType));
-
-            var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
-
-            content.SetValue(
-                contentTypeBaseServiceProvider,
-                propertyTypeAlias,
-                filename,
-                filestream,
                 variesByCulture ? localizationService.GetDefaultLanguageIsoCode() : null);
         }
 
@@ -130,6 +103,9 @@ namespace Articulate
             IEnumerable<string> tags,
             IContentTypeComposition contentType,
             ILocalizationService localizationService,
+            IDataTypeService dataTypeService,
+            PropertyEditorCollection dataEditors,
+            IJsonSerializer jsonSerializer,
             bool merge = false)
         {
             if (contentType is null)
@@ -138,6 +114,9 @@ namespace Articulate
             var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
 
             content.AssignTags(
+                dataEditors,
+                dataTypeService,
+                jsonSerializer,
                 propertyTypeAlias,
                 tags,
                 merge,

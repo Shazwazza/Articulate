@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Web;
-using Umbraco.Core;
+using Umbraco.Extensions;
 
 namespace Articulate
 {

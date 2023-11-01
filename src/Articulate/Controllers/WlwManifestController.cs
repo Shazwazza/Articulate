@@ -1,11 +1,26 @@
-﻿using System.Web.Mvc;
 using System.Xml.Linq;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Articulate.Controllers
 {
-    public class WlwManifestController : PluginController
+    public class WlwManifestController : RenderController
     {
+        private readonly UmbracoHelper _umbraco;
+
+        public WlwManifestController(            
+            UmbracoHelper umbraco,
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor)
+            : base(logger, compositeViewEngine, umbracoContextAccessor)
+        {
+            _umbraco = umbraco;
+        }
 
         //http://msdn.microsoft.com/en-us/library/bb463260.aspx
         //http://msdn.microsoft.com/en-us/library/bb463263.aspx
@@ -13,10 +28,10 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.Content(id);
+            var node = _umbraco.Content(id);
             if (node == null)
             {
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             }
 
             var ns = XNamespace.Get("http://schemas.microsoft.com/wlw/manifest/weblog");

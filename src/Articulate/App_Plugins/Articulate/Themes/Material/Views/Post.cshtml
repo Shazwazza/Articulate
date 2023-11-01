@@ -1,0 +1,98 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Cms.Web.Common.Views
+@using Umbraco.Extensions
+
+@inherits UmbracoViewPage<Articulate.Models.PostModel>
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssWrapperClass = "demo-blog--blogpost";
+}
+
+@section header
+{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" />
+}
+
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url()" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
+<div class="demo-blog__posts mdl-grid">
+    <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+        @await Html.ThemedPartialAsync(Model, "PostImageHeader", Model)
+
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+            @await Html.ThemedPartialAsync(Model, "AuthorInfo", Model)
+            <div class="section-spacer"></div>
+            <div class="meta__favorites">
+                <a class="mdl-color-text--grey-700" href="@Model.Url()#disqus_thread" data-disqus-identifier="@Model.Key"></a>
+                <a class="mdl-color-text--grey-700" href="@Model.Url()#disqus_thread" data-disqus-identifier="@Model.Key"><i class="material-icons" role="presentation">comment</i></a>
+                <span class="visuallyhidden">comments</span>
+            </div>
+
+        </div>
+        <div class="mdl-color-text--grey-700 mdl-card__supporting-text">
+            @Model.Body
+        </div>
+        <div class="mdl-color-text--grey-7400 mdl-card__supporting-text meta">
+            <div class="post-tags">
+                <div>
+                    <span>Tags:</span>
+                    @Html.ListTags(Model,
+                        @<a class="mdl-color-text--accent" href="@Url.ArticulateTagUrl(Model, @item)">@item</a>)
+                </div>
+                <div>
+                    <span>Categories:</span>
+                    @Html.ListCategories(Model,
+                        @<a class="mdl-color-text--accent" href="@Url.ArticulateCategoryUrl(Model, @item)">@item</a>, " | ")
+                </div>
+            </div>
+        </div>
+        @if (Model.EnableComments)
+        {
+            <div class="mdl-card__supporting-text mdl-color--grey-200">
+
+
+                @await Html.ThemedPartialAsync(Model, "CommentsDisqus")
+                @*@await Html.ThemedPartialAsync(Model, "CommentsFacebook")*@
+
+            </div>
+
+        }
+
+
+    </div>
+
+    @{
+        var next = Model.Next();
+        var prev = Model.Previous();
+
+    }
+    <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+        @if (next != null)
+        {
+            <a href="@next.Url()" class="demo-nav__button">
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                Newer
+            </a>
+        }
+        <div class="section-spacer"></div>
+        @if (prev != null)
+        {
+            <a href="@prev.Url()" class="demo-nav__button">
+                Older
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                    <i class="material-icons">arrow_forward</i>
+                </button>
+            </a>
+        }
+    </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" integrity="sha512-xR+IAyN+t9EBIOOJw5m83FTVMDsPd63IhJ3ElP4gmfUFnQlX9+eWGLp3P4t3gIjpo2Z1JzqtW/5cjgn+oru3yQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-zc7WDnCM3aom2EziyDIRAtQg1mVXLdILE09Bo+aE1xk0AM2c2cVLfSW9NrxE5tKTX44WBY0Z2HClZ05ur9vB6A==" crossorigin="anonymous"></script>

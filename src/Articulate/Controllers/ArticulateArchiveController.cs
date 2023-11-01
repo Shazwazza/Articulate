@@ -1,12 +1,17 @@
-﻿using System;
-using System.Web.Mvc;
+using System;
+using System.Collections.Generic;
 using Articulate.Models;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
@@ -15,10 +20,20 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateArchiveController : ListControllerBase
     {
-        public ArticulateArchiveController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper)
-            : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        public ArticulateArchiveController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedUrlProvider publishedUrlProvider,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            UmbracoHelper umbraco)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
+            Umbraco = umbraco;
         }
+
+        public UmbracoHelper Umbraco { get; }
 
         /// <summary>
         /// Declare new Index action with optional page number
@@ -26,42 +41,40 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Index(ContentModel model, int? p)
-        {
-            return RenderView(model, p);
-        }
+        public IActionResult Index(int? p) => RenderView(new ContentModel(CurrentPage), p);
 
-        /// <summary>
+        // <summary>
         /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(ContentModel model)
-        {
-            return RenderView(model);
-        }
+        public override IActionResult Index() => Index(0);
 
-        private ActionResult RenderView(IContentModel model, int? p = null)
+        private IActionResult RenderView(IContentModel model, int? p = null)
         {
-            var archive = new MasterModel(model.Content);
+            var archive = new MasterModel(model.Content, PublishedValueFallback, VariationContextAccessor);
 
             // redirect to root node when "redirectArchive" is configured
             if (archive.RootBlogNode.Value<bool>("redirectArchive"))
             {
-                return RedirectPermanent(archive.RootBlogNode.Url);
+                return RedirectPermanent(archive.RootBlogNode.Url());
             }
 
             //Get post count by xpath is much faster than iterating all children to get a count
             var count = Umbraco.GetPostCount(archive.Id);
 
-            int pageSize;
-            if(!Int32.TryParse(archive.RootBlogNode.Value<string>("pageSize"), out pageSize))
+            if (!int.TryParse(archive.RootBlogNode.Value<string>("pageSize"), out int pageSize))
             {
                 pageSize = 10;
             }
 
-            var posts = Umbraco.GetRecentPostsByArchive(archive, 1, pageSize);
+            IEnumerable<PostModel> posts = Umbraco.GetRecentPostsByArchive(
+                archive,
+                1,
+                pageSize,
+                PublishedValueFallback,
+                VariationContextAccessor);
 
             return GetPagedListView(archive, archive, posts, count, null);          
         }

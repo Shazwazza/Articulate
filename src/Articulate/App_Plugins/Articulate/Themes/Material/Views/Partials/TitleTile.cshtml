@@ -1,0 +1,45 @@
+@using Articulate
+@using Articulate.Models
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.Extensions.Options
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Web.Common.Security
+@using Umbraco.Cms.Web.Common.Views
+@inject BackOfficeUserManager backOfficeUserManager
+@inject IOptionsMonitor<CookieAuthenticationOptions> backOfficeCookieOptions
+
+@inherits UmbracoViewPage<IMasterModel>
+
+<div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
+    @{
+		// This code checks if the back office user is logged in.
+		// TODO: Move this to a service.
+		var backOfficeLogggedIn = false;
+		var cookieOptions = backOfficeCookieOptions.Get(Constants.Security.BackOfficeAuthenticationType);
+		var cookie = Context.Request.Cookies[cookieOptions.Cookie.Name];
+		if (cookie != null)
+		{
+			var unprotected = cookieOptions.TicketDataFormat.Unprotect(cookie);			
+			backOfficeLogggedIn = unprotected != null && unprotected.AuthenticationScheme == Constants.Security.BackOfficeAuthenticationType;
+		}		
+    }
+
+    @if (backOfficeLogggedIn)
+    {
+        <a href="@Url.ArticulateCreateBlogEntryUrl(Model)" rel="nofollow" title="Create new blog post"
+           class="new-post mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--primary">
+            <i class="material-icons mdl-color-text--white" role="presentation">add</i>
+            <span class="visuallyhidden">add</span>
+        </a>
+    }
+    <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
+        <a href="@Url.ArticulateRootUrl(Model)"><img src="@Model.BlogLogo" /></a>
+    </div>
+    <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
+        <div>
+            <strong>@Model.BlogTitle</strong>
+        </div>
+
+        @await Html.ThemedPartialAsync(Model, "Menu", Model)
+    </div>
+</div>

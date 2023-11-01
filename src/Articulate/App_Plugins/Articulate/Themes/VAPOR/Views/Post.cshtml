@@ -1,0 +1,100 @@
+@using Articulate
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Extensions
+
+@model global::Articulate.Models.PostModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssBodyClass = "post-template";
+	var absUrl = Model.Url(mode: UrlMode.Absolute);
+}
+
+@section header
+{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" />
+}
+
+<main class="content" role="main">
+
+    <article class="post">
+
+        <header>
+            <h1 class="post-title">@Model.Name</h1>
+            <div class="post-meta">
+                <time datetime="@Model.PublishedDate.ToString("yyyy-MM-dd")">
+                    @Model.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                </time>
+            </div>
+            @await Html.ThemedPartialAsync(Model, "PostTags")
+        </header>
+
+        <section class="post-content">
+
+            @if (!Model.CroppedPostImageUrl.IsNullOrWhiteSpace())
+            {
+                <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
+            }
+
+            <div>
+                @Model.Body
+            </div>
+
+        </section>
+
+        <section class="share">
+            <p class="info prompt">Share this post</p>
+            <a href="http://twitter.com/share?text=@Model.Name&url=@absUrl"
+               onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=@absUrl"
+               onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square"></i> <span class="hidden">Facebook</span>
+            </a>
+        </section>
+
+        <footer class="post-footer">
+
+            @if (!Model.Author.Name.IsNullOrWhiteSpace())
+            {
+                <section class="author">
+                    @if (Model.Author.Image != null)
+                    {
+                        var thumbnail = Model.Author.Image.GetCropUrl("blogPost");
+                        if (thumbnail != null)
+                        {
+                            <div class="authorimage" style="background: url(@thumbnail)"></div>
+                        }
+                    }
+                    <p class="attr">Author</p>
+                    <h4>
+                        @if (!Model.Author.BlogUrl.IsNullOrWhiteSpace())
+                        {
+                            <a href="@Model.Author.BlogUrl">@Model.Author.Name</a>
+                        }
+                        else
+                        {
+                            @Model.Author.Name
+                        }
+                    </h4>
+                    @if (!Model.Author.Bio.IsNullOrWhiteSpace())
+                    {
+                        <p class="bio">@Model.Author.Bio</p>
+                    }
+                </section>
+            }
+
+        </footer>
+
+        @if (Model.EnableComments)
+        {
+            @await Html.ThemedPartialAsync(Model, "CommentsDisqus")
+            @*@await Html.ThemedPartialAsync(Model, "CommentsFacebook")*@
+        }
+
+    </article>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" integrity="sha512-xR+IAyN+t9EBIOOJw5m83FTVMDsPd63IhJ3ElP4gmfUFnQlX9+eWGLp3P4t3gIjpo2Z1JzqtW/5cjgn+oru3yQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-zc7WDnCM3aom2EziyDIRAtQg1mVXLdILE09Bo+aE1xk0AM2c2cVLfSW9NrxE5tKTX44WBY0Z2HClZ05ur9vB6A==" crossorigin="anonymous"></script>

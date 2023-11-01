@@ -1,22 +1,21 @@
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using System.Web;
-using System.Web.Http.Routing;
-using Umbraco.Core;
 
 namespace Articulate.Controllers
 {
     internal static class UrlHelperExtensions
     {
-        internal static string GetTreePathFromFilePath(this UrlHelper urlHelper, string virtualPath, string basePath = "")
+        internal static string GetTreePathFromFilePath(this IUrlHelper urlHelper, string virtualPath, string basePath = "")
         {
             //This reuses the Logic from umbraco.cms.helpers.DeepLink class
             //to convert a filepath to a tree syncing path string. 
 
             //removes the basepath from the path 
             //and normalises paths - / is used consistently between trees and editors
-            basePath = basePath.TrimStart("~");
-            virtualPath = virtualPath.TrimStart("~");
+            basePath = basePath.TrimStart('~');
+            virtualPath = virtualPath.TrimStart('~');
             virtualPath = virtualPath.Substring(basePath.Length);
             virtualPath = virtualPath.Replace('\\', '/');
 
@@ -35,7 +34,7 @@ namespace Articulate.Controllers
                     sb.Append(path);
                 }
             }
-            return sb.ToString().TrimEnd(",");
+            return sb.ToString().TrimEnd(',');
         }
     }
 }

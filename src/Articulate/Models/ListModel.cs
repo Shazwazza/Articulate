@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Articulate.Models
 {
@@ -14,7 +13,6 @@ namespace Articulate.Models
     {
         private readonly IEnumerable<IPublishedContent> _listItems;
         private IEnumerable<PostModel> _resolvedList;
-        private readonly PagerModel _pager;
 
         /// <summary>
         /// Constructor accepting an explicit list of child items
@@ -26,15 +24,20 @@ namespace Articulate.Models
         /// Default sorting by published date will be disabled for this list model, it is assumed that the list items will
         /// already be sorted.
         /// </remarks>
-        public ListModel(IPublishedContent content, IEnumerable<IPublishedContent> listItems, PagerModel pager)
-            : base(content)
+        public ListModel(
+            IPublishedContent content,
+            PagerModel pager,
+            IEnumerable<IPublishedContent> listItems,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor)
+            : base(content, publishedValueFallback, variationContextAccessor)
         {
             
             if (content == null) throw new ArgumentNullException(nameof(content));
             if (listItems == null) throw new ArgumentNullException(nameof(listItems));
             if (pager == null) throw new ArgumentNullException(nameof(pager));
 
-            _pager = pager;
+            Pages = pager;
             _listItems = listItems;
             if (content.ContentType.Alias.Equals(ArticulateConstants.ArticulateArchiveContentTypeAlias))
                 PageTitle = BlogTitle + " - " + BlogDescription;
@@ -42,15 +45,17 @@ namespace Articulate.Models
                 PageTags = Name;
         }        
 
-        public ListModel(IPublishedContent content)
-            : base(content)
+        public ListModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor)
+            : base(content, publishedValueFallback, variationContextAccessor)
         {
         }
-        
+
+        public IImageUrlGenerator ImageUrlGenerator { get; }
+
         /// <summary>
         /// The pager model
         /// </summary>
-        public PagerModel Pages => _pager;
+        public PagerModel Pages { get; }
 
         /// <summary>
         /// Strongly typed access to the list of blog posts
@@ -65,17 +70,16 @@ namespace Articulate.Models
 
                 if (_listItems == null)
                 {
-                    _resolvedList = base.ChildrenForAllCultures.Select(x => new PostModel(x)).ToArray();
+                    _resolvedList = base.ChildrenForAllCultures.Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor)).ToArray();
                     return _resolvedList;
                 }
 
-
-                if (_listItems != null && _pager != null)
+                if (_listItems != null && Pages != null)
                 {
                     _resolvedList = _listItems
                     //Skip will already be done in this case, but we'll take again anyways just to be safe                    
-                        .Take(_pager.PageSize)
-                        .Select(x => new PostModel(x))
+                        .Take(Pages.PageSize)
+                        .Select(x => new PostModel(x, PublishedValueFallback, VariationContextAccessor))
                         .ToArray();
                 }
                 else

@@ -1,0 +1,74 @@
+<div ng-controller="Articulate.Dashboard.ThemeManagement as vm">
+
+    <div class="umb-panel-group__details-check-title">
+        <div class="umb-panel-group__details-check-description">
+            You can duplicate any of Articulate's built in <a href="https://github.com/Shazwazza/Articulate/wiki/Installed-Themes">themes</a>
+            to customize them yourself.
+            The duplicated theme will be copied to the ~ /Views/Articulate folder where you can edit it.
+            Then you can select this theme from the themes drop down on your Articulate root node to use it.
+        </div>
+    </div>
+
+    <ng-form name="vm.articulateThemeForm" novalidate val-form-manager>
+
+        <umb-box>
+            <umb-box-content>
+
+                <umb-control-group alias="theme" description="What theme do you want to copy?"
+                                   label="Choose a theme to copy">
+
+                    <div class="umb-packages">
+                        <div class="umb-package" ng-repeat="theme in vm.themes">
+                            <button type="button" class="umb-package-link" ng-click="vm.select(theme)" ng-class="{ selected: theme.selected }">
+
+                                <div class="flex flex-column">
+                                    <div class="umb-package-icon">
+                                        <div class="articulate-theme articulate-theme-{{theme.name}}">
+                                        </div>
+                                    </div>
+
+                                    <div class="umb-package-info">
+                                        <div class="umb-package-name ng-binding">{{theme.name}}</div>
+                                    </div>
+                                </div>
+
+                            </button>
+                        </div>
+                    </div>
+
+                </umb-control-group>
+
+                <umb-control-group alias="newThemeName"
+                                   description="Your new theme name"
+                                   label="Your new theme name">
+                    <input type="text"
+                           class=""
+                           name="newThemeName"
+                           ng-model="vm.newThemeName"
+                           required
+                           no-dirty-check
+                           val-server-field="value" />
+                    <span ng-messages="vm.articulateThemeForm.newThemeName.$error" show-validation-on-submit>
+                        <span class="help-inline" ng-message="required"><localize key="required">Required</localize></span>
+                        <span class="help-inline" ng-message="valServerField">{{vm.articulateThemeForm.newThemeName.errorMsg}}</span>
+                    </span>
+
+                </umb-control-group>
+
+                <div>
+                    <umb-button type="button"
+                                action="vm.copyTheme()"
+                                state="vm.buttonState"
+                                label="Copy"
+                                button-style="action">
+                    </umb-button>
+
+                    <div ng-show="vm.status === 'done'">
+                        <h4>Your theme has been created at ~/Views/Articulate/{{vm.newThemeName}}</h4>
+                    </div>
+                </div>
+
+            </umb-box-content>
+        </umb-box>
+    </ng-form>
+</div>

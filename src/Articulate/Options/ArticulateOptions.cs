@@ -1,5 +1,5 @@
 ﻿using System;
-using Umbraco.Core;
+using Umbraco.Extensions;
 
 namespace Articulate.Options
 {
@@ -11,13 +11,9 @@ namespace Articulate.Options
         /// <summary>
         /// Constructor sets defaults
         /// </summary>
-        public ArticulateOptions(
-            bool autoGenerateExcerpt = true, 
-            Func<string, string> generateExcerpt = null)
+        public ArticulateOptions()
         {
-            AutoGenerateExcerpt = autoGenerateExcerpt;
-
-            GenerateExcerpt = generateExcerpt ?? (val => val == null
+            GenerateExcerpt = (val => val == null
                 ? string.Empty
                 : string.Join("", val.StripHtml()
                     .DecodeHtml()
@@ -25,17 +21,15 @@ namespace Articulate.Options
                     .TruncateAtWord(200, "")));
         }
 
-        public static ArticulateOptions Default { get; } = new ArticulateOptions();
-        
         /// <summary>
         /// Default is true and will generate an excerpt if it is blank, will be a truncated version based on the post content
         /// </summary>
-        public bool AutoGenerateExcerpt { get; }
+        public bool AutoGenerateExcerpt { get; set; } = true;
 
         /// <summary>
         /// The default generator will truncate the post content with 200 chars
         /// </summary>
-        public Func<string, string> GenerateExcerpt { get; }
+        public Func<string, string> GenerateExcerpt { get; set; }
         
     }
 }

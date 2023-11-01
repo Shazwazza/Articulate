@@ -1,12 +1,7 @@
 using System;
 using System.Linq;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors.ValueConverters;
-using Umbraco.Web;
-using Umbraco.Web.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Extensions;
 
 namespace Articulate.Models
 {
@@ -15,9 +10,11 @@ namespace Articulate.Models
     /// </summary>
     public class MasterModel : PublishedContentWrapped, IMasterModel
     {
-        public MasterModel(IPublishedContent content)
-            : base(content)
+        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor)
+            : base(content, publishedValueFallback)
         {
+            PublishedValueFallback = publishedValueFallback;
+            VariationContextAccessor = variationContextAccessor;
         }
         
         /// <summary>
@@ -25,7 +22,7 @@ namespace Articulate.Models
         /// </summary>
         public string Theme
         {
-            get => _theme ?? (_theme = base.Unwrap().Value<string>("theme", fallback: Fallback.ToAncestors));
+            get => _theme ??= base.Unwrap().Value<string>("theme", fallback: Fallback.ToAncestors);
             protected set => _theme = value;
         }
 
@@ -100,13 +97,13 @@ namespace Articulate.Models
 
         public string BlogLogo
         {
-            get => _blogLogo ?? (_blogLogo = RootBlogNode.GetArticulateCropUrl("blogLogo", Current.VariationContextAccessor?.VariationContext));
+            get => _blogLogo ?? (_blogLogo = RootBlogNode.GetArticulateCropUrl("blogLogo", VariationContextAccessor?.VariationContext));
             protected set => _blogLogo = value;
         }
 
         public string BlogBanner
         {
-            get => _blogBanner ?? (_blogBanner = RootBlogNode.GetArticulateCropUrl("blogBanner", Current.VariationContextAccessor?.VariationContext));
+            get => _blogBanner ?? (_blogBanner = RootBlogNode.GetArticulateCropUrl("blogBanner", VariationContextAccessor?.VariationContext));
             protected set => _blogBanner = value;
         }
 
@@ -130,11 +127,11 @@ namespace Articulate.Models
                 {
                     _pageSize = base.Unwrap().Value<int>("pageSize", fallback: Fallback.To(Fallback.Ancestors, Fallback.DefaultValue), defaultValue: 10);
                 }
+
                 return _pageSize.Value;
             }
             protected set => _pageSize = value;
         }
-
 
         public string PageTitle
         {
@@ -149,7 +146,7 @@ namespace Articulate.Models
         }
 
         public string PageTags { get; protected set; }
-
-
+        public IPublishedValueFallback PublishedValueFallback { get; }
+        public IVariationContextAccessor VariationContextAccessor { get; }
     }
 }

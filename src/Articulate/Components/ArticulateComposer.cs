@@ -1,48 +1,70 @@
-﻿using Articulate.ImportExport;
+using System;
+using Articulate.ImportExport;
 using Articulate.Options;
 using Articulate.Packaging;
 using Articulate.Routing;
+using Articulate.Services;
 using Articulate.Syndication;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Web;
-using Umbraco.Web.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Routing;
 
 namespace Articulate.Components
 {
-    [RuntimeLevel(MinLevel = RuntimeLevel.Run)]
-    public class ArticulateComposer : IUserComposer
+
+    public class ArticulateComposer : ComponentComposer<ArticulateComponent>
     {
-        public void Compose(Composition composition)
+        public override void Compose(IUmbracoBuilder builder)
         {
-            composition.RegisterUnique<ArticulateRoutes>();
-            composition.RegisterUnique<ContentUrls>();
-            composition.RegisterUnique<ArticulateDataInstaller>();
-            composition.RegisterUnique<ArticulateTempFileSystem>(x => new ArticulateTempFileSystem("~/App_Data/Temp/Articulate"));
-            composition.RegisterUnique<BlogMlExporter>();
-            composition.RegisterUnique<IRssFeedGenerator, RssFeedGenerator>();
+            base.Compose(builder);
 
-            composition.Register<DisqusXmlExporter>(Lifetime.Request);
-            composition.Register<BlogMlImporter>(Lifetime.Request);
+            var services = builder.Services;
+            services.AddSingleton<ContentUrls>();
+            services.AddSingleton<BlogMlExporter>();
+            services.AddSingleton<ArticulateTempFileSystem>();
+            services.AddSingleton<IRssFeedGenerator, RssFeedGenerator>();
 
-            composition.Register<IArticulateSearcher, DefaultArticulateSearcher>(Lifetime.Request);
+            services.AddSingleton<IArticulateTagRepository, ArticulateTagRepository>();
+            services.AddSingleton<ArticulateTagService>();
 
-            composition.Register<MetaWeblogHandler>(Lifetime.Transient);
-            composition.RegisterUnique<MetaWeblogHandlerFactory>(factory => new MetaWeblogHandlerFactory(i =>
-           {
-               var instance = factory.GetInstance<MetaWeblogHandler>();
-               instance.BlogRootId = i;
-               return instance;
-           }));
+            services.AddSingleton<DisqusXmlExporter>();
+            services.AddSingleton<BlogMlImporter>();
+            services.AddSingleton<IArticulateSearcher, DefaultArticulateSearcher>();
+            services.AddSingleton<ArticulateRouteValueTransformer>();
+            services.AddSingleton<ArticulateRouter>();
+            services.AddSingleton<RouteCacheRefresherFilter>();
+            services.AddSingleton<ArticulateFrontEndFilterConvention>();
 
-            composition.UrlProviders().Append<VirtualNodeUrlProvider>();
-            composition.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
+            builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
 
-            composition.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
+            builder.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
 
-            composition.Configs.Add<ArticulateOptions>(_ => ArticulateOptions.Default);
+            services.AddOptions<ArticulateOptions>();
 
-            composition.Components().Append<ArticulateComponent>();
+            builder.AddNotificationHandler<ContentSavingNotification, ContentSavingHandler>();
+            builder.AddNotificationHandler<ContentSavedNotification, ContentSavedHandler>();
+            builder.AddNotificationHandler<ContentTypeSavingNotification, ContentTypeSavingHandler>();
+            builder.AddNotificationHandler<ServerVariablesParsingNotification, ServerVariablesParsingHandler>();
+            builder.AddNotificationHandler<ContentCacheRefresherNotification, ContentCacheRefresherHandler>();
+            builder.AddNotificationHandler<DomainCacheRefresherNotification, DomainCacheRefresherHandler>();
+            builder.AddNotificationHandler<SendingContentNotification, SendingContentHandler>();
+
+            builder.Services.ConfigureOptions<ArticulatePipelineStartupFilter>();
+            builder.Services.ConfigureOptions<ConfigureArticulateMvcOptions>();
+
+#if NET7_0_OR_GREATER
+            builder.Services.AddOutputCache(options =>
+            {               
+                options.AddPolicy("Articulate120", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(120)));
+                options.AddPolicy("Articulate300", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(300)));
+                options.AddPolicy("Articulate60", builder =>
+                    builder.Expire(TimeSpan.FromSeconds(60)));
+            });
+#endif
         }
     }
 }

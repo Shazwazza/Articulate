@@ -1,0 +1,24 @@
+.articulate-theme {
+  width: 100px;
+  height: 100px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: auto 100px
+}
+.articulate-theme-Material {
+  background-image: url(theme-material.png);
+}
+.articulate-theme-Mini {
+  background-image: url(theme-mini.png);
+}
+.articulate-theme-Phantom {
+  background-image: url(theme-phantom.png);
+}
+.articulate-theme-VAPOR {
+  background-image: url(theme-vapor.png);
+}
+
+.umb-package-link.selected {
+  border-color: #2152a3;
+  border-width: 2px;
+}

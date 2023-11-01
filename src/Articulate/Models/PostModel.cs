@@ -1,23 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Articulate.Options;
-using CookComputing.XmlRpc;
-using HeyRed.MarkdownSharp;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors.ValueConverters;
-using Umbraco.Web;
-using Umbraco.Web.Models;
+using Microsoft.AspNetCore.Html;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Strings;
+using Umbraco.Extensions;
 
 namespace Articulate.Models
 {
@@ -25,8 +15,8 @@ namespace Articulate.Models
     {
         private PostAuthorModel _author;
 
-        public PostModel(IPublishedContent content)
-            : base(content)
+        public PostModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor)
+            : base(content, publishedValueFallback, variationContextAccessor)
         {
             PageTitle = Name + " - " + BlogTitle;
             PageDescription = Excerpt;
@@ -74,8 +64,8 @@ namespace Articulate.Models
                 {
                     _author.Bio = authorNode.Value<string>("authorBio");
                     _author.Url = authorNode.Value<string>("authorUrl");
-                    _author.Image = authorNode.Value<ImageCropperValue>("authorImage");
-                    _author.BlogUrl = authorNode.Url;
+                    _author.Image = authorNode.Value<MediaWithCrops>("authorImage");
+                    _author.BlogUrl = authorNode.Url();
                 }
 
                 return _author;
@@ -86,23 +76,15 @@ namespace Articulate.Models
 
         public DateTime PublishedDate => base.Unwrap().Value<DateTime>("publishedDate");
 
-        private ImageCropperValue _postImage;
+        private MediaWithCrops _postImage;
 
         /// <summary>
         /// Some blog post may have an associated image
         /// </summary>
-        public ImageCropperValue PostImage
-        {
-            get
-            {
-                if (_postImage == null)
-                    _postImage = base.Unwrap().Value<ImageCropperValue>("postImage");
-                return _postImage == null || _postImage.Src.IsNullOrWhiteSpace() ? null : _postImage;
-            }
-        }
+        public MediaWithCrops PostImage => _postImage ??= base.Unwrap().Value<MediaWithCrops>("postImage");
 
         private string _croppedPostImageUrl;
-
+        
         /// <summary>
         /// Cropped version of the PostImageUrl
         /// </summary>
@@ -121,7 +103,7 @@ namespace Articulate.Models
                 }
 
                 var wideCropUrl = PostImage.GetCropUrl("wide");
-                _croppedPostImageUrl = PostImage.Src + (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?") + "upscale=false";
+                _croppedPostImageUrl = (wideCropUrl ?? string.Empty) + ((wideCropUrl != null && wideCropUrl.Contains('?')) ? "&" : "?");
                 return _croppedPostImageUrl;
             }
         }
@@ -131,28 +113,24 @@ namespace Articulate.Models
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription");
 
-        public IHtmlString Body
+        public IHtmlContent Body
         {
             get
             {
-                if (this.HasProperty("richText"))
-                {
-                    return this.Value<IHtmlString>("richText");                    
-                }
-                else
-                {
-                    var val = this.Value<IHtmlString>("markdown");
-                    return val;
-                }
-                
+                return new HtmlString(
+                    this.Value<IHtmlEncodedString>(
+                        this.HasProperty("richText") ? "richText" : "markdown")
+                    .ToHtmlString());
+
             }
         }
 
         public string ExternalUrl => this.Value<string>("externalUrl");
 
-        ImageCropperValue IImageModel.Image => PostImage;
+        MediaWithCrops IImageModel.Image => PostImage;
+
         string IImageModel.Name => Name;
-        string IImageModel.Url => Url;
+        string IImageModel.Url => this.Url();
     }
 
 }

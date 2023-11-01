@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,14 +9,18 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
-using Newtonsoft.Json;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
-using Umbraco.Core.Persistence;
-using Umbraco.Core.PropertyEditors;
-using Umbraco.Core.Scoping;
-using Umbraco.Core.Services;
+using Microsoft.AspNetCore.Html;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.Scoping;
+using Umbraco.Cms.Core.Serialization;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Extensions;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
 
@@ -24,35 +28,48 @@ namespace Articulate.ImportExport
 {
     public class BlogMlImporter
     {
-        private readonly ArticulateTempFileSystem _fileSystem;
         private readonly DisqusXmlExporter _disqusXmlExporter;
         private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
         private readonly IContentService _contentService;
+        private readonly IMediaService _mediaService;
         private readonly IContentTypeService _contentTypeService;
         private readonly IUserService _userService;
-        private readonly ILogger _logger;
+        private readonly ILogger<BlogMlImporter> _logger;
         private readonly IDataTypeService _dataTypeService;
         private readonly ISqlContext _sqlContext;
         private readonly IScopeProvider _scopeProvider;
         private readonly ILocalizationService _localizationService;
+        private readonly IShortStringHelper _shortStringHelper;
+        private readonly MediaFileManager _mediaFileManager;
+        private readonly MediaUrlGeneratorCollection _mediaUrlGenerators;
+        private readonly PropertyEditorCollection _dataEditors;
+        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ArticulateTempFileSystem _articulateTempFileSystem;
+        private readonly Lazy<IMedia> _articulateRootMediaFolder;
 
         public BlogMlImporter(
-            ArticulateTempFileSystem fileSystem,
             DisqusXmlExporter disqusXmlExporter,
             IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
             IContentService contentService,
+            IMediaService mediaService,
             IContentTypeService contentTypeService,
             IUserService userService,
-            ILogger logger,
+            ILogger<BlogMlImporter> logger,
             IDataTypeService dataTypeService,
             ISqlContext sqlContext,
             IScopeProvider scopeProvider,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IShortStringHelper shortStringHelper,
+            MediaFileManager mediaFileManager,
+            MediaUrlGeneratorCollection mediaUrlGenerators,
+            PropertyEditorCollection dataEditors,
+            IJsonSerializer jsonSerializer,
+            ArticulateTempFileSystem articulateTempFileSystem)
         {
-            _fileSystem = fileSystem;
             _disqusXmlExporter = disqusXmlExporter;
             _contentTypeBaseServiceProvider = contentTypeBaseServiceProvider;
             _contentService = contentService;
+            _mediaService = mediaService;
             _contentTypeService = contentTypeService;
             _userService = userService;
             _logger = logger;
@@ -60,6 +77,17 @@ namespace Articulate.ImportExport
             _sqlContext = sqlContext;
             _scopeProvider = scopeProvider;
             _localizationService = localizationService;
+            _shortStringHelper = shortStringHelper;
+            _mediaFileManager = mediaFileManager;
+            _mediaUrlGenerators = mediaUrlGenerators;
+            _dataEditors = dataEditors;
+            _jsonSerializer = jsonSerializer;
+            _articulateTempFileSystem = articulateTempFileSystem;
+            _articulateRootMediaFolder = new Lazy<IMedia>(() =>
+            {
+                var root = _mediaService.GetRootMedia().FirstOrDefault(x => x.Name == "Articulate" && x.ContentType.Alias.InvariantEquals("folder"));
+                return root ??= _mediaService.CreateMediaWithIdentity("Articulate", Constants.System.Root, "folder");
+            });
         }
 
         public int GetPostCount(string fileName)
@@ -71,8 +99,7 @@ namespace Articulate.ImportExport
         /// <summary>
         /// Imports the blogml file to articulate
         /// </summary>
-        /// <returns>Returns true if any errors occur</returns>
-        // TODO: That is pretty silly, why return true for errors?! that's backwards, but need to maintain compat.
+        /// <returns>Returns true if successful</returns>
         public async Task<bool> Import(
             int userId,
             string fileName,
@@ -89,7 +116,7 @@ namespace Articulate.ImportExport
             {
                 try
                 {
-                    if (!File.Exists(fileName))
+                    if (!_articulateTempFileSystem.FileExists(fileName))
                     {
                         throw new FileNotFoundException("File not found: " + fileName);
                     }
@@ -99,12 +126,13 @@ namespace Articulate.ImportExport
                     {
                         throw new InvalidOperationException("No node found with id " + blogRootNode);
                     }
+
                     if (!root.ContentType.Alias.InvariantEquals("Articulate"))
                     {
                         throw new InvalidOperationException("The node with id " + blogRootNode + " is not an Articulate root node");
                     }
 
-                    using (var stream = File.OpenRead(fileName))
+                    using (var stream = _articulateTempFileSystem.OpenFile(fileName))
                     {
                         var document = new BlogMLDocument();
                         document.Load(stream);
@@ -123,31 +151,31 @@ namespace Articulate.ImportExport
                             using (var memStream = new MemoryStream())
                             {
                                 xDoc.Save(memStream);
-                                _fileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
+                                _articulateTempFileSystem.AddFile("DisqusXmlExport.xml", memStream, true);
                             }
                         }
                     }
 
                     // commit
                     scope.Complete();
-                    return false;
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error<BlogMlImporter>(ex, "Importing failed with errors");
-                    return true;
+                    _logger.LogError(ex, "Importing failed with errors");
+                    return false;
                 }
             }
         }
 
         private BlogMLDocument GetDocument(string fileName)
         {
-            if (!File.Exists(fileName))
+            if (!_articulateTempFileSystem.FileExists(fileName))
             {
                 throw new FileNotFoundException("File not found: " + fileName);
             }
 
-            using (var stream = File.OpenRead(fileName))
+            using (var stream = _articulateTempFileSystem.OpenFile(fileName))
             {
                 var document = new BlogMLDocument();
                 document.Load(stream);
@@ -164,7 +192,7 @@ namespace Articulate.ImportExport
             {
                 throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
             }
-            
+
             var authorsType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias);
             if (authorsType == null)
             {
@@ -195,7 +223,6 @@ namespace Articulate.ImportExport
                 int.MaxValue,
                 out long totalAuthorNodes,
                 _sqlContext.Query<IContent>().Where(x => x.ParentId == authorsNode.Id && x.Trashed == false));
-
 
             foreach (var author in authors)
             {
@@ -297,7 +324,10 @@ namespace Articulate.ImportExport
                 }
 
                 //it exists and we don't wanna overwrite, skip it
-                if (!overwrite && postNode != null) continue;
+                if (!overwrite && postNode != null)
+                {
+                    continue;
+                }
 
                 //create it if it doesn't exist
                 if (postNode == null)
@@ -315,7 +345,9 @@ namespace Articulate.ImportExport
                     var excerpt = post.Excerpt.Content;
 
                     if (post.Excerpt.ContentType == BlogMLContentType.Base64)
+                    {
                         excerpt = Encoding.UTF8.GetString(Convert.FromBase64String(post.Excerpt.Content));
+                    }
 
                     postNode.SetInvariantOrDefaultCultureValue("excerpt", excerpt, postType, _localizationService);
                 }
@@ -325,7 +357,9 @@ namespace Articulate.ImportExport
                 var content = post.Content.Content;
 
                 if (post.Content.ContentType == BlogMLContentType.Base64)
+                {
                     content = Encoding.UTF8.GetString(Convert.FromBase64String(post.Content.Content));
+                }
 
                 if (!regexMatch.IsNullOrWhiteSpace() && !regexReplace.IsNullOrWhiteSpace())
                 {
@@ -334,7 +368,9 @@ namespace Articulate.ImportExport
                         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
                 }
 
-                postNode.SetInvariantOrDefaultCultureValue("richText", content, postType, _localizationService);
+                // This apparently now needs to be saved as an HtmlString before hand,
+                // see https://docs.umbraco.com/umbraco-cms/fundamentals/backoffice/property-editors/built-in-umbraco-property-editors/rich-text-editor#add-values-programmatically
+                postNode.SetInvariantOrDefaultCultureValue("richText", new HtmlString(content), postType, _localizationService);
 
                 postNode.SetInvariantOrDefaultCultureValue("enableComments", true, postType, _localizationService);
 
@@ -343,7 +379,9 @@ namespace Articulate.ImportExport
                     var slug = string.Empty;
                     //we take the post-name BlogML element as slug for the post
                     if (post.Name != null)
+                    {
                         slug = post.Name.Content;
+                    }
                     //If post-name is not available we take the URL and remove the extension
                     else
                     {
@@ -399,23 +437,20 @@ namespace Articulate.ImportExport
 
         private async Task ImportFirstImageAsync(IContentBase postNode, IContentType postType, BlogMLPost post)
         {
-
             var imageMimeTypes = new List<string> { "image/jpeg", "image/gif", "image/png" };
 
             var attachment = post.Attachments.FirstOrDefault(p => imageMimeTypes.Contains(p.MimeType));
-            if (attachment == null) return;
+            if (attachment == null)
+            {
+                return;
+            }
 
-            var imageSaved = false;
-
+            Stream stream = null;
             if (!attachment.Content.IsNullOrWhiteSpace())
             {
                 //the image is base64
                 var bytes = Convert.FromBase64String(attachment.Content);
-                using (var stream = new MemoryStream(bytes))
-                {
-                    postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", attachment.Url.OriginalString, stream, postType, _localizationService);
-                    imageSaved = true;
-                }
+                stream = new MemoryStream(bytes);
             }
             else if (attachment.ExternalUri != null && attachment.ExternalUri.IsAbsoluteUri)
             {
@@ -423,50 +458,45 @@ namespace Articulate.ImportExport
                 {
                     using (var client = new HttpClient())
                     {
-                        using (var stream = await client.GetStreamAsync(attachment.ExternalUri))
-                        {
-                            postNode.SetInvariantOrDefaultCultureValue(_contentTypeBaseServiceProvider, "postImage", Path.GetFileName(attachment.ExternalUri.AbsolutePath), stream, postType, _localizationService);
-                            imageSaved = true;
-                        }
+                        stream = await client.GetStreamAsync(attachment.ExternalUri);
                     }
                 }
                 catch (Exception exception)
                 {
-                    _logger.Error<BlogMlImporter>(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
+                    _logger.LogError(exception, "Exception retrieving {AttachmentUrl}; post {PostId}", attachment.Url, post.Id);
                 }
             }
 
-            if (imageSaved)
+            if (stream != null)
             {
-                //this is a work around for the SetValue method to save a file, since it doesn't currently take into account the image cropper
-                //which we are using so we need to fix that.
-                
-                var propType = postNode.Properties["postImage"].PropertyType;
-                var cropperValue = CreateImageCropperValue(propType, postNode.GetValue("postImage"), _dataTypeService);
-                postNode.SetInvariantOrDefaultCultureValue("postImage", cropperValue, postType, _localizationService);
+                using (stream)
+                {
+                    // create a media item
+                    var media = _mediaService.CreateMedia(postNode.Name, _articulateRootMediaFolder.Value, Constants.Conventions.MediaTypes.Image);
+                    media.SetValue(
+                        _mediaFileManager,
+                        _mediaUrlGenerators,
+                        _shortStringHelper,
+                        _contentTypeBaseServiceProvider,
+                        Constants.Conventions.Media.File,
+                        attachment.Url.OriginalString,
+                        stream);
+
+                    if (!_mediaService.Save(media))
+                    {
+                        throw new InvalidOperationException("Could not create new media item");
+                    }
+
+                    // Create an Udi of the media
+                    var udi = Udi.Create(Constants.UdiEntityType.Media, media.Key);
+
+                    postNode.SetInvariantOrDefaultCultureValue(
+                        "postImage",
+                        udi.ToString(),
+                        postType,
+                        _localizationService);
+                }
             }
-            
-        }
-
-        //borrowed from CMS core until SetValue is fixed with a stream
-        private string CreateImageCropperValue(PropertyType propertyType, object value, IDataTypeService dataTypeService)
-        {
-            if (value == null || string.IsNullOrEmpty(value.ToString()))
-                return null;
-
-            // if we don't have a json structure, we will get it from the property type
-            var val = value.ToString();
-            if (val.DetectIsJson())
-                return val;
-
-            var configuration = dataTypeService.GetDataType(propertyType.DataTypeId).ConfigurationAs<ImageCropperConfiguration>();
-            var crops = configuration?.Crops ?? Array.Empty<ImageCropperConfiguration.Crop>();
-
-            return JsonConvert.SerializeObject(new
-            {
-                src = val,
-                crops = crops
-            });
         }
 
         //private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
@@ -504,7 +534,7 @@ namespace Articulate.ImportExport
                 .Select(x => x.Title.Content)
                 .ToArray();
 
-            postNode.AssignInvariantOrDefaultCultureTags("categories", postCats, postType, _localizationService);
+            postNode.AssignInvariantOrDefaultCultureTags("categories", postCats, postType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
         }
 
         private void ImportTags(XDocument xdoc, IContent postNode, BlogMLPost post, IContentType postType)
@@ -513,18 +543,22 @@ namespace Articulate.ImportExport
             var xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                 .SingleOrDefault(x => ((string)x.Attribute("id")) == post.Id);
 
-            if (xmlPost == null) {
+            if (xmlPost == null)
+            {
                 xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                                 .SingleOrDefault(x => x.Descendants(XName.Get("post-name", xdoc.Root.Name.NamespaceName))
-                                .SingleOrDefault(s => s.Value==post.Name.Content)!=null
+                                .SingleOrDefault(s => s.Value == post.Name.Content) != null
                                 );
             };
 
-            if (xmlPost == null) return;
+            if (xmlPost == null)
+            {
+                return;
+            }
 
             var tags = xmlPost.Descendants(XName.Get("tag", xdoc.Root.Name.NamespaceName)).Select(x => (string)x.Attribute("ref")).ToArray();
 
-            postNode.AssignInvariantOrDefaultCultureTags("tags", tags, postType, _localizationService);
+            postNode.AssignInvariantOrDefaultCultureTags("tags", tags, postType, _localizationService, _dataTypeService, _dataEditors, _jsonSerializer);
         }
     }
 }

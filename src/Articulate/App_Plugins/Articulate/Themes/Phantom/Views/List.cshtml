@@ -1,0 +1,48 @@
+@using Articulate
+@using Umbraco.Extensions
+
+@model global::Articulate.Models.ListModel
+@{
+    Layout = "Master.cshtml";
+}
+
+<main role="main">
+    
+    @if (!Model.Children.Any())
+    {
+        <article>No blog posts found</article>
+    }
+    else
+    {
+        foreach (var post in Model.Posts)
+        {
+            <article class="post tag-ghost-tag">
+                <header class="post-header">
+                    <span class="post-meta">
+                        <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
+                            @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
+                        </time>
+                        @await Html.ThemedPartialAsync(Model, "PostTags", post)
+                    </span>
+
+                    <h2 class="post-title"><a href="@post.Url()">@post.Name</a></h2>
+
+                </header>
+                <section class="post-excerpt">
+                    @if (post.PostImage != null)
+                    {
+                        var thumbnail = post.PostImage.GetCropUrl("thumbnail");
+                        if (thumbnail != null)
+                        {
+                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                        }
+                    }
+                    <p>@post.Excerpt&hellip;</p>
+                </section>
+            </article>
+        }
+        
+        @await Html.ThemedPartialAsync(Model, "Pager", Model.Pages)
+    }
+
+</main>

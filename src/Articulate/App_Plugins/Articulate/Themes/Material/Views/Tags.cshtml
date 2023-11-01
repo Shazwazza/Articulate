@@ -1,0 +1,80 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Extensions
+
+@model global::Articulate.Models.TagListModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssWrapperClass = "demo-blog--blogpost";
+    var asArray = Model.Tags.ToArray();
+}
+
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url()" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
+
+<div class="demo-blog__posts mdl-grid">
+
+    <div class="mdl-card mdl-cell mdl-cell--8-col">
+        <div class="mdl-card__title mdl-color-text--grey-50">
+            <h1 class="mdl-card__title-text">@Model.Name</h1>
+        </div>
+        <div class="mdl-card__supporting-text">
+            
+            @if (ViewContext.RouteData.Values["action"].ToString().Equals("Tags", StringComparison.OrdinalIgnoreCase))
+            {
+                <div class="tag-cloud-large">
+                    @Html.TagCloud(Model.Tags, @<a href="#tag-@item.HtmlId">@item.TagName</a>, 5, 50)
+                </div>
+            }
+            else
+            {
+                <ul>
+                    @for (var i = 0; i < asArray.Length; i++)
+                    {
+                        <li>
+                            <a href="#tag-@asArray[i].HtmlId">@asArray[i].TagName</a> - (@asArray[i].PostCount)
+                        </li>
+                    }
+                </ul>
+            }
+            
+            
+        </div>
+        <div class="mdl-card__menu">
+        </div>
+    </div>
+
+    @await Html.ThemedPartialAsync(Model, "TitleTile")
+
+    @for (var i = 0; i < asArray.Length; i++)
+    {
+        <div class="mdl-card mdl-cell mdl-cell--12-col tag-card">
+            <div class="mdl-card__title mdl-color-text--primary mdl-color--accent-contrast">     
+                <h4 class="mdl-card__title-text">
+                    <a id="tag-@asArray[i].HtmlId" href="@asArray[i].TagUrl">@asArray[i].TagName</a>
+                </h4>
+            </div> 
+            <div class="mdl-card__supporting-text">
+                @Html.Table(
+                    asArray[i].Posts.OrderByDescending(x => x.PublishedDate),
+                    new {@class = "mdl-data-table mdl-js-data-table full-box-width"},
+                    new[] {"Date", "Name", ""},
+                    new string[] {"mdl-data-table__cell--non-numeric date", "mdl-data-table__cell--non-numeric", "mdl-data-table__cell--non-numeric" },
+                    @<span>@item.PublishedDate.ToString("yyyy-MM-dd")</span>,
+                    @<a href="@item.Url()">@item.Name</a>,
+                    @<a href="@item.Url()#disqus_thread" data-disqus-identifier="@item.Key"></a>)
+            </div>
+            <div class="mdl-card__menu">
+                <a href="@Url.ArticulateTagRssUrl(asArray[i])" title="RSS Feed" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color--primary mdl-color-text--grey-50">
+                    <i class="material-icons">local_library</i>
+                </a>
+            </div>
+        </div>
+    }
+
+
+
+</div>

@@ -1,10 +1,11 @@
-﻿using Umbraco.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 
 namespace Articulate.Models
 {
     public interface IImageModel
     {
-        ImageCropperValue Image { get; }
+        MediaWithCrops Image { get; }
         string Name { get; }
         string Url { get; }
     }

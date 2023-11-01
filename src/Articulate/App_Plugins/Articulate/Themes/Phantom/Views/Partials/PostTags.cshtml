@@ -1,0 +1,5 @@
+@using Articulate
+@model global::Articulate.Models.PostModel
+
+@Html.ListTags(Model,
+    @<a href="@Url.ArticulateTagUrl(Model, @item)">@item</a>, ", ")

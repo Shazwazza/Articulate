@@ -1,0 +1,75 @@
+@page
+@using Microsoft.AspNetCore.Mvc.ApplicationModels
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using Microsoft.AspNetCore.Routing
+@inject EndpointDataSource EndpointsDataSource
+
+@{
+    var endpoints = EndpointsDataSource.Endpoints.ToList();
+}
+
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">Order</th>
+        <th scope="col">Display Name</th>
+        <th scope="col">Route Pattern</th>
+        <th scope="col">Metadata</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var endpoint in endpoints)
+    {
+        var routeEndpoint = endpoint as RouteEndpoint;
+        <tr>
+            <td>@routeEndpoint?.Order</td>
+            <td>@endpoint.DisplayName</td>
+            <td>@routeEndpoint?.RoutePattern.RawText</td>
+            <td>
+                <ul>
+                    @foreach (var md in endpoint.Metadata)
+                    {
+                        switch (md)
+                        {
+                            case PageRouteMetadata prm:
+                                <li>
+                                    <p>@nameof(PageRouteMetadata)</p>
+                                    <ul>
+                                        <li>Page Route: @prm.PageRoute</li>
+                                        <li>Route Template: @prm.RouteTemplate</li>
+                                    </ul>
+                                </li>
+                                break;
+                            case PageActionDescriptor pad:
+                                <li>
+                                    <p>@nameof(PageActionDescriptor)</p>
+                                    <ul>
+                                        <li>Id: @pad.Id</li>
+                                        <li>Area: @pad.AreaName</li>
+                                        <li>Display Name: @pad.DisplayName</li>
+                                        <li>View Engine Path: @pad.ViewEnginePath</li>
+                                        <li>Relative Path: @pad.RelativePath</li>
+                                    </ul>
+                                </li>
+                                break;
+                            case RouteNameMetadata rnm:
+                                <li>
+                                    Route Name Metadata: @rnm.RouteName
+                                </li>
+                                break;
+                            case SuppressLinkGenerationMetadata slg:
+                                <li>
+                                    suppress link: @slg.SuppressLinkGeneration;
+                                </li>
+                                break;
+                            default:
+                                <li>@md.ToString()</li>
+                                break;
+                        }
+                    }
+                </ul>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

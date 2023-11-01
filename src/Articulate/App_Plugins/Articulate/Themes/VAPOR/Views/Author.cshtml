@@ -1,0 +1,63 @@
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Extensions
+
+
+@model global::Articulate.Models.AuthorModel
+@{
+    Layout = "Master.cshtml";
+}
+
+@section Header
+{
+    @Html.AuthorRssFeed(Model, Url)
+}
+
+<main class="content" role="main">
+
+    
+    <article class="post">
+
+        <header>
+            <h1 class="post-title"><a href="@Url.ArticulateAuthorRssUrl(Model)" class="fa fa-rss"><span>RSS</span></a>@Model.Name</h1>
+        </header>
+        <section class="post-content">
+
+            @if (Model.Image != null)
+            {
+                var img = Model.Image.GetCropUrl("wide");
+                <img class="postImage" src="@img" />
+            }
+            <p>@Model.Bio</p>
+            @if (!Model.AuthorUrl.IsNullOrWhiteSpace())
+            {
+                <p>
+                    Website: <a href="@Model.AuthorUrl">@Model.AuthorUrl</a>
+                </p>
+            }
+
+        </section>
+
+        <hr />
+
+        @if (Model.PostCount == 0)
+        {
+            <section>No blog posts found</section>
+        }
+        else
+        {
+            <div>
+                
+                <h3>Author's Posts</h3>
+                @await Html.ThemedPartialAsync(Model, "PostList", Model.Posts)
+
+                @await Html.ThemedPartialAsync(Model, "Pager", Model.Pages)
+            </div>
+               
+        }
+
+    </article>
+    
+    
+
+</main>

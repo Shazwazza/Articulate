@@ -1,0 +1,80 @@
+@using System.Text
+@using Articulate
+@using Articulate.Models
+@using Umbraco.Extensions
+@using Microsoft.AspNetCore.Html
+
+@model global::Articulate.Models.ListModel
+@{
+    Layout = "Master.cshtml";
+    ViewBag.CssWrapperClass = Model.ContentType.Alias == "ArticulateArchive" ? null : "demo-blog--blogpost";
+}
+
+<div class="demo-back">
+    <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" href="@Model.RootBlogNode.Url()" title="go back" role="button">
+        <i class="material-icons" role="presentation">arrow_back</i>
+    </a>
+</div>
+<div class="demo-blog__posts mdl-grid">
+
+    @if (!Model.Children.Any())
+    {
+        <div class="mdl-card mdl-cell mdl-cell--12-col comments">
+
+            @await Html.ThemedPartialAsync(Model, "SearchBox")
+
+            @if (Context.Request.Query.TryGetValue("term", out var term) && !((string)term).IsNullOrWhiteSpace())
+            {
+                <div class="mdl-card__media mdl-color-text--grey-50">
+                    <h3>No blog posts found</h3>
+                </div>
+            }
+        </div>
+	}
+    else
+    {
+        var doneFirst = false;
+        foreach (var post in Model.Posts)
+        {
+            if (!doneFirst && Model.ContentType.Alias == "ArticulateArchive")
+            {
+                doneFirst = true;
+
+				<div class="mdl-card mdl-cell mdl-cell--8-col">
+                    @{await PostInfo(post, false);}
+                </div>
+
+                @await Html.ThemedPartialAsync(Model, "TitleTile")
+	}
+            else
+            {
+				<div class="mdl-card mdl-cell mdl-cell--12-col">
+                    @{await PostInfo(post);}
+                </div>                
+            }
+        }
+
+        @await Html.ThemedPartialAsync(Model, "Pager", Model.Pages)
+    }
+
+
+</div>
+
+@functions{
+	public async Task PostInfo(PostModel post, bool withExcerpt = true)
+	{
+		@await Html.ThemedPartialAsync(Model, "PostImageHeader", post);
+
+		if (withExcerpt)
+		{
+			<div class="mdl-card__supporting-text mdl-color-text--grey-600">
+				@post.Excerpt&hellip;
+			</div>
+		}
+
+
+		<div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
+			@await Html.ThemedPartialAsync(Model, "AuthorInfo", post)
+		</div>
+	}
+}

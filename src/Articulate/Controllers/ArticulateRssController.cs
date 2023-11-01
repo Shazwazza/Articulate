@@ -2,15 +2,19 @@ using Articulate.Models;
 using Articulate.Syndication;
 using System;
 using System.Linq;
-using System.Web.Mvc;
-using Umbraco.Core;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Models;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Umbraco.Cms.Web.Common.Controllers;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Media;
+using Articulate.Services;
+#if NET7_0_OR_GREATER 
+using Microsoft.AspNetCore.OutputCaching;
+#endif
 
 namespace Articulate.Controllers
 {
@@ -20,31 +24,44 @@ namespace Articulate.Controllers
     /// <remarks>
     /// Cached for one minute
     /// </remarks>
-#if (!DEBUG)
-    [OutputCache(Duration = 300, VaryByHeader = "host")]
+#if NET7_0_OR_GREATER 
+    [OutputCache(PolicyName = "Articulate300")]
 #endif
-
-    public class ArticulateRssController : RenderMvcController
+    public class ArticulateRssController : RenderController
     {
-        public ArticulateRssController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IRssFeedGenerator feedGenerator) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        private readonly IRssFeedGenerator _feedGenerator;
+        private readonly IPublishedValueFallback _publishedValueFallback;
+        private readonly IVariationContextAccessor _variationContextAccessor;
+        private readonly UmbracoHelper _umbracoHelper;
+        private readonly ArticulateTagService _articulateTagService;
+
+        public ArticulateRssController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IRssFeedGenerator feedGenerator,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            UmbracoHelper umbracoHelper,
+            ArticulateTagService articulateTagService)
+            : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
-            FeedGenerator = feedGenerator;
+            _feedGenerator = feedGenerator;
+            _publishedValueFallback = publishedValueFallback;
+            _variationContextAccessor = variationContextAccessor;
+            _umbracoHelper = umbracoHelper;
+            _articulateTagService = articulateTagService;
         }
-        
+
         //NonAction so it is not routed since we want to use an overload below
         [NonAction]
-        public override ActionResult Index(ContentModel model)
-        {
-            return base.Index(model);
-        }
+        public override IActionResult Index() => Index(0);
 
-        private IRssFeedGenerator FeedGenerator { get; }
-
-        public ActionResult Index(ContentModel model, int? maxItems)
+        public IActionResult Index(int? maxItems)
         {
             if (!maxItems.HasValue) maxItems = 25;
 
-            var listNodes = model.Content.Children
+            var listNodes = CurrentPage.Children
                 .Where(x => x.ContentType.Alias.InvariantEquals(ArticulateConstants.ArticulateArchiveContentTypeAlias))
                 .ToArray();
             if (listNodes.Length == 0)
@@ -56,90 +73,95 @@ namespace Articulate.Controllers
 
             var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
-            var listItems = Umbraco.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
+            var listItems = _umbracoHelper.GetPostsSortedByPublishedDate(pager, null, listNodeIds);
 
-            var rootPageModel = new ListModel(listNodes[0], listItems, pager);
+            var rootPageModel = new ListModel(
+                listNodes[0],
+                pager,
+                listItems,
+                _publishedValueFallback,
+                _variationContextAccessor);
             
-            var feed = FeedGenerator.GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
+            var feed = _feedGenerator.GetFeed(rootPageModel, rootPageModel.Children<PostModel>());
 
             return new RssResult(feed, rootPageModel);
         }
 
-        public ActionResult Author(ContentModel model, int authorId, int? maxItems)
+        public IActionResult Author(int authorId, int? maxItems)
         {
-            var author = Umbraco.Content(authorId);
+            var author = _umbracoHelper.Content(authorId);
             if (author == null) throw new ArgumentNullException(nameof(author));
 
             if (!maxItems.HasValue) maxItems = 25;
 
             //create a master model
-            var masterModel = new MasterModel(author);
+            var masterModel = new MasterModel(author, _publishedValueFallback, _variationContextAccessor);
 
             var listNodes = masterModel.RootBlogNode.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).ToArray();
 
-            var authorContenet = Umbraco.GetContentByAuthor(listNodes, author.Name, new PagerModel(maxItems.Value, 0, 1));
+            var authorContenet = _umbracoHelper.GetContentByAuthor(
+                listNodes,
+                author.Name,
+                new PagerModel(maxItems.Value, 0, 1),
+                _publishedValueFallback,
+                _variationContextAccessor);
 
-            var feed = FeedGenerator.GetFeed(masterModel, authorContenet.Select(x => new PostModel(x)));
+            var feed = _feedGenerator.GetFeed(masterModel, authorContenet.Select(x => new PostModel(x, _publishedValueFallback, _variationContextAccessor)));
 
             return new RssResult(feed, masterModel);
         }
 
-        public ActionResult Categories(ContentModel model, string tag, int? maxItems)
+        public IActionResult Categories(string tag, int? maxItems)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
             if (tag == null) throw new ArgumentNullException(nameof(tag));
 
             if (!maxItems.HasValue) maxItems = 25;
 
-            return RenderTagsOrCategoriesRss(model, "ArticulateCategories", "categories", maxItems.Value);
+            return RenderTagsOrCategoriesRss("ArticulateCategories", "categories", maxItems.Value, tag);
         }
 
-        public ActionResult Tags(ContentModel model, string tag, int? maxItems)
+        public IActionResult Tags(string tag, int? maxItems)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
             if (tag == null) throw new ArgumentNullException(nameof(tag));
 
             if (!maxItems.HasValue) maxItems = 25;
 
-            return RenderTagsOrCategoriesRss(model, "ArticulateTags", "tags", maxItems.Value);
+            return RenderTagsOrCategoriesRss("ArticulateTags", "tags", maxItems.Value, tag);
         }
 
-        public ActionResult RenderTagsOrCategoriesRss(ContentModel model, string tagGroup, string baseUrl, int maxItems)
+        public IActionResult RenderTagsOrCategoriesRss(string tagGroup, string baseUrl, int maxItems, string tag)
         {
-            var tagPage = model.Content as ArticulateVirtualPage;
-            if (tagPage == null)
-            {
-                throw new InvalidOperationException("The RenderModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a blog model of the main page
-            var rootPageModel = new MasterModel(model.Content.Parent);
+            var rootPageModel = new MasterModel(CurrentPage, _publishedValueFallback, _variationContextAccessor);
 
-            var contentByTag = Umbraco.GetContentByTag(
+            PostsByTagModel contentByTag = _articulateTagService.GetContentByTag(
+                _umbracoHelper,
                 rootPageModel,
-                tagPage.Name,
+                tag,
                 tagGroup,
                 baseUrl,
-                1, maxItems);
+                1,
+                maxItems);
 
             //super hack - but this is because we are replacing '.' with '-' in StringExtensions.EncodePath method
             // so if we get nothing, we'll retry with replacing back
-            if (contentByTag == null)
+            if ((contentByTag == null || contentByTag.PostCount == 0) && tag.Contains('-'))
             {
-                contentByTag = Umbraco.GetContentByTag(
+                contentByTag = _articulateTagService.GetContentByTag(
+                    _umbracoHelper,
                     rootPageModel,
-                    tagPage.Name.Replace('-', '.'),
+                    tag.Replace('-', '.'),
                     tagGroup,
                     baseUrl,
                     1, maxItems);
             }
 
-            if (contentByTag == null)
+            if (contentByTag == null || contentByTag.PostCount == 0)
             {
-                return HttpNotFound();
+                return NotFound();
             }
 
-            var feed = FeedGenerator.GetFeed(rootPageModel, contentByTag.Posts.Take(maxItems));
+            var feed = _feedGenerator.GetFeed(rootPageModel, contentByTag.Posts.Take(maxItems));
 
             return new RssResult(feed, rootPageModel);
         }
@@ -148,7 +170,7 @@ namespace Articulate.Controllers
         /// Returns the XSLT to render the RSS nicely in a browser
         /// </summary>
         /// <returns></returns>
-        public ActionResult FeedXslt()
+        public IActionResult FeedXslt()
         {
             var result = Resources.FeedXslt;
             return Content(result, "text/xml");

@@ -1,17 +1,33 @@
-﻿using System.Web.Mvc;
+using System.Threading.Tasks;
 using System.Xml.Linq;
-using Umbraco.Core;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
     /// <summary>
     /// Really simple discovery controller
     /// </summary>
-    public class RsdController : PluginController
+    public class RsdController : RenderController
     {
+        private readonly UmbracoHelper _umbracoHelper;
+
+        public RsdController(UmbracoHelper umbracoHelper,
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor)
+           : base(logger, compositeViewEngine, umbracoContextAccessor)
+        {
+            _umbracoHelper = umbracoHelper;
+        }
+
         /// <summary>
         /// Renders the RSD for the articulate node id
         /// </summary>
@@ -20,17 +36,17 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
-            var node = Umbraco.Content(id);
+            var node = _umbracoHelper.Content(id);
             if (node == null)
             {
-                return new HttpNotFoundResult();
+                return new NotFoundResult();
             }
 
             var rsd = new XElement("rsd",
                 new XAttribute("version", "1.0"),
                 new XElement("service",
                     new XElement("engineName", "Articulate, powered by Umbraco"),
-                    new XElement("engineLink", "http://github.com/shandem/articulate"),
+                    new XElement("engineLink", "http://github.com/shazwazza/articulate"),
                     new XElement("homePageLink", node.Url(mode: UrlMode.Absolute))),
                 new XElement("apis",
                     new XElement("api",
@@ -47,23 +63,21 @@ namespace Articulate.Controllers
     {
         private readonly XDocument _xDocument;
 
-        public XmlResult(XDocument xDocument)
-        {
-            _xDocument = xDocument;
-        }
+        public XmlResult(XDocument xDocument) => _xDocument = xDocument;
 
         /// <summary>
         /// Serialises the object that was passed into the constructor to XML and writes the corresponding XML to the result stream.
         /// </summary>
-        /// <param name="context">The controller context for the current request.</param>
-        public override void ExecuteResult(ControllerContext context)
+        public override async Task ExecuteResultAsync(ActionContext context)
         {
             if (_xDocument == null)
+            {
                 return;
+            }
 
             context.HttpContext.Response.Clear();
             context.HttpContext.Response.ContentType = "text/xml";
-            context.HttpContext.Response.Output.Write(_xDocument.ToString());
+            await context.HttpContext.Response.WriteAsync(_xDocument.ToString());
         }
     }
 }

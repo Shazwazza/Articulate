@@ -1,16 +1,17 @@
-using Umbraco.Core.Models;
-using Umbraco.Web.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Articulate.Models
 {
     public class TagListModel : MasterModel
     {
-        public TagListModel(
-            IMasterModel masterModel, 
-            string name, 
+        public TagListModel(            
+            IMasterModel masterModel,
+            string name,
             int pageSize,
-            PostTagCollection tags)
-            : base(masterModel.RootBlogNode)
+            PostTagCollection tags,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor)
+            : base(masterModel.RootBlogNode, publishedValueFallback, variationContextAccessor)
         {
             Name = name;
             Theme = masterModel.Theme;
@@ -18,7 +19,7 @@ namespace Articulate.Models
             BlogArchiveNode = masterModel.BlogArchiveNode;
             PageSize = pageSize;
             BlogTitle = masterModel.BlogTitle;
-            BlogDescription = masterModel.BlogDescription;        
+            BlogDescription = masterModel.BlogDescription;
             Tags = tags;
             BlogBanner = masterModel.BlogBanner;
             BlogLogo = masterModel.BlogLogo;

@@ -1,0 +1,30 @@
+@using Articulate
+@using Umbraco.Extensions
+@model global::Articulate.Models.IMasterModel
+
+@{
+    var backgroundStyle = !Model.BlogBanner.IsNullOrWhiteSpace() 
+        ? "background-image: url(" + Model.BlogBanner + ");"
+        : "";
+}
+<div class="sidebar" role="aside" style="@backgroundStyle">
+
+    <header class="header">
+
+        @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+        {
+            <a href="@Url.ArticulateRootUrl(Model)">
+                <img id="blog" class="logo" src="@Model.BlogLogo">
+            </a>
+        }
+
+        <h1 class="title"><a href="@Model.RootBlogNode.Url()">@Model.BlogTitle</a></h1>
+        
+        <p class="description">@Model.BlogDescription<a href="@Url.ArticulateRssUrl(Model)" class="icon-rss"></a></p>
+       
+        <div class="separator"></div>
+
+        @await Html.ThemedPartialAsync(Model, "SearchBox")
+
+    </header>
+</div>

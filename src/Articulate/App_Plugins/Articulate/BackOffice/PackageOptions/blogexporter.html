@@ -1,0 +1,52 @@
+<div ng-controller="Articulate.Dashboard.BlogExporter as vm">
+
+    <ng-form name="vm.articulateExportForm" novalidate val-form-manager>
+
+        <umb-box>
+            <umb-box-content>
+
+                <umb-control-group alias="articulateNodeId" description="Choose the Articulate blog node to export from"
+                                   label="Articulate blog node">
+                    <umb-property-editor model="vm.contentPickerExportModel"
+                                         ng-model="vm.articulateExportNodeId" name="articulateExportNodeId" no-dirty-check>
+                    </umb-property-editor>
+
+                    <span ng-messages="vm.articulateExportForm.articulateExportNodeId.$error" show-validation-on-submit>
+                        <span class="help-inline" ng-message="required"><localize key="general_required">Required</localize></span>
+                    </span>
+
+                </umb-control-group>
+
+                <umb-control-group alias="embedImages" description="Check if you want to embed images as base64 data in the output file. Useful if your site isn't going to be HTTP accessible to the site you will be importing on."
+                                   label="Embed images?">
+
+                    <umb-toggle checked="vm.embedImages"
+                                on-click="vm.embedImages = !vm.embedImages">
+                    </umb-toggle>
+
+                </umb-control-group>
+
+                <div>
+                    <umb-button type="button"
+                                button-style="action"
+                                action="vm.submitExport()"
+                                label="Submit"
+                                state="vm.buttonState">
+                    </umb-button>
+
+                    <div ng-show="vm.status != null && vm.status != undefined && vm.status != ''">
+                        <hr />
+                        <p class="alert" ng-bind-html="vm.status"
+                           ng-class="{'alert-success': vm.status == 'Finished!', 'alert-info' : vm.status != 'Finished!'}"></p>
+                        <p ng-show="vm.status === 'Finished!'">
+                            Click <a href='{{vm.downloadLink}}' target='_blank'>here</a> to download the exported BlogML file
+                        </p>
+                    </div>
+
+                </div>
+
+            </umb-box-content>
+        </umb-box>
+    </ng-form>
+
+</div>

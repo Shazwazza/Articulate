@@ -1,22 +1,36 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using Articulate.Models;
-using Umbraco.Core;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Models;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common;
+using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Cms.Web.Website.ActionResults;
+using Umbraco.Extensions;
 
 namespace Articulate.Controllers
 {
     public class ArticulateAuthorController : ListControllerBase
     {
-        public ArticulateAuthorController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        private readonly UmbracoHelper _umbracoHelper;
+
+        public ArticulateAuthorController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedUrlProvider publishedUrlProvider,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            UmbracoHelper umbracoHelper)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
+            _umbracoHelper = umbracoHelper;
         }
 
         /// <summary>
@@ -25,15 +39,12 @@ namespace Articulate.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [NonAction]
-        public override ActionResult Index(ContentModel model)
-        {
-            return Index(model, 0);
-        }
+        public override IActionResult Index() => Index(0);
 
-        public ActionResult Index(ContentModel model, int? p)
+        public IActionResult Index(int? p)
         {
             //create a master model
-            var masterModel = new MasterModel(model.Content);
+            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, VariationContextAccessor);
 
             var listNodes = masterModel.RootBlogNode.ChildrenOfType(ArticulateConstants.ArticulateArchiveContentTypeAlias).ToArray();
             if (listNodes.Length == 0)
@@ -41,15 +52,30 @@ namespace Articulate.Controllers
                 throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
             }
 
-            var totalPosts = Umbraco.GetPostCount(model.Content.Name, listNodes.Select(x => x.Id).ToArray());
+            var totalPosts = _umbracoHelper.GetPostCount(CurrentPage.Name, listNodes.Select(x => x.Id).ToArray());
 
             if (!GetPagerModel(masterModel, totalPosts, p, out var pager))
             {
-                return new RedirectToUmbracoPageResult(model.Content.Parent, UmbracoContextAccessor);
+                return new RedirectToUmbracoPageResult(
+                    CurrentPage.Parent,
+                    PublishedUrlProvider,                    
+                    UmbracoContextAccessor);
             }
 
-            var authorPosts = Umbraco.GetContentByAuthor(listNodes, model.Content.Name, pager);
-            var author = new AuthorModel(model.Content, authorPosts, pager, totalPosts);
+            IEnumerable<IPublishedContent> authorPosts = _umbracoHelper.GetContentByAuthor(
+                listNodes,
+                CurrentPage.Name,
+                pager,
+                PublishedValueFallback,
+                VariationContextAccessor);
+
+            var author = new AuthorModel(
+                CurrentPage,
+                authorPosts,
+                pager,
+                totalPosts,
+                PublishedValueFallback,
+                VariationContextAccessor);
             
             return View(PathHelper.GetThemeViewPath(author, "Author"), author);
         }

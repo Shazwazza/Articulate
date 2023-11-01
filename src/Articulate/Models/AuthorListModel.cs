@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
+using System.Collections.Generic;
+using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Articulate.Models
 {
     public class AuthorListModel : MasterModel
     {
-        public AuthorListModel(IPublishedContent content)
-            : base(content)
+        public AuthorListModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback, IVariationContextAccessor variationContextAccessor) : base(content, publishedValueFallback, variationContextAccessor)
         {
         }
 

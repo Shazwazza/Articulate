@@ -4,21 +4,26 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
-using HeyRed.MarkdownSharp;
-using Umbraco.Core;
-using Umbraco.Core.Models;
-using Umbraco.Web;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class DisqusXmlExporter
     {
-        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+        private readonly IPublishedUrlProvider _publishedUrlProvider;
+        private readonly ILogger<DisqusXmlExporter> _logger;
 
-        public DisqusXmlExporter(IUmbracoContextAccessor umbracoContextAccessor)
+        public DisqusXmlExporter(
+            IPublishedUrlProvider publishedUrlProvider,
+            ILogger<DisqusXmlExporter> logger)
         {
-            _umbracoContextAccessor = umbracoContextAccessor;
+            _publishedUrlProvider = publishedUrlProvider;
+            _logger = logger;
         }
 
         public XDocument Export(IEnumerable<IContent> posts, BlogMLDocument document)
@@ -43,8 +48,11 @@ namespace Articulate.ImportExport
             {
                 var blogMlPost = document.Posts.FirstOrDefault(x => x.Title.Content == post.Name);
 
-                //TODO: Add logging here if we cant find it
-                if (blogMlPost == null) continue;
+                if (blogMlPost == null)
+                {
+                    _logger.LogWarning("Cannot find blog ml post XML element with post name " + post.Name);
+                    continue;
+                }
 
                 //no comments to import
                 if (blogMlPost.Comments.Any() == false) continue;
@@ -57,7 +65,7 @@ namespace Articulate.ImportExport
 
                 var xItem = new XElement("item",
                     new XElement("title", post.Name),
-                    new XElement("link", _umbracoContextAccessor?.UmbracoContext?.UrlAbsolute(post.Id) ?? string.Empty),
+                    new XElement("link", _publishedUrlProvider.GetUrl(post.Id, Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute) ?? string.Empty),
                     new XElement(nsContent + "encoded", new XCData(body)),
                     new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                     new XElement(nsWp + "post_date_gmt", post.GetValue<DateTime>("publishedDate").ToUniversalTime().ToIsoString()),

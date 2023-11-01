@@ -1,17 +1,16 @@
-﻿using Articulate.Models;
+using Articulate.Models;
 using System;
 using System.Linq;
-using System.Web.Mvc;
-using Umbraco.Core;
-using Umbraco.Core.Cache;
-using Umbraco.Core.Configuration;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.Services;
-using Umbraco.Web;
-using Umbraco.Web.Models;
-using Umbraco.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Web.Common.Controllers;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Media;
+using Umbraco.Cms.Web.Website.ActionResults;
+using Umbraco.Cms.Web.Common.Routing;
 
 namespace Articulate.Controllers
 {
@@ -20,17 +19,28 @@ namespace Articulate.Controllers
     /// </summary>
     public class ArticulateSearchController : ListControllerBase
     {
-        public ArticulateSearchController(IGlobalSettings globalSettings, IUmbracoContextAccessor umbracoContextAccessor, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, UmbracoHelper umbracoHelper, IArticulateSearcher articulateSearcher) : base(globalSettings, umbracoContextAccessor, services, appCaches, profilingLogger, umbracoHelper)
+        private readonly IArticulateSearcher _articulateSearcher;
+
+        public ArticulateSearchController(
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedUrlProvider publishedUrlProvider,
+            IPublishedValueFallback publishedValueFallback,
+            IVariationContextAccessor variationContextAccessor,
+            IArticulateSearcher articulateSearcher)
+            : base(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider, publishedValueFallback, variationContextAccessor)
         {
-            ArticulateSearcher = articulateSearcher;
+            _articulateSearcher = articulateSearcher;
         }
 
-        private IArticulateSearcher ArticulateSearcher { get; }
+        protected override UmbracoRouteValues UmbracoRouteValues => base.UmbracoRouteValues;
+
+        public override IActionResult Index() => base.Index();
 
         /// <summary>
         /// Used to render the search result listing (virtual node)
         /// </summary>
-        /// <param name="model"></param>
         /// <param name="term">
         /// The search term
         /// </param>
@@ -39,27 +49,30 @@ namespace Articulate.Controllers
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public ActionResult Search(ContentModel model, string term, string provider = null, int? p = null)
+        public IActionResult Search(string term, string provider = null, int? p = null)
         {
-            var searchPage = model.Content as ArticulateVirtualPage;
-            if (searchPage == null)
-            {
-                throw new InvalidOperationException("The ContentModel.Content instance must be of type " + typeof(ArticulateVirtualPage));
-            }
-
             //create a master model
-            var masterModel = new MasterModel(model.Content);
+            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, VariationContextAccessor);
 
             if (term == null)
             {
                 //nothing to search, just render the view
-                var emptyList = new ListModel(searchPage, Enumerable.Empty<IPublishedContent>(), new PagerModel(masterModel.PageSize, 0, 0));
+                var emptyList = new ListModel(
+                    CurrentPage,
+                    new PagerModel(masterModel.PageSize, 0, 0),
+                    Enumerable.Empty<IPublishedContent>(),
+                    PublishedValueFallback,
+                    VariationContextAccessor);
+
                 return View(PathHelper.GetThemeViewPath(emptyList, "List"), emptyList);
             }
 
             if (p != null && p.Value == 1)
             {
-                return new RedirectToUmbracoPageResult(model.Content, UmbracoContextAccessor);
+                return new RedirectToUmbracoPageResult(
+                    CurrentPage,
+                    PublishedUrlProvider,
+                    UmbracoContextAccessor);
             }
 
             if (p == null || p.Value <= 0)
@@ -67,9 +80,9 @@ namespace Articulate.Controllers
                 p = 1;
             }
 
-            var searchResult = ArticulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out var totalPosts);
+            var searchResult = _articulateSearcher.Search(term, provider, masterModel.BlogArchiveNode.Id, masterModel.PageSize, p.Value - 1, out var totalPosts);
 
-            return GetPagedListView(masterModel, searchPage, searchResult, totalPosts, p);
+            return GetPagedListView(masterModel, CurrentPage, searchResult, totalPosts, p);
         }
     }
 }
