@@ -1,6 +1,6 @@
 [![Articulate Build](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml/badge.svg)](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml)
 
-![Articulate](assets/Logo.png?raw=true)
+![Articulate](https://raw.githubusercontent.com/Shazwazza/Articulate/develop/assets/Logo.png?raw=true)
 
 > A wonderful Blog engine built on Umbraco
 
