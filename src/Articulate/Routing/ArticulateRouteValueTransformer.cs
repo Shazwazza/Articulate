@@ -60,12 +60,13 @@ namespace Articulate.Routing
             {
                 // This can occur in Umbraco Cloud since some plugin that is used there prevents the UmbracoRouteValues from
                 // being set the normal way. In this case, we'll need to force route it.
-                _ = await _umbracoRouteValueTransformer.TransformAsync(httpContext, values);
+                var routeValues = await _umbracoRouteValueTransformer.TransformAsync(httpContext, values);
 
                 umbracoRouteValues = httpContext.Features.Get<UmbracoRouteValues>();
                 if (umbracoRouteValues == null)
                 {
-                    throw new InvalidOperationException($"Cannot route, the {nameof(UmbracoRouteValues)} has not been set in the request");
+                    // Most likely will be null
+                    return routeValues;
                 }
             }
 
