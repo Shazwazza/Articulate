@@ -1,13 +1,11 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using Microsoft.Extensions.Logging;
-using Polly.Caching;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
@@ -16,7 +14,6 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Infrastructure.Persistence;
-using Umbraco.Cms.Infrastructure.Persistence.Querying;
 using Umbraco.Extensions;
 
 namespace Articulate.ImportExport
@@ -291,7 +288,7 @@ namespace Articulate.ImportExport
                                         });
                                     }
                                 }
-                            }                            
+                            }
                         }
                         catch (Exception ex)
                         {

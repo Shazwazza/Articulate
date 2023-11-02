@@ -10,6 +10,7 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Routing;
+using Umbraco.Cms.Web.Website.Routing;
 using static Umbraco.Cms.Core.Constants.Web.Routing;
 
 namespace Articulate.Routing
@@ -25,6 +26,7 @@ namespace Articulate.Routing
         private readonly IPublishedRouter _publishedRouter;
         private readonly IRoutableDocumentFilter _routableDocumentFilter;
         private readonly ArticulateRouter _articulateRouter;
+        private readonly UmbracoRouteValueTransformer _umbracoRouteValueTransformer;
         private bool _hasCache = false;
         private bool _disposedValue;
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
@@ -34,13 +36,15 @@ namespace Articulate.Routing
             IUmbracoContextAccessor umbracoContextAccessor,
             IPublishedRouter publishedRouter,
             IRoutableDocumentFilter routableDocumentFilter,
-            ArticulateRouter articulateRouteBuilder)
+            ArticulateRouter articulateRouteBuilder,
+            UmbracoRouteValueTransformer umbracoRouteValueTransformer)
         {
             _runtime = runtime;
             _umbracoContextAccessor = umbracoContextAccessor;
             _publishedRouter = publishedRouter;
             _routableDocumentFilter = routableDocumentFilter;
             _articulateRouter = articulateRouteBuilder;
+            _umbracoRouteValueTransformer = umbracoRouteValueTransformer;
         }
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
@@ -50,6 +54,19 @@ namespace Articulate.Routing
             if (!ShouldCheck(httpContext, out IUmbracoContext umbracoContext, out UmbracoRouteValues umbracoRouteValues))
             {
                 return null;
+            }
+
+            if (umbracoRouteValues == null)
+            {
+                // This can occur in Umbraco Cloud since some plugin that is used there prevents the UmbracoRouteValues from
+                // being set the normal way. In this case, we'll need to force route it.
+                _ = await _umbracoRouteValueTransformer.TransformAsync(httpContext, values);
+
+                umbracoRouteValues = httpContext.Features.Get<UmbracoRouteValues>();
+                if (umbracoRouteValues == null)
+                {
+                    throw new InvalidOperationException($"Cannot route, the {nameof(UmbracoRouteValues)} has not been set in the request");
+                }
             }
 
             var newValues = new RouteValueDictionary();
