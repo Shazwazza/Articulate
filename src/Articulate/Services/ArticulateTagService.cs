@@ -3,8 +3,8 @@ using Articulate.Models;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.PublishedCache;
-using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Common;
 
 namespace Articulate.Services
@@ -19,7 +19,9 @@ namespace Articulate.Services
             ILoggerFactory loggerFactory,
             IEventMessagesFactory eventMessagesFactory)
             : base(provider, loggerFactory, eventMessagesFactory)
-            => _repository = repository;
+        {
+            _repository = repository;
+        }
 
         // TODO: Wrap the repo
 

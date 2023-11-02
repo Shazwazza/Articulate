@@ -1,9 +1,9 @@
-using Markdig;
-using Microsoft.AspNetCore.Html;
+using System;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Templates;
 
@@ -13,7 +13,14 @@ namespace Articulate.PropertyEditors
     [DataEditor("Articulate.MarkdownEditor", "Articulate Markdown editor", "markdowneditor", ValueType = "TEXT")]
     public class ArticulateMarkdownPropertyEditor : MarkdownPropertyEditor
     {
-        public ArticulateMarkdownPropertyEditor(IDataValueEditorFactory dataValueEditorFactory, IIOHelper ioHelper) : base(dataValueEditorFactory, ioHelper)
+        [Obsolete]
+        public ArticulateMarkdownPropertyEditor(IDataValueEditorFactory dataValueEditorFactory, IIOHelper ioHelper)
+            : base(dataValueEditorFactory, ioHelper)
+        {
+        }
+
+        public ArticulateMarkdownPropertyEditor(IDataValueEditorFactory dataValueEditorFactory, IIOHelper ioHelper, IEditorConfigurationParser editorConfigurationParser)
+            : base(dataValueEditorFactory, ioHelper, editorConfigurationParser)
         {
         }
     }

@@ -15,11 +15,11 @@ using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.PropertyEditors;
-using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Extensions;
 using File = System.IO.File;
 using Task = System.Threading.Tasks.Task;
@@ -121,11 +121,8 @@ namespace Articulate.ImportExport
                         throw new FileNotFoundException("File not found: " + fileName);
                     }
 
-                    var root = _contentService.GetById(blogRootNode);
-                    if (root == null)
-                    {
-                        throw new InvalidOperationException("No node found with id " + blogRootNode);
-                    }
+                    var root = _contentService.GetById(blogRootNode)
+                        ?? throw new InvalidOperationException("No node found with id " + blogRootNode);
 
                     if (!root.ContentType.Alias.InvariantEquals("Articulate"))
                     {
@@ -187,17 +184,11 @@ namespace Articulate.ImportExport
         {
             var result = new Dictionary<string, string>();
 
-            var authorType = _contentTypeService.Get("ArticulateAuthor");
-            if (authorType == null)
-            {
-                throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
-            }
+            var authorType = _contentTypeService.Get("ArticulateAuthor")
+                ?? throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthor doc type could not be found");
 
-            var authorsType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias);
-            if (authorsType == null)
-            {
-                throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthors doc type could not be found");
-            }
+            var authorsType = _contentTypeService.Get(ArticulateConstants.ArticulateAuthorsContentTypeAlias)
+                ?? throw new InvalidOperationException("Articulate is not installed properly, the ArticulateAuthors doc type could not be found");
 
             // get the authors container node for this articulate root
             var allAuthorsNodes = _contentService.GetPagedOfType(
@@ -270,11 +261,8 @@ namespace Articulate.ImportExport
         {
             var result = new List<IContent>();
 
-            var postType = _contentTypeService.Get("ArticulateRichText");
-            if (postType == null)
-            {
-                throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
-            }
+            var postType = _contentTypeService.Get("ArticulateRichText")
+                ?? throw new InvalidOperationException("Articulate is not installed properly, the ArticulateRichText doc type could not be found");
 
             var archiveDocType = _contentTypeService.Get(ArticulateConstants.ArticulateArchiveContentTypeAlias);
 
@@ -543,13 +531,10 @@ namespace Articulate.ImportExport
             var xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                 .SingleOrDefault(x => ((string)x.Attribute("id")) == post.Id);
 
-            if (xmlPost == null)
-            {
-                xmlPost = xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
+            xmlPost ??= xdoc.Descendants(XName.Get("post", xdoc.Root.Name.NamespaceName))
                                 .SingleOrDefault(x => x.Descendants(XName.Get("post-name", xdoc.Root.Name.NamespaceName))
                                 .SingleOrDefault(s => s.Value == post.Name.Content) != null
-                                );
-            };
+                                );;
 
             if (xmlPost == null)
             {

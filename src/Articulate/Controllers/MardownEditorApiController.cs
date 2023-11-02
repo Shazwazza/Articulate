@@ -70,6 +70,7 @@ namespace Articulate.Controllers
 
         public async Task<ActionResult> PostNew()
         {
+            await Task.CompletedTask;
 
             if (!Request.HasFormContentType && !Request.Form.Files.Any())
             {
@@ -235,7 +236,10 @@ namespace Articulate.Controllers
         private static bool CheckPermissions(IUser user, IUserService userService, char[] permissionsToCheck, IContent contentItem)
         {
 
-            if (permissionsToCheck == null || !permissionsToCheck.Any()) return true;
+            if (permissionsToCheck == null || !permissionsToCheck.Any())
+            {
+                return true;
+            }
 
             var entityPermission = userService.GetPermissions(user, new[] { contentItem.Id }).FirstOrDefault();
 
@@ -243,7 +247,9 @@ namespace Articulate.Controllers
             foreach (var ch in permissionsToCheck)
             {
                 if (entityPermission == null || !entityPermission.AssignedPermissions.Contains(ch.ToString(CultureInfo.InvariantCulture)))
+                {
                     flag = false;
+                }
             }
 
             return flag;
