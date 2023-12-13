@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="10.1.0" />
+    <PackageReference Include="Umbraco.Cms" Version="10.7.0" />
   </ItemGroup>
 
   <Import Project="..\Articulate\build\Articulate.targets" />
