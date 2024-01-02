@@ -15,7 +15,7 @@ namespace Articulate.Components
                     endpoints.MapDynamicControllerRoute<ArticulateRouteValueTransformer>(
                         "/{any}/{**slug}",
                         null,
-                        100); // Ensure it runs AFTER Umbraco so that we can check if things are already matched.
+                        1000); // Ensure it runs AFTER Umbraco so that we can check if things are already matched.
                 })
             });
     }
