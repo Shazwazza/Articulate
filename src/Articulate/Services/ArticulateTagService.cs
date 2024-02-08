@@ -64,5 +64,14 @@ namespace Articulate.Services
                     pageSize);
             }
         }
+
+        public IEnumerable<string> GetAllCategories(
+            IMasterModel masterModel)
+        {
+            using (ScopeProvider.CreateCoreScope(autoComplete: true))
+            {
+                return _repository.GetAllCategories(masterModel);
+            }
+        }
     }
 }
