@@ -153,7 +153,14 @@ namespace Articulate.Routing
                 _routeCache[art] = dynamicRouteValues;
             }
 
-            dynamicRouteValues.Add(articulateRootNode.Id, domains.Where(x => x.ContentId == articulateRootNode.Id).ToList());
+            dynamicRouteValues.Add(articulateRootNode.Id, DomainsForContent(articulateRootNode,domains));
+        }
+
+        private List<Domain> DomainsForContent(IPublishedContent content, IReadOnlyList<Domain> domains)
+        {
+            var nodePaths = new HashSet<int>(content.Path.Split(",").Select(int.Parse).ToList());
+
+            return domains.Where(domain => nodePaths.Contains(domain.ContentId)).ToList();
         }
 
         private void MapOpenSearchRoute(HttpContext httpContext, string rootNodePath, IPublishedContent articulateRootNode, List<Domain> domains)
