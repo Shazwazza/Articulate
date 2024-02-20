@@ -3,6 +3,7 @@ using System.Web;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors;
+using Umbraco.Core.Security;
 using Umbraco.Web.PropertyEditors;
 using Umbraco.Web.PropertyEditors.ValueConverters;
 
@@ -12,7 +13,7 @@ namespace Articulate.PropertyEditors
     [DataEditor("Articulate.MarkdownEditor", "Articulate Markdown editor", "markdowneditor", ValueType = "TEXT")]
     public class ArticulateMarkdownPropertyEditor : MarkdownPropertyEditor
     {
-        public ArticulateMarkdownPropertyEditor(ILogger logger) : base(logger)
+        public ArticulateMarkdownPropertyEditor(ILogger logger, IMarkdownSanitizer markdownSanitizer) : base(logger, markdownSanitizer)
         {
         }
     }
