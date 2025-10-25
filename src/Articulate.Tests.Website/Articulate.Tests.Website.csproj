@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="10.8.1" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
+    <PackageReference Include="Smidge" Version="4.6.0" />
+    <PackageReference Include="Umbraco.Cms" Version="10.8.11" />
   </ItemGroup>
 
   <Import Project="..\Articulate\build\Articulate.targets" />
