@@ -13,14 +13,15 @@ namespace Articulate.Services
                 "metadata.google.internal"
             ]);
 
+        // DNS rebinding / wildcard-DNS-to-loopback suffixes
         private static readonly FrozenSet<string> _alwaysBlockedHostSuffixes =
             FrozenSet.ToFrozenSet([
-                "localtest.me",
-                "lvh.me",
-                "nip.io",
-                "sslip.io",
-                "traefik.me",
-                "xip.io"
+                ".localtest.me",
+                ".lvh.me",
+                ".nip.io",
+                ".sslip.io",
+                ".traefik.me",
+                ".xip.io"
             ]);
 
         private static readonly IPAddress _azurePlatformAddress = IPAddress.Parse("168.63.129.16");
