@@ -57,3 +57,5 @@
 *.sln text=auto eol=crlf merge=union
 *.sh text eol=lf
 *.gitattributes text eol=lf
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours
