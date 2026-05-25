@@ -16,6 +16,17 @@ namespace Articulate
         IExamineManager examineManager)
         : IArticulateSearcher
     {
+        // Static to avoid allocating a new Dictionary on every search call.
+        private static readonly Dictionary<string, int> SearchFields = new()
+        {
+            { "markdown", 2 },
+            { "richText", 2 },
+            { "nodeName", 3 },
+            { "tags", 1 },
+            { "categories", 1 },
+            { "umbracoUrlName", 3 },
+        };
+
         /// <inheritdoc/>
         public IEnumerable<IPublishedContent> Search(
             string term,
@@ -50,15 +61,7 @@ namespace Articulate
             var escapedTerm = QueryParserBase.Escape(term);
 
             // The fields to search on and their 'weight' (importance)
-            var fields = new Dictionary<string, int>
-            {
-                { "markdown", 2 },
-                { "richText", 2 },
-                { "nodeName", 3 },
-                { "tags", 1 },
-                { "categories", 1 },
-                { "umbracoUrlName", 3 },
-            };
+            Dictionary<string, int> fields = SearchFields;
 
             // The multipliers for match types
             const int exactMatch = 5;
