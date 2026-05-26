@@ -4,7 +4,7 @@
 {
     if (Model.Author.Image is not null)
     {
-        var thumbnail = Model.Author.Image.GetCropUrl(cropAlias: "thumbnail", preferFocalPoint: true, useCropDimensions: true)?.ToSafeCssUrl();
+        var thumbnail = Model.Author.Image.GetCropUrl(cropAlias: "thumbnail", preferFocalPoint: true, useCropDimensions: true)?.ToCssStyleUrl();
         if (thumbnail is not null)
         {
             <div class="minilogo" style="background: url('@thumbnail')"></div>

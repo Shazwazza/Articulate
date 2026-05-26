@@ -23,7 +23,7 @@ else
             </header>
             <section class="post-excerpt">
                 @{
-                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToSafeCssUrl();
+                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToCssStyleUrl();
                 }
                 @if (thumbnail is not null)
                 {

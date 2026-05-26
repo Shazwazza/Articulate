@@ -1,4 +1,6 @@
 #nullable enable
+using Microsoft.AspNetCore.Html;
+
 namespace Articulate
 {
     /// <summary>
@@ -75,16 +77,46 @@ namespace Articulate
                 return null;
             }
 
+            // Normalize/encode the URL portion first so spaces and other URI characters are safe for HTTP requests.
+            string normalized;
+            try
+            {
+                if (uri.IsAbsoluteUri)
+                {
+                    // Escape as a URI string for absolute URIs (preserves path separators)
+                    normalized = Uri.EscapeUriString(url);
+                }
+                else
+                {
+                    // For relative URLs, percent-encode literal spaces which commonly break requests
+                    normalized = url.Replace(" ", "%20");
+                }
+            }
+            catch
+            {
+                normalized = url.Replace(" ", "%20");
+            }
+
             // Escape characters that could break out of CSS context
-            return url
+            return normalized
                 .Replace("\\", "\\\\")
                 .Replace("'", "\\'")
                 .Replace("\"", "\\\"")
                 .Replace("\n", "\\n")
                 .Replace("\r", "\\r")
                 .Replace("\0", string.Empty)
-                .Replace("(", "\\(")
+                                .Replace("(", "\\(")
                 .Replace(")", "\\)");
+        }
+
+        /// <summary>
+        /// CSS-escapes a URL and returns <see cref="IHtmlContent"/> so Razor does not double-encode the ampersands
+        /// when rendering in a &lt;style&gt; block or inline style attribute.
+        /// </summary>
+        public static IHtmlContent ToCssStyleUrl(this string? url)
+        {
+            var safe = url.ToSafeCssUrl();
+            return safe is not null ? new HtmlString(safe) : HtmlString.Empty;
         }
     }
 }

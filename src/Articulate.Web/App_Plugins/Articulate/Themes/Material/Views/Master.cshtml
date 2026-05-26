@@ -68,11 +68,11 @@
 
     @await RenderSectionAsync("Header", false)
 
-    @if (Model.BlogBannerCss is not null)
+    @if (Model.BlogBanner is not null)
     {
         <style>
             body::before {
-                background-image: url('@Model.BlogBannerCss');
+                background-image: url('@Model.BlogBanner.ToCssStyleUrl()');
                 background-size: cover;
                 background-attachment: fixed;
             }
