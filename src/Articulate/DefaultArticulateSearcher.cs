@@ -1,4 +1,5 @@
 #nullable enable
+using System.Collections.Frozen;
 using System.Text;
 using Examine;
 using Examine.Search;
@@ -17,7 +18,7 @@ namespace Articulate
         : IArticulateSearcher
     {
         // Static to avoid allocating a new Dictionary on every search call.
-        private static readonly Dictionary<string, int> SearchFields = new()
+        private static readonly FrozenDictionary<string, int> SearchFields = new Dictionary<string, int>
         {
             { "markdown", 2 },
             { "richText", 2 },
@@ -25,7 +26,7 @@ namespace Articulate
             { "tags", 1 },
             { "categories", 1 },
             { "umbracoUrlName", 3 },
-        };
+        }.ToFrozenDictionary();
 
         /// <inheritdoc/>
         public IEnumerable<IPublishedContent> Search(
@@ -61,7 +62,7 @@ namespace Articulate
             var escapedTerm = QueryParserBase.Escape(term);
 
             // The fields to search on and their 'weight' (importance)
-            Dictionary<string, int> fields = SearchFields;
+            FrozenDictionary<string, int> fields = SearchFields;
 
             // The multipliers for match types
             const int exactMatch = 5;
