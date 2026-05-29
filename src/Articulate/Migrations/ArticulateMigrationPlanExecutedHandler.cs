@@ -108,16 +108,18 @@ internal class ArticulateMigrationPlanExecutedHandler(
 
     private bool CanAutoPublish(string trigger)
     {
-        logger.LogInformation(
+        logger.LogDebug(
             "Articulate CanAutoPublish check for {Trigger}: RuntimeLevel={RuntimeLevel}, AutoPublishOnStartup={AutoPublishOnStartup}",
             trigger,
             runtimeState.Level,
             options.Value.AutoPublishOnStartup);
 
-        if (runtimeState.Level is RuntimeLevel.Boot or RuntimeLevel.BootFailed or RuntimeLevel.Unknown)
+        // Only Run, Install or Upgrade are valid runtime levels to consider migration/publish tasks.
+        // Any other level (Boot, BootFailed, Unknown, etc.) is not a migration scenario and will be skipped.
+        if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Install or RuntimeLevel.Upgrade))
         {
             logger.LogInformation(
-                "Umbraco runtime is not ready (level={RuntimeLevel}), skipping Articulate post-migration tasks ({Trigger}).",
+                "Umbraco runtime level {RuntimeLevel} is not valid for migration; skipping Articulate post-migration tasks ({Trigger}).",
                 runtimeState.Level,
                 trigger);
             return false;
