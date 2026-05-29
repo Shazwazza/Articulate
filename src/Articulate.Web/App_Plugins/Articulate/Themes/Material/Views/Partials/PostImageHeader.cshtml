@@ -2,7 +2,7 @@
 @{
     if (Model.CroppedWideUrl is not null)
     {
-        <div class="@Model.Image.GetImageClass("mdl-card__media") mdl-color-text--grey-50" style="background-image: url('@Model.CroppedWideUrl.ToCssStyleUrl()');">
+        <div class="@Model.Image.GetImageClass("mdl-card__media") mdl-color-text--grey-50" style="@Model.CroppedWideUrl.ToCssStyleAttributeValue()">
             <h3>
                 <a href="@Model.Url">@Model.Name</a>
             </h3>

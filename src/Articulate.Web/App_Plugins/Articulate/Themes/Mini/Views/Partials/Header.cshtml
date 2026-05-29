@@ -4,7 +4,7 @@
 
 @{
     string backgroundStyle = Model.BlogBanner is not null
-        ? $"background-image: url('{Model.BlogBanner.ToCssStyleUrl()}');"
+        ? Model.BlogBanner.ToCssStyleAttributeValue()
         : "";
 }
 <div class="header-content" style="@backgroundStyle">

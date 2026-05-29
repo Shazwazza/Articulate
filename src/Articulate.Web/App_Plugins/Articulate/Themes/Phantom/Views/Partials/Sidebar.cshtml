@@ -2,7 +2,7 @@
 
 @{
     var backgroundStyle = Model.BlogBanner is not null
-        ? $"background-image: url('{Model.BlogBanner.ToCssStyleUrl()}');"
+        ? Model.BlogBanner.ToCssStyleAttributeValue()
         : string.Empty;
 }
 <div class="sidebar" role="heading" style="@backgroundStyle">

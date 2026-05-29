@@ -105,7 +105,7 @@ namespace Articulate
                 .Replace("\n", "\\n")
                 .Replace("\r", "\\r")
                 .Replace("\0", string.Empty)
-                                .Replace("(", "\\(")
+                .Replace("(", "\\(")
                 .Replace(")", "\\)");
         }
 
@@ -117,6 +117,20 @@ namespace Articulate
         {
             var safe = url.ToSafeCssUrl();
             return safe is not null ? new HtmlString(safe) : HtmlString.Empty;
+        }
+
+        /// <summary>
+        /// Produces a safe CSS style fragment (e.g. "background-image: url('...');") as a plain C# string
+        /// suitable for assigning to a local variable in a Razor view. This avoids interpolating an
+        /// <see cref="IHtmlContent"/> into a C# string (which loses IHtmlContent semantics) when building
+        /// inline style attribute values.
+        /// </summary>
+        /// <param name="url">The URL to validate and escape for CSS.</param>
+        /// <returns>The full style fragment if the URL is safe, otherwise an empty string.</returns>
+        public static string ToCssStyleAttributeValue(this string? url)
+        {
+            var safe = url.ToSafeCssUrl();
+            return safe is not null ? $"background-image: url('{safe}');" : string.Empty;
         }
     }
 }
