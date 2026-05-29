@@ -108,10 +108,17 @@ internal class ArticulateMigrationPlanExecutedHandler(
 
     private bool CanAutoPublish(string trigger)
     {
-        if (runtimeState.Level is not RuntimeLevel.Run)
+        logger.LogInformation(
+            "Articulate CanAutoPublish check for {Trigger}: RuntimeLevel={RuntimeLevel}, AutoPublishOnStartup={AutoPublishOnStartup}",
+            trigger,
+            runtimeState.Level,
+            options.Value.AutoPublishOnStartup);
+
+        if (runtimeState.Level is RuntimeLevel.Boot or RuntimeLevel.BootFailed or RuntimeLevel.Unknown)
         {
             logger.LogInformation(
-                "Umbraco is not in Run level, skipping Articulate post-migration tasks ({Trigger}).",
+                "Umbraco runtime is not ready (level={RuntimeLevel}), skipping Articulate post-migration tasks ({Trigger}).",
+                runtimeState.Level,
                 trigger);
             return false;
         }
@@ -122,6 +129,11 @@ internal class ArticulateMigrationPlanExecutedHandler(
                 "AutoPublishOnStartup is false, skipping Articulate post-migration tasks ({Trigger}).", trigger);
             return false;
         }
+
+        logger.LogInformation(
+            "Articulate post-migration tasks will proceed for {Trigger} (RuntimeLevel={RuntimeLevel}).",
+            trigger,
+            runtimeState.Level);
 
         return true;
     }
