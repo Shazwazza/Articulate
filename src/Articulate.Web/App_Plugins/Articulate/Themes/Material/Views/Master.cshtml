@@ -2,6 +2,10 @@
 @{
     var theme = Model.Theme;
     var themeLower = theme.ToLower();
+    var blogBannerUrl = Model.BlogBanner.ToSafeCssUrl();
+    var blogBannerStyle = blogBannerUrl.IsNullOrWhiteSpace()
+        ? string.Empty
+        : $"--blog-banner: url('{blogBannerUrl}');";
 }
 
 <!doctype html>
@@ -68,18 +72,8 @@
 
     @await RenderSectionAsync("Header", false)
 
-    @if (Model.BlogBanner is not null)
-    {
-        <style>
-            body::before {
-                background-image: url('@Model.BlogBanner.ToCssStyleUrl()');
-                background-size: cover;
-                background-attachment: fixed;
-            }
-        </style>
-    }
 </head>
-<body>
+<body style="@blogBannerStyle">
     @Model.GoogleAnalyticsNoScript()
     <div class="demo-blog @ViewBag.CssWrapperClass mdl-layout mdl-js-layout has-drawer is-upgraded">
         <main class="mdl-layout__content">
@@ -101,4 +95,3 @@
 
 </body>
 </html>
-

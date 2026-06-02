@@ -49,11 +49,6 @@ namespace Articulate.Models
         public string BlogBanner { get; }
 
         /// <summary>
-        /// Gets the blog banner URL with CSS escaping for safe use in inline style attributes.
-        /// </summary>
-        public string? BlogBannerCss { get; }
-
-        /// <summary>
         /// Gets the number of items per page.
         /// </summary>
         public int PageSize { get; }
