@@ -14,7 +14,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
 
 # Enable Corepack and set pnpm version
 RUN corepack enable \
-    && corepack prepare pnpm@11.1.3 --activate
+    && corepack prepare pnpm@11.4.0 --activate
 
 # Install sqlite3 for local database
 RUN apt-get update \

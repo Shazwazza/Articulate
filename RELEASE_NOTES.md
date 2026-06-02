@@ -8,7 +8,7 @@
 > **Platform requirements**
 >
 > - Minimum Umbraco version: **16.5.1** on .NET 9
-> - Minimum Umbraco version: **17.2.2** on .NET 10
+> - Minimum Umbraco version: **17.4.0** on .NET 10
 > - Umbraco 15 and earlier are no longer supported by Articulate 6
 
 - Articulate 6 is multi-targeted for `net9.0` and `net10.0`, supporting Umbraco 16 and 17 from a single package.
