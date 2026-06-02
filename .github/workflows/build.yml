@@ -36,6 +36,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6.0.8
         with:
+          package_json_file: src/Articulate.Web/Client/package.json
           run_install: false
 
       - name: Setup NodeJS
