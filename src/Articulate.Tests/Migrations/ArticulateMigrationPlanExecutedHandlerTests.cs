@@ -307,6 +307,43 @@ namespace Articulate.Tests.Migrations
             sqlContext.VerifyNoOtherCalls();
         }
 
+#if NET10_0_OR_GREATER
+        [Test]
+        public void Handle_imported_package_publishes_when_runtime_upgrading()
+        {
+            IContent root = CreateContent(1, published: true);
+
+            Mock<IContentService> contentService = new();
+            contentService
+                .Setup(x => x.PublishBranch(root, PublishBranchFilter.All, It.IsAny<string[]>()))
+                .Returns([]);
+
+            Mock<IContentTypeService> contentTypeService = new(MockBehavior.Strict);
+            Mock<ISqlContext> sqlContext = new(MockBehavior.Strict);
+
+            Mock<IRuntimeState> runtimeState = new();
+            runtimeState.SetupGet(x => x.Level).Returns(RuntimeLevel.Upgrading);
+
+            var sut = new ArticulateMigrationPlanExecutedHandler(
+                runtimeState.Object,
+                contentService.Object,
+                contentTypeService.Object,
+                sqlContext.Object,
+                NullLogger<ArticulateMigrationPlanExecutedHandler>.Instance,
+                Microsoft.Extensions.Options.Options.Create(new ArticulateOptions { AutoPublishOnStartup = true }),
+                _scopeProvider.Object);
+
+            sut.Handle(CreateImportedPackageNotification(root));
+
+            contentService.Verify(
+                x => x.PublishBranch(root, PublishBranchFilter.All, It.IsAny<string[]>()),
+                Times.Once);
+            contentService.VerifyNoOtherCalls();
+            contentTypeService.VerifyNoOtherCalls();
+            sqlContext.VerifyNoOtherCalls();
+        }
+#endif
+
         [Test]
         public void Handle_imported_package_does_not_publish_when_package_did_not_install_articulate_roots()
         {
