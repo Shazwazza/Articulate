@@ -76,7 +76,7 @@ internal class ArticulateMigrationPlanExecutedHandler(
 
         if (!HasMigrationRun(executedPlans))
         {
-            logger.LogInformation(
+            logger.LogDebug(
                 "No Articulate migrations have run for this notification ({Trigger}), skipping publish.", trigger);
             return false;
         }
@@ -96,7 +96,7 @@ internal class ArticulateMigrationPlanExecutedHandler(
 
         if (installedArticulateRoots.Count == 0)
         {
-            logger.LogInformation(
+            logger.LogDebug(
                 "Package '{PackageName}' did not install any Articulate roots, skipping publish for {Trigger}.",
                 installationSummary.PackageName,
                 trigger);
@@ -114,11 +114,13 @@ internal class ArticulateMigrationPlanExecutedHandler(
             runtimeState.Level,
             options.Value.AutoPublishOnStartup);
 
-        // Only Run, Install or Upgrade are valid runtime levels to consider migration/publish tasks.
-        // Any other level (Boot, BootFailed, Unknown, etc.) is not a migration scenario and will be skipped.
+#if NET10_0_OR_GREATER
+        if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Install or RuntimeLevel.Upgrade or RuntimeLevel.Upgrading))
+#else
         if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Install or RuntimeLevel.Upgrade))
+#endif
         {
-            logger.LogInformation(
+            logger.LogDebug(
                 "Umbraco runtime level {RuntimeLevel} is not valid for migration; skipping Articulate post-migration tasks ({Trigger}).",
                 runtimeState.Level,
                 trigger);
@@ -127,7 +129,7 @@ internal class ArticulateMigrationPlanExecutedHandler(
 
         if (!options.Value.AutoPublishOnStartup)
         {
-            logger.LogInformation(
+            logger.LogDebug(
                 "AutoPublishOnStartup is false, skipping Articulate post-migration tasks ({Trigger}).", trigger);
             return false;
         }
@@ -152,14 +154,14 @@ internal class ArticulateMigrationPlanExecutedHandler(
         {
             if (!TryGetPublishBranchFilter(contentHome, allowPublishingUnpublishedRoots, out PublishBranchFilter filter))
             {
-                logger.LogInformation(
+                logger.LogDebug(
                     "Skipping unpublished Articulate root node ID {NodeId} for trigger {Trigger} because it is not eligible for auto-publish in this context.",
                     contentHome.Id,
                     trigger);
                 continue;
             }
 
-            logger.LogInformation(
+            logger.LogDebug(
                 "Found Articulate root node with ID {NodeId} for trigger {Trigger}",
                 contentHome.Id,
                 trigger);
@@ -171,7 +173,7 @@ internal class ArticulateMigrationPlanExecutedHandler(
                     contentHome.Id,
                     trigger);
 
-                logger.LogInformation(
+                logger.LogDebug(
                     "Publish filter for root node ID {NodeId} is {Filter} (Published: {IsPublished})",
                     contentHome.Id,
                     filter,
