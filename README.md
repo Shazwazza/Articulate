@@ -25,7 +25,7 @@ _Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Ar
 
 ### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
 
-Articulate 6 targets Umbraco 16.5.1+ and 17.2.2+
+Articulate 6 targets Umbraco 16.5.1+ and 17.4.0+
 
 - Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
 - When building from source, run the test site `dotnet run -f net9.0 --project src/Articulate.Tests.Website/Articulate.Tests.Website.csproj` (or `-f net10.0` for Umbraco 17) and sign into the Umbraco Back Office to finish setup.
@@ -245,7 +245,7 @@ Built-in themes render Disqus comments only when both post comments are enabled 
 ## Minimum requirements
 
 - Articulate 5.x (maintenance): Umbraco 13 LTS (security support through Dec 2025, EOL Dec 2026)
-- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.2.2+ on .NET 10
+- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.4.0+ on .NET 10
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 

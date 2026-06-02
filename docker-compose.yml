@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.2.2,18.0.0)}
+        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.4.0,18.0.0)}
     image: ${IMAGE_TAG:-articulate-local:net10}
     user: "1654:1654"
     environment:

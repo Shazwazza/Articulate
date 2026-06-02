@@ -27,7 +27,7 @@ Supporting all the features you'd want in a blogging platform
 
 ## Minimum requirements
 
-- Umbraco 16.5.1+ (NET 9) and 17.2.2+ (NET 10) - Articulate version 6.x
+- Umbraco 16.5.1+ (NET 9) and 17.4.0+ (NET 10) - Articulate version 6.x
 - Umbraco 13 LTS (maintenance) - Articulate 5.x.
 
 ## Upgrade note for rich text editor compatibility
