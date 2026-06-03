@@ -4,6 +4,7 @@ using System.Text;
 using Examine;
 using Examine.Search;
 using Lucene.Net.QueryParsers.Classic;
+using Microsoft.Extensions.ObjectPool;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 
@@ -17,6 +18,8 @@ namespace Articulate
         IExamineManager examineManager)
         : IArticulateSearcher
     {
+        // Shared pool to avoid allocating a new StringBuilder on every search call.
+        private static readonly ObjectPool<StringBuilder> s_pool = ObjectPool.Create<StringBuilder>();
         // Static to avoid allocating a new Dictionary on every search call.
         private static readonly FrozenDictionary<string, int> SearchFields = new Dictionary<string, int>
         {
@@ -68,30 +71,39 @@ namespace Articulate
             const int exactMatch = 5;
             const int termMatch = 2;
 
-            var fieldQuery = new StringBuilder();
-
-            // build field query
-            foreach (KeyValuePair<string, int> field in fields)
+            StringBuilder fieldQuery = s_pool.Get();
+            string fieldQueryString;
+            try
             {
-                // full exact match (which has a higher boost)
-                _ = fieldQuery.Append($"{field.Key}:\"{escapedTerm}\"^{field.Value * exactMatch}");
-                _ = fieldQuery.Append(' ');
-
-                // NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
-                // API like ComplexPhraseWildcardSomethingOrOther...
-                // split match
-                foreach (var s in splitSearch)
+                // build field query
+                foreach (KeyValuePair<string, int> field in fields)
                 {
-                    var escapedSplitTerm = QueryParserBase.Escape(s);
-
-                    // match on each term, no wildcard, higher boost
-                    _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}^{field.Value * termMatch}");
+                    // full exact match (which has a higher boost)
+                    _ = fieldQuery.Append($"{field.Key}:\"{escapedTerm}\"^{field.Value * exactMatch}");
                     _ = fieldQuery.Append(' ');
 
-                    // match on each term, with wildcard
-                    _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}*");
-                    _ = fieldQuery.Append(' ');
+                    // NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
+                    // API like ComplexPhraseWildcardSomethingOrOther...
+                    // split match
+                    foreach (var s in splitSearch)
+                    {
+                        var escapedSplitTerm = QueryParserBase.Escape(s);
+
+                        // match on each term, no wildcard, higher boost
+                        _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}^{field.Value * termMatch}");
+                        _ = fieldQuery.Append(' ');
+
+                        // match on each term, with wildcard
+                        _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}*");
+                        _ = fieldQuery.Append(' ');
+                    }
                 }
+
+                fieldQueryString = fieldQuery.ToString();
+            }
+            finally
+            {
+                s_pool.Return(fieldQuery);
             }
 
             indexName = string.IsNullOrWhiteSpace(indexName)
@@ -110,7 +122,7 @@ namespace Articulate
             IBooleanOperation criteria = searcher.CreateQuery()
                 .Field("parentID", blogArchiveNodeId)
                 .And()
-                .NativeQuery($" +({fieldQuery})");
+                .NativeQuery($" +({fieldQueryString})");
 
             ISearchResults searchResult = criteria.Execute(QueryOptions.SkipTake(pageIndex * pageSize, pageSize));
 
