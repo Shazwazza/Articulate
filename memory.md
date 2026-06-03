@@ -11,19 +11,20 @@
 - Build requires Nerdbank.GitVersioning; can't fully validate locally without full git history
 - publishedDate propertytype ID is schema-level (app-lifetime constant), safe to cache for 1h
 - MetaWeblog provider already uses [GeneratedRegex] source-generated regexes (good pattern)
+- ObjectPool<StringBuilder> available transitively via ASP.NET Core (Microsoft.Extensions.ObjectPool)
 
 ## Optimisation Backlog
 | Priority | Area | Opportunity | Notes |
 |---|---|---|---|
-| MEDIUM | Code | `StringBuilder` reuse in `DefaultArticulateSearcher.Search()` via pooling | Each call allocates a new StringBuilder |
 | MEDIUM | Data | `GetPagedPostsSortedByPublishedDate` loads ALL posts into memory before paging | Architectural (Umbraco IPublishedCache) |
 | LOW | Code | `ContentExtensions.VariesByCulture` linear scan of `CompositionPropertyTypes` | Not a hot path |
 
 ## Completed Work
 - 2026-05-25: PR #481 — static readonly SearchFields FrozenDictionary in DefaultArticulateSearcher (merged 2026-05-27)
 - 2026-05-29: PR #485 — cache publishedDate property type ID in GetContentByTag (merged 2026-06-01)
-- 2026-06-02: PR — replace Regex.IsMatch with char-based check in IsDisqusEnabled (branch: efficiency/disqus-regex-removal)
+- 2026-06-02: PR #486 — replace Regex.IsMatch with char-based check in IsDisqusEnabled (open, draft)
+- 2026-06-03: PR — pool StringBuilder in DefaultArticulateSearcher.Search() (open, draft)
 
 ## Last Run
-- 2026-06-02: Tasks 3, 7
-- Monthly Activity: May issue (#482) closed; June issue created
+- 2026-06-03: Tasks 3, 7
+- Monthly Activity: June issue #487 updated
