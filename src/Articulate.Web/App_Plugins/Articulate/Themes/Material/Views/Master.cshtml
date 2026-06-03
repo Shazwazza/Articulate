@@ -2,10 +2,7 @@
 @{
     var theme = Model.Theme;
     var themeLower = theme.ToLower();
-    var blogBannerUrl = Model.BlogBanner.ToSafeCssUrl();
-    var blogBannerStyle = blogBannerUrl.IsNullOrWhiteSpace()
-        ? string.Empty
-        : $"--blog-banner: url('{blogBannerUrl}');";
+    var blogBannerStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 
 <!doctype html>

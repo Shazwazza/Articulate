@@ -2,6 +2,7 @@
 @{
     var theme = Model.Theme;
     var themeLower = theme.ToLower();
+    var blogLogoStyle = Model.BlogLogo.ToCssBackgroundImageVariableValue("--blog-logo-image");
 }
 
 <!DOCTYPE html>
@@ -45,10 +46,10 @@
 
     <header id="site-head" role="banner">
 
-        @if (Model.BlogLogoCss is not null)
+        @if (!string.IsNullOrEmpty(blogLogoStyle))
         {
             <a id="blog-logo" href="@Model.ArticulateRootUrl()" title="Blog Home">
-                <div class="bloglogo" style="background: url('@Model.BlogLogoCss')"></div>
+                <div class="bloglogo" style="@blogLogoStyle"></div>
             </a>
         }
 
@@ -92,4 +93,3 @@
 
 </body>
 </html>
-

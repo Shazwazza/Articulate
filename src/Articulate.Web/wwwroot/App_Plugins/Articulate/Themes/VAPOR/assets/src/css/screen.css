@@ -261,6 +261,7 @@ article.preview p.readmore {
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  background-image: var(--blog-logo-image, none);
   -webkit-background-size: cover !important;
   background-size: cover !important;
   background-position: center center !important;
@@ -447,6 +448,14 @@ div.postthumb {
   background-position: center center !important;
   margin-right: 10px;
   float: left;
+}
+
+div.authorimage {
+  background-image: var(--author-image, none);
+}
+
+div.postthumb {
+  background-image: var(--post-thumb-image, none);
 }
 
 h1.post-title a,

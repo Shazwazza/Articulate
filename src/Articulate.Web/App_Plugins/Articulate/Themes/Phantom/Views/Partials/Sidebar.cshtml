@@ -1,7 +1,7 @@
 @model IMasterModel
 
 @{
-    var backgroundStyle = Model.BlogBanner.ToCssStyleAttributeValue();
+    var backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 <div class="sidebar" role="heading" style="@backgroundStyle">
     <header class="header">

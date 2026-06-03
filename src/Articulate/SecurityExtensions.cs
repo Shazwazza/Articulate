@@ -110,17 +110,40 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Produces a safe CSS style fragment (e.g. "background-image: url('...');") as a plain C# string
-        /// suitable for assigning to a local variable in a Razor view. This avoids interpolating an
-        /// HTML content value into a C# string (which loses HTML content semantics) when building
-        /// inline style attribute values.
+        /// Produces a safe CSS custom property declaration (e.g. "--post-image: url('...');") for
+        /// assigning URL-bearing background images from Razor attributes.
         /// </summary>
         /// <param name="url">The URL to validate and escape for CSS.</param>
-        /// <returns>The full style fragment if the URL is safe, otherwise an empty string.</returns>
-        public static string ToCssStyleAttributeValue(this string? url)
+        /// <param name="variableName">The CSS custom property name, including the leading "--".</param>
+        /// <returns>The CSS custom property declaration if the URL is safe, otherwise an empty string.</returns>
+        public static string ToCssBackgroundImageVariableValue(this string? url, string variableName)
         {
+            if (!IsSafeCssCustomPropertyName(variableName))
+            {
+                throw new ArgumentException("CSS custom property names must start with '--' and contain only letters, numbers, underscores, or hyphens.", nameof(variableName));
+            }
+
             var safe = url.ToSafeCssUrl();
-            return safe is not null ? $"background-image: url('{safe}');" : string.Empty;
+            return safe is not null ? $"{variableName}: url('{safe}');" : string.Empty;
+        }
+
+        private static bool IsSafeCssCustomPropertyName(string variableName)
+        {
+            if (variableName.Length < 3 || !variableName.StartsWith("--"))
+            {
+                return false;
+            }
+
+            for (var i = 2; i < variableName.Length; i++)
+            {
+                var c = variableName[i];
+                if (!char.IsAsciiLetterOrDigit(c) && c != '-' && c != '_')
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

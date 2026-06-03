@@ -3,7 +3,7 @@
 <div class="header-placeholder">&nbsp;</div>
 
 @{
-    string backgroundStyle = Model.BlogBanner.ToCssStyleAttributeValue();
+    string backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 <div class="header-content" style="@backgroundStyle">
 

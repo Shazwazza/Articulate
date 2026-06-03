@@ -41,19 +41,27 @@ namespace Articulate.Tests
         }
 
         [Test]
-        public void ToCssStyleAttributeValue_returns_background_image_fragment_for_safe_url()
+        public void ToCssBackgroundImageVariableValue_returns_custom_property_for_safe_url()
         {
-            string result = "/media/foo bar.jpg?width=100&height=50&hmac=abc".ToCssStyleAttributeValue();
+            string result = "/media/foo bar.jpg?width=100&height=50&hmac=abc".ToCssBackgroundImageVariableValue("--post-image");
 
-            Assert.That(result, Is.EqualTo("background-image: url('/media/foo%20bar.jpg?width=100&height=50&hmac=abc');"));
+            Assert.That(result, Is.EqualTo("--post-image: url('/media/foo%20bar.jpg?width=100&height=50&hmac=abc');"));
         }
 
         [Test]
-        public void ToCssStyleAttributeValue_returns_empty_string_for_unsafe_url()
+        public void ToCssBackgroundImageVariableValue_returns_empty_string_for_unsafe_url()
         {
-            string result = "javascript:alert(1)".ToCssStyleAttributeValue();
+            string result = "javascript:alert(1)".ToCssBackgroundImageVariableValue("--post-image");
 
             Assert.That(result, Is.EqualTo(string.Empty));
+        }
+
+        [TestCase("post-image")]
+        [TestCase("--post image")]
+        [TestCase("--post:image")]
+        public void ToCssBackgroundImageVariableValue_rejects_unsafe_variable_names(string variableName)
+        {
+            Assert.Throws<ArgumentException>(() => "/media/foo.jpg".ToCssBackgroundImageVariableValue(variableName));
         }
     }
 }
