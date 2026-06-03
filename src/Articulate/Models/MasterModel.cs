@@ -139,6 +139,17 @@ namespace Articulate.Models
             protected set;
         }
 
+        /// <summary>
+        /// Gets the blog banner URL with CSS escaping for safe use in inline style attributes.
+        /// Use this for style="background: url(...)" contexts instead of BlogBanner.
+        /// </summary>
+        [Obsolete("Use BlogBanner.ToCssStyleAttributeValue() when rendering a background-image style attribute. Scheduled for removal in a future release.")]
+        public string BlogBannerCss
+        {
+            get => field ??= BlogBanner.ToSafeCssUrl();
+            protected set;
+        }
+
         /// <inheritdoc/>
         public string BlogTitle
         {

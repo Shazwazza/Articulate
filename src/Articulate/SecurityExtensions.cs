@@ -1,6 +1,4 @@
 #nullable enable
-using Microsoft.AspNetCore.Html;
-
 namespace Articulate
 {
     /// <summary>
@@ -66,6 +64,14 @@ namespace Articulate
                 return null;
             }
 
+            url = url.Trim();
+
+            // Reject protocol-relative URLs (//evil.com)
+            if (url.StartsWith("//"))
+            {
+                return null;
+            }
+
             if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out Uri? uri))
             {
                 return null;
@@ -77,20 +83,14 @@ namespace Articulate
                 return null;
             }
 
-            // Normalize/encode the URL portion first so spaces and other URI characters are safe for HTTP requests.
+            // Normalize the URL portion first so common unsafe URI characters are escaped before CSS escaping.
             string normalized;
             try
             {
-                if (uri.IsAbsoluteUri)
-                {
-                    // Escape as a URI string for absolute URIs (preserves path separators)
-                    normalized = Uri.EscapeUriString(url);
-                }
-                else
-                {
-                    // For relative URLs, percent-encode literal spaces which commonly break requests
-                    normalized = url.Replace(" ", "%20");
-                }
+                // AbsoluteUri preserves URI separators and query delimiters while escaping unsafe characters.
+                normalized = uri.IsAbsoluteUri ? uri.AbsoluteUri :
+                    // For relative URLs, percent-encode literal spaces which commonly break requests.
+                    url.Replace(" ", "%20");
             }
             catch
             {
@@ -110,19 +110,9 @@ namespace Articulate
         }
 
         /// <summary>
-        /// CSS-escapes a URL and returns <see cref="IHtmlContent"/> so Razor does not double-encode the ampersands
-        /// when rendering in a &lt;style&gt; block or inline style attribute.
-        /// </summary>
-        public static IHtmlContent ToCssStyleUrl(this string? url)
-        {
-            var safe = url.ToSafeCssUrl();
-            return safe is not null ? new HtmlString(safe) : HtmlString.Empty;
-        }
-
-        /// <summary>
         /// Produces a safe CSS style fragment (e.g. "background-image: url('...');") as a plain C# string
         /// suitable for assigning to a local variable in a Razor view. This avoids interpolating an
-        /// <see cref="IHtmlContent"/> into a C# string (which loses IHtmlContent semantics) when building
+        /// HTML content value into a C# string (which loses HTML content semantics) when building
         /// inline style attribute values.
         /// </summary>
         /// <param name="url">The URL to validate and escape for CSS.</param>

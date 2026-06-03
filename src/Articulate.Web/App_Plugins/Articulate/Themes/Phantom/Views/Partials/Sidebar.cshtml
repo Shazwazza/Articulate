@@ -1,9 +1,7 @@
 @model IMasterModel
 
 @{
-    var backgroundStyle = Model.BlogBanner is not null
-        ? Model.BlogBanner.ToCssStyleAttributeValue()
-        : string.Empty;
+    var backgroundStyle = Model.BlogBanner.ToCssStyleAttributeValue();
 }
 <div class="sidebar" role="heading" style="@backgroundStyle">
     <header class="header">
