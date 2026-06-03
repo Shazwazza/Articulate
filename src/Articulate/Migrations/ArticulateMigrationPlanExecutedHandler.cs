@@ -115,9 +115,9 @@ internal class ArticulateMigrationPlanExecutedHandler(
             options.Value.AutoPublishOnStartup);
 
 #if NET10_0_OR_GREATER
-        if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Install or RuntimeLevel.Upgrade or RuntimeLevel.Upgrading))
+        if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Upgrading))
 #else
-        if (runtimeState.Level is not (RuntimeLevel.Run or RuntimeLevel.Install or RuntimeLevel.Upgrade))
+        if (runtimeState.Level is not RuntimeLevel.Run)
 #endif
         {
             logger.LogDebug(
