@@ -33,6 +33,8 @@ This restores NuGet and npm packages, builds the Back Office client, builds the 
 5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
 6. The Articulate package migrations will run and install the required schema and content items.
 
+Tip: The test site's target framework selects the Umbraco version: `net9.0` runs Umbraco 16, and `net10.0` runs Umbraco 17. Use `net10.0` only when you specifically want the v17 path.
+
 ## Client Development
 
 From `src/Articulate.Web/Client`:
@@ -42,6 +44,8 @@ pnpm install
 pnpm run build
 pnpm run generate:api
 ```
+
+`pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
 `pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
 
