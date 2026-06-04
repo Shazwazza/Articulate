@@ -23,8 +23,9 @@
 - 2026-05-25: PR #481 — static readonly SearchFields FrozenDictionary in DefaultArticulateSearcher (merged 2026-05-27)
 - 2026-05-29: PR #485 — cache publishedDate property type ID in GetContentByTag (merged 2026-06-01)
 - 2026-06-02: PR #486 — replace Regex.IsMatch with char-based check in IsDisqusEnabled (open, draft)
-- 2026-06-03: PR — pool StringBuilder in DefaultArticulateSearcher.Search() (open, draft)
+- 2026-06-03: PR #489 — pool StringBuilder in DefaultArticulateSearcher.Search() (open, draft)
+- 2026-06-04: PR — cache queryStrings.ToString() in PagingHelper.TryCreatePager (open, draft)
 
 ## Last Run
-- 2026-06-03: Tasks 3, 7
+- 2026-06-04: Tasks 3, 7
 - Monthly Activity: June issue #487 updated
