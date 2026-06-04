@@ -64,6 +64,14 @@ namespace Articulate
                 return null;
             }
 
+            url = url.Trim();
+
+            // Reject protocol-relative URLs (//evil.com)
+            if (url.StartsWith("//"))
+            {
+                return null;
+            }
+
             if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out Uri? uri))
             {
                 return null;
@@ -75,8 +83,22 @@ namespace Articulate
                 return null;
             }
 
+            // Normalize the URL portion first so common unsafe URI characters are escaped before CSS escaping.
+            string normalized;
+            try
+            {
+                // AbsoluteUri preserves URI separators and query delimiters while escaping unsafe characters.
+                normalized = uri.IsAbsoluteUri ? uri.AbsoluteUri :
+                    // For relative URLs, percent-encode literal spaces which commonly break requests.
+                    url.Replace(" ", "%20");
+            }
+            catch
+            {
+                normalized = url.Replace(" ", "%20");
+            }
+
             // Escape characters that could break out of CSS context
-            return url
+            return normalized
                 .Replace("\\", "\\\\")
                 .Replace("'", "\\'")
                 .Replace("\"", "\\\"")
@@ -85,6 +107,43 @@ namespace Articulate
                 .Replace("\0", string.Empty)
                 .Replace("(", "\\(")
                 .Replace(")", "\\)");
+        }
+
+        /// <summary>
+        /// Produces a safe CSS custom property declaration (e.g. "--post-image: url('...');") for
+        /// assigning URL-bearing background images from Razor attributes.
+        /// </summary>
+        /// <param name="url">The URL to validate and escape for CSS.</param>
+        /// <param name="variableName">The CSS custom property name, including the leading "--".</param>
+        /// <returns>The CSS custom property declaration if the URL is safe, otherwise an empty string.</returns>
+        public static string ToCssBackgroundImageVariableValue(this string? url, string variableName)
+        {
+            if (!IsSafeCssCustomPropertyName(variableName))
+            {
+                throw new ArgumentException("CSS custom property names must start with '--' and contain only letters, numbers, underscores, or hyphens.", nameof(variableName));
+            }
+
+            var safe = url.ToSafeCssUrl();
+            return safe is not null ? $"{variableName}: url('{safe}');" : string.Empty;
+        }
+
+        private static bool IsSafeCssCustomPropertyName(string variableName)
+        {
+            if (variableName.Length < 3 || !variableName.StartsWith("--"))
+            {
+                return false;
+            }
+
+            for (var i = 2; i < variableName.Length; i++)
+            {
+                var c = variableName[i];
+                if (!char.IsAsciiLetterOrDigit(c) && c != '-' && c != '_')
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -76,6 +76,7 @@ img { display: block; max-width: 100%; }
     z-index: 2;
 }
 .site-header--has-banner {
+    background-image: var(--blog-banner-image, none);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

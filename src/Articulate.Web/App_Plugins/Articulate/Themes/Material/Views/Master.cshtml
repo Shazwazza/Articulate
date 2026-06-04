@@ -2,6 +2,7 @@
 @{
     var theme = Model.Theme;
     var themeLower = theme.ToLower();
+    var blogBannerStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 
 <!doctype html>
@@ -68,18 +69,8 @@
 
     @await RenderSectionAsync("Header", false)
 
-    @if (Model.BlogBannerCss is not null)
-    {
-        <style>
-            body::before {
-                background-image: url('@Model.BlogBannerCss');
-                background-size: cover;
-                background-attachment: fixed;
-            }
-        </style>
-    }
 </head>
-<body>
+<body style="@blogBannerStyle">
     @Model.GoogleAnalyticsNoScript()
     <div class="demo-blog @ViewBag.CssWrapperClass mdl-layout mdl-js-layout has-drawer is-upgraded">
         <main class="mdl-layout__content">
@@ -101,4 +92,3 @@
 
 </body>
 </html>
-

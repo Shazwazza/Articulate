@@ -39,8 +39,9 @@ namespace Articulate.Models
         public string BlogLogo { get; }
 
         /// <summary>
-        /// Gets the blog logo URL with CSS escaping for safe use in inline style attributes.
+        /// Gets the blog logo URL with CSS escaping for compatibility with legacy inline style usage.
         /// </summary>
+        [Obsolete("Use BlogLogo.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
         public string? BlogLogoCss { get; }
 
         /// <summary>
@@ -49,8 +50,9 @@ namespace Articulate.Models
         public string BlogBanner { get; }
 
         /// <summary>
-        /// Gets the blog banner URL with CSS escaping for safe use in inline style attributes.
+        /// Gets the blog banner URL with CSS escaping for compatibility with legacy inline style usage.
         /// </summary>
+        [Obsolete("Use BlogBanner.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
         public string? BlogBannerCss { get; }
 
         /// <summary>

@@ -22,13 +22,14 @@ else
                 </div>
             </header>
             <section class="post-excerpt">
-                @{
-                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToSafeCssUrl();
+                @{ 
+                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToCssBackgroundImageVariableValue("--post-thumb-image");
                 }
-                @if (thumbnail is not null)
+                @if (!string.IsNullOrEmpty(thumbnail))
                 {
-                    <div class="postthumb" style="background: url('@thumbnail')"></div>
-                }                <p>
+                    <div class="postthumb" style="@thumbnail"></div>
+                }
+                <p>
                     @post.Excerpt&hellip;
                 </p>
                 <p class="readmore">
@@ -41,4 +42,3 @@ else
 
     @await Html.PartialAsync("Pager", Model.Pages)
 }
-

@@ -6,10 +6,8 @@
 @model IMasterModel
 @{
     var theme = Model.Theme;
-    var bannerStyle = !Model.BlogBanner.IsNullOrWhiteSpace()
-        ? "background-image: url(" + Model.BlogBanner + ");"
-        : string.Empty;
-    var headerClass = !Model.BlogBanner.IsNullOrWhiteSpace()
+    var bannerStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
+    var headerClass = !bannerStyle.IsNullOrWhiteSpace()
         ? "site-header site-header--has-banner"
         : "site-header";
 

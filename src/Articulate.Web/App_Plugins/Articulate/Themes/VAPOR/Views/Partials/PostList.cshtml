@@ -6,11 +6,11 @@
         {
             <li>
                 @{
-                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToSafeCssUrl();
+                    var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToCssBackgroundImageVariableValue("--post-thumb-image");
                 }
-                @if (thumbnail is not null)
+                @if (!string.IsNullOrEmpty(thumbnail))
                 {
-                    <div class="postthumb" style="background: url('@thumbnail')"></div>
+                    <div class="postthumb" style="@thumbnail"></div>
                 }
                     <div class="time">
                     <time datetime="@post.PublishedDate">
