@@ -60,6 +60,7 @@
   width: 100%;
   position: relative;
   text-align: right;
+  background-image: var(--blog-banner-image, none);
   background-size: cover;
   background-repeat: repeat-y;
   background-color: #f5f5fa;

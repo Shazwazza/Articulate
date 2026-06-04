@@ -3,9 +3,7 @@
 <div class="header-placeholder">&nbsp;</div>
 
 @{
-    string backgroundStyle = Model.BlogBannerCss is not null
-        ? $"background-image: url('{Model.BlogBannerCss}');"
-        : "";
+    string backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 <div class="header-content" style="@backgroundStyle">
 
@@ -29,4 +27,3 @@
     @await Html.PartialAsync("Menu", Model)
 
 </div>
-

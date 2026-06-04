@@ -37,6 +37,8 @@ For Razor themes migrating from older Articulate versions, helper usage should m
 | `@Url.ArticulateSearchUrl(Model)` | `@Model.ArticulateSearchUrl()` |
 | `@Url.ArticulateRssUrl(Model)` | `@Model.ArticulateRssUrl()` |
 
+URL-bearing background images in Razor themes should be assigned through CSS custom properties with `ToCssBackgroundImageVariableValue(...)`. The legacy `BlogLogoCss` and `BlogBannerCss` APIs remain as obsolete compatibility shims, but are scheduled for removal in a future release.
+
 ### Internal API Updates
 
 These changes mainly affect custom extensions that inherit from Articulate classes:

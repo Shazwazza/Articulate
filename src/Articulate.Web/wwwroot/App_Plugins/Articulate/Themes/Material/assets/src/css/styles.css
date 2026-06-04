@@ -1,4 +1,5 @@
 body::before {
+    background-image: var(--blog-banner-image, none);
     background-size: cover;
     background-attachment: fixed;
     content: '';
@@ -66,6 +67,7 @@ body .demo-blog {
 
 .demo-blog .mdl-card__media {
     box-sizing: border-box;
+    background-image: var(--post-image, none);
     background-size: cover;
     background-position: center;
     padding: 24px;
@@ -596,6 +598,7 @@ body .demo-blog {
 .demo-blog .minilogo {
     width: 44px;
     height: 44px;
+    background-image: var(--author-image, none);
     background-position: center;
     background-repeat: no-repeat;
     background-size: 50%;

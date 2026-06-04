@@ -332,7 +332,9 @@ a:hover {
     text-align: center;
     color: #fff;
     font-size: 15px;
-    background: #303538 no-repeat center center;
+    background-color: #303538;
+    background-image: var(--blog-banner-image, none);
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: 20%;
     transform: translateZ(0);

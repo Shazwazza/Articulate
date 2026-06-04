@@ -1,11 +1,10 @@
 @model IImageModel
 @{
-    var bgUrl = Model.CroppedWideUrl;
-    var safeBgUrl = bgUrl.ToSafeCssUrl();
+    var backgroundStyle = Model.CroppedWideUrl.ToCssBackgroundImageVariableValue("--post-image");
 
-    if (safeBgUrl is not null)
+    if (!string.IsNullOrEmpty(backgroundStyle))
     {
-        <div class="@Model.Image.GetImageClass("mdl-card__media") mdl-color-text--grey-50" style="background-image: url('@safeBgUrl');">
+        <div class="@Model.Image.GetImageClass("mdl-card__media") mdl-color-text--grey-50" style="@backgroundStyle">
             <h3>
                 <a href="@Model.Url">@Model.Name</a>
             </h3>

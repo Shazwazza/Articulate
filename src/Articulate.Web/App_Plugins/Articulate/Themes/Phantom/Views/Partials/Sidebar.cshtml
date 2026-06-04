@@ -1,9 +1,7 @@
 @model IMasterModel
 
 @{
-    var backgroundStyle = Model.BlogBannerCss is not null
-        ? $"background-image: url('{Model.BlogBannerCss}');"
-        : string.Empty;
+    var backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 <div class="sidebar" role="heading" style="@backgroundStyle">
     <header class="header">

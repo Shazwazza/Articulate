@@ -4,10 +4,10 @@
 {
     if (Model.Author.Image is not null)
     {
-        var thumbnail = Model.Author.Image.GetCropUrl(cropAlias: "thumbnail", preferFocalPoint: true, useCropDimensions: true)?.ToSafeCssUrl();
-        if (thumbnail is not null)
+        var thumbnail = Model.Author.Image.GetCropUrl(cropAlias: "thumbnail", preferFocalPoint: true, useCropDimensions: true)?.ToCssBackgroundImageVariableValue("--author-image");
+        if (!string.IsNullOrEmpty(thumbnail))
         {
-            <div class="minilogo" style="background: url('@thumbnail')"></div>
+            <div class="minilogo" style="@thumbnail"></div>
         }
     }
     <div>
