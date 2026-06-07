@@ -54,15 +54,18 @@ namespace Articulate.Syndication
             var rootUri = new Uri(rootUrl);
             var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
 
+            // Hoist TrimEnd('/') so it runs once per post, not once per regex match.
+            // EnsureStartsWith('/') is omitted: both regex patterns capture /media/... which always starts with '/'.
+            var trimmedRootUrl = rootUrl.TrimEnd('/');
             var content = RssFeedGeneratorRegexes.RelativeMediaHrefRegex().Replace(
                 GetPostContent(post),
                 match => match.Groups.Count == 2
-                    ? $" href=\"{rootUrl.TrimEnd('/')}{match.Groups[1].Value.EnsureStartsWith('/')}\""
+                    ? $" href=\"{trimmedRootUrl}{match.Groups[1].Value}\""
                     : match.Value);
             content = RssFeedGeneratorRegexes.RelativeMediaSrcRegex().Replace(
                 content,
                 match => match.Groups.Count == 2
-                    ? $" src=\"{mediaRoot}{match.Groups[1].Value.EnsureStartsWith('/')}\""
+                    ? $" src=\"{mediaRoot}{match.Groups[1].Value}\""
                     : match.Value);
 
             var item = new SyndicationItem(
