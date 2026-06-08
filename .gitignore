@@ -529,3 +529,10 @@ scratch/
 /src/Articulate.Tests/umbraco-package-schema.json
 /src/Articulate.Tests/appsettings-schema.Umbraco.Cms.json
 src/Articulate.Tests/appsettings-schema.json
+
+/build/docker-site/appsettings-schema.Umbraco.Cms.json
+/build/docker-site/umbraco-package-schema.json
+/build/docker-site/appsettings-schema.json
+
+
+/.playwright-mcp

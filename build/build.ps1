@@ -78,8 +78,13 @@ dotnet --version
 
 # 1) Clean the solution to ensure release/CI builds start from a fresh slate
 Write-Host "1. Cleaning solution outputs..."
-& dotnet clean $SolutionPath -c $Configuration @dotnetCommon $clientBuildProperty
-if (-not $?) { Write-Host "Warning dotnet clean failed" }
+if ($env:FORCE_CLEAN -eq 'true') {
+    & dotnet clean $SolutionPath -c $Configuration @dotnetCommon $clientBuildProperty
+    if ($LASTEXITCODE -ne 0) { Write-Host "Warning dotnet clean failed" }
+}
+else {
+    Write-Host "Skipping dotnet clean (set FORCE_CLEAN=true to force a clean)"
+}
 
 # 2) Restore (solution-level)
 Write-Host "2. Restoring solution packages in parallel..."

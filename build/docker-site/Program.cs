@@ -1,7 +1,9 @@
-using System.Net;
-using Microsoft.AspNetCore.HttpOverrides;
+using ArticulateDockerSite.Options;
+using ArticulateDockerSite.Services;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Umbraco.Cms.Core.Notifications;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +17,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-builder.CreateUmbracoBuilder()
+IUmbracoBuilder umbBuilder = builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddDeliveryApi()
-    .AddComposers()
-    .Build();
+    .AddComposers();
+
+_ = umbBuilder.Services.AddOptions<ArticulateDevAutomationOptions>()
+    .BindConfiguration(ArticulateDevAutomationOptions.SectionName);
+_ = umbBuilder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, ArticulateDevAutomationBootstrapper>();
+
+umbBuilder.Build();
 
 // Increase upload limits, e.g. importing larger BlogML XML files; also ensure Umbraco:CMS:Runtime:MaxRequestLength is set
 builder.Services.Configure<FormOptions>(options =>

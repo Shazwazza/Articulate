@@ -25,10 +25,8 @@ _Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Ar
 
 ### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
 
-Articulate 6 targets Umbraco 16.5.1+ and 17.4.0+
-
 - Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
-- When building from source, run the test site `dotnet run -f net9.0 --project src/Articulate.Tests.Website/Articulate.Tests.Website.csproj` (or `-f net10.0` for Umbraco 17) and sign into the Umbraco Back Office to finish setup.
+- When building from source, run the local site `dotnet run -f net9.0 --project src/Articulate.Tests.Website/Articulate.Tests.Website.csproj` (or `-f net10.0` for Umbraco 17) and sign into the Umbraco Back Office to finish setup.
 - Migrating from 5.x: in place upgrade or export BlogML from your Articulate 5 site and import it into Articulate 6; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
 
 #### Rich Text Editor upgrade behavior
@@ -149,7 +147,7 @@ Notes:
 - `AllowUnsafeLocalExternalImageHostsInDevelopment` is ignored when `Umbraco:CMS:Runtime:Mode` is `Production`.
 - `localhost`, loopback, and private-network targets remain blocked unless the development-only override is enabled.
 - For BlogML export/import round-trip tests, use an importer-reachable media hostname end-to-end. `localhost` only works when the importer resolves it to the exporting site. If not, rewrite the BlogML media URLs before import or configure the exporting site to emit a reachable hostname instead.
-- The repository `docker-compose.yml` includes commented example environment variables for the common `host.docker.internal` Docker test setup.
+- See [DEVELOP.md](DEVELOP.md) for Docker-based development and testing notes.
 
 ## Upload and Request Limits
 
@@ -166,7 +164,7 @@ Keep these aligned:
 - Kestrel `Limits.MaxRequestBodySize`
 - IIS `MaxRequestBodySize` when applicable
 
-The checked-in test site config uses:
+The local site config uses:
 
 ```csharp
 builder.Services.Configure<FormOptions>(options =>
@@ -185,7 +183,7 @@ builder.Services.Configure<IISServerOptions>(options =>
 });
 ```
 
-The Docker site uses the same `FormOptions` and Kestrel configuration pattern.
+The included site uses the same `FormOptions` and Kestrel configuration pattern.
 
 Appsettings example:
 

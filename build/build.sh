@@ -81,8 +81,12 @@ export RestoreFallbackFolders=
 
 # --- 1) Clean the solution so Release/CI builds start fresh ---
 echo "1. Cleaning solution outputs..."
-if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY"; then
-  echo "Warning: dotnet clean failed" >&2
+if [[ "${FORCE_CLEAN:-false}" == "true" ]]; then
+  if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY"; then
+    echo "Warning: dotnet clean failed" >&2
+  fi
+else
+  echo "Skipping dotnet clean (FORCE_CLEAN not set). Set FORCE_CLEAN=true to force a clean."
 fi
 
 # --- 2) Solution-level restore ---
