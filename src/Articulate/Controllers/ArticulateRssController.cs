@@ -57,8 +57,10 @@ namespace Articulate.Controllers
             ];
             if (listNodes.Length == 0)
             {
-                throw new InvalidOperationException(
-                    "An ArticulateArchive document must exist under the root Articulate document");
+                logger.LogWarning(
+                    "ArticulateRssController.Index: No ArticulateArchive child nodes found for root {RootId}.",
+                    CurrentPage.Id);
+                return NotFound();
             }
 
             var pager = new PagerModel(maxItems.Value, 0, 1);
@@ -102,8 +104,10 @@ namespace Articulate.Controllers
             IPublishedContent[] listNodes = archiveNodes.ToArray();
             if (listNodes.Length == 0)
             {
-                throw new InvalidOperationException(
-                    "An ArticulateArchive document must exist under the root Articulate document");
+                logger.LogWarning(
+                    "ArticulateRssController.Author: No ArticulateArchive child nodes found for root {RootId}.",
+                    masterModel.RootBlogNode.Id);
+                return NotFound();
             }
 
             IEnumerable<IPublishedContent> authorContent = umbracoHelper.GetPagedContentByAuthor(

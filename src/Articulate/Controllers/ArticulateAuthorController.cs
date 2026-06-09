@@ -56,8 +56,7 @@ namespace Articulate.Controllers
                     CurrentPage.Id,
                     CurrentPage.Name);
 
-                throw new InvalidOperationException(
-                    "An ArticulateArchive document must exist under the root Articulate document");
+                return NotFound();
             }
 
             PagerModel initialPager = CreateRequestedPager(masterModel, p);

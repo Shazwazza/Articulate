@@ -54,7 +54,8 @@ namespace Articulate.Controllers
 
             if (listNodes.Length == 0)
             {
-                throw new InvalidOperationException("An ArticulateArchive document must exist under the root Articulate document");
+                logger.LogWarning("Articulate root {NodeId} has no published ArticulateArchive children", CurrentPage?.Id);
+                return NotFound();
             }
 
             var master = new MasterModel(model.Content, PublishedValueFallback);
