@@ -88,7 +88,6 @@ From the repo root:
   - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
   - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
 - Alternatively, run the repo build script with `PACK_SAMPLE_THEME=true` to produce both packages for Docker validation.
-- Keep `Articulate` and `Articulate.Theme.Sample` at the same package version. The Docker site restores both with the version selected from the newest `Articulate.[0-9]*.nupkg`.
 - The Dockerfile ignores `.snupkg` files and theme packages when selecting the Articulate package version.
 - Rebuilding the image is not enough on its own. A running Compose service can stay on an older container/image. Prefer:
   - `docker compose up -d --build --force-recreate articulate`

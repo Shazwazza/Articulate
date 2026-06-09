@@ -32,12 +32,13 @@ This restores NuGet and npm packages, builds the Back Office client, builds the 
 4. Set `Articulate.Tests.Website` as the startup project.
 5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
 6. The Articulate package migrations will run and install the required schema and content items.
+   - **Tip:** The test site's target framework selects the Umbraco version: `net9.0` runs Umbraco 16, and `net10.0` runs Umbraco 17. Use `net10.0` only when you specifically want the v17 path.
 
 ## Docker Modes
 
-The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`:
+The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`. The default is `BackofficeDevelopment`; switch to `Production` for the production-style check.
 
-- `BackofficeDevelopment` for local dev and agent runs. This enables the dev-only automation bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
+- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only automation bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
 - `Production` for the production-style check. This disables automation bootstrap and keeps the stack honest about what content was already published in the data volume.
 
 Recommended benchmark flow:
@@ -58,6 +59,8 @@ pnpm install
 pnpm run build
 pnpm run generate:api
 ```
+
+`pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
 `pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
 
@@ -87,6 +90,7 @@ pnpm run generate:api
   - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
   - `Invoke-WebRequest https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js -SkipCertificateCheck`
 - The default unattended Docker backoffice user is `admin@localhost` with password `@rticulate` and display name `Jane Doe`. Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` when needed.
+
 ## Back Office Client Builds
 
 `EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, set `ENABLE_CLIENT_BUILD=true` inline with the build command:
