@@ -53,7 +53,19 @@ RUN set -eux; \
 # ICU source stage used to copy globalization libraries into the chiseled image.
 # -------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_ASPNET_VERSION} AS icu-source
-# Expose to copy native libs
+# Stage ICU libs to a path that's arch-agnostic so the chiseled COPY below works
+# on both x86_64 and arm64 hosts. Without this, the x86_64 path hardcoded in the
+# COPY would fail on Apple Silicon / arm64 where ICU lives under aarch64-linux-gnu.
+RUN set -eux; \
+    ARCH=$(dpkg --print-architecture); \
+    case "$ARCH" in \
+        amd64)  ICU_PATH=/usr/lib/x86_64-linux-gnu ;; \
+        arm64)  ICU_PATH=/usr/lib/aarch64-linux-gnu ;; \
+        *) echo "Unsupported arch: $ARCH"; exit 1 ;; \
+    esac; \
+    mkdir -p /staging; \
+    cp "${ICU_PATH}"/libicudata* /staging/; \
+    cp "${ICU_PATH}"/libicu* /staging/
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_ASPNET_VERSION}-noble-chiseled AS runtime-chiseled
 WORKDIR /app
@@ -68,8 +80,7 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Copy ICU native libs from icu-source into chiseled image so chiseled supports globalization
-COPY --from=icu-source /usr/lib/x86_64-linux-gnu/libicudata* /usr/lib/
-COPY --from=icu-source /usr/lib/x86_64-linux-gnu/libicu* /usr/lib/
+COPY --from=icu-source /staging/ /usr/lib/
 
 COPY --from=build --chown=1654:1654 /app/publish .
 COPY --chown=1654:1654 build/docker-site/docker-emptydirs/umbraco/Data /app/umbraco/Data
