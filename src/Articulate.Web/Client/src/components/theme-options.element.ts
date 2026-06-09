@@ -395,7 +395,7 @@ export default class ThemeOptionsElement extends UmbLitElement implements IFormC
       }
       .theme-preview-img {
         border-bottom: 1px solid var(--uui-color-border);
-        object-fit: none;
+        object-fit: contain;
         background-color: var(--uui-color-surface-alt);
         border-radius: var(--uui-border-radius);
         box-sizing: border-box;
