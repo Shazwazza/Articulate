@@ -3,7 +3,7 @@
 #   ENABLE_CLIENT_BUILD=true pwsh -NoLogo -File build/build.ps1
 #   RUN_TESTS=true pwsh -NoLogo -File build/build.ps1
 #   PACK_SAMPLE_THEME=true pwsh -NoLogo -File build/build.ps1
-#   ARTICULATE_PACKAGE_LANE=umbraco18 ARTICULATE_PACKAGE_VERSION=7.0.0-rc.1 pwsh -NoLogo -File build/build.ps1
+#   ARTICULATE_PACKAGE_LANE=umbraco18 pwsh -NoLogo -File build/build.ps1
 # Release builds enable the client build by default so packaged assets carry the stamped version.
 $ScriptStart = Get-Date
 $PSScriptFilePath = Get-Item $MyInvocation.MyCommand.Path
@@ -15,7 +15,7 @@ $PackageLane = if ([string]::IsNullOrWhiteSpace($env:ARTICULATE_PACKAGE_LANE)) {
 if ($PackageLane -notin @("legacy", "umbraco18")) {
     throw "Unsupported ARTICULATE_PACKAGE_LANE '$PackageLane'. Expected 'legacy' or 'umbraco18'."
 }
-$ReleaseFolder = Join-Path -Path $ReleaseRoot -ChildPath $PackageLane
+$ReleaseFolder = $ReleaseRoot
 $SolutionRoot = Join-Path -Path $RepoRoot -ChildPath "src"
 $SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Articulate.sln"
 $TargetFrameworks = if ($PackageLane -eq "umbraco18") { @("net10.0") } else { @("net9.0", "net10.0") }
@@ -67,22 +67,22 @@ else {
     $clientBuildValue = $env:ENABLE_CLIENT_BUILD
 }
 $clientBuildProperty = "-p:EnableClientBuild=$clientBuildValue"
+
 $laneProperties = @("-p:ArticulatePackageLane=$PackageLane")
 if ($PackageLane -eq "umbraco18") {
     $laneProperties += @(
-        "-p:TargetFramework=net10.0",
-        "-p:UmbracoCmsPackageVersion=18.0.0-*"
+        "-p:TargetFramework=net10.0"
     )
 }
-if (-not [string]::IsNullOrWhiteSpace($env:ARTICULATE_PACKAGE_VERSION)) {
-    $laneProperties += @(
-        "-p:Version=$env:ARTICULATE_PACKAGE_VERSION",
-        "-p:PackageVersion=$env:ARTICULATE_PACKAGE_VERSION"
-    )
-}
-$packProperties = @($laneProperties)
-if ($PackageLane -eq "umbraco18") {
-    $packProperties += "-p:TargetFrameworks=net10.0"
+# The umbraco18 lane version is set in Directory.Build.props via ArticulatePackageVersion.
+# Drop the singular -p:TargetFramework from pack properties. When both TargetFramework
+# (singular) and TargetFrameworks (plural) are set, IsCrossTargetingBuild stays false and
+# the Razor SDK skips CrossTargetingIncludeStaticWebAssets, producing no staticwebassets/
+# in the NuGet package. Using TargetFrameworks (plural) only restores that path.
+$packProperties = if ($PackageLane -eq "umbraco18") {
+    @($laneProperties | Where-Object { $_ -ne "-p:TargetFramework=net10.0" }) + "-p:TargetFrameworks=net10.0"
+} else {
+    @($laneProperties)
 }
 $packSampleTheme = ($env:PACK_SAMPLE_THEME -eq 'true') -or ([string]::IsNullOrEmpty($env:PACK_SAMPLE_THEME) -and -not $runningInCi)
 $dotnetCommon = @("-v", "minimal")
@@ -91,41 +91,33 @@ Write-Host "Build configuration: $Configuration"
 Write-Host "Package lane: $PackageLane"
 Write-Host "Package output: $ReleaseFolder"
 
-$script:versionJsonPath = Join-Path -Path $RepoRoot -ChildPath "version.json"
-$script:originalVersionJson = $null
-function Restore-VersionJson {
-    if ($null -ne $script:originalVersionJson) {
-        Set-Content -LiteralPath $script:versionJsonPath -Value $script:originalVersionJson -NoNewline
-    }
-}
-trap {
-    Restore-VersionJson
-    break
-}
 
-if (-not [string]::IsNullOrWhiteSpace($env:ARTICULATE_PACKAGE_VERSION)) {
-    $script:originalVersionJson = Get-Content -LiteralPath $script:versionJsonPath -Raw
-    $updatedVersionJson = $script:originalVersionJson -replace '("version"\s*:\s*")[^"]+(")', "`${1}$env:ARTICULATE_PACKAGE_VERSION`${2}"
-    Set-Content -LiteralPath $script:versionJsonPath -Value $updatedVersionJson -NoNewline
-    Write-Host "Temporarily using package version: $env:ARTICULATE_PACKAGE_VERSION"
+
+# Remove only packages from the same major version line to avoid stale artifacts without
+# wiping the other lane's output when both are built locally.
+$majorVersionPrefix = if ($PackageLane -eq "umbraco18") { "7" } else { "6" }
+if (Test-Path $ReleaseFolder) {
+    Get-ChildItem -Path $ReleaseFolder -Include "Articulate.${majorVersionPrefix}.*.nupkg", "Articulate.${majorVersionPrefix}.*.snupkg", "Articulate.Theme.Sample.${majorVersionPrefix}.*.nupkg" | Remove-Item -Force
+}
+else {
+    New-Item -ItemType Directory -Force -Path $ReleaseFolder | Out-Null
 }
 
 # Friendly note if running on Windows against a WSL filesystem (\\wsl$ UNC)
-if ($RepoRoot.StartsWith("\\\\wsl$", [System.StringComparison]::OrdinalIgnoreCase) -or 
+if ($RepoRoot.StartsWith("\\\\wsl$", [System.StringComparison]::OrdinalIgnoreCase) -or
     $RepoRoot.StartsWith("\\\\wsl.localhost\\", [System.StringComparison]::OrdinalIgnoreCase)) {
     Write-Warning "Windows->WSL performance tip: Repo is under '$RepoRoot'. Builds run faster inside the WSL distro. Prefer running bash build/build.sh from WSL ext4."
 }
-if (Test-Path $ReleaseFolder) {
-    Write-Warning "$ReleaseFolder already exists on your local machine. It will now be deleted."
-    Remove-Item $ReleaseFolder -Recurse -Force
-}
-New-Item -ItemType Directory -Force -Path $ReleaseFolder | Out-Null
 
 dotnet --version
 
 # 1) Clean the solution to ensure release/CI builds start from a fresh slate
 Write-Host "1. Cleaning solution outputs..."
 if ($env:FORCE_CLEAN -eq 'true') {
+    # dotnet clean often misses stale obj/staticwebassets folders, so delete bin/obj first.
+    Get-ChildItem -Path $SolutionRoot -Directory -Recurse -Force |
+        Where-Object { $_.Name -in @('bin', 'obj') -and $_.FullName -notmatch '\\node_modules\\' } |
+        ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
     & dotnet clean $SolutionPath -c $Configuration @dotnetCommon $clientBuildProperty @laneProperties
     if ($LASTEXITCODE -ne 0) { Write-Host "Warning dotnet clean failed" }
 }
@@ -191,5 +183,4 @@ else {
     }
 }
 $TotalSeconds = (Get-Date) - $ScriptStart
-Restore-VersionJson
 Write-Host ("Build pipeline completed in {0:N1}s. Packages available at {1}" -f $TotalSeconds.TotalSeconds, $ReleaseFolder)

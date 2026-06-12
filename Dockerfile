@@ -16,9 +16,9 @@ WORKDIR /src
 
 # All configurable via build args
 ARG TARGET_FRAMEWORK=net10.0
-ARG UMBRACO_CMS_VERSION="[17.2.2,18.0.0)"
+ARG UMBRACO_CMS_VERSION="[17.4.0,18.0.0)"
 ARG BUILD_CONFIGURATION=Release
-ARG PACKAGE_SOURCE=build/Release/legacy
+ARG PACKAGE_SOURCE=build/Release
 ARG PACKAGE_LANE=legacy
 
 # Copy config files

@@ -70,30 +70,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          LEGACY_VERSION="${NBGV_SemVer2}"
-          UMBRACO18_VERSION="7.${LEGACY_VERSION#*.}"
 
           ARTICULATE_PACKAGE_LANE=legacy \
-          ARTICULATE_PACKAGE_VERSION="$LEGACY_VERSION" \
           PACK_SAMPLE_THEME=true \
+          FORCE_CLEAN=true \
           bash ./build/build.sh
 
           ARTICULATE_PACKAGE_LANE=umbraco18 \
-          ARTICULATE_PACKAGE_VERSION="$UMBRACO18_VERSION" \
           PACK_SAMPLE_THEME=true \
+          FORCE_CLEAN=true \
           bash ./build/build.sh
 
-          echo "LEGACY_VERSION=$LEGACY_VERSION" >> "$GITHUB_ENV"
-          echo "UMBRACO18_VERSION=$UMBRACO18_VERSION" >> "$GITHUB_ENV"
+          # v6 version comes from NBGV / version.json; v7 is hard-coded in Directory.Build.props.
+          echo "LEGACY_VERSION=${NBGV_SemVer2}" >> "$GITHUB_ENV"
+          echo "UMBRACO18_VERSION=7.0.0-rc1" >> "$GITHUB_ENV"
 
       - name: Upload v6 packages
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Articulate-${{ env.LEGACY_VERSION }}
-          path: build/Release/legacy/Articulate.*
+          path: ${{ env.RELEASE_FOLDER }}/Articulate.*
 
       - name: Upload v7 packages
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Articulate-${{ env.UMBRACO18_VERSION }}
-          path: build/Release/umbraco18/Articulate.*
+          path: ${{ env.RELEASE_FOLDER }}/Articulate.*

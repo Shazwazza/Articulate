@@ -14,14 +14,14 @@ $PSScriptFilePath = Get-Item $MyInvocation.MyCommand.Path
 $RepoRoot = $PSScriptFilePath.Directory.Parent.FullName
 
 if ($Lane -eq "umbraco18") {
-    $umbracoVersion = "18.0.0-*"
+    $umbracoVersion = "[18.0.0-*,19.0.0)"
     $imageTag = "articulate-local:umbraco18"
     $containerName = "articulate-umbraco18"
     $port = 18018
     $email = "admin18@localhost"
 }
 else {
-    $umbracoVersion = "[17.2.2,18.0.0)"
+    $umbracoVersion = "[17.4.0,18.0.0)"
     $imageTag = "articulate-local:umbraco17"
     $containerName = "articulate-umbraco17"
     $port = 18017

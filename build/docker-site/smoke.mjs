@@ -248,7 +248,7 @@ function getThemeCssMarker(themeName) {
 }
 
 function getAltTheme(currentTheme) {
-  const themes = ['Vapor', 'Material', 'Phantom', 'Mini'];
+  const themes = ['VAPOR', 'Material', 'Phantom', 'Mini'];
   const current = (currentTheme || 'Material').toLowerCase();
   return themes.find(t => t.toLowerCase() !== current) || 'Material';
 }

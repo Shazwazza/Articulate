@@ -4,7 +4,7 @@
 #   ENABLE_CLIENT_BUILD=true ./build/build.sh
 #   RUN_TESTS=true ./build/build.sh
 #   PACK_SAMPLE_THEME=true ./build/build.sh
-#   ARTICULATE_PACKAGE_LANE=umbraco18 ARTICULATE_PACKAGE_VERSION=7.0.0-rc.1 ./build/build.sh
+#   ARTICULATE_PACKAGE_LANE=umbraco18 ./build/build.sh
 # Release builds enable the client build by default so packaged assets carry the stamped version.
 
 set -euo pipefail
@@ -40,7 +40,7 @@ case "$PACKAGE_LANE" in
     ;;
 esac
 RELEASE_ROOT="$BUILD_FOLDER/$CONFIGURATION"
-RELEASE_FOLDER="$RELEASE_ROOT/$PACKAGE_LANE"
+RELEASE_FOLDER="$RELEASE_ROOT"
 SOLUTION_ROOT="$REPO_ROOT/src"
 SOLUTION_PATH="$SOLUTION_ROOT/Articulate.sln"
 if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
@@ -68,21 +68,20 @@ else
 fi
 CLIENT_BUILD_VALUE=${ENABLE_CLIENT_BUILD:-$CLIENT_BUILD_DEFAULT}
 CLIENT_BUILD_PROPERTY="-p:EnableClientBuild=$CLIENT_BUILD_VALUE"
+
 LANE_PROPERTIES=("-p:ArticulatePackageLane=$PACKAGE_LANE")
 if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
   LANE_PROPERTIES+=(
     "-p:TargetFramework=net10.0"
-    "-p:UmbracoCmsPackageVersion=18.0.0-*"
   )
 fi
-if [[ -n "${ARTICULATE_PACKAGE_VERSION:-}" ]]; then
-  LANE_PROPERTIES+=(
-    "-p:Version=$ARTICULATE_PACKAGE_VERSION"
-    "-p:PackageVersion=$ARTICULATE_PACKAGE_VERSION"
-  )
-fi
+# Build PACK_PROPERTIES from LANE_PROPERTIES but drop the singular -p:TargetFramework for
+# umbraco18. When both TargetFramework (singular) and TargetFrameworks (plural) are present,
+# IsCrossTargetingBuild stays false and the Razor SDK skips staticwebassets packaging.
+# The umbraco18 lane version is set in Directory.Build.props via ArticulatePackageVersion.
 PACK_PROPERTIES=("${LANE_PROPERTIES[@]}")
 if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  PACK_PROPERTIES=("${PACK_PROPERTIES[@]/-p:TargetFramework=net10.0/}")
   PACK_PROPERTIES+=("-p:TargetFrameworks=net10.0")
 fi
 PACK_SAMPLE_THEME_VALUE=${PACK_SAMPLE_THEME:-}
@@ -99,41 +98,24 @@ echo "Build configuration: $CONFIGURATION"
 echo "Package lane: $PACKAGE_LANE"
 echo "Package output: $RELEASE_FOLDER"
 
-VERSION_JSON="$REPO_ROOT/version.json"
-ORIGINAL_VERSION_JSON=""
-restore_version_json() {
-  if [[ -n "$ORIGINAL_VERSION_JSON" ]]; then
-    printf '%s' "$ORIGINAL_VERSION_JSON" > "$VERSION_JSON"
-  fi
-}
-trap restore_version_json EXIT
-
-if [[ -n "${ARTICULATE_PACKAGE_VERSION:-}" ]]; then
-  ORIGINAL_VERSION_JSON="$(cat "$VERSION_JSON")"
-  python - "$VERSION_JSON" "$ARTICULATE_PACKAGE_VERSION" <<'PY'
-import re
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-version = sys.argv[2]
-text = path.read_text()
-text = re.sub(r'("version"\s*:\s*")[^"]+(")', rf'\g<1>{version}\2', text, count=1)
-path.write_text(text)
-PY
-  echo "Temporarily using package version: $ARTICULATE_PACKAGE_VERSION"
-fi
-
 # Advise when running in WSL against Windows-mounted drives (slow)
 if [[ $IS_WSL -eq 1 && "$REPO_ROOT" == /mnt/* ]]; then
   echo "WSL performance tip: You're building from '$REPO_ROOT' (a Windows-mounted path)." >&2
   echo "For much faster I/O, move the repo into your WSL distro (e.g. ~/src/Articulate6-wip) and build there." >&2
 fi
 
-if [[ -d "$RELEASE_FOLDER" ]]; then
-  echo "Warning: $RELEASE_FOLDER already exists and will be deleted."
-  rm -rf "$RELEASE_FOLDER"
+# Remove only packages from the same major version line to avoid stale artifacts without
+# wiping the other lane's output when both are built locally.
+MAJOR_VERSION_PREFIX="6"
+if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  MAJOR_VERSION_PREFIX="7"
 fi
+mkdir -p "$RELEASE_FOLDER"
+find "$RELEASE_FOLDER" -maxdepth 1 -type f \( \
+  -name "Articulate.${MAJOR_VERSION_PREFIX}.*.nupkg" -o \
+  -name "Articulate.${MAJOR_VERSION_PREFIX}.*.snupkg" -o \
+  -name "Articulate.Theme.Sample.${MAJOR_VERSION_PREFIX}.*.nupkg" \
+\) -delete 2>/dev/null || true
 
 dotnet --version
 
@@ -143,6 +125,8 @@ export RestoreFallbackFolders=
 # --- 1) Clean the solution so Release/CI builds start fresh ---
 echo "1. Cleaning solution outputs..."
 if [[ "${FORCE_CLEAN:-false}" == "true" ]]; then
+  # dotnet clean often misses stale obj/staticwebassets folders, so delete bin/obj first.
+  find "$SOLUTION_ROOT" -type d \( -name bin -o -name obj \) ! -path '*/node_modules/*' -prune -exec rm -rf {} + 2>/dev/null || true
   if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
     echo "Warning: dotnet clean failed" >&2
   fi

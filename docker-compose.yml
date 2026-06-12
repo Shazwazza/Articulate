@@ -9,8 +9,8 @@ services:
         TARGET_FRAMEWORK: ${TARGET_FRAMEWORK:-net10.0}
         DOTNET_SDK_IMAGE: ${DOTNET_SDK_IMAGE:-mcr.microsoft.com/dotnet/sdk:10.0}
         DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0}
-        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.2.2,18.0.0)}
-        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release/legacy}
+        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.4.0,18.0.0)}
+        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release}
     image: ${IMAGE_TAG:-articulate-local:chiseled}
     user: "1654:1654"
     environment:
@@ -35,7 +35,10 @@ services:
       Articulate__DevAutomation__Email: ${ARTICULATE_DEV_AUTOMATION_USER_EMAIL:-articulate-dev-automation@localhost}
       Articulate__DevAutomation__Name: ${ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME:-Articulate Dev Automation}
       Articulate__DevAutomation__UserGroupAliases__0: ${ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS:-admin}
-      # Articulate OpenID Connect
+      # Articulate OpenID Connect (Markdown Editor client)
+      Articulate__ManagementApi__OpenIddict__Client__Enabled: "true"
+      Articulate__ManagementApi__OpenIddict__Client__ClientId: ${ARTICULATE_OPENID_CLIENT_ID:-umbraco-articulate}
+      Articulate__ManagementApi__OpenIddict__Client__DisplayName: ${ARTICULATE_OPENID_DISPLAY_NAME:-Articulate Markdown Editor}
       Articulate__ManagementApi__OpenIddict__Client__RedirectUris__0: ${ARTICULATE_REDIRECT_URI:-https://localhost:18443/a-new/}
       Articulate__ManagementApi__OpenIddict__Client__PostLogoutRedirectUris__0: ${ARTICULATE_LOGOUT_REDIRECT_URI:-https://localhost:18443/}
       # Uncomment for Docker-to-host image import testing:
@@ -60,11 +63,11 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "8080:8080"
-      - "18443:18443"
+      - "${CADDY_HTTP_PORT:-8080}:8080"
+      - "${CADDY_HTTPS_PORT:-18443}:18443"
     environment:
       ARTICULATE_HOST: articulate
-      HTTPS_HOST: localhost:18443
+      HTTPS_HOST: ${CADDY_HTTPS_HOST:-localhost:18443}
     command: caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
     volumes:
       - caddy-data:/data

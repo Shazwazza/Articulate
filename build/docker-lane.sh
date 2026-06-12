@@ -10,14 +10,14 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 case "$LANE" in
   legacy)
-    UMBRACO_VERSION="[17.2.2,18.0.0)"
+    UMBRACO_VERSION="[17.4.0,18.0.0)"
     IMAGE_TAG="articulate-local:umbraco17"
     CONTAINER_NAME="articulate-umbraco17"
     PORT=18017
     EMAIL="admin17@localhost"
     ;;
   umbraco18)
-    UMBRACO_VERSION="18.0.0-*"
+    UMBRACO_VERSION="[18.0.0-*,19.0.0)"
     IMAGE_TAG="articulate-local:umbraco18"
     CONTAINER_NAME="articulate-umbraco18"
     PORT=18018
