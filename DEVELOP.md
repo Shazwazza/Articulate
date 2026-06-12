@@ -72,24 +72,287 @@ pnpm run generate:api
 | Bash / WSL / Linux | `./build/build.sh` |
 
 - For WSL/Linux, make the script executable first with `chmod u+x ./build/build.sh`.
-- `BUILD_CONFIGURATION=Debug` is the default for local builds; Release is the default in packaging flows.
-- `ENABLE_CLIENT_BUILD=true` enables local TypeScript Back Office client builds.
-- `PACK_SAMPLE_THEME=true` forces packing `Articulate.Theme.Sample`; local builds pack it by default, but CI skips it unless explicitly enabled.
-- The scripts clean, restore, build, and pack the current Articulate projects for .NET 9 and .NET 10.
-- The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)` by default.
-- If you change packaged runtime dependencies or client/static assets, regenerate the Docker inputs before validating source-built or Docker-based installs:
-  - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
-  - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
-- The Dockerfile selects the newest `Articulate.[0-9]*.nupkg` in `build/Release` by modified time and ignores `.snupkg` files and theme packages when choosing the version.
-- Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use `docker compose up -d --build --force-recreate articulate`, or run both steps explicitly:
-  - `docker compose build articulate`
-  - `docker compose up -d --force-recreate --no-deps articulate`
-- The default image tag is `articulate-local:chiseled`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
-- If the Docker back office still appears stale after a rebuild, check the running container, not just the image:
-  - `docker compose ps`
-  - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
-  - `Invoke-WebRequest https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js -SkipCertificateCheck`
-- The default unattended Docker backoffice user is `admin@localhost` with password `@rticulate` and display name `Jane Doe`. Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` when needed.
+- The scripts clean, restore, build, and pack one package lane at a time. The default lane is `legacy`.
+- Running the local build script once does not produce both lanes; run it once with `ARTICULATE_PACKAGE_LANE=legacy` and once with `ARTICULATE_PACKAGE_LANE=umbraco18` when you need both NuGet package sets locally.
+- The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`).
+- Packages are written under `build/$(Configuration)/$(ARTICULATE_PACKAGE_LANE)`.
+
+### Build Script Parameters
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `BUILD_CONFIGURATION` | `Release` | Build configuration: `Debug` or `Release`. Debug is typical for local development. |
+| `ARTICULATE_PACKAGE_LANE` | `legacy` | Package lane: `legacy` (Articulate 6 for U16/17) or `umbraco18` (Articulate 7 for U18). |
+| `ARTICULATE_PACKAGE_VERSION` | *(Nerdbank.GitVersioning)* | Optional: Override version in `version.json` during pack. Supports SemVer prerelease tags (`7.0.0-beta1`, `7.0.0-rc.1`, etc). Script restores `version.json` after pack. |
+| `ENABLE_CLIENT_BUILD` | `true` (CI/Release) / `false` (Debug) | Enable TypeScript Back Office client build (Vite + tsc). Release builds enable by default; disable for faster local iteration. |
+| `RUN_TESTS` | `true` (CI) / `false` (local) | Run dotnet test after build. Enabled in CI; disabled by default locally. |
+| `PACK_SAMPLE_THEME` | `true` (local) / `false` (CI) | Pack `Articulate.Theme.Sample` NuGet package. Local builds include by default; CI skips unless explicitly set. |
+| `FORCE_CLEAN` | `false` | Force `dotnet clean` before build. Useful to clear stale artifacts; skipped by default. |
+| `MAXCPU` | *(auto-detected)* | Limit MSBuild parallelism to N CPUs. Example: `MAXCPU=4` limits to 4 parallel nodes. |
+
+**Common build commands:**
+
+Legacy lane (U16/17) release with client build:
+
+```powershell
+$env:ARTICULATE_PACKAGE_LANE='legacy'
+$env:ENABLE_CLIENT_BUILD='true'
+$env:BUILD_CONFIGURATION='Release'
+./build/build.ps1
+```
+
+Umbraco 18 beta package (U18) with version override:
+
+```powershell
+$env:ARTICULATE_PACKAGE_LANE='umbraco18'
+$env:ARTICULATE_PACKAGE_VERSION='7.0.0-beta1'
+$env:ENABLE_CLIENT_BUILD='true'
+$env:BUILD_CONFIGURATION='Release'
+./build/build.ps1
+```
+
+Local debug build (no client rebuild, no tests):
+
+```powershell
+$env:BUILD_CONFIGURATION='Debug'
+./build/build.ps1
+```
+
+CI / Release build (all lanes):
+
+```powershell
+$env:BUILD_CONFIGURATION='Release'
+$env:ENABLE_CLIENT_BUILD='true'
+$env:RUN_TESTS='true'
+$env:FORCE_CLEAN='true'
+# Run once per lane
+$env:ARTICULATE_PACKAGE_LANE='legacy'; ./build/build.ps1
+$env:ARTICULATE_PACKAGE_LANE='umbraco18'; $env:ARTICULATE_PACKAGE_VERSION='7.0.0-beta1'; ./build/build.ps1
+```
+
+### Package Lanes
+
+The source tree supports two package lanes:
+
+| Lane | Package line | Umbraco support | Target frameworks | Output folder |
+| --- | --- | --- | --- | --- |
+| `legacy` | Articulate 6.x | Umbraco 16/17 | `net9.0`, `net10.0` | `build/Release/legacy` |
+| `umbraco18` | Articulate 7.x | Umbraco 18 | `net10.0` | `build/Release/umbraco18` |
+
+The lanes produce separate NuGet packages because the compiled Umbraco 17 and Umbraco 18 extension points are not binary-compatible. Do not install an Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 16/17.
+
+Build the Articulate 6 lane:
+
+PowerShell:
+
+```powershell
+$env:ARTICULATE_PACKAGE_LANE='legacy'
+$env:ARTICULATE_PACKAGE_VERSION='6.0.0'
+$env:PACK_SAMPLE_THEME='true'
+./build/build.ps1
+```
+
+Bash:
+
+```bash
+ARTICULATE_PACKAGE_LANE=legacy \
+ARTICULATE_PACKAGE_VERSION=6.0.0-rc.2 \
+PACK_SAMPLE_THEME=true \
+./build/build.sh
+```
+
+Build the Articulate 7 / Umbraco 18 lane:
+
+PowerShell:
+
+```powershell
+$env:ARTICULATE_PACKAGE_LANE='umbraco18'
+$env:ARTICULATE_PACKAGE_VERSION='7.0.0-rc.2'
+$env:PACK_SAMPLE_THEME='true'
+./build/build.ps1
+```
+
+Bash:
+
+```bash
+ARTICULATE_PACKAGE_LANE=umbraco18 \
+ARTICULATE_PACKAGE_VERSION=7.0.0-rc.2 \
+PACK_SAMPLE_THEME=true \
+./build/build.sh
+```
+
+The build scripts temporarily patch `version.json` when `ARTICULATE_PACKAGE_VERSION` is set, then restore it before exiting. This keeps Nerdbank.GitVersioning as the source of package metadata while allowing one checkout to produce the Articulate 6 and 7 package lines.
+
+## Local Docker Validation
+
+Docker is a local validation tool. GitHub Actions builds package artifacts but does not run Docker.
+
+The lane wrappers have two modes:
+
+- `up` starts a direct HTTP container. This is useful as a fast package/install boot smoke test.
+- `compose-up` starts the Caddy stack with server-side HTTPS enabled. Use this for real backoffice login/auth testing.
+
+The direct HTTP mode will not complete the backoffice OpenID Connect authorize flow in production mode; OpenIddict rejects the HTTP authorize request with `ID2083` because the server only accepts HTTPS requests.
+
+Build and start the Umbraco 17 direct HTTP smoke container from the Articulate 6 lane:
+
+PowerShell:
+
+```powershell
+pwsh -File build/docker-lane.ps1 -Lane legacy -Action up
+```
+
+Bash:
+
+```bash
+./build/docker-lane.sh legacy up
+```
+
+Build and start the Umbraco 18 direct HTTP smoke container from the Articulate 7 lane:
+
+PowerShell:
+
+```powershell
+pwsh -File build/docker-lane.ps1 -Lane umbraco18 -Action up
+```
+
+Bash:
+
+```bash
+./build/docker-lane.sh umbraco18 up
+```
+
+The direct wrapper mode builds the correct image from the selected package lane and starts containers on fixed ports:
+
+| Lane | Image | Container | URL |
+| --- | --- | --- | --- |
+| `legacy` | `articulate-local:umbraco17` | `articulate-umbraco17` | `http://localhost:18017/umbraco` |
+| `umbraco18` | `articulate-local:umbraco18` | `articulate-umbraco18` | `http://localhost:18018/umbraco` |
+
+The Docker wrappers expect both `Articulate` and `Articulate.Theme.Sample` packages in the selected lane folder. Rebuild with `PACK_SAMPLE_THEME=true` if the wrapper reports that the sample theme package is missing.
+
+The default unattended Docker backoffice credentials are:
+
+- Name: `Jane Doe`
+- Password: `@rticulate`
+- Email: `admin17@localhost` for the legacy lane
+- Email: `admin18@localhost` for the Umbraco 18 lane
+
+### HTTPS / Caddy Compose Path
+
+Use `compose-up` for the full local HTTPS experience. The wrapper passes the selected package lane, Umbraco version, public HTTPS URLs, unattended user email, image tag, and lane-specific volume prefix into `docker compose`.
+
+Articulate 6 / Umbraco 17:
+
+PowerShell:
+
+```powershell
+pwsh -File build/docker-lane.ps1 -Lane legacy -Action compose-up
+```
+
+Bash:
+
+```bash
+./build/docker-lane.sh legacy compose-up
+```
+
+Articulate 7 / Umbraco 18:
+
+PowerShell:
+
+```powershell
+pwsh -File build/docker-lane.ps1 -Lane umbraco18 -Action compose-up
+```
+
+Bash:
+
+```bash
+./build/docker-lane.sh umbraco18 compose-up
+```
+
+Compose exposes Caddy at `https://localhost:18443/umbraco`. It runs one selected HTTPS lane at a time because both lanes bind port `18443`; use `compose-down` for the active lane before switching. The wrapper keeps Umbraco data/media volumes separate per lane so v17 and v18 databases are not reused across lanes.
+
+## End-to-End Docker Testing (v17 & v18)
+
+Run comprehensive Docker validation for both Umbraco versions. Tests build images, perform unattended install, and validate backoffice and frontend readiness.
+
+**Test v17 and v18** (separate ports, isolated databases):
+
+PowerShell:
+```powershell
+$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
+pwsh -File scripts/docker-test.ps1 -Target all -Keep
+# Containers stay running at https://localhost:17017/ (v17) and https://localhost:18018/ (v18)
+```
+
+Bash:
+```bash
+ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
+./scripts/docker-test.sh all
+```
+
+**Test individual version:**
+```powershell
+pwsh -File scripts/docker-test.ps1 -Target umbraco17 -Keep
+# or
+pwsh -File scripts/docker-test.ps1 -Target umbraco18 -Keep
+```
+
+Each test validates:
+- ✅ Docker image builds (with correct Umbraco version and package lane)
+- ✅ Unattended Umbraco install completes
+- ✅ Backoffice `/umbraco` returns 200 OK
+- ✅ Dev automation API ready for smoke tests (phase 1)
+- ✅ Production mode validation ready (phase 2)
+
+Remove `-Keep` flag to clean up containers after testing. Use `-SkipSmoke` to skip API publish/confirm tests (faster build validation).
+
+## Opt-in Umbraco 18 beta validation (net10 only)
+
+Default source validation lanes remain unchanged (`net9.0` => Umbraco 16, `net10.0` => Umbraco 17 stable).
+
+Use explicit version pinning to validate Umbraco 18 beta locally.
+
+OpenAPI note:
+
+- Umbraco 16/17 lane uses legacy SwaggerGen/operation filter registration.
+- Umbraco 18 lane uses native OpenAPI transformers for Articulate operation IDs and security requirements.
+
+Baseline (`net10.0` + Umbraco 17 stable):
+
+PowerShell:
+
+```powershell
+dotnet restore .\src\Articulate.sln -p:UmbracoCmsPackageVersion=17.2.2
+dotnet build .\src\Articulate.sln -c Debug -f net10.0 --no-restore -p:UmbracoCmsPackageVersion=17.2.2
+dotnet test .\src\Articulate.sln -c Debug -f net10.0 --no-build --no-restore -p:UmbracoCmsPackageVersion=17.2.2
+```
+
+Bash:
+
+```bash
+dotnet restore ./src/Articulate.sln -p:UmbracoCmsPackageVersion=17.2.2
+dotnet build ./src/Articulate.sln -c Debug -f net10.0 --no-restore -p:UmbracoCmsPackageVersion=17.2.2
+dotnet test ./src/Articulate.sln -c Debug -f net10.0 --no-build --no-restore -p:UmbracoCmsPackageVersion=17.2.2
+```
+
+PowerShell:
+
+```powershell
+dotnet restore .\src\Articulate.sln -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet build .\src\Articulate.sln -c Debug -f net10.0 --no-restore -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet test .\src\Articulate.sln -c Debug -f net10.0 --no-build --no-restore -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet run -f net10.0 --project .\src\Articulate.Tests.Website\Articulate.Tests.Website.csproj -p:UmbracoCmsPackageVersion=18.0.0-beta2
+```
+
+Bash:
+
+```bash
+dotnet restore ./src/Articulate.sln -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet build ./src/Articulate.sln -c Debug -f net10.0 --no-restore -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet test ./src/Articulate.sln -c Debug -f net10.0 --no-build --no-restore -p:UmbracoCmsPackageVersion=18.0.0-beta2
+dotnet run -f net10.0 --project ./src/Articulate.Tests.Website/Articulate.Tests.Website.csproj -p:UmbracoCmsPackageVersion=18.0.0-beta2
+```
 
 ## Back Office Client Builds
 

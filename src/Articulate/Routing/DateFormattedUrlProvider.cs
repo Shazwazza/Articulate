@@ -14,15 +14,21 @@ namespace Articulate.Routing
     /// <summary>
     /// Provides date-formatted URLs for Articulate blog posts (e.g., /YYYY/MM/DD/post-name/).
     /// </summary>
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+    public class DateFormattedUrlProvider : DefaultUrlProvider
+#else
     public class DateFormattedUrlProvider : NewDefaultUrlProvider
+#endif
     {
-#if NET10_0_OR_GREATER
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+        private readonly IDocumentUrlService _documentUrlService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for NET10 (Umbraco 17+).
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,
-            ILogger<DateFormattedUrlProvider> logger,
+            ILogger<DefaultUrlProvider> logger,
             ISiteDomainMapper siteDomainMapper,
             IUmbracoContextAccessor umbracoContextAccessor,
             UriUtility uriUtility,
@@ -47,6 +53,7 @@ namespace Articulate.Routing
                 publishedContentStatusFilteringService,
                 languageService)
         {
+            _documentUrlService = documentUrlService;
         }
 #else
         /// <summary>
@@ -54,13 +61,19 @@ namespace Articulate.Routing
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,
+#if NET9_0
             ILogger<DefaultUrlProvider> logger,
+#else
+            ILogger<NewDefaultUrlProvider> logger,
+#endif
             ISiteDomainMapper siteDomainMapper,
             IUmbracoContextAccessor umbracoContextAccessor,
             UriUtility uriUtility,
+#if NET9_0
 #pragma warning disable CS0618 // Type or member is obsolete
             ILocalizationService localizationService,
 #pragma warning restore CS0618 // Type or member is obsolete
+#endif
             IPublishedContentCache publishedContentCache,
             IDomainCache domainCache,
             IIdKeyMap idKeyMap,
@@ -74,7 +87,9 @@ namespace Articulate.Routing
                 siteDomainMapper,
                 umbracoContextAccessor,
                 uriUtility,
+#if NET9_0
                 localizationService,
+#endif
                 publishedContentCache,
                 domainCache,
                 idKeyMap,
@@ -125,11 +140,16 @@ namespace Articulate.Routing
 #if NET10_0_OR_GREATER
             UrlInfo? parentPath = base.GetUrl(parent, mode, culture, current);
             var parentUrl = parentPath?.Url?.ToString().EnsureEndsWith("/");
-            if (string.IsNullOrWhiteSpace(parentUrl) || string.IsNullOrWhiteSpace(content.UrlSegment))
+#if UMBRACO_18_OR_GREATER
+            var urlSegment = _documentUrlService.GetUrlSegment(content.Key, culture ?? string.Empty, false);
+#else
+            var urlSegment = content.UrlSegment;
+#endif
+            if (string.IsNullOrWhiteSpace(parentUrl) || string.IsNullOrWhiteSpace(urlSegment))
             {
                 return null;
             }
-            var newUrl = parentUrl + urlFolder + "/" + content.UrlSegment?.EnsureEndsWith("/");
+            var newUrl = parentUrl + urlFolder + "/" + urlSegment?.EnsureEndsWith("/");
             return UrlInfo.AsUrl(newUrl, "Articulate.Routing.DateFormattedUrlProvider", culture);
 
 #else

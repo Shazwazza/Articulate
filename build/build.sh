@@ -4,6 +4,7 @@
 #   ENABLE_CLIENT_BUILD=true ./build/build.sh
 #   RUN_TESTS=true ./build/build.sh
 #   PACK_SAMPLE_THEME=true ./build/build.sh
+#   ARTICULATE_PACKAGE_LANE=umbraco18 ARTICULATE_PACKAGE_VERSION=7.0.0-rc.1 ./build/build.sh
 # Release builds enable the client build by default so packaged assets carry the stamped version.
 
 set -euo pipefail
@@ -30,10 +31,23 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 BUILD_FOLDER="$REPO_ROOT/build"
 CONFIGURATION="${BUILD_CONFIGURATION:-Release}"
-RELEASE_FOLDER="$BUILD_FOLDER/$CONFIGURATION"
+PACKAGE_LANE="${ARTICULATE_PACKAGE_LANE:-legacy}"
+case "$PACKAGE_LANE" in
+  legacy|umbraco18) ;;
+  *)
+    echo "Unsupported ARTICULATE_PACKAGE_LANE '$PACKAGE_LANE'. Expected 'legacy' or 'umbraco18'." >&2
+    exit 1
+    ;;
+esac
+RELEASE_ROOT="$BUILD_FOLDER/$CONFIGURATION"
+RELEASE_FOLDER="$RELEASE_ROOT/$PACKAGE_LANE"
 SOLUTION_ROOT="$REPO_ROOT/src"
 SOLUTION_PATH="$SOLUTION_ROOT/Articulate.sln"
-TARGET_FRAMEWORKS=("net9.0" "net10.0")
+if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  TARGET_FRAMEWORKS=("net10.0")
+else
+  TARGET_FRAMEWORKS=("net9.0" "net10.0")
+fi
 
 # Compute CPU parallelism for MSBuild (allow override via MAXCPU)
 CPU_COUNT=${MAXCPU:-}
@@ -41,6 +55,9 @@ if [[ -z "$CPU_COUNT" ]]; then
   CPU_COUNT=$( (command -v nproc >/dev/null 2>&1 && nproc --all) || getconf _NPROCESSORS_ONLN || echo 8 )
 fi
 MSBUILD_PARALLEL=(-m -maxcpucount:"$CPU_COUNT" -p:BuildInParallel=true -p:RestoreUseStaticGraphEvaluation=true)
+if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  MSBUILD_PARALLEL=(-m -maxcpucount:"$CPU_COUNT" -p:BuildInParallel=true)
+fi
 DOTNET_COMMON=(--nologo -v minimal)
 
 # Handle ENABLE_CLIENT_BUILD environment variable (default to true for Release/CI, false otherwise)
@@ -51,6 +68,23 @@ else
 fi
 CLIENT_BUILD_VALUE=${ENABLE_CLIENT_BUILD:-$CLIENT_BUILD_DEFAULT}
 CLIENT_BUILD_PROPERTY="-p:EnableClientBuild=$CLIENT_BUILD_VALUE"
+LANE_PROPERTIES=("-p:ArticulatePackageLane=$PACKAGE_LANE")
+if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  LANE_PROPERTIES+=(
+    "-p:TargetFramework=net10.0"
+    "-p:UmbracoCmsPackageVersion=18.0.0-*"
+  )
+fi
+if [[ -n "${ARTICULATE_PACKAGE_VERSION:-}" ]]; then
+  LANE_PROPERTIES+=(
+    "-p:Version=$ARTICULATE_PACKAGE_VERSION"
+    "-p:PackageVersion=$ARTICULATE_PACKAGE_VERSION"
+  )
+fi
+PACK_PROPERTIES=("${LANE_PROPERTIES[@]}")
+if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+  PACK_PROPERTIES+=("-p:TargetFrameworks=net10.0")
+fi
 PACK_SAMPLE_THEME_VALUE=${PACK_SAMPLE_THEME:-}
 if [[ -n "${RUN_TESTS:-}" ]]; then
   RUN_TESTS_VALUE="$RUN_TESTS"
@@ -62,6 +96,33 @@ fi
 
 echo "Using up to $CPU_COUNT parallel MSBuild nodes"
 echo "Build configuration: $CONFIGURATION"
+echo "Package lane: $PACKAGE_LANE"
+echo "Package output: $RELEASE_FOLDER"
+
+VERSION_JSON="$REPO_ROOT/version.json"
+ORIGINAL_VERSION_JSON=""
+restore_version_json() {
+  if [[ -n "$ORIGINAL_VERSION_JSON" ]]; then
+    printf '%s' "$ORIGINAL_VERSION_JSON" > "$VERSION_JSON"
+  fi
+}
+trap restore_version_json EXIT
+
+if [[ -n "${ARTICULATE_PACKAGE_VERSION:-}" ]]; then
+  ORIGINAL_VERSION_JSON="$(cat "$VERSION_JSON")"
+  python - "$VERSION_JSON" "$ARTICULATE_PACKAGE_VERSION" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+version = sys.argv[2]
+text = path.read_text()
+text = re.sub(r'("version"\s*:\s*")[^"]+(")', rf'\g<1>{version}\2', text, count=1)
+path.write_text(text)
+PY
+  echo "Temporarily using package version: $ARTICULATE_PACKAGE_VERSION"
+fi
 
 # Advise when running in WSL against Windows-mounted drives (slow)
 if [[ $IS_WSL -eq 1 && "$REPO_ROOT" == /mnt/* ]]; then
@@ -82,7 +143,7 @@ export RestoreFallbackFolders=
 # --- 1) Clean the solution so Release/CI builds start fresh ---
 echo "1. Cleaning solution outputs..."
 if [[ "${FORCE_CLEAN:-false}" == "true" ]]; then
-  if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY"; then
+  if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
     echo "Warning: dotnet clean failed" >&2
   fi
 else
@@ -92,7 +153,7 @@ fi
 # --- 2) Solution-level restore ---
 mkdir -p "$RELEASE_FOLDER"
 echo "2. Restoring solution packages in parallel..."
-if ! dotnet restore "$SOLUTION_PATH" "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY"; then
+if ! dotnet restore "$SOLUTION_PATH" "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
   echo "dotnet restore failed" >&2
   exit 1
 fi
@@ -103,7 +164,7 @@ echo "3. Building solution for: ${TARGET_FRAMEWORKS[*]}"
 for tfm in "${TARGET_FRAMEWORKS[@]}"; do
   echo "[build] -> $tfm"
   t0=$(date +%s)
-  if ! dotnet build "$SOLUTION_PATH" -c "$CONFIGURATION" -f "$tfm" --no-restore "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY"; then
+  if ! dotnet build "$SOLUTION_PATH" -c "$CONFIGURATION" -f "$tfm" --no-restore "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
     echo "dotnet build failed for $tfm" >&2
     exit 1
   fi
@@ -114,7 +175,7 @@ done
 # --- 4) Run tests ---
 if [[ "$RUN_TESTS_VALUE" == "true" ]]; then
   echo "4. Running tests..."
-  if ! dotnet test "$SOLUTION_PATH" -c "$CONFIGURATION" --no-restore --no-build "${DOTNET_COMMON[@]}"; then
+  if ! dotnet test "$SOLUTION_PATH" -c "$CONFIGURATION" --no-restore --no-build "${DOTNET_COMMON[@]}" "${LANE_PROPERTIES[@]}"; then
     echo "dotnet test failed" >&2
     exit 1
   fi
@@ -138,7 +199,7 @@ for proj in "${PACK_PROJECTS[@]}"; do
   echo "[pack] -> $(basename "$proj")"
   RESTORE_SWITCHES=(--no-restore)
   if ! dotnet pack -c "$CONFIGURATION" "$proj" "${RESTORE_SWITCHES[@]}" -o "$RELEASE_FOLDER" \
-    "${DOTNET_COMMON[@]}" -p:BuildInParallel=false "$CLIENT_BUILD_PROPERTY"; then
+    "${DOTNET_COMMON[@]}" -p:BuildInParallel=false "$CLIENT_BUILD_PROPERTY" "${PACK_PROPERTIES[@]}"; then
     echo "dotnet pack failed for $proj" >&2
     exit 1
   fi

@@ -38,7 +38,11 @@ namespace Articulate.ImportExport
         IJsonSerializer jsonSerializer,
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
-        IHtmlSanitizer htmlSanitizer)
+        IHtmlSanitizer htmlSanitizer
+#if UMBRACO_18_OR_GREATER
+        , IIdKeyMap idKeyMap
+#endif
+        )
     {
         private const long MaxXmlCharacters = 10_000_000;
 
@@ -529,6 +533,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -566,6 +573,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 

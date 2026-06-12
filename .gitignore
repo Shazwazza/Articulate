@@ -536,3 +536,5 @@ src/Articulate.Tests/appsettings-schema.json
 
 
 /.playwright-mcp
+
+temp.md

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
@@ -26,8 +26,17 @@
 		<MicrosoftOpenApiPackageVersion>[2.3.0,3.0.0)</MicrosoftOpenApiPackageVersion>
 		<MicrosoftCodeAnalysisPackageVersion>[5.3.0,6.0.0)</MicrosoftCodeAnalysisPackageVersion>
 		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[10.0.6,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
+		<SystemSecurityCryptographyXmlPackageVersion>[10.0.7,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
 		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
+		<MarkdigPackageVersion>[1.1.3,2.0.0)</MarkdigPackageVersion>
+		<MicrosoftNetTestSdkPackageVersion>[18.5.1,19.0.0)</MicrosoftNetTestSdkPackageVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0' and $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.'))">
+		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<MarkdigPackageVersion>[0.44.0,1.0.0)</MarkdigPackageVersion>
+		<MicrosoftNetTestSdkPackageVersion>[18.0.1,19.0.0)</MicrosoftNetTestSdkPackageVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<!-- TODO: Enable when 6.0 version is shipped -->
@@ -114,7 +123,7 @@
 
 	<!-- Force minimum versions for vulnerable transitive dependencies -->
 	<ItemGroup>
-        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.8.43" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="18.4.0" PrivateAssets="All" />
 		<PackageReference Include="MailKit" Version="$(MailKitPackageVersion)" PrivateAssets="All" />
 	</ItemGroup>
 </Project>

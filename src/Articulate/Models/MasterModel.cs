@@ -13,9 +13,14 @@ namespace Articulate.Models
         /// <summary>
         /// The basic model for all articulate objects
         /// </summary>
-        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(
-            content,
-            publishedValueFallback) => PublishedValueFallback = publishedValueFallback;
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(content)
+            => PublishedValueFallback = publishedValueFallback;
+#else
+        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+            : base(content, publishedValueFallback)
+            => PublishedValueFallback = publishedValueFallback;
+#endif
 
         /// <summary>
         /// Returns the current theme

@@ -15,7 +15,11 @@ namespace Articulate.Routing
     /// <summary>
     /// Content finder that handles date-formatted URLs for Articulate blog posts (e.g., /YYYY/MM/DD/post-name/).
     /// </summary>
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+    public class DateFormattedPostContentFinder : ContentFinderByUrl
+#else
     public class DateFormattedPostContentFinder : ContentFinderByUrlNew
+#endif
     {
         private readonly IDocumentUrlService _documentUrlService;
         private readonly IPublishedContentCache _publishedContentCache;
@@ -24,12 +28,20 @@ namespace Articulate.Routing
         /// Initializes a new instance of the <see cref="DateFormattedPostContentFinder"/> class.
         /// </summary>
         public DateFormattedPostContentFinder(
-            ILogger<DateFormattedPostContentFinder> logger,
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+            ILogger<ContentFinderByUrl> logger,
+#else
+            ILogger<ContentFinderByUrlNew> logger,
+#endif
             IUmbracoContextAccessor umbracoContextAccessor,
             IDocumentUrlService documentUrlService,
             IPublishedContentCache publishedContentCache,
             IOptionsMonitor<WebRoutingSettings> webRoutingSettings)
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
             : base(logger, umbracoContextAccessor, documentUrlService, publishedContentCache, webRoutingSettings)
+#else
+            : base(logger, umbracoContextAccessor, documentUrlService, publishedContentCache, webRoutingSettings)
+#endif
         {
             _documentUrlService = documentUrlService;
             _publishedContentCache = publishedContentCache;

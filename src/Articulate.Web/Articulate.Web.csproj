@@ -36,7 +36,7 @@
     <!-- Third-party dependencies (from Articulate.csproj) -->
     <PackageReference Include="Argotic.Core" Version="3001.0.0" />
     <PackageReference Include="FileSignatures" Version="7.2.1" />
-    <PackageReference Include="Markdig" Version="0.45.0" />
+    <PackageReference Include="Markdig" Version="$(MarkdigPackageVersion)" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.3" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" PrivateAssets="All" />
@@ -88,6 +88,9 @@
   <ItemGroup Condition="'$(EnableClientBuild)'=='true' and '$(BuildingInsideVisualStudio)'=='true'">
     <Content Remove="$(BackofficeOutputDir)\**" />
     <None Include="$(BackofficeOutputDir)\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Build.Tasks.Core" Version="18.4.0" />
   </ItemGroup>
 
   <!-- TARGET: BuildBackofficeClient -->

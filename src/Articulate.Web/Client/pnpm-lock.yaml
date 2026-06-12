@@ -34,10 +34,10 @@ importers:
         specifier: 0.85.0
         version: 0.85.0(typescript@5.9.3)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.59.1
+        specifier: ^8.60.1
         version: 8.60.1(@typescript-eslint/parser@8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/parser':
-        specifier: ^8.59.1
+        specifier: ^8.60.1
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@umbraco-cms/backoffice':
         specifier: 16.5.1
@@ -49,7 +49,7 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       dompurify:
-        specifier: ^3.4.2
+        specifier: ^3.4.8
         version: 3.4.8
       esbuild:
         specifier: ^0.28.1
@@ -61,7 +61,7 @@ importers:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.39.4(jiti@2.7.0))
       eslint-import-resolver-typescript:
-        specifier: ^4.4.4
+        specifier: ^4.4.5
         version: 4.4.5(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-import:
         specifier: ^2.32.0
@@ -76,7 +76,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       eslint-plugin-prettier:
-        specifier: ^5.5.5
+        specifier: ^5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(prettier@3.8.3)
       eslint-plugin-wc:
         specifier: ^3.1.0
@@ -103,7 +103,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vite:
-        specifier: ^8.0.10
+        specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)
 
 packages:

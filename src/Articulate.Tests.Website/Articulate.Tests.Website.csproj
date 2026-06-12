@@ -9,6 +9,7 @@
     <UmbracoJsonSchemaGenerateEnabled>false</UmbracoJsonSchemaGenerateEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="3.1.7" />
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
@@ -43,6 +44,9 @@
   <ItemGroup>
     <Folder Include="Views\ArticulateThemes\" />
     <Folder Include="wwwroot\App_Plugins\Articulate\Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Build.Tasks.Core" Version="18.4.0" />
   </ItemGroup>
   <PropertyGroup>
     <!-- Razor files are needed for the backoffice to work correctly -->

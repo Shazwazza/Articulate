@@ -1,11 +1,16 @@
 #nullable enable
+#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
 using System.Reflection;
-using Articulate.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
-#if NET10_0_OR_GREATER
+#endif
+using Articulate.Swagger;
+using Microsoft.Extensions.Options;
+#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
+#elif NET10_0_OR_GREATER
 using Microsoft.OpenApi;
 #else
 using Microsoft.OpenApi.Models;
@@ -13,16 +18,14 @@ using Microsoft.OpenApi.Models;
 
 namespace Articulate.Options
 {
+#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
     /// <summary>
-    /// Configures SwaggerGen options for the Articulate API, including documentation, tags, and XML comments.
+    /// Configures Articulate management API OpenAPI generation across supported Umbraco versions.
     /// </summary>
     public class ArticulateSwaggerOptions(ILogger<ArticulateSwaggerOptions> logger)
         : IConfigureOptions<SwaggerGenOptions>
     {
-        /// <summary>
-        /// Configures SwaggerGen options for the Articulate API.
-        /// </summary>
-        /// <param name="options">The SwaggerGen options to configure.</param>
+        /// <inheritdoc/>
         public void Configure(SwaggerGenOptions options)
         {
             var year = DateTime.Now.Year.ToString();
@@ -68,4 +71,44 @@ namespace Articulate.Options
             options.OperationFilter<ArticulateOperationSecurityFilter>();
         }
     }
+#else
+    /// <summary>
+    /// Configures named <see cref="OpenApiOptions"/> for the Articulate management API document in Umbraco 18+.
+    /// </summary>
+    public class ArticulateSwaggerOptions
+        : IConfigureNamedOptions<OpenApiOptions>
+    {
+        /// <summary>
+        /// Configures the named Articulate OpenAPI document by registering operation/document transformers.
+        /// </summary>
+        /// <param name="name">The OpenAPI document name.</param>
+        /// <param name="options">The OpenAPI options for the named document.</param>
+        public void Configure(string? name, OpenApiOptions options)
+        {
+            if (!string.Equals(name, ArticulateConstants.ManagementApi.Name, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            options.AddOperationTransformer<ArticulateOperationIdHandler>();
+            options.AddOperationTransformer<ArticulateOperationSecurityFilter>();
+            options.AddDocumentTransformer<ArticulateOperationSecurityFilter>();
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Info.Version = "Latest";
+                document.Info.Title = "Articulate Management API";
+                document.Info.Description = "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco. ";
+                return Task.CompletedTask;
+            });
+        }
+
+        /// <summary>
+        /// Required interface member for unnamed options; intentionally unused because Articulate config is named.
+        /// </summary>
+        /// <param name="options">The unnamed OpenAPI options instance.</param>
+        public void Configure(OpenApiOptions options)
+        {
+        }
+    }
+#endif
 }

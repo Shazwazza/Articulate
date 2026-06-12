@@ -11,7 +11,7 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Installation
 
-Two support tracks are available depending on the Umbraco version you run.
+Three support tracks are available depending on the Umbraco version you run.
 
 ### Umbraco 13 LTS (maintenance mode)
 
@@ -25,13 +25,25 @@ _Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Ar
 
 ### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
 
+Articulate 6 targets Umbraco 16.5.1+ and 17.2.2+.
+
 - Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
 - When building from source, run the test site with `-f net9.0` for Umbraco 16 or `-f net10.0` for Umbraco 17, then sign into the Umbraco Back Office to finish setup.
 - Migrating from 5.x: in place upgrade or export BlogML from your Articulate 5 site and import it into Articulate 6; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
 
+### Umbraco 18 (NET 10) opt-in
+
+Articulate 7 targets Umbraco 18 on `net10.0`.
+
+- Articulate 6.x packages are for Umbraco 16/17.
+- Articulate 7.x packages are for Umbraco 18.
+- The source tree can build both package lanes, but the resulting NuGet packages are separate because the compiled Umbraco 17 and Umbraco 18 integration points are not binary-compatible.
+- Articulate 7 will be available on both the Umbraco Marketplace and NuGet when Umbraco 18 is released.
+- For development or early validation, see `DEVELOP.md` for lane build and Docker commands.
+
 #### Rich Text Editor upgrade behavior
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
+Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. This applies to all Articulate versions (6 and 7).
 
 - You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
 - This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
@@ -243,6 +255,13 @@ Built-in themes render Disqus comments only when both post comments are enabled 
 
 - Articulate 5.x (maintenance): Umbraco 13 LTS (security support through Dec 2025, EOL Dec 2026)
 - Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.4.0+ on .NET 10
+- Articulate 7.x (Umbraco 18 track): Umbraco 18+ on .NET 10
+
+### Umbraco 18 beta validation (opt-in)
+
+This branch enables opt-in validation against Umbraco 18 beta on `net10.0` using the Articulate 7 package lane.
+
+See [DEVELOP.md](DEVELOP.md) for package-lane build commands and local Docker usage.
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 

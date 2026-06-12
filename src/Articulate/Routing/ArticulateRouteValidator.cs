@@ -3,6 +3,9 @@ using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Strings;
+#if UMBRACO_18_OR_GREATER
+using Umbraco.Cms.Core.Services;
+#endif
 
 namespace Articulate.Routing
 {
@@ -33,15 +36,23 @@ namespace Articulate.Routing
             return [.. domains.Where(domain => nodePaths.Contains(domain.ContentId))];
         }
 
-        internal static void ValidateConfiguredRouteSegments(IPublishedContent articulateRootNode)
+        internal static void ValidateConfiguredRouteSegments(
+            IPublishedContent articulateRootNode,
+#if UMBRACO_18_OR_GREATER
+            IDocumentUrlService documentUrlService,
+#endif
+            IEnumerable<IPublishedContent>? children = null)
         {
             var configuredSegments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-#pragma warning disable CS0618 // IPublishedContent.Children used here to avoid navigation-service requirements during validation.
-            foreach (IPublishedContent child in articulateRootNode.Children)
-#pragma warning restore CS0618
+            IEnumerable<IPublishedContent> configuredChildren = children ?? articulateRootNode.Children();
+            foreach (IPublishedContent child in configuredChildren)
             {
+#if UMBRACO_18_OR_GREATER
+                string? childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(documentUrlService.GetUrlSegment(child.Key, string.Empty, true));
+#else
                 string? childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(child.UrlSegment);
+#endif
                 if (childRouteSegment is not null)
                 {
                     string childDescription = $"child content '{child.Name}'";

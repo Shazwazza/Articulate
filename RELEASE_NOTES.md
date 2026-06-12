@@ -1,5 +1,15 @@
 # Articulate Release Notes
 
+## PR branch notes (Umbraco 18 beta validation)
+
+- Default support lanes remain unchanged in this branch:
+  - .NET 9 lane targets Umbraco 16.
+  - .NET 10 lane defaults to Umbraco 17 stable.
+- Umbraco 18 beta validation is available as an **opt-in** workflow using explicit version pin overrides:
+  - `-p:UmbracoCmsPackageVersion=18.0.0-beta2` for local restore/build/test and `Articulate.Tests.Website` runs on `net10.0`.
+  - `UMBRACO_CMS_VERSION=18.0.0-beta2` for Docker validation.
+- Validation/reference source used for API compatibility checks: `E:\ext\Umbraco-CMS`.
+
 ## Version 6.0.0
 
 ### Breaking Changes
