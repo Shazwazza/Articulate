@@ -4,9 +4,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { mkdir, writeFile, unlink, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { build as esbuildBuild } from "esbuild";
-import { minify as terserMinify } from "terser";
 import * as lightningcss from "lightningcss";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 // --- CONSTANTS & PATHS ---
 const __filename = fileURLToPath(import.meta.url);
@@ -89,6 +87,7 @@ const sideCarAssetsPlugin = (): Plugin => {
     configResolved(c) { mode = c.mode; },
     async buildStart() {
       const isProd = mode === "production";
+      const buildPromises: Promise<void>[] = [];
 
       // --- A. BUILD THEMES ---
       if (existsSync(WEB_THEMES)) {
@@ -108,19 +107,23 @@ const sideCarAssetsPlugin = (): Plugin => {
           // CLEAN: Wipe the dist folder before rebuilding
           await cleanDir(outDir);
 
-          await buildBundle({
-            name: `${themeName} CSS`,
-            inputs: [...collectFiles(vendorDir, ".css"), ...collectFiles(srcDir, ".css")],
-            output: path.join(outDir, "css", `${themeName.toLowerCase()}.min.css`),
-            type: 'css', isProd
-          });
+          buildPromises.push(
+            buildBundle({
+              name: `${themeName} CSS`,
+              inputs: [...collectFiles(vendorDir, ".css"), ...collectFiles(srcDir, ".css")],
+              output: path.join(outDir, "css", `${themeName.toLowerCase()}.min.css`),
+              type: 'css', isProd
+            })
+          );
 
-          await buildBundle({
-            name: `${themeName} JS`,
-            inputs: [...collectFiles(vendorDir, ".js"), ...collectFiles(srcDir, ".js")],
-            output: path.join(outDir, "js", `${themeName.toLowerCase()}.min.js`),
-            type: 'js', isProd
-          });
+          buildPromises.push(
+            buildBundle({
+              name: `${themeName} JS`,
+              inputs: [...collectFiles(vendorDir, ".js"), ...collectFiles(srcDir, ".js")],
+              output: path.join(outDir, "js", `${themeName.toLowerCase()}.min.js`),
+              type: 'js', isProd
+            })
+          );
         }
       }
 
@@ -134,23 +137,29 @@ const sideCarAssetsPlugin = (): Plugin => {
         // CLEAN: Wipe dist folder
         await cleanDir(outDir);
 
-        await buildBundle({
-          name: "MD Editor CSS",
-          inputs: collectFiles(assetsRoot, ".css"),
-          output: path.join(outDir, "css", "md-editor.min.css"),
-          type: 'css', isProd
-        });
+        buildPromises.push(
+          buildBundle({
+            name: "MD Editor CSS",
+            inputs: collectFiles(assetsRoot, ".css"),
+            output: path.join(outDir, "css", "md-editor.min.css"),
+            type: 'css', isProd
+          })
+        );
 
         const entry = path.join(srcDir, "js", "md-editor.js");
         if (existsSync(entry)) {
-          await buildEsbuildBundle({
-            name: "MD Editor JS",
-            entry,
-            output: path.join(outDir, "js", "md-editor.min.js"),
-            isProd
-          });
+          buildPromises.push(
+            buildEsbuildBundle({
+              name: "MD Editor JS",
+              entry,
+              output: path.join(outDir, "js", "md-editor.min.js"),
+              isProd
+            })
+          );
         }
       }
+
+      await Promise.all(buildPromises);
     }
   }
 };
@@ -171,16 +180,14 @@ async function buildBundle({ name, inputs, output, type, isProd }: any) {
     });
     code = res.code.toString();
   } else if (type === 'js') {
-    if (isProd) {
-      const res = await terserMinify(code, { ecma: 2020, compress: { passes: 2 }, format: { comments: false } });
-      code = res.code || code;
-    } else {
-      const res = await esbuildBuild({
-        stdin: { contents: code, resolveDir: path.dirname(inputs[0]), loader: 'js' },
-        bundle: false, minify: false, write: false, target: "es2020"
-      });
-      code = res.outputFiles[0].text;
-    }
+    const res = await esbuildBuild({
+      stdin: { contents: code, resolveDir: path.dirname(inputs[0]), loader: 'js' },
+      bundle: false,
+      minify: isProd,
+      write: false,
+      target: "es2020"
+    });
+    code = res.outputFiles[0].text;
   }
 
   await mkdir(path.dirname(output), { recursive: true });
@@ -243,9 +250,6 @@ const umbracoPackagePlugin = (): Plugin => {
 export default defineConfig(({ mode }) => {
   const isProd = mode === "production";
   return {
-    resolve: {
-      tsconfigPaths: true,
-    },
     root: UI_ROOT,
     base: "/App_Plugins/Articulate/BackOffice/",
     build: {
@@ -258,7 +262,7 @@ export default defineConfig(({ mode }) => {
       },
       rollupOptions: { external: [/^@umbraco/] },
       sourcemap: true,
-      minify: isProd ? "terser" : false,
+      minify: isProd ? "esbuild" : false,
       cssMinify: isProd ? 'lightningcss' : false,
     },
     plugins: [
