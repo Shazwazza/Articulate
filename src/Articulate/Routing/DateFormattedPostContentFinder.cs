@@ -1,5 +1,6 @@
 #nullable enable
 using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -35,19 +36,17 @@ namespace Articulate.Routing
         }
 
         /// <inheritdoc/>
-        public override async Task<bool> TryFindContent(IPublishedRequestBuilder contentRequest)
+        public override Task<bool> TryFindContent(IPublishedRequestBuilder contentRequest)
         {
-            await Task.CompletedTask;
-
             var segmentLength = contentRequest.Uri.Segments.Length;
             if (segmentLength <= 4)
             {
-                return false;
+                return Task.FromResult(false);
             }
 
             if (!TryParseDateFromSegments(contentRequest.Uri.Segments, segmentLength, out DateTime postDate))
             {
-                return false;
+                return Task.FromResult(false);
             }
 
             var newRoute = BuildRouteWithoutDateSegments(contentRequest, segmentLength);
@@ -55,11 +54,11 @@ namespace Articulate.Routing
 
             if (!ValidateArticulatePost(node, postDate))
             {
-                return false;
+                return Task.FromResult(false);
             }
 
             _ = contentRequest.SetPublishedContent(node!);
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -87,13 +86,13 @@ namespace Articulate.Routing
                 contentRequest.Domain?.ContentId,
                 umbracoContext.InPreviewMode);
 
-            if (!documentKey.HasValue)
+            if (documentKey is null)
             {
                 return null;
             }
 
             // Retrieve the published content by key
-            IPublishedContent? node = _publishedContentCache.GetById(umbracoContext.InPreviewMode, documentKey.Value);
+            IPublishedContent? node = _publishedContentCache.GetById(umbracoContext.InPreviewMode, (Guid)documentKey);
             if (node is not null)
             {
                 contentRequest.SetPublishedContent(node);
@@ -102,32 +101,40 @@ namespace Articulate.Routing
             return node;
         }
 
-        private static bool TryParseDateFromSegments(string[] segments, int segmentLength, out DateTime postDate)
+        internal static bool TryParseDateFromSegments(string[] segments, int segmentLength, out DateTime postDate)
         {
-            var stringDate = segments[segmentLength - 4] + segments[segmentLength - 3] +
-                             segments[segmentLength - 2].TrimEnd('/');
-            try
-            {
-                postDate = DateTime.ParseExact(stringDate, "yyyy/MM/dd", CultureInfo.InvariantCulture);
-                return true;
-            }
-            catch (FormatException)
+            // Fast bail-out: year segment must start with a digit.
+            // Covers ~99% of non-date URLs without any string allocation.
+            ReadOnlySpan<char> yearSegment = segments[segmentLength - 4].AsSpan();
+            if (yearSegment.Length < 5 || !(yearSegment[0] is >= '0' and <= '9'))
             {
                 postDate = default;
                 return false;
             }
+
+            var stringDate = segments[segmentLength - 4] + segments[segmentLength - 3] +
+                             segments[segmentLength - 2].TrimEnd('/');
+            return DateTime.TryParseExact(
+                stringDate,
+                "yyyy/MM/dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out postDate);
         }
 
-        private static string BuildRouteWithoutDateSegments(IPublishedRequestBuilder contentRequest, int segmentLength)
+        internal static string BuildRouteWithoutDateSegments(IPublishedRequestBuilder contentRequest, int segmentLength)
         {
-            var newRoute = string.Empty;
+            var uriSegments = contentRequest.Uri.Segments;
+            var sb = new StringBuilder();
             for (var i = 0; i < segmentLength; i++)
             {
                 if (i < segmentLength - 4 || i > segmentLength - 2)
                 {
-                    newRoute += contentRequest.Uri.Segments[i].ToLowerInvariant();
+                    sb.Append(uriSegments[i].ToLowerInvariant());
                 }
             }
+
+            var newRoute = sb.ToString();
 
             // if there's a domain attached we need to look up the content with the domain ID
             // and the domain's path stripped from the start
@@ -154,7 +161,7 @@ namespace Articulate.Routing
                 return false;
             }
 
-            bool? useDateFormat = node.Parent()?.Parent()?.Value<bool?>("useDateFormatForUrl");
+            var useDateFormat = node.Parent()?.Parent()?.Value<bool?>("useDateFormatForUrl");
             if (useDateFormat != true)
             {
                 return false;
