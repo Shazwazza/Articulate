@@ -505,6 +505,10 @@ scratch/
 # except monaco markdown editor package used by Articulate's BackOffice UI
 !/src/Articulate.Web/Client/src/packages/
 !/src/Articulate.Web/Client/src/packages/**
+!/src/Articulate.Web/Client/v17/src/packages/
+!/src/Articulate.Web/Client/v17/src/packages/**
+!/src/Articulate.Web/Client/v18/src/packages/
+!/src/Articulate.Web/Client/v18/src/packages/**
 
 # theme build artifacts
 /src/Articulate.Web/wwwroot/App_Plugins/Articulate/Themes/**/dist/

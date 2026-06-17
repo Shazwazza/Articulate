@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../Articulate.Tests.Website/umbraco-package-schema.json",
+  "id": "Articulate",
+  "name": "Articulate",
+  "version": "0.0.0-dev",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Articulate BackOffice Bundle",
+      "alias": "Articulate.BackOffice.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/Articulate/BackOffice/articulate-backoffice.js"
+    }
+  ]
+}

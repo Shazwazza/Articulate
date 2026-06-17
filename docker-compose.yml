@@ -10,7 +10,7 @@ services:
         DOTNET_SDK_IMAGE: ${DOTNET_SDK_IMAGE:-mcr.microsoft.com/dotnet/sdk:10.0}
         DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0}
         UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.4.0,18.0.0)}
-        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release}
+        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release/v17}
     image: ${IMAGE_TAG:-articulate-local:chiseled}
     user: "1654:1654"
     environment:

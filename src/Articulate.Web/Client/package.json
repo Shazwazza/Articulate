@@ -1,68 +1,8 @@
 {
-  "name": "articulate-backoffice",
+  "name": "articulate-backoffice-workspace",
   "private": true,
-  "version": "0.0.0-dev",
-  "type": "module",
-  "description": "Articulate BackOffice extension",
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.4.0",
-  "keywords": [
-    "blog",
-    "umbraco",
-    "backoffice",
-    "lit",
-    "web components"
-  ],
-  "author": "Articulate",
-  "license": "MIT",
-  "scripts": {
-    "dev": "vite build --watch --mode development",
-    "build": "tsc && vite build",
-    "build:dev": "tsc && vite build --mode development",
-    "check": "tsc --noEmit",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "clean": "node -e \"const fs = require('fs'); ['node_modules', 'pnpm-lock.yaml'].forEach(f => fs.rmSync(f, { recursive: true, force: true }))\"",
-    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ./scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ./src/api --excludeTags 'Markdown Editor'"
-  },
-  "dependenciesComments": {
-    "monaco-editor": "Articulate Markdown Editor property editor (not the mobile markdown editor), only required until Umbraco Core editor supports better markdown to HTML processing; see https://github.com/umbraco/Umbraco-CMS/issues/19500",
-    "lit-html": "Required for client build due to use of lit keyed directive, can be droped when umbraco-cms/backoffice bumped to v17+ to bring in https://github.com/umbraco/Umbraco-CMS/pull/20963"
-  },
-  "dependencies": {
-    "lit-html": "^3.3.2",
-    "monaco-editor": "0.54.0"
-  },
-  "devDependencies": {
-    "@eslint/compat": "^2.0.3",
-    "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.4",
-    "@hey-api/openapi-ts": "0.85.0",
-    "@typescript-eslint/eslint-plugin": "^8.60.1",
-    "@typescript-eslint/parser": "^8.60.1",
-    "@umbraco-cms/backoffice": "16.5.1",
-    "chalk": "^5.6.2",
-    "cross-env": "^10.1.0",
-    "dompurify": "^3.4.8",
-    "esbuild": "^0.28.0",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-lit": "^2.2.1",
-    "eslint-plugin-lit-a11y": "^5.1.1",
-    "eslint-plugin-local-rules": "^3.0.2",
-    "eslint-plugin-prettier": "^5.5.6",
-    "eslint-plugin-wc": "^3.1.0",
-    "globals": "^17.5.0",
-    "lightningcss": "^1.32.0",
-    "marked": "^16.4.2",
-    "node-fetch": "^3.3.2",
-    "prettier": "^3.8.3",
-    "terser": "^5.46.2",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.16"
-  }
+  "packageManager": "pnpm@11.4.0"
 }

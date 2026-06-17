@@ -17,7 +17,6 @@ namespace Articulate.Swagger
 }
 #else
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -30,7 +29,6 @@ namespace Articulate.Swagger
     /// </summary>
     internal class ArticulateOperationSecurityFilter : IOpenApiOperationTransformer, IOpenApiDocumentTransformer
     {
-        private const int BaseAuthorizeAttributeCount = 2;
         private const string BackOfficeUserSecurityName = "Backoffice-User";
 
         /// <inheritdoc />
@@ -51,27 +49,9 @@ namespace Articulate.Swagger
                 return Task.CompletedTask;
             }
 
-            operation.Responses ??= new OpenApiResponses();
-            operation.Responses[StatusCodes.Status401Unauthorized.ToString()] = new OpenApiResponse
-            {
-                Description = "The resource is protected and requires an authentication token"
-            };
-
             var schemaRef = new OpenApiSecuritySchemeReference(BackOfficeUserSecurityName, context.Document);
             operation.Security ??= new List<OpenApiSecurityRequirement>();
             operation.Security.Add(new OpenApiSecurityRequirement { [schemaRef] = [] });
-
-            var numberOfAuthorizeAttributes =
-                description.MethodInfo.GetCustomAttributes(true).Count(x => x is AuthorizeAttribute)
-                + description.MethodInfo.DeclaringType?.GetCustomAttributes(true).Count(x => x is AuthorizeAttribute);
-
-            if (numberOfAuthorizeAttributes > BaseAuthorizeAttributeCount || InjectsAuthorizationService(description.MethodInfo.DeclaringType))
-            {
-                operation.Responses[StatusCodes.Status403Forbidden.ToString()] = new OpenApiResponse
-                {
-                    Description = "The authenticated user does not have access to this resource"
-                };
-            }
 
             return Task.CompletedTask;
         }
@@ -106,18 +86,6 @@ namespace Articulate.Swagger
             document.Security ??= new List<OpenApiSecurityRequirement>();
             document.Security.Add(new OpenApiSecurityRequirement { [schemaRef] = [] });
             return Task.CompletedTask;
-        }
-
-        private static bool InjectsAuthorizationService(Type? type)
-        {
-            if (type is null)
-            {
-                return false;
-            }
-
-            return type.GetConstructors()
-                .Any(ctor => ctor.GetParameters()
-                    .Any(parameter => parameter.ParameterType == typeof(IAuthorizationService)));
         }
     }
 }

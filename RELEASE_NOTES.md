@@ -1,14 +1,11 @@
 # Articulate Release Notes
 
-## PR branch notes (Umbraco 18 pre-release validation)
+## PR branch notes (Umbraco 17/18 package lanes)
 
-- Default support lanes remain unchanged in this branch:
-  - .NET 9 lane targets Umbraco 16.
-  - .NET 10 lane defaults to Umbraco 17 stable.
-- Umbraco 18 pre-release validation is available as an **opt-in** package lane (`umbraco18`) targeting `net10.0`:
-  - Set `ARTICULATE_PACKAGE_LANE=umbraco18` when running `./build/build.ps1` or `./build/build.sh`.
-  - The lane selects `UmbracoCmsPackageVersion=[18.0.0-*,19.0.0)` and produces `Articulate.7.x` packages.
-  - The v7 package version is declared in `Directory.Build.props` (`ArticulatePackageVersion`).
+- `v17` produces Articulate 6.1.x for Umbraco 17 on .NET 10.
+- `v18` produces Articulate 7.0.x for Umbraco 18 on .NET 10.
+- Articulate 6.0.x remains the released compatibility line for Umbraco 16 and 17.
+- CI derives both lane versions from the NBGV result so patch and prerelease metadata stay aligned.
 - Validation/reference source used for API compatibility checks: `E:\ext\Umbraco-CMS`.
 
 ## Version 6.0.0

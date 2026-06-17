@@ -1,10 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# Parameterized build - supports Umbraco 16 (net9.0), 17 (net10.0), 18 (net10.0)
+# Parameterized build - supports Umbraco 17 and 18 on net10.0
 # Targets: chiseled (for docker-compose), final (alternate)
 #
 # Examples:
-#   docker build --target chiseled --build-arg TARGET_FRAMEWORK=net9.0 ...
 #   docker build --target chiseled --build-arg TARGET_FRAMEWORK=net10.0 ...
 
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0
@@ -18,8 +17,8 @@ WORKDIR /src
 ARG TARGET_FRAMEWORK=net10.0
 ARG UMBRACO_CMS_VERSION="[17.4.0,18.0.0)"
 ARG BUILD_CONFIGURATION=Release
-ARG PACKAGE_SOURCE=build/Release
-ARG PACKAGE_LANE=legacy
+ARG PACKAGE_SOURCE=build/Release/v17
+ARG PACKAGE_LANE=v17
 
 # Copy config files
 COPY global.json ./

@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <PackageId>Articulate.Theme.Sample</PackageId>
     <Title>Articulate Theme Sample</Title>
     <AssemblyName>Articulate.Theme.Sample</AssemblyName>
     <RootNamespace>Articulate.Theme.Sample</RootNamespace>
-    <Description>A modern sample Articulate theme for Umbraco 16 and 17.</Description>
+    <Description>A modern sample Articulate theme for Umbraco 17.</Description>
     <Nullable>enable</Nullable>
     <UseArticulateUsings>false</UseArticulateUsings>
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>

@@ -1,18 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <UseArticulateUsings>false</UseArticulateUsings>
-  </PropertyGroup>
-  <!-- Prevent multi-TFM build race: Umbraco schema task writes to same file from both targets -->
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0'">
-    <UmbracoJsonSchemaGenerateEnabled>false</UmbracoJsonSchemaGenerateEnabled>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.7" />
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' and ($([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[17.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.')))">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
   <ItemGroup>

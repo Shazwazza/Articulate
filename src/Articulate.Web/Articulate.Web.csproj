@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <PackageId>Articulate</PackageId>
     <Title>Articulate</Title>
     <AssemblyName>Articulate.Web</AssemblyName>
@@ -65,19 +65,24 @@
   <PropertyGroup>
     <!-- Client/ folder is now inside this project -->
     <ClientProjectDirectory>$(MSBuildProjectDirectory)/Client</ClientProjectDirectory>
+    <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">17</UmbracoClientVersion>
+    <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
+    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
+    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
     <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
     <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
-    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient.stamp</ClientBuildStamp>
-    <ClientBuildTargetFramework>net9.0</ClientBuildTargetFramework>
+    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion).stamp</ClientBuildStamp>
+    <ClientBuildTargetFramework>net10.0</ClientBuildTargetFramework>
   </PropertyGroup>
 
   <!-- Define Inputs for Incremental Builds -->
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-lock.yaml" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/package.json" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/tsconfig*.json" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/vite.config.ts" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/src/**/*" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-workspace.yaml" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/package.json" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/tsconfig*.json" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/vite.config.ts" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/src/**/*" />
   </ItemGroup>
 
   <!--
@@ -114,7 +119,7 @@
     <Exec Command="pnpm install" WorkingDirectory="$(ClientProjectDirectory)" Condition="'$(CI)' != 'true'" />
 
     <!-- The Actual Build -->
-    <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientProjectDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
+    <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientWorkspaceDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
 
     <!-- Touch Stamp File -->
     <WriteLinesToFile File="$(ClientBuildStamp)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
@@ -132,7 +137,7 @@
   <!-- TARGET: EnsureClientAssets (safety net for other TFMs) -->
   <Target Name="EnsureClientAssets" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'!='$(ClientBuildTargetFramework)' and !Exists('$(ClientBuildStamp)')" BeforeTargets="ResolveStaticWebAssetsInputs">
     <Message Text="Client assets missing for $(TargetFramework); triggering BuildBackofficeClient..." Importance="High" />
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration);UmbracoClientVersion=$(UmbracoClientVersion)" />
   </Target>
 
   <!-- TARGET: CleanClientAssets -->

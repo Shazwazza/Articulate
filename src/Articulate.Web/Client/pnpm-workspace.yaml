@@ -1,3 +1,7 @@
+packages:
+  - "v17"
+  - "v18"
+
 minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 allowBuilds:
@@ -9,10 +13,12 @@ overrides:
   dompurify@<3.4.0: ^3.4.0
   esbuild@>=0.17.0 <0.28.1: ^0.28.1
   handlebars@>=4.0.0 <4.7.9: ^4.7.9
+  marked@>=18.0.0 <=18.0.1: ^18.0.2
 minimumReleaseAgeExclude:
   - diff@8.0.3
   - handlebars@4.7.9
   - dompurify@3.4.0
+  - marked@18.0.2
   - esbuild@0.28.1
   - '@esbuild/aix-ppc64@0.28.1'
   - '@esbuild/android-arm64@0.28.1'

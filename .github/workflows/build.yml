@@ -59,40 +59,75 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Setup .NET SDKs
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.3.0
         with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          dotnet-version: 10.0.x
+
+      - name: Resolve package versions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          V17_VERSION="${NBGV_SemVer2}"
+          case "$V17_VERSION" in
+            6.1.*) ;;
+            *)
+              echo "Expected NBGV to produce a 6.1.x version, got '$V17_VERSION'." >&2
+              exit 1
+              ;;
+          esac
+
+          V18_VERSION="$(tr -d '[:space:]' < build/v18-version.txt)"
+          case "$V18_VERSION" in
+            7.*) ;;
+            *)
+              echo "Invalid v18 base version '$V18_VERSION' in build/v18-version.txt." >&2
+              exit 1
+              ;;
+          esac
+
+          V17_PATCH_AND_SUFFIX="${V17_VERSION#6.1.}"
+          V17_SUFFIX=""
+          if [[ "$V17_PATCH_AND_SUFFIX" == *-* ]]; then
+            V17_SUFFIX="${V17_PATCH_AND_SUFFIX#*-}"
+          fi
+
+          if [[ -n "$V17_SUFFIX" ]]; then
+            V18_VERSION="${V18_VERSION}.${V17_SUFFIX}"
+          fi
+          echo "V17_VERSION=$V17_VERSION" >> "$GITHUB_ENV"
+          echo "V18_VERSION=$V18_VERSION" >> "$GITHUB_ENV"
+          echo "Articulate v17 lane: $V17_VERSION"
+          echo "Articulate v18 lane: $V18_VERSION"
 
       - name: Run build pipeline script
         shell: bash
         run: |
           set -euo pipefail
 
-          ARTICULATE_PACKAGE_LANE=legacy \
+          ARTICULATE_PACKAGE_LANE=v17 \
+          ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
           PACK_SAMPLE_THEME=true \
-          FORCE_CLEAN=true \
           bash ./build/build.sh
 
-          ARTICULATE_PACKAGE_LANE=umbraco18 \
+          ARTICULATE_PACKAGE_LANE=v18 \
+          ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
           PACK_SAMPLE_THEME=true \
-          FORCE_CLEAN=true \
           bash ./build/build.sh
 
-          # v6 version comes from NBGV / version.json; v7 is hard-coded in Directory.Build.props.
-          echo "LEGACY_VERSION=${NBGV_SemVer2}" >> "$GITHUB_ENV"
-          echo "UMBRACO18_VERSION=7.0.0-rc1" >> "$GITHUB_ENV"
-
-      - name: Upload v6 packages
+      - name: Upload v17 packages
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: Articulate-${{ env.LEGACY_VERSION }}
-          path: ${{ env.RELEASE_FOLDER }}/Articulate.*
+          name: Articulate-${{ env.V17_VERSION }}
+          path: |
+            ${{ env.RELEASE_FOLDER }}/v17/*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v17/*.snupkg
 
-      - name: Upload v7 packages
+      - name: Upload v18 packages
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: Articulate-${{ env.UMBRACO18_VERSION }}
-          path: ${{ env.RELEASE_FOLDER }}/Articulate.*
+          name: Articulate-${{ env.V18_VERSION }}
+          path: |
+            ${{ env.RELEASE_FOLDER }}/v18/*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v18/*.snupkg

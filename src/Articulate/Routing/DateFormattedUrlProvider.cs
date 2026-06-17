@@ -57,7 +57,7 @@ namespace Articulate.Routing
         }
 #else
         /// <summary>
-        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for NET9 (Umbraco 16).
+        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for Umbraco 17.
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,

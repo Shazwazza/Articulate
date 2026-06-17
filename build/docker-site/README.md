@@ -9,39 +9,29 @@ No `docker run` is used directly. Lane and port parameters are passed via enviro
 |--------|---------|
 | `run-dev.ps1` / `run-dev.sh` | Phase 1: start compose in BackofficeDevelopment mode, wait for Umbraco, publish and confirm Articulate content |
 | `run-prod-smoke.ps1` / `run-prod-smoke.sh` | Phase 2: force-recreate compose in Production mode, run smoke + theme checks |
-| `test.ps1` / `test.sh` | Multi-lane orchestrator: runs Phase 1 + Phase 2 for umbraco17 and/or umbraco18 on isolated ports |
+| `test.ps1` / `test.sh` | Multi-lane orchestrator: runs Phase 1 + Phase 2 for v17 and/or v18 on isolated ports |
 | `smoke.mjs` | Management API smoke runner (publish / confirm / smoke / theme modes) |
 | `Trust-CaddyRootCA.ps1` / `trust-caddy-root-ca.sh` | Trust Caddy's local CA in the system store (run once per machine) |
 | `docker-build.ps1` / `docker-build.sh` | Standalone image build helper (wraps `docker buildx build`) |
 
-## Quick start — dev workflow (single lane)
+## Recommended entry point
 
-Build packages first, then start the stack. The dev script waits for the unattended install to finish,
-then publishes Articulate content via the Management API.
+Use `test.ps1` or `test.sh` for normal Docker validation. It builds missing
+packages, assigns isolated ports, runs development and production phases, and
+cleans up automatically.
 
 ```powershell
-# Build the legacy lane
-$env:ARTICULATE_PACKAGE_LANE = 'legacy'; $env:PACK_SAMPLE_THEME = 'true'; ./build/build.ps1
-
-# Start dev stack (BackofficeDevelopment + publish/confirm)
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
-.\build\docker-site\run-dev.ps1
-
-# Production smoke on same volume set
-.\build\docker-site\run-prod-smoke.ps1
+pwsh -File build/docker-site/test.ps1 -Target all
 ```
 
 ```bash
-ARTICULATE_PACKAGE_LANE=legacy PACK_SAMPLE_THEME=true ./build/build.sh
-
 ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
-  ./build/docker-site/run-dev.sh
-
-./build/docker-site/run-prod-smoke.sh
+  ./build/docker-site/test.sh all
 ```
 
-The stack exposes Caddy at `https://localhost:18443/`. OpenIddict requires HTTPS — Production mode
-rejects plain HTTP authorize requests with `ID2083`.
+Use `run-dev` and `run-prod-smoke` directly only when debugging one phase.
+Their single-lane defaults expose Caddy at `https://localhost:18443/`.
 
 Trust the local CA once per machine:
 
@@ -50,13 +40,13 @@ Trust the local CA once per machine:
 
 ## Multi-lane testing (`test.ps1` / `test.sh`)
 
-Runs both umbraco17 and umbraco18 lanes end-to-end. Each lane uses its own compose project, volume
+Runs both v17 and v18 lanes end-to-end. Each lane uses its own compose project, volume
 prefix, and port pair so both can stay alive simultaneously when `--keep` is used.
 
 | Lane | Image | HTTPS port |
 |------|-------|-----------|
-| `umbraco17` | `articulate-local:umbraco17` | `17017` |
-| `umbraco18` | `articulate-local:umbraco18` | `18018` |
+| `v17` | `articulate-local:v17` | `17017` |
+| `v18` | `articulate-local:v18` | `18018` |
 
 ```powershell
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
@@ -65,7 +55,7 @@ $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
 pwsh -File build/docker-site/test.ps1 -Target all -Keep
 
 # Test one lane
-pwsh -File build/docker-site/test.ps1 -Target umbraco18 -Keep
+pwsh -File build/docker-site/test.ps1 -Target v18 -Keep
 
 # Skip smoke steps (fast boot validation only)
 pwsh -File build/docker-site/test.ps1 -Target all -SkipSmoke
@@ -75,7 +65,7 @@ pwsh -File build/docker-site/test.ps1 -Target all -SkipSmoke
 ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
   ./build/docker-site/test.sh all --keep
 
-./build/docker-site/test.sh umbraco18 --keep
+./build/docker-site/test.sh v18 --keep
 ./build/docker-site/test.sh all --skip-smoke
 ```
 
@@ -88,7 +78,7 @@ after each lane unless `--keep` is set.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `PACKAGE_SOURCE` | `build/Release` | NuGet package folder inside the repo |
+| `PACKAGE_SOURCE` | `build/Release/v17` | NuGet package folder inside the repo |
 | `UMBRACO_CMS_VERSION` | `[17.4.0,18.0.0)` | Umbraco version constraint used in Docker build |
 | `TARGET_FRAMEWORK` | `net10.0` | .NET TFM for the Docker build |
 | `IMAGE_TAG` | `articulate-local:chiseled` | Docker image tag |
@@ -111,12 +101,13 @@ volumes with:
 ```bash
 docker compose down -v
 # or with a specific project:
-docker compose -p art_umbraco17 down -v
+docker compose -p art_v17 down -v
 ```
 
 ## Notes
 
-- The Docker image builds from NuGet packages in `build/<Configuration>`, not from project output.
+- The Docker image builds from NuGet packages in
+  `build/<Configuration>/<lane>`, not from project output.
   Both `Articulate` and `Articulate.Theme.Sample` packages must be present. Build with
   `PACK_SAMPLE_THEME=true` to include the sample theme package.
 - Default unattended backoffice credentials: Name `Jane Doe`, Email `admin@localhost`, Password `@rticulate`.

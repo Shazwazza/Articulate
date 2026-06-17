@@ -4,7 +4,8 @@
 #   ENABLE_CLIENT_BUILD=true ./build/build.sh
 #   RUN_TESTS=true ./build/build.sh
 #   PACK_SAMPLE_THEME=true ./build/build.sh
-#   ARTICULATE_PACKAGE_LANE=umbraco18 ./build/build.sh
+#   ARTICULATE_PACKAGE_LANE=v18 ./build/build.sh
+# Set SKIP_CLEAN=true only when deliberately reusing outputs from the same lane.
 # Release builds enable the client build by default so packaged assets carry the stamped version.
 
 set -euo pipefail
@@ -30,34 +31,29 @@ START_TIME=$(date +%s.%N)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 BUILD_FOLDER="$REPO_ROOT/build"
+V18_VERSION_FILE="$BUILD_FOLDER/v18-version.txt"
 CONFIGURATION="${BUILD_CONFIGURATION:-Release}"
-PACKAGE_LANE="${ARTICULATE_PACKAGE_LANE:-legacy}"
+PACKAGE_LANE="${ARTICULATE_PACKAGE_LANE:-v17}"
 case "$PACKAGE_LANE" in
-  legacy|umbraco18) ;;
+  v17|v18) ;;
   *)
-    echo "Unsupported ARTICULATE_PACKAGE_LANE '$PACKAGE_LANE'. Expected 'legacy' or 'umbraco18'." >&2
+    echo "Unsupported ARTICULATE_PACKAGE_LANE '$PACKAGE_LANE'. Expected 'v17' or 'v18'." >&2
     exit 1
     ;;
 esac
 RELEASE_ROOT="$BUILD_FOLDER/$CONFIGURATION"
-RELEASE_FOLDER="$RELEASE_ROOT"
+RELEASE_FOLDER="$RELEASE_ROOT/$PACKAGE_LANE"
 SOLUTION_ROOT="$REPO_ROOT/src"
 SOLUTION_PATH="$SOLUTION_ROOT/Articulate.sln"
-if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
-  TARGET_FRAMEWORKS=("net10.0")
-else
-  TARGET_FRAMEWORKS=("net9.0" "net10.0")
-fi
+BACKOFFICE_OUTPUT="$SOLUTION_ROOT/Articulate.Web/wwwroot/App_Plugins/Articulate/BackOffice"
 
 # Compute CPU parallelism for MSBuild (allow override via MAXCPU)
 CPU_COUNT=${MAXCPU:-}
 if [[ -z "$CPU_COUNT" ]]; then
   CPU_COUNT=$( (command -v nproc >/dev/null 2>&1 && nproc --all) || getconf _NPROCESSORS_ONLN || echo 8 )
 fi
-MSBUILD_PARALLEL=(-m -maxcpucount:"$CPU_COUNT" -p:BuildInParallel=true -p:RestoreUseStaticGraphEvaluation=true)
-if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
-  MSBUILD_PARALLEL=(-m -maxcpucount:"$CPU_COUNT" -p:BuildInParallel=true)
-fi
+RESTORE_ARGS=(-m -maxcpucount:"$CPU_COUNT" -p:RestoreUseStaticGraphEvaluation=true)
+BUILD_ARGS=(-m:1 -p:BuildInParallel=false -p:UseSharedCompilation=false)
 DOTNET_COMMON=(--nologo -v minimal)
 
 # Handle ENABLE_CLIENT_BUILD environment variable (default to true for Release/CI, false otherwise)
@@ -69,20 +65,47 @@ fi
 CLIENT_BUILD_VALUE=${ENABLE_CLIENT_BUILD:-$CLIENT_BUILD_DEFAULT}
 CLIENT_BUILD_PROPERTY="-p:EnableClientBuild=$CLIENT_BUILD_VALUE"
 
-LANE_PROPERTIES=("-p:ArticulatePackageLane=$PACKAGE_LANE")
-if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
-  LANE_PROPERTIES+=(
-    "-p:TargetFramework=net10.0"
-  )
+if [[ "$PACKAGE_LANE" == "v18" ]]; then
+  RESOLVED_CLIENT_VERSION="18"
+else
+  RESOLVED_CLIENT_VERSION="17"
 fi
-# Build PACK_PROPERTIES from LANE_PROPERTIES but drop the singular -p:TargetFramework for
-# umbraco18. When both TargetFramework (singular) and TargetFrameworks (plural) are present,
-# IsCrossTargetingBuild stays false and the Razor SDK skips staticwebassets packaging.
-# The umbraco18 lane version is set in Directory.Build.props via ArticulatePackageVersion.
-PACK_PROPERTIES=("${LANE_PROPERTIES[@]}")
-if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
-  PACK_PROPERTIES=("${PACK_PROPERTIES[@]/-p:TargetFramework=net10.0/}")
-  PACK_PROPERTIES+=("-p:TargetFrameworks=net10.0")
+PACKAGE_VERSION="${ARTICULATE_PACKAGE_VERSION:-}"
+if [[ "$PACKAGE_LANE" == "v18" && -z "$PACKAGE_VERSION" ]]; then
+  V18_BASE_VERSION="$(tr -d '[:space:]' < "$V18_VERSION_FILE")"
+  if [[ ! "$V18_BASE_VERSION" =~ ^7\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+    echo "Invalid v18 base version '$V18_BASE_VERSION' in $V18_VERSION_FILE." >&2
+    exit 1
+  fi
+  if ! command -v nbgv >/dev/null 2>&1; then
+    echo "The v18 lane requires ARTICULATE_PACKAGE_VERSION or the nbgv CLI." >&2
+    exit 1
+  fi
+  V17_VERSION="$(nbgv get-version -v SemVer2)"
+  case "$V17_VERSION" in
+    6.1.*)
+      V17_PATCH_AND_SUFFIX="${V17_VERSION#6.1.}"
+      V17_SUFFIX=""
+      if [[ "$V17_PATCH_AND_SUFFIX" == *-* ]]; then
+        V17_SUFFIX="${V17_PATCH_AND_SUFFIX#*-}"
+      fi
+      PACKAGE_VERSION="$V18_BASE_VERSION"
+      if [[ -n "$V17_SUFFIX" ]]; then
+        PACKAGE_VERSION="${PACKAGE_VERSION}.${V17_SUFFIX}"
+      fi
+      ;;
+    *)
+      echo "Expected NBGV to produce a 6.1.x version, got '$V17_VERSION'." >&2
+      exit 1
+      ;;
+  esac
+fi
+LANE_PROPERTIES=(
+  "-p:ArticulatePackageLane=$PACKAGE_LANE"
+  "-p:UmbracoClientVersion=$RESOLVED_CLIENT_VERSION"
+)
+if [[ -n "$PACKAGE_VERSION" ]]; then
+  LANE_PROPERTIES+=("-p:ArticulatePackageVersion=$PACKAGE_VERSION")
 fi
 PACK_SAMPLE_THEME_VALUE=${PACK_SAMPLE_THEME:-}
 if [[ -n "${RUN_TESTS:-}" ]]; then
@@ -93,9 +116,10 @@ else
   RUN_TESTS_VALUE=false
 fi
 
-echo "Using up to $CPU_COUNT parallel MSBuild nodes"
+echo "Restore parallelism: up to $CPU_COUNT MSBuild nodes"
 echo "Build configuration: $CONFIGURATION"
 echo "Package lane: $PACKAGE_LANE"
+echo "Package version: ${PACKAGE_VERSION:-NBGV}"
 echo "Package output: $RELEASE_FOLDER"
 
 # Advise when running in WSL against Windows-mounted drives (slow)
@@ -107,7 +131,7 @@ fi
 # Remove only packages from the same major version line to avoid stale artifacts without
 # wiping the other lane's output when both are built locally.
 MAJOR_VERSION_PREFIX="6"
-if [[ "$PACKAGE_LANE" == "umbraco18" ]]; then
+if [[ "$PACKAGE_LANE" == "v18" ]]; then
   MAJOR_VERSION_PREFIX="7"
 fi
 mkdir -p "$RELEASE_FOLDER"
@@ -119,47 +143,38 @@ find "$RELEASE_FOLDER" -maxdepth 1 -type f \( \
 
 dotnet --version
 
-# Avoid NuGet fallback folders (already disabled in Directory.Build.props, but double-sure)
+# Match the repository-wide NuGet fallback-folder setting.
 export RestoreFallbackFolders=
 
 # --- 1) Clean the solution so Release/CI builds start fresh ---
 echo "1. Cleaning solution outputs..."
-if [[ "${FORCE_CLEAN:-false}" == "true" ]]; then
-  # dotnet clean often misses stale obj/staticwebassets folders, so delete bin/obj first.
+if [[ "${SKIP_CLEAN:-false}" != "true" ]]; then
+  dotnet build-server shutdown >/dev/null 2>&1 || true
   find "$SOLUTION_ROOT" -type d \( -name bin -o -name obj \) ! -path '*/node_modules/*' -prune -exec rm -rf {} + 2>/dev/null || true
-  if ! dotnet clean "$SOLUTION_PATH" -c "$CONFIGURATION" "${DOTNET_COMMON[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
-    echo "Warning: dotnet clean failed" >&2
-  fi
+  rm -rf "$BUILD_FOLDER/ClientAssets"
+  rm -rf "$BACKOFFICE_OUTPUT"
 else
-  echo "Skipping dotnet clean (FORCE_CLEAN not set). Set FORCE_CLEAN=true to force a clean."
+  echo "Skipping clean because SKIP_CLEAN=true"
 fi
 
 # --- 2) Solution-level restore ---
-mkdir -p "$RELEASE_FOLDER"
 echo "2. Restoring solution packages in parallel..."
-if ! dotnet restore "$SOLUTION_PATH" "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
+if ! dotnet restore "$SOLUTION_PATH" "${DOTNET_COMMON[@]}" "${RESTORE_ARGS[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
   echo "dotnet restore failed" >&2
   exit 1
 fi
 
-# --- 3) Build TFMs sequentially (net9 first, then net10) to keep client build ordering deterministic ---
-echo "3. Building solution for: ${TARGET_FRAMEWORKS[*]}"
-
-for tfm in "${TARGET_FRAMEWORKS[@]}"; do
-  echo "[build] -> $tfm"
-  t0=$(date +%s)
-  if ! dotnet build "$SOLUTION_PATH" -c "$CONFIGURATION" -f "$tfm" --no-restore "${DOTNET_COMMON[@]}" "${MSBUILD_PARALLEL[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
-    echo "dotnet build failed for $tfm" >&2
-    exit 1
-  fi
-  t1=$(date +%s)
-  echo "[build] <- $tfm done in $((t1 - t0))s"
-done
+# --- 3) Build sequentially because the solution references shared projects through multiple paths. ---
+echo "3. Building solution for net10.0"
+if ! dotnet build "$SOLUTION_PATH" -c "$CONFIGURATION" --no-restore "${DOTNET_COMMON[@]}" "${BUILD_ARGS[@]}" "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
+  echo "dotnet build failed" >&2
+  exit 1
+fi
 
 # --- 4) Run tests ---
 if [[ "$RUN_TESTS_VALUE" == "true" ]]; then
   echo "4. Running tests..."
-  if ! dotnet test "$SOLUTION_PATH" -c "$CONFIGURATION" --no-restore --no-build "${DOTNET_COMMON[@]}" "${LANE_PROPERTIES[@]}"; then
+  if ! dotnet test "$SOLUTION_PATH" -c "$CONFIGURATION" --no-restore --no-build "${DOTNET_COMMON[@]}" "${BUILD_ARGS[@]}" "${LANE_PROPERTIES[@]}"; then
     echo "dotnet test failed" >&2
     exit 1
   fi
@@ -181,9 +196,8 @@ fi
 
 for proj in "${PACK_PROJECTS[@]}"; do
   echo "[pack] -> $(basename "$proj")"
-  RESTORE_SWITCHES=(--no-restore)
-  if ! dotnet pack -c "$CONFIGURATION" "$proj" "${RESTORE_SWITCHES[@]}" -o "$RELEASE_FOLDER" \
-    "${DOTNET_COMMON[@]}" -p:BuildInParallel=false "$CLIENT_BUILD_PROPERTY" "${PACK_PROPERTIES[@]}"; then
+  if ! dotnet pack -c "$CONFIGURATION" "$proj" --no-build --no-restore -o "$RELEASE_FOLDER" \
+    "${DOTNET_COMMON[@]}" -m:1 -p:BuildInParallel=false -p:UseSharedCompilation=false "$CLIENT_BUILD_PROPERTY" "${LANE_PROPERTIES[@]}"; then
     echo "dotnet pack failed for $proj" >&2
     exit 1
   fi

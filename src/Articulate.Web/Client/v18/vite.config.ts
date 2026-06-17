@@ -10,10 +10,10 @@ import * as lightningcss from "lightningcss";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Client/ is now inside Articulate.Web, so WEB_ROOT is just the parent
+// v18 lives under Client/, so WEB_ROOT is two levels up from this workspace folder.
 const UI_ROOT = __dirname;
 const UI_ENTRY = path.resolve(UI_ROOT, "src/main.ts");
-const WEB_ROOT = path.resolve(UI_ROOT, "..");
+const WEB_ROOT = path.resolve(UI_ROOT, "../..");
 const UI_OUT = path.resolve(WEB_ROOT, "wwwroot/App_Plugins/Articulate/BackOffice");
 const PACKAGE_ROOT = path.resolve(WEB_ROOT, "wwwroot/App_Plugins/Articulate");
 

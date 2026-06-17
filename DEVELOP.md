@@ -2,7 +2,6 @@
 
 ## Requirements
 
-- .NET 9.0 SDK
 - .NET 10.0 SDK
 - Node.js 24+ with `corepack enable pnpm`
 - Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for Release builds
@@ -32,7 +31,7 @@ This restores NuGet and npm packages, builds the Back Office client, builds the 
 4. Set `Articulate.Tests.Website` as the startup project.
 5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
 6. The Articulate package migrations will run and install the required schema and content items.
-   - **Tip:** The test site's target framework selects the default Umbraco version: `net9.0` targets Umbraco 16 (`[16.5.1,17.0.0)`), and `net10.0` targets Umbraco 17 (`[17.4.0,18.0.0)`). Override `UmbracoCmsPackageVersion` (e.g. `[18.0.0-*,19.0.0)`) on `net10.0` to run Umbraco 18.
+   - **Tip:** The test site defaults to Umbraco 17 (`[17.4.0,18.0.0)`). Override `UmbracoCmsPackageVersion` with `[18.0.0-*,19.0.0)` to run Umbraco 18.
 
 ## Docker Modes
 
@@ -52,17 +51,18 @@ Recommended benchmark flow:
 
 ## Client Development
 
-From `src/Articulate.Web/Client`:
+Install once from `src/Articulate.Web/Client`, then work in the required lane:
 
 ```bash
 pnpm install
+cd v17 # or v18
 pnpm run build
 pnpm run generate:api
 ```
 
 `pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
-`pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
+`pnpm run generate:api` requires the matching Umbraco site to be running and regenerates that lane's typed client after API changes.
 
 ## Build And Pack
 
@@ -72,29 +72,30 @@ pnpm run generate:api
 | Bash / WSL / Linux | `./build/build.sh` |
 
 - For WSL/Linux, make the script executable first with `chmod u+x ./build/build.sh`.
-- The scripts clean, restore, build, and pack one package lane at a time. The default lane is `legacy`.
-- Running the local build script once does not produce both lanes; run it once with `ARTICULATE_PACKAGE_LANE=legacy` and once with `ARTICULATE_PACKAGE_LANE=umbraco18` when you need both NuGet package sets locally.
+- The scripts clean, restore, build, and pack one package lane at a time. The default lane is `v17`.
+- Run once with `ARTICULATE_PACKAGE_LANE=v17` and once with `ARTICULATE_PACKAGE_LANE=v18` when you need both package sets.
 - The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`).
-- Packages are written under `build/$(Configuration)`.
+- Packages are written under `build/$(Configuration)/v17` or `build/$(Configuration)/v18`.
 
 ### Build Script Parameters
 
 | Parameter | Default | Description |
 | --- | --- | --- |
 | `BUILD_CONFIGURATION` | `Release` | Build configuration: `Debug` or `Release`. Debug is typical for local development. |
-| `ARTICULATE_PACKAGE_LANE` | `legacy` | Package lane: `legacy` (Articulate 6 for U16/17) or `umbraco18` (Articulate 7 for U18). The version is controlled by `version.json` for `legacy` and by `Directory.Build.props` for `umbraco18`. |
+| `ARTICULATE_PACKAGE_LANE` | `v17` | Package lane: `v17` (Articulate 6.1 for Umbraco 17) or `v18` (Articulate 7.0 for Umbraco 18). |
+| `ARTICULATE_PACKAGE_VERSION` | Calculated | Optional explicit package-version override. Normally v17 comes from NBGV and v18 comes from `build/v18-version.txt` plus NBGV development metadata. |
 | `ENABLE_CLIENT_BUILD` | `true` (CI/Release) / `false` (Debug) | Enable TypeScript Back Office client build (Vite + tsc). Release builds enable by default; disable for faster local iteration. |
 | `RUN_TESTS` | `true` (CI) / `false` (local) | Run dotnet test after build. Enabled in CI; disabled by default locally. |
 | `PACK_SAMPLE_THEME` | `true` (local) / `false` (CI) | Pack `Articulate.Theme.Sample` NuGet package. Local builds include by default; CI skips unless explicitly set. |
-| `FORCE_CLEAN` | `false` | Force `dotnet clean` before build. Useful to clear stale artifacts; skipped by default. |
-| `MAXCPU` | *(auto-detected)* | Limit MSBuild parallelism to N CPUs. Example: `MAXCPU=4` limits to 4 parallel nodes. |
+| `SKIP_CLEAN` | `false` | Reuse build outputs from the same lane. Cleaning is the default because both lanes write to the same Backoffice asset path. Do not use between lanes or in CI. |
+| `MAXCPU` | *(auto-detected)* | Limit parallel restore to N MSBuild nodes. Build and pack remain sequential. |
 
 **Common build commands:**
 
-Legacy lane (U16/17) release with client build:
+v17 release with client build:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='legacy'
+$env:ARTICULATE_PACKAGE_LANE='v17'
 $env:ENABLE_CLIENT_BUILD='true'
 $env:BUILD_CONFIGURATION='Release'
 ./build/build.ps1
@@ -103,7 +104,7 @@ $env:BUILD_CONFIGURATION='Release'
 Umbraco 18 lane package (pre-release):
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='umbraco18'
+$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:ENABLE_CLIENT_BUILD='true'
 $env:BUILD_CONFIGURATION='Release'
 ./build/build.ps1
@@ -122,10 +123,9 @@ CI / Release build (all lanes):
 $env:BUILD_CONFIGURATION='Release'
 $env:ENABLE_CLIENT_BUILD='true'
 $env:RUN_TESTS='true'
-$env:FORCE_CLEAN='true'
-# Run once per lane. The umbraco18 lane version is set in Directory.Build.props.
-$env:ARTICULATE_PACKAGE_LANE='legacy'; ./build/build.ps1
-$env:ARTICULATE_PACKAGE_LANE='umbraco18'; ./build/build.ps1
+# Run once per lane; each run cleans shared outputs first.
+$env:ARTICULATE_PACKAGE_LANE='v17'; ./build/build.ps1
+$env:ARTICULATE_PACKAGE_LANE='v18'; ./build/build.ps1
 ```
 
 ### Package Lanes
@@ -134,26 +134,23 @@ The source tree supports two package lanes:
 
 | Lane | Package line | Umbraco support | Target frameworks | Output folder |
 | --- | --- | --- | --- | --- |
-| `legacy` | Articulate 6.x | Umbraco 16/17 | `net9.0`, `net10.0` | `build/Release` |
-| `umbraco18` | Articulate 7.x | Umbraco 18 | `net10.0` | `build/Release` |
+| `v17` | Articulate 6.1.x | Umbraco 17 | `net10.0` | `build/Release/v17` |
+| `v18` | Articulate 7.0.x | Umbraco 18 | `net10.0` | `build/Release/v18` |
 
-The lanes produce separate NuGet packages because the compiled Umbraco 17 and Umbraco 18 extension points are not binary-compatible. Do not install an Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 16/17.
+The lanes produce separate NuGet packages because the compiled Umbraco 17 and Umbraco 18 extension points are not binary-compatible. Do not install an Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 17.
 
-The Articulate 6 version is declared in `version.json` at the repo root (Nerdbank.GitVersioning). The Articulate 7 / `umbraco18` lane version is declared in `Directory.Build.props` (`ArticulatePackageVersion`). Edit that property to bump the v7 package version.
-
-> **Why v7 is hard-coded while v6 uses NBGV:** The `umbraco18` lane reuses the same `Articulate.Web.csproj` project as the legacy lane. NBGV only supports one version per project via `version.json`, so the v7 lane overrides the computed version with an explicit MSBuild property. This is deterministic and simple, but it means v7 does not get NBGV's automatic `-g<commit>` suffix on feature branches. If you want NBGV to drive the v7 version instead, the options are:
-> 1. Maintain a separate `version.json` for the lane and swap the root `version.json` during the build (more complex, relies on NBGV reading from disk in a clean checkout).
-> 2. Split `Articulate.Web.csproj` into two project files so each can have its own `version.json`.
-> 3. Keep v7 development on its own branch where root `version.json` is `7.x`.
->
-> For now we use option 1 (explicit override) for simplicity.
+`version.json` defines the Articulate 6.1 version through NBGV.
+`build/v18-version.txt` defines the Articulate 7 base version. Build scripts
+append NBGV development metadata when present, so `6.1.0-gabcdef` and a v18
+base of `7.0.0-rc.1` produce `7.0.0-rc.1.gabcdef`. Change the text file to
+advance the v18 release candidate; callers do not normally pass a version.
 
 Build the Articulate 6 lane:
 
 PowerShell:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='legacy'
+$env:ARTICULATE_PACKAGE_LANE='v17'
 $env:PACK_SAMPLE_THEME='true'
 ./build/build.ps1
 ```
@@ -161,7 +158,7 @@ $env:PACK_SAMPLE_THEME='true'
 Bash:
 
 ```bash
-ARTICULATE_PACKAGE_LANE=legacy \
+ARTICULATE_PACKAGE_LANE=v17 \
 PACK_SAMPLE_THEME=true \
 ./build/build.sh
 ```
@@ -171,7 +168,7 @@ Build the Articulate 7 / Umbraco 18 lane:
 PowerShell:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='umbraco18'
+$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:PACK_SAMPLE_THEME='true'
 ./build/build.ps1
 ```
@@ -179,7 +176,7 @@ $env:PACK_SAMPLE_THEME='true'
 Bash:
 
 ```bash
-ARTICULATE_PACKAGE_LANE=umbraco18 \
+ARTICULATE_PACKAGE_LANE=v18 \
 PACK_SAMPLE_THEME=true \
 ./build/build.sh
 ```
@@ -196,12 +193,12 @@ The Caddy reverse proxy terminates TLS and exposes the stack at `https://localho
 
 Build packages for the lane first, then start the compose stack. The dev script waits for Umbraco to finish the unattended install, then publishes Articulate content via the Management API.
 
-Articulate 6 / Umbraco 16 & 17 (legacy lane):
+Articulate 6.1 / Umbraco 17:
 
 PowerShell:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='legacy'
+$env:ARTICULATE_PACKAGE_LANE='v17'
 $env:PACK_SAMPLE_THEME='true'
 ./build/build.ps1
 
@@ -212,7 +209,7 @@ $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
 Bash:
 
 ```bash
-ARTICULATE_PACKAGE_LANE=legacy PACK_SAMPLE_THEME=true ./build/build.sh
+ARTICULATE_PACKAGE_LANE=v17 PACK_SAMPLE_THEME=true ./build/build.sh
 
 ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
 ./build/docker-site/run-dev.sh
@@ -221,14 +218,14 @@ ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
 Articulate 7 / Umbraco 18:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='umbraco18'
+$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:PACK_SAMPLE_THEME='true'
 ./build/build.ps1
 
 $env:UMBRACO_CMS_VERSION='[18.0.0-*,19.0.0)'
 $env:TARGET_FRAMEWORK='net10.0'
-$env:IMAGE_TAG='articulate-local:umbraco18'
-$env:PACKAGE_SOURCE='build/Release'
+$env:IMAGE_TAG='articulate-local:v18'
+$env:PACKAGE_SOURCE='build/Release/v18'
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
 .\build\docker-site\run-dev.ps1
 ```
@@ -264,7 +261,7 @@ All lane parameters are passed via environment variables; `docker-compose.yml` s
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `PACKAGE_SOURCE` | `build/Release` | NuGet package folder inside the repo |
+| `PACKAGE_SOURCE` | `build/Release/v17` | NuGet package folder inside the repo |
 | `UMBRACO_CMS_VERSION` | `[17.4.0,18.0.0)` | Umbraco version constraint for the Docker build |
 | `TARGET_FRAMEWORK` | `net10.0` | .NET TFM for the Docker build |
 | `IMAGE_TAG` | `articulate-local:chiseled` | Docker image tag |
@@ -295,9 +292,9 @@ ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
 
 **Test individual version:**
 ```powershell
-pwsh -File build/docker-site/test.ps1 -Target umbraco17 -Keep
+pwsh -File build/docker-site/test.ps1 -Target v17 -Keep
 # or
-pwsh -File build/docker-site/test.ps1 -Target umbraco18 -Keep
+pwsh -File build/docker-site/test.ps1 -Target v18 -Keep
 ```
 
 Each test validates:
@@ -311,11 +308,11 @@ Remove `-Keep` flag to clean up containers after testing. Use `-SkipSmoke` to sk
 
 ## Opt-in Umbraco 18 validation (net10 only)
 
-Default source validation lanes: `net9.0` targets Umbraco 16 (`[16.5.1,17.0.0)`), `net10.0` targets Umbraco 17 (`[17.4.0,18.0.0)`). Override `UmbracoCmsPackageVersion` on the command line to test against a specific Umbraco 18 pre-release.
+The default source validation lane targets Umbraco 17 (`[17.4.0,18.0.0)`) on `net10.0`. Override `UmbracoCmsPackageVersion` on the command line to test against a specific Umbraco 18 pre-release.
 
 OpenAPI note:
 
-- Umbraco 16/17 lane uses legacy SwaggerGen/operation filter registration.
+- Umbraco 17 lane uses SwaggerGen/operation filter registration.
 - Umbraco 18 lane uses native OpenAPI transformers for Articulate operation IDs and security requirements.
 
 Baseline (`net10.0` + Umbraco 17 — minimum supported):

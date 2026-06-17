@@ -4,7 +4,7 @@
     Delegates all container management to docker-compose.yml; no docker run.
 
 .PARAMETER Target
-    Lane(s) to test: umbraco17, umbraco18, or all (default).
+    Lane(s) to test: v17, v18, or all (default).
 
 .PARAMETER Keep
     Leave containers running after the test. Each lane uses a distinct port so both
@@ -16,10 +16,10 @@
 .EXAMPLE
     $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
     .\build\docker-site\test.ps1
-    .\build\docker-site\test.ps1 -Target umbraco18 -Keep
+    .\build\docker-site\test.ps1 -Target v18 -Keep
 #>
 param(
-    [ValidateSet('umbraco17', 'umbraco18', 'all')]
+    [ValidateSet('v17', 'v18', 'all')]
     [string]$Target = 'all',
     [switch]$Keep,
     [switch]$SkipSmoke
@@ -33,15 +33,15 @@ $devScript  = Join-Path $siteDir 'run-dev.ps1'
 $prodScript = Join-Path $siteDir 'run-prod-smoke.ps1'
 
 $laneCfg = [ordered]@{
-    umbraco17 = @{ Lane='legacy';    TFM='net10.0'; UmbVer='[17.4.0,18.0.0)'; Tag='articulate-local:umbraco17'; HttpsPort='17017'; HttpPort='17080' }
-    umbraco18 = @{ Lane='umbraco18'; TFM='net10.0'; UmbVer='[18.0.0-*,19.0.0)';       Tag='articulate-local:umbraco18'; HttpsPort='18018'; HttpPort='18080' }
+    v17 = @{ UmbVer='[17.4.0,18.0.0)'; Tag='articulate-local:v17'; HttpsPort='17017'; HttpPort='17080' }
+    v18 = @{ UmbVer='[18.0.0-*,19.0.0)'; Tag='articulate-local:v18'; HttpsPort='18018'; HttpPort='18080' }
 }
 
-$targets = if ($Target -eq 'all') { @('umbraco17', 'umbraco18') } else { @($Target) }
+$targets = if ($Target -eq 'all') { @('v17', 'v18') } else { @($Target) }
 
 function Initialize-Packages([string]$lane) {
-    $laneDir = Join-Path $repo "build/Release"
-    $majorPrefix = if ($lane -eq 'umbraco18') { '7' } else { '6' }
+    $laneDir = Join-Path $repo "build/Release/$lane"
+    $majorPrefix = if ($lane -eq 'v18') { '7' } else { '6' }
     $pkg    = Get-ChildItem "$laneDir/Articulate.${majorPrefix}.*.nupkg" -ErrorAction SilentlyContinue | Select-Object -First 1
     $sample = Get-ChildItem "$laneDir/Articulate.Theme.Sample.${majorPrefix}.*.nupkg" -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($pkg -and $sample) { return }
@@ -62,17 +62,16 @@ foreach ($t in $targets) {
 
     Write-Host ""
     Write-Host "================================================================"
-    Write-Host "  $t  |  Lane: $($cfg.Lane)  |  $($cfg.Tag)"
+    Write-Host "  $t  |  $($cfg.Tag)"
     Write-Host "  HTTPS: $publicUrl"
     Write-Host "================================================================"
 
-    Initialize-Packages $cfg.Lane
+    Initialize-Packages $t
 
     $env:COMPOSE_PROJECT_NAME           = "art_$t"
     $env:COMPOSE_VOLUME_PREFIX          = "art_$t"
     $env:IMAGE_TAG                      = $cfg.Tag
-    $env:PACKAGE_SOURCE                 = "build/Release"
-    $env:TARGET_FRAMEWORK               = $cfg.TFM
+    $env:PACKAGE_SOURCE                 = "build/Release/$t"
     $env:UMBRACO_CMS_VERSION            = $cfg.UmbVer
     $env:CADDY_HTTPS_PORT               = $cfg.HttpsPort
     $env:CADDY_HTTP_PORT                = $cfg.HttpPort
