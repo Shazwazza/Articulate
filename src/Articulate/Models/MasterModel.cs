@@ -104,9 +104,19 @@ namespace Articulate.Models
         /// Validates that the DisqusShortName is not empty and contains only valid characters (alphanumeric and hyphens).
         /// </summary>
         public bool IsDisqusEnabled => !string.IsNullOrWhiteSpace(DisqusShortName)
-                                       && System.Text.RegularExpressions.Regex.IsMatch(
-                                           DisqusShortName,
-                                           @"^[a-zA-Z0-9\-]+$");
+                                       && IsValidDisqusShortName(DisqusShortName);
+
+        private static bool IsValidDisqusShortName(ReadOnlySpan<char> shortName)
+        {
+            foreach (var c in shortName)
+            {
+                if (!char.IsAsciiLetterOrDigit(c) && c != '-')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /// <inheritdoc/>
         public string CustomRssFeed

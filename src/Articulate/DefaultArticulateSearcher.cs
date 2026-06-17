@@ -17,6 +17,9 @@ namespace Articulate
         IExamineManager examineManager)
         : IArticulateSearcher
     {
+        [ThreadStatic]
+        private static StringBuilder? _sSharedStringBuilder;
+
         // Static to avoid allocating a new Dictionary on every search call.
         private static readonly FrozenDictionary<string, int> SearchFields = new Dictionary<string, int>
         {
@@ -68,7 +71,9 @@ namespace Articulate
             const int exactMatch = 5;
             const int termMatch = 2;
 
-            var fieldQuery = new StringBuilder();
+            _sSharedStringBuilder ??= new StringBuilder();
+            StringBuilder fieldQuery = _sSharedStringBuilder;
+            fieldQuery.Clear();
 
             // build field query
             foreach (KeyValuePair<string, int> field in fields)
