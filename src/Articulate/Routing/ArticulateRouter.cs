@@ -21,6 +21,9 @@ namespace Articulate.Routing
         private const string MarkdownEditorControllerName = "MarkdownEditor";
         private static readonly Lock _sLocker = new();
 
+        [ThreadStatic]
+        private static RouteValueDictionary? _sSharedRouteValues;
+
         private static readonly string _sSearchControllerName =
             ControllerExtensions.GetControllerName<ArticulateSearchController>();
 
@@ -65,19 +68,17 @@ namespace Articulate.Routing
         public bool TryMatch(PathString path, RouteValueDictionary routeValues, out ArticulateRootNodeCache? articulateRootNodeCache)
         {
             ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> routeCache = RouteCache;
-            var defaults = new RouteValueDictionary();
-            RouteValueDictionary initialValues = new(routeValues);
+            _sSharedRouteValues ??= [];
+            RouteValueDictionary matchedValues = _sSharedRouteValues;
 
             foreach (KeyValuePair<ArticulateRouteTemplate, ArticulateRootNodeCache> item in routeCache)
             {
-                RouteValueDictionary matchedValues = new(initialValues);
-                var templateMatcher = new TemplateMatcher(item.Key.RouteTemplate, defaults);
-                if (!templateMatcher.TryMatch(path, matchedValues))
+                matchedValues.Clear();
+                if (!item.Key.Matcher.TryMatch(path, matchedValues))
                 {
                     continue;
                 }
 
-                routeValues.Clear();
                 foreach (KeyValuePair<string, object?> routeValue in matchedValues)
                 {
                     routeValues[routeValue.Key] = routeValue.Value;
