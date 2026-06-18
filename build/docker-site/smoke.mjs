@@ -11,7 +11,7 @@
 // Env:
 //   UMBRACO_PUBLIC_URL          default: https://localhost:18443
 //   ARTICULATE_DEV_AUTOMATION_CLIENT_ID    default: articulate-dev-automation
-//   ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET  required
+//   ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET  default: articulate-dev-local-secret (matches docker-compose)
 //   TIMEOUT_SECONDS             default: 300
 //
 // Examples:
@@ -32,12 +32,6 @@ function die(msg) {
 
 function env(name, fallback) {
   return process.env[name] ?? fallback;
-}
-
-function requiredEnv(name) {
-  const v = process.env[name];
-  if (!v) die(`${name} must be set.`);
-  return v;
 }
 
 function now() {
@@ -292,7 +286,7 @@ async function main() {
 
   // --- confirm / publish / theme: shared setup (token + root) ---------------
   const clientId = env('ARTICULATE_DEV_AUTOMATION_CLIENT_ID', 'articulate-dev-automation');
-  const clientSecret = requiredEnv('ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET');
+  const clientSecret = env('ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET', 'articulate-dev-local-secret');
 
   console.log('Requesting access token');
   const token = await requestToken(base, clientId, clientSecret, timeoutSec);

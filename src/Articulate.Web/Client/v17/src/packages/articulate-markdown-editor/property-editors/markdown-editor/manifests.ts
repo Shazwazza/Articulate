@@ -1,16 +1,6 @@
-import { manifest as schemaManifest } from './Umbraco.MarkdownEditor.js';
-
 export const manifests: Array<UmbExtensionManifest> = [
     {
-		type: 'propertyValuePreset',
-		forPropertyEditorSchemaAlias: 'Umbraco.MarkdownEditor',
-		alias: 'Umb.PropertyValuePreset.MarkdownEditor',
-		name: 'Markdown Editor Property Value Preset',
-		api: () => import('./markdown-editor-property-value-preset.js'),
-	},
-	{
         type: 'propertyEditorUi',
-        // Maps to [DataEditor(ArticulateMarkdownEditor
         alias: 'Articulate.MarkdownEditor',
         name: 'Articulate Markdown Editor Property Editor UI',
         element: () => import('./property-editor-ui-markdown-editor.element.js'),
@@ -44,5 +34,4 @@ export const manifests: Array<UmbExtensionManifest> = [
             },
         },
     },
-	schemaManifest,
 ];

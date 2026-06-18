@@ -7,6 +7,7 @@ settings:
 overrides:
   diff@>=6.0.0 <8.0.3: ^8.0.3
   dompurify@<3.4.0: ^3.4.0
+  dompurify@<=3.4.10: ^3.4.11
   esbuild@>=0.17.0 <0.28.1: ^0.28.1
   handlebars@>=4.0.0 <4.7.9: ^4.7.9
   marked@>=18.0.0 <=18.0.1: ^18.0.2
@@ -50,7 +51,7 @@ importers:
         version: 8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@umbraco-cms/backoffice':
         specifier: 17.4.0
-        version: 17.4.0(07a54a1618a0bb8942cb2e4cad616a62)
+        version: 17.4.0(cdd700a6155df72b2b41e058cccb0231)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -58,8 +59,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       dompurify:
-        specifier: ^3.4.8
-        version: 3.4.9
+        specifier: ^3.4.11
+        version: 3.4.11
       esbuild:
         specifier: ^0.28.1
         version: 0.28.1
@@ -180,7 +181,7 @@ importers:
         version: 8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@umbraco-cms/backoffice':
         specifier: 18.0.0-rc2
-        version: 18.0.0-rc2(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.97.0(typescript@5.9.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/extension-image@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-subscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-superscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-table@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-text-align@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-text-style@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extensions@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@types/diff@7.0.2)(@umbraco-ui/uui@2.0.0-rc.2)(diff@9.0.0)(dompurify@3.4.9)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.5)(monaco-editor@0.55.1)(rxjs@7.8.2)(uuid@14.0.0)
+        version: 18.0.0-rc2(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.97.0(typescript@5.9.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/extension-image@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-subscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-superscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-table@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-text-align@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-text-style@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extensions@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@types/diff@7.0.2)(@umbraco-ui/uui@2.0.0-rc.2)(diff@9.0.0)(dompurify@3.4.11)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.5)(monaco-editor@0.55.1)(rxjs@7.8.2)(uuid@14.0.0)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -188,8 +189,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       dompurify:
-        specifier: ^3.4.8
-        version: 3.4.9
+        specifier: ^3.4.11
+        version: 3.4.11
       esbuild:
         specifier: ^0.28.1
         version: 0.28.1
@@ -924,7 +925,7 @@ packages:
       '@umbraco-ui/uui': ^1.17.3
       '@umbraco-ui/uui-css': ^1.17.3
       diff: ^9.0.0
-      dompurify: ^3.4.0
+      dompurify: ^3.4.11
       element-internals-polyfill: ^3.0.2
       lit: ^3.3.1
       luxon: ^3.7.2
@@ -953,7 +954,7 @@ packages:
       '@types/diff': ^7.0.2
       '@umbraco-ui/uui': ^2.0.0-rc.2
       diff: ^9.0.0
-      dompurify: ^3.4.1
+      dompurify: ^3.4.11
       element-internals-polyfill: ^3.0.2
       lit: ^3.3.1
       luxon: ^3.7.2
@@ -1623,8 +1624,8 @@ packages:
     resolution: {integrity: sha512-gYzvtM72ZtxQO0T048kd6HWSbbGCNOUwcnfQ01cqIJ4X2IYKFFHZ5mKvrQETcFXxsRObZulDaKmy//R7TPtsBg==}
     engines: {node: '>=20.19.0'}
 
-  dompurify@3.4.9:
-    resolution: {integrity: sha512-4dPSRMRDqHvs0V4YDFCsaIZo4if5u0xM+llyxiM2fwuZFdKArUBAF3VtI2+n8NKg9P870WMdYk0UhqQNoWXbfQ==}
+  dompurify@3.4.11:
+    resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
 
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
@@ -3516,7 +3517,7 @@ snapshots:
       '@typescript-eslint/types': 8.61.0
       eslint-visitor-keys: 5.0.1
 
-  '@umbraco-cms/backoffice@17.4.0(07a54a1618a0bb8942cb2e4cad616a62)':
+  '@umbraco-cms/backoffice@17.4.0(cdd700a6155df72b2b41e058cccb0231)':
     dependencies:
       '@heximal/expressions': 0.1.5
       '@hey-api/openapi-ts': 0.85.2(typescript@5.9.3)
@@ -3535,7 +3536,7 @@ snapshots:
       '@umbraco-ui/uui': 1.18.0(lit@3.3.3)
       '@umbraco-ui/uui-css': 1.18.0(lit@3.3.3)
       diff: 9.0.0
-      dompurify: 3.4.9
+      dompurify: 3.4.11
       element-internals-polyfill: 3.0.2
       lit: 3.3.3
       luxon: 3.7.2
@@ -3544,7 +3545,7 @@ snapshots:
       rxjs: 7.8.2
       uuid: 13.0.2
 
-  '@umbraco-cms/backoffice@18.0.0-rc2(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.97.0(typescript@5.9.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/extension-image@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-subscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-superscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-table@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-text-align@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-text-style@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extensions@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@types/diff@7.0.2)(@umbraco-ui/uui@2.0.0-rc.2)(diff@9.0.0)(dompurify@3.4.9)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.5)(monaco-editor@0.55.1)(rxjs@7.8.2)(uuid@14.0.0)':
+  '@umbraco-cms/backoffice@18.0.0-rc2(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.97.0(typescript@5.9.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/extension-image@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-subscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-superscript@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-table@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/extension-text-align@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extension-text-style@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0)))(@tiptap/extensions@3.26.0(@tiptap/core@3.26.0(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0))(@tiptap/pm@3.26.0)(@tiptap/starter-kit@3.26.0)(@types/diff@7.0.2)(@umbraco-ui/uui@2.0.0-rc.2)(diff@9.0.0)(dompurify@3.4.11)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.5)(monaco-editor@0.55.1)(rxjs@7.8.2)(uuid@14.0.0)':
     dependencies:
       '@heximal/expressions': 0.1.5
       '@hey-api/openapi-ts': 0.97.0(typescript@5.9.3)
@@ -3562,7 +3563,7 @@ snapshots:
       '@types/diff': 7.0.2
       '@umbraco-ui/uui': 2.0.0-rc.2
       diff: 9.0.0
-      dompurify: 3.4.9
+      dompurify: 3.4.11
       element-internals-polyfill: 3.0.2
       lit: 3.3.3
       luxon: 3.7.2
@@ -4592,7 +4593,7 @@ snapshots:
     dependencies:
       domelementtype: 3.0.0
 
-  dompurify@3.4.9:
+  dompurify@3.4.11:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -5340,7 +5341,7 @@ snapshots:
 
   monaco-editor@0.55.1:
     dependencies:
-      dompurify: 3.4.9
+      dompurify: 3.4.11
       marked: 14.0.0
 
   ms@2.1.3: {}

@@ -11,6 +11,7 @@ blockExoticSubdeps: true
 overrides:
   diff@>=6.0.0 <8.0.3: ^8.0.3
   dompurify@<3.4.0: ^3.4.0
+  dompurify@<=3.4.10: ^3.4.11
   esbuild@>=0.17.0 <0.28.1: ^0.28.1
   handlebars@>=4.0.0 <4.7.9: ^4.7.9
   marked@>=18.0.0 <=18.0.1: ^18.0.2
@@ -46,3 +47,4 @@ minimumReleaseAgeExclude:
   - '@esbuild/win32-arm64@0.28.1'
   - '@esbuild/win32-ia32@0.28.1'
   - '@esbuild/win32-x64@0.28.1'
+  - dompurify@3.4.11

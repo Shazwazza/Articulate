@@ -542,3 +542,4 @@ src/Articulate.Tests/appsettings-schema.json
 /.playwright-mcp
 
 temp.md
+build/ClientAssets/BackofficeClient_v18.stamp

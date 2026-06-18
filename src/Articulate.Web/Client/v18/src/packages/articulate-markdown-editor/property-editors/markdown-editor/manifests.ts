@@ -1,8 +1,6 @@
-
 export const manifests: Array<UmbExtensionManifest> = [
     {
         type: 'propertyEditorUi',
-        // Maps to [DataEditor(ArticulateMarkdownEditor
         alias: 'Articulate.MarkdownEditor',
         name: 'Articulate Markdown Editor Property Editor UI',
         element: () => import('./property-editor-ui-markdown-editor.element.js'),

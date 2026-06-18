@@ -244,7 +244,7 @@ export default class BlogMlExporterElement extends UmbLitElement implements IFor
       exportImagesAsBase64: embedImages,
     };
     const result = await BlogMlService.postBlogmlExport({ body: payload });
-    if (!result.response.ok || !result.data) {
+    if (!result.response?.ok || !result.data) {
       throw result.error || new Error('The server returned an invalid response during export.');
     }
     const blob = result.data;

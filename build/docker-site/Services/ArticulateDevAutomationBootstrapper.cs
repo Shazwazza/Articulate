@@ -218,7 +218,9 @@ namespace ArticulateDockerSite.Services
                 Attempt<BackOfficeUserClientCredentialsOperationStatus> credentialsResult =
                     await credentialsManager.SaveAsync(user.Key, settings.ClientId, settings.ClientSecret!);
 
-                if (!credentialsResult.Success)
+                // DuplicateClientId means the credentials already exist from a previous boot — treat as success.
+                if (!credentialsResult.Success &&
+                    credentialsResult.Result != BackOfficeUserClientCredentialsOperationStatus.DuplicateClientId)
                 {
                     logger.LogWarning(
                         "Articulate dev automation client credentials for '{ClientId}' could not be created. Status: {Status}",

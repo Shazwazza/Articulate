@@ -94,7 +94,7 @@ export default class ThemeOptionsElement extends UmbLitElement implements IFormC
   async #loadThemes() {
     try {
       const result = await ThemeOptionsService.getThemeDefault();
-      if (!result.response.ok || !result.data) {
+      if (!result.response?.ok || !result.data) {
         throw result.error || new Error('The list of themes could not be retrieved from the server.');
       }
       this._themes = result.data?.map((theme) => theme) ?? [];
@@ -199,7 +199,7 @@ export default class ThemeOptionsElement extends UmbLitElement implements IFormC
           newThemeName: this._themeName!,
         },
       });
-      if (!result.response.ok) {
+      if (!result.response?.ok) {
         throw result.error || new Error('Failed to copy theme.');
       }
 

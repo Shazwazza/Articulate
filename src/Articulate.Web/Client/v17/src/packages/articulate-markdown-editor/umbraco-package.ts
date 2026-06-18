@@ -1,4 +1,7 @@
+import { manifests as propertyEditors } from './property-editors/manifests.js';
 export const name = 'Articulate.MarkdownEditor';
+
+export const manifests: Array<UmbExtensionManifest> = [...propertyEditors];
 
 // Full clone of Umbraco.Web.UI.Client/src/packages/markdown-editor
 // Prevent any conflicts with the markdown editor in the backoffice
