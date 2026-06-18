@@ -254,7 +254,9 @@ export default class BlogMlImporterElement extends UmbLitElement implements IFor
    * @returns {boolean} True if the value is a number or numeric string.
    */
   #isNumericResponseValue = (value: unknown): value is number | string => {
-    return typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)));
+    return (
+      typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)))
+    );
   };
 
   /**

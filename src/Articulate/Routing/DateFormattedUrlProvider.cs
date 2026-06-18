@@ -14,17 +14,17 @@ namespace Articulate.Routing
     /// <summary>
     /// Provides date-formatted URLs for Articulate blog posts (e.g., /YYYY/MM/DD/post-name/).
     /// </summary>
-#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+#if UMBRACO_18_OR_GREATER
     public class DateFormattedUrlProvider : DefaultUrlProvider
 #else
     public class DateFormattedUrlProvider : NewDefaultUrlProvider
 #endif
     {
-#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+#if UMBRACO_18_OR_GREATER
         private readonly IDocumentUrlService _documentUrlService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for NET10 (Umbraco 17+).
+        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for Umbraco 18+.
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,
@@ -61,19 +61,10 @@ namespace Articulate.Routing
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,
-#if NET9_0
-            ILogger<DefaultUrlProvider> logger,
-#else
             ILogger<NewDefaultUrlProvider> logger,
-#endif
             ISiteDomainMapper siteDomainMapper,
             IUmbracoContextAccessor umbracoContextAccessor,
             UriUtility uriUtility,
-#if NET9_0
-#pragma warning disable CS0618 // Type or member is obsolete
-            ILocalizationService localizationService,
-#pragma warning restore CS0618 // Type or member is obsolete
-#endif
             IPublishedContentCache publishedContentCache,
             IDomainCache domainCache,
             IIdKeyMap idKeyMap,
@@ -87,9 +78,6 @@ namespace Articulate.Routing
                 siteDomainMapper,
                 umbracoContextAccessor,
                 uriUtility,
-#if NET9_0
-                localizationService,
-#endif
                 publishedContentCache,
                 domainCache,
                 idKeyMap,
@@ -137,7 +125,6 @@ namespace Articulate.Routing
             {
                 return null;
             }
-#if NET10_0_OR_GREATER
             UrlInfo? parentPath = base.GetUrl(parent, mode, culture, current);
             var parentUrl = parentPath?.Url?.ToString().EnsureEndsWith("/");
 #if UMBRACO_18_OR_GREATER
@@ -151,18 +138,6 @@ namespace Articulate.Routing
             }
             var newUrl = parentUrl + urlFolder + "/" + urlSegment?.EnsureEndsWith("/");
             return UrlInfo.AsUrl(newUrl, "Articulate.Routing.DateFormattedUrlProvider", culture);
-
-#else
-            UrlInfo? parentPath = base.GetUrl(parent, mode, culture, current);
-            var parentUrl = parentPath?.Text.EnsureEndsWith("/");
-            if (string.IsNullOrWhiteSpace(parentUrl) || string.IsNullOrWhiteSpace(content.UrlSegment))
-            {
-                return null;
-            }
-
-            var newUrl = parentUrl + urlFolder + "/" + content.UrlSegment?.EnsureEndsWith("/");
-            return UrlInfo.Url(newUrl, culture);
-#endif
         }
     }
 }

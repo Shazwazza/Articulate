@@ -137,7 +137,7 @@ namespace Articulate.Tests.Routing
         public async Task TryFindContent_requires_more_than_4_segments(string requestUri)
         {
             var finder = new DateFormattedPostContentFinder(
-#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+#if UMBRACO_18_OR_GREATER
                 Mock.Of<ILogger<ContentFinderByUrl>>(),
 #else
                 Mock.Of<ILogger<ContentFinderByUrlNew>>(),

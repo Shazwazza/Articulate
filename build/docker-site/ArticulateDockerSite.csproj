@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ArticulateDockerSite</AssemblyName>
     <!-- Direct-use fallback; lane orchestrators pass the exact package version. -->
-    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">6.1.0-*</ArticulatePackageVersion>
+    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">0.0.0-local</ArticulatePackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />

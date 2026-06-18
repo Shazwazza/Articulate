@@ -150,7 +150,7 @@ namespace Articulate.Components
 
         private List<IContent> GetChildren(int rootId)
         {
-            return contentService.GetPagedChildrenCompat(
+            return contentService.EnumeratePagedChildren(
                     rootId,
                     0,
                     int.MaxValue,

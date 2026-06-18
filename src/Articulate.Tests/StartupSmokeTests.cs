@@ -16,7 +16,6 @@ namespace Articulate.Tests
             });
         }
 
-#if NET10_0
         [Test]
         public void DeliveryApiHostStartup_DoesNotThrow()
         {
@@ -42,7 +41,6 @@ namespace Articulate.Tests
                     "Development");
             });
         }
-#endif
 
         private static WebApplication BuildApplication(
             Action<IUmbracoBuilder>? configureUmbraco = null,

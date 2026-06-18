@@ -106,15 +106,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          ARTICULATE_PACKAGE_LANE=v17 \
           ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
-          PACK_SAMPLE_THEME=true \
-          bash ./build/build.sh
+          dotnet run --file build/build.cs -- build --lane v17 --sample
 
-          ARTICULATE_PACKAGE_LANE=v18 \
           ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
-          PACK_SAMPLE_THEME=true \
-          bash ./build/build.sh
+          dotnet run --file build/build.cs -- build --lane v18 --sample
 
       - name: Upload v17 packages
         uses: actions/upload-artifact@v7.0.1

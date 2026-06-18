@@ -57,7 +57,7 @@ namespace Articulate.Components
                 options.ViewLocationExpanders.Add(new ArticulateViewLocationExpander());
             });
 
-#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+#if UMBRACO_18_OR_GREATER
             _ = builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
             _ = builder.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
 #else

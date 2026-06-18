@@ -55,7 +55,8 @@ RUN set -eux; \
     -o /app/publish \
     /p:UseAppHost=false \
     /p:UmbracoCmsPackageVersion=\"${UMBRACO_CMS_VERSION}\" \
-    /p:ArticulatePackageVersion=\"$ARTICULATE_PKG_VERSION\"
+    /p:ArticulatePackageVersion=\"$ARTICULATE_PKG_VERSION\"; \
+    mkdir -p /app/publish/umbraco/Data /app/publish/wwwroot/media
 
 # ICU source for chiseled image (supports globalization on arm64)
 FROM ${DOTNET_ASPNET_IMAGE} AS icu-source
@@ -80,17 +81,11 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 COPY --from=icu-source /staging/ /usr/lib/
-COPY --from=build /app/publish .
-
-RUN set -eux; \
-    mkdir -p /app/umbraco/Data /app/wwwroot/media /tmp; \
-    chown -R 1654:1654 /app
+COPY --from=build --chown=1654:1654 /app/publish .
 
 USER 1654
 VOLUME ["/app/umbraco/Data", "/app/wwwroot/media"]
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-    CMD curl -fs http://localhost:8080/umbraco || exit 1
 ENTRYPOINT ["dotnet", "ArticulateDockerSite.dll"]
 
 # Final stage (alternate, non-chiseled)

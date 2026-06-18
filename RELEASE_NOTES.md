@@ -6,7 +6,7 @@
 - `v18` produces Articulate 7.0.x for Umbraco 18 on .NET 10.
 - Articulate 6.0.x remains the released compatibility line for Umbraco 16 and 17.
 - CI derives both lane versions from the NBGV result so patch and prerelease metadata stay aligned.
-- Validation/reference source used for API compatibility checks: `E:\ext\Umbraco-CMS`.
+- Compatibility was validated against the Umbraco 17 and Umbraco 18 source and package APIs.
 
 ## Version 6.0.0
 

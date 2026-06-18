@@ -11,6 +11,9 @@
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
     <!-- Allow Hybrid Mode (Serve as StaticContent, Embed as Resource) -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <TargetsForTfmSpecificBuildOutput>
+      $(TargetsForTfmSpecificBuildOutput);IncludeProjectReferenceDlls
+    </TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +21,7 @@
   </ItemGroup>
 
   <!-- Include referenced project DLLs in the package using BuildOutputInPackage -->
-  <Target Name="IncludeProjectReferenceDlls" AfterTargets="Build">
+  <Target Name="IncludeProjectReferenceDlls">
     <ItemGroup>
       <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.dll" />
       <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml" Condition="Exists('..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml')" />
@@ -57,6 +60,11 @@
     <EmbeddedResource Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\**">
       <LogicalName>Articulate.Theme://Themes/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Client sources are build inputs; only compiled BackOffice assets belong in the package. -->
+  <ItemGroup>
+    <Content Remove="Client\**" />
   </ItemGroup>
 
   <!-- ============================================================

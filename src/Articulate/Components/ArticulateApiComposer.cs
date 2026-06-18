@@ -4,11 +4,11 @@ using Articulate.Services;
 using Articulate.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
-using Umbraco.Cms.Api.Common.OpenApi;
-#else
+#if UMBRACO_18_OR_GREATER
 using Umbraco.Cms.Api.Common.OpenApi;
 using Umbraco.Cms.Api.Management.OpenApi;
+#else
+using Umbraco.Cms.Api.Common.OpenApi;
 #endif
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Notifications;
@@ -27,16 +27,16 @@ namespace Articulate.Components
         public void Compose(IUmbracoBuilder builder)
         {
             IServiceCollection services = builder.Services;
-#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
-            _ = services.AddSingleton<IOperationIdHandler, ArticulateOperationIdHandler>();
-            _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
-#else
+#if UMBRACO_18_OR_GREATER
             _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
             _ = builder.AddBackOfficeOpenApiDocument(
                 ArticulateConstants.ManagementApi.Name,
                 document => document
                     .WithTitle("Articulate Management API")
                     .WithBackOfficeAuthentication());
+#else
+            _ = services.AddSingleton<IOperationIdHandler, ArticulateOperationIdHandler>();
+            _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
 #endif
             _ = services.Configure<ArticulateOpenIdClientOptions>(
                 builder.Config.GetSection(ArticulateOpenIdClientOptions.SectionName));

@@ -270,7 +270,7 @@ namespace Articulate.MetaWeblog
             Post[] recent =
             [
                 .. contentService
-                    .GetPagedChildrenCompat(
+                    .EnumeratePagedChildren(
                         node.Id,
                         0,
                         numberOfPosts,

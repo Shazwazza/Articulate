@@ -5,9 +5,9 @@ using Umbraco.Cms.Core.Services;
 
 namespace Articulate
 {
-    internal static class ContentServiceCompat
+    internal static class PagedChildrenExtensions
     {
-        internal static IEnumerable<IContent> GetPagedChildrenCompat(
+        internal static IEnumerable<IContent> EnumeratePagedChildren(
             this IContentService contentService,
             int id,
             long pageIndex,
@@ -16,7 +16,6 @@ namespace Articulate
             IQuery<IContent>? filter = null,
             Ordering? ordering = null)
         {
-#if NET10_0_OR_GREATER
             return contentService.GetPagedChildren(
                 id,
                 pageIndex,
@@ -26,15 +25,6 @@ namespace Articulate
                 filter,
                 ordering,
                 loadTemplates: true);
-#else
-            return contentService.GetPagedChildren(
-                id,
-                pageIndex,
-                pageSize,
-                out totalRecords,
-                filter,
-                ordering);
-#endif
         }
     }
 }

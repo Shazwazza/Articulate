@@ -1,5 +1,5 @@
 #nullable enable
-#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
+#if !UMBRACO_18_OR_GREATER
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,18 +7,16 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 #endif
 using Articulate.Swagger;
 using Microsoft.Extensions.Options;
-#if NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER
+#if UMBRACO_18_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-#elif NET10_0_OR_GREATER
-using Microsoft.OpenApi;
 #else
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 #endif
 
 namespace Articulate.Options
 {
-#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
+#if !UMBRACO_18_OR_GREATER
     /// <summary>
     /// Configures Articulate management API OpenAPI generation across supported Umbraco versions.
     /// </summary>

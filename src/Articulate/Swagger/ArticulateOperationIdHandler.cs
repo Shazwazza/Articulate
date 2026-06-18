@@ -1,5 +1,5 @@
 #nullable enable
-#if !(NET10_0_OR_GREATER && UMBRACO_18_OR_GREATER)
+#if !UMBRACO_18_OR_GREATER
 using Asp.Versioning;
 using Articulate.Controllers.Api;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;

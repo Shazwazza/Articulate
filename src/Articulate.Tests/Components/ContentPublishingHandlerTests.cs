@@ -47,7 +47,6 @@ namespace Articulate.Tests.Components
         {
             children ??= [];
             Mock<IContentService> contentService = new();
-#if NET10_0_OR_GREATER
             contentService
                 .Setup(x => x.GetPagedChildren(
                     It.IsAny<int>(),
@@ -63,23 +62,6 @@ namespace Articulate.Tests.Components
                     total = children.Count;
                     return children;
                 });
-#else
-#pragma warning disable CS0618
-            contentService
-                .Setup(x => x.GetPagedChildren(
-                    It.IsAny<int>(),
-                    It.IsAny<long>(),
-                    It.IsAny<int>(),
-                    out It.Ref<long>.IsAny,
-                    null,
-                    null))
-                .Returns((int _, long _, int _, out long total, Umbraco.Cms.Core.Persistence.Querying.IQuery<IContent>? _, Ordering? _) =>
-                {
-                    total = children.Count;
-                    return children;
-                });
-#pragma warning restore CS0618
-#endif
             Mock<IUrlSegmentProvider> urlSegmentProvider = new();
             urlSegmentProvider
                 .Setup(x => x.GetUrlSegment(It.IsAny<IContentBase>(), false, null))
