@@ -8,9 +8,15 @@ on:
 permissions:
   contents: read
 
+# Cancel in-flight PR runs when a new push lands; never cancel main.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -18,11 +24,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: dotnet/nbgv@v0.5.2
+      - uses: dotnet/nbgv@v0.5
         with:
           setAllVars: true
 
@@ -34,35 +40,23 @@ jobs:
           echo "Date: ${NBGV_GitCommitDate}"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6
         with:
           package_json_file: src/Articulate.Web/Client/package.json
           run_install: false
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v6
         with:
           node-version-file: "src/Articulate.Web/Client/.node-version"
           cache: "pnpm"
           cache-dependency-path: "src/Articulate.Web/Client/pnpm-lock.yaml"
 
-      - name: Resolve pnpm store path
-        id: pnpm-cache
-        run: |
-          echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache pnpm store
-        uses: actions/cache@v5.0.5
-        with:
-          path: ${{ steps.pnpm-cache.outputs.path }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('src/Articulate.Web/Client/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.3.0
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
+          cache: true
 
       - name: Resolve package versions
         shell: bash
@@ -73,7 +67,7 @@ jobs:
           case "$V17_VERSION" in
             6.1.*) ;;
             *)
-              echo "Expected NBGV to produce a 6.1.x version, got '$V17_VERSION'." >&2
+              echo "Expected NBGV 6.1.x, got '$V17_VERSION'." >&2
               exit 1
               ;;
           esac
@@ -82,7 +76,7 @@ jobs:
           case "$V18_VERSION" in
             7.*) ;;
             *)
-              echo "Invalid v18 base version '$V18_VERSION' in build/v18-version.txt." >&2
+              echo "Invalid v18 base in build/v18-version.txt: '$V18_VERSION'." >&2
               exit 1
               ;;
           esac
@@ -113,7 +107,7 @@ jobs:
           dotnet run --file build/build.cs -- build --lane v18 --sample
 
       - name: Upload v17 packages
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: Articulate-${{ env.V17_VERSION }}
           path: |
@@ -121,7 +115,7 @@ jobs:
             ${{ env.RELEASE_FOLDER }}/v17/*.snupkg
 
       - name: Upload v18 packages
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: Articulate-${{ env.V18_VERSION }}
           path: |
