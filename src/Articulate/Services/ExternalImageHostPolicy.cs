@@ -32,7 +32,7 @@ namespace Articulate.Services
             bool allowUnsafeLocalExternalImageHosts,
             bool isProductionMode)
         {
-            string normalizedHost = NormalizeHost(host);
+            var normalizedHost = NormalizeHost(host);
             if (normalizedHost.Length == 0)
             {
                 return "Image URL host cannot be empty";
@@ -146,21 +146,21 @@ namespace Articulate.Services
                 return true;
             }
 
-            byte[] bytes = address.GetAddressBytes();
+            var bytes = address.GetAddressBytes();
             if (allowUnsafeLocalExternalImageHosts)
             {
                 return false;
             }
 
             return address.IsIPv6LinkLocal ||
-                address.IsIPv6SiteLocal ||
-                bytes[0] == 0 ||
-                (bytes[0] & 0xFE) == 0xFC;
+                   address.IsIPv6SiteLocal ||
+                   bytes[0] == 0 ||
+                   (bytes[0] & 0xFE) == 0xFC;
         }
 
         private static bool IsDisallowedIPv4Address(IPAddress address, bool allowUnsafeLocalExternalImageHosts)
         {
-            byte[] ipv4 = address.GetAddressBytes();
+            var ipv4 = address.GetAddressBytes();
 
             if (IsAlwaysBlockedIPv4Address(ipv4) || IsUnroutableIPv4Address(ipv4))
             {
@@ -194,7 +194,7 @@ namespace Articulate.Services
                 return true;
             }
 
-            byte[] bytes = address.GetAddressBytes();
+            var bytes = address.GetAddressBytes();
             if (IsIPv4CompatibleIPv6Address(bytes) ||
                 IsIPv4TranslatedIPv6Address(bytes) ||
                 IsWellKnownNat64Address(bytes))

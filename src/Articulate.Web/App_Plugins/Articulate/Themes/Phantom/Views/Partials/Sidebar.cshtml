@@ -11,8 +11,15 @@
                 <img id="blog" class="logo" src="@Model.BlogLogo" alt="Blog Logo">
             </a>
         }
-        <h1 class="title"><a href="@Model.RootBlogNode.Url()">@Model.BlogTitle</a></h1>
-        <p class="description">@Model.BlogDescription <a href="@Model.ArticulateRssUrl()" title="RSS Feed"><i class="fa-solid fa-rss"></i></a></p>
+        <h1 class="title">
+            <a href="@Model.RootBlogNode.Url()">@Model.BlogTitle</a>
+        </h1>
+        <p class="description">
+            @Model.BlogDescription
+            <a href="@Model.ArticulateRssUrl()" title="RSS Feed">
+                <i class="fa-solid fa-rss"></i>
+            </a>
+        </p>
         <div class="separator"></div>
         @await Html.PartialAsync("SearchBox", Model)
     </header>

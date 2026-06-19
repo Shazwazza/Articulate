@@ -16,7 +16,7 @@ using Umbraco.Cms.Web.Common.Controllers;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Controller for the Articulate Markdown editor.
+    ///     Controller for the Articulate Markdown editor.
     /// </summary>
     [ArticulateDynamicRoute]
     public class MarkdownEditorController(
@@ -29,7 +29,7 @@ namespace Articulate.Controllers
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         /// <summary>
-        /// Renders the view for creating a new post using the Markdown editor.
+        ///     Renders the view for creating a new post using the Markdown editor.
         /// </summary>
         /// <returns>The action result yielding the editor view.</returns>
         [HttpGet]
@@ -45,7 +45,7 @@ namespace Articulate.Controllers
                 ArticulateConstants.ManagementApi.MarkdownEditor
             ]);
 
-            string key = GetKey<MarkdownEditorApiController>(nameof(MarkdownEditorApiController.CreatePost));
+            var key = GetKey<MarkdownEditorApiController>(nameof(MarkdownEditorApiController.CreatePost));
             string? editorUrl = null;
 
             if (managementApiUrls?.TryGetValue(key, out var urlFromMap) == true)
@@ -88,7 +88,7 @@ namespace Articulate.Controllers
                 EndSessionUrl = oauthUrls.EndSessionUrl,
                 TokenUrl = oauthUrls.TokenUrl,
                 RevocationUrl = oauthUrls.RevocationUrl,
-                LoginLogoUrl = oauthUrls.LoginLogoUrl,
+                LoginLogoUrl = oauthUrls.LoginLogoUrl
             };
 
             SetSecurityHeaders();
@@ -99,8 +99,8 @@ namespace Articulate.Controllers
 
         private Uri GetAndValidateBaseUrl()
         {
-            bool isConfiguredUrl = !string.IsNullOrWhiteSpace(webRoutingSettings.Value.UmbracoApplicationUrl);
-            string baseUrl = isConfiguredUrl
+            var isConfiguredUrl = !string.IsNullOrWhiteSpace(webRoutingSettings.Value.UmbracoApplicationUrl);
+            var baseUrl = isConfiguredUrl
                 ? webRoutingSettings.Value.UmbracoApplicationUrl
                 : UriHelper.BuildAbsolute(Request.Scheme, Request.Host, Request.PathBase);
 
@@ -140,26 +140,26 @@ namespace Articulate.Controllers
 
         private OAuthUrls BuildOAuthUrls(Uri editorAbsoluteUri, ArticulateOpenIdClientOptions options)
         {
-            string umbracoPath = GetUmbracoPathFromManagementApiUrl(editorAbsoluteUri);
+            var umbracoPath = GetUmbracoPathFromManagementApiUrl(editorAbsoluteUri);
 
             // These are the built-in Umbraco/OpenIddict endpoints used by the standalone editor.
             // RedirectUris and PostLogoutRedirectUris are configured on the OpenIddict client registration,
             // not by changing these endpoint URLs.
-            string defaultAuthorizeUrl = BuildAbsoluteUrl(
+            var defaultAuthorizeUrl = BuildAbsoluteUrl(
                 editorAbsoluteUri,
                 $"{umbracoPath}/management/api/v1/security/back-office/authorize");
-            string defaultTokenUrl = BuildAbsoluteUrl(
+            var defaultTokenUrl = BuildAbsoluteUrl(
                 editorAbsoluteUri,
                 $"{umbracoPath}/management/api/v1/security/back-office/token");
-            string defaultEndSessionUrl = BuildAbsoluteUrl(
+            var defaultEndSessionUrl = BuildAbsoluteUrl(
                 editorAbsoluteUri,
                 $"{umbracoPath}/management/api/v1/security/back-office/signout");
-            string defaultRevocationUrl = BuildAbsoluteUrl(
+            var defaultRevocationUrl = BuildAbsoluteUrl(
                 editorAbsoluteUri,
                 $"{umbracoPath}/management/api/v1/security/back-office/revoke");
-            string defaultCurrentUserUrl =
+            var defaultCurrentUserUrl =
                 BuildAbsoluteUrl(editorAbsoluteUri, $"{umbracoPath}/management/api/v1/user/current");
-            string defaultLoginLogoUrl = BuildAbsoluteUrl(
+            var defaultLoginLogoUrl = BuildAbsoluteUrl(
                 editorAbsoluteUri,
                 $"{umbracoPath}/management/api/v1/security/back-office/graphics/login-logo-alternative");
 
@@ -167,12 +167,12 @@ namespace Articulate.Controllers
                 string.IsNullOrWhiteSpace(value) ? fallback : value;
 
             return new OAuthUrls(
-                AuthorizeUrl: UseConfiguredOrDefault(options.AuthorizeUrl, defaultAuthorizeUrl),
-                TokenUrl: UseConfiguredOrDefault(options.TokenUrl, defaultTokenUrl),
-                EndSessionUrl: UseConfiguredOrDefault(options.EndSessionUrl, defaultEndSessionUrl),
-                RevocationUrl: UseConfiguredOrDefault(options.RevocationUrl, defaultRevocationUrl),
-                CurrentUserUrl: UseConfiguredOrDefault(options.CurrentUserUrl, defaultCurrentUserUrl),
-                LoginLogoUrl: UseConfiguredOrDefault(options.LoginLogoUrl, defaultLoginLogoUrl));
+                UseConfiguredOrDefault(options.AuthorizeUrl, defaultAuthorizeUrl),
+                UseConfiguredOrDefault(options.TokenUrl, defaultTokenUrl),
+                UseConfiguredOrDefault(options.EndSessionUrl, defaultEndSessionUrl),
+                UseConfiguredOrDefault(options.RevocationUrl, defaultRevocationUrl),
+                UseConfiguredOrDefault(options.CurrentUserUrl, defaultCurrentUserUrl),
+                UseConfiguredOrDefault(options.LoginLogoUrl, defaultLoginLogoUrl));
 
             static string BuildAbsoluteUrl(Uri baseUri, string path)
             {
@@ -181,25 +181,25 @@ namespace Articulate.Controllers
                     path = "/" + path;
                 }
 
-                var builder = new UriBuilder(baseUri) { Path = path, Query = string.Empty, Fragment = string.Empty, };
+                var builder = new UriBuilder(baseUri) { Path = path, Query = string.Empty, Fragment = string.Empty };
                 return builder.Uri.ToString();
             }
 
             static string GetUmbracoPathFromManagementApiUrl(Uri managementApiUri)
             {
                 const string defaultUmbracoPath = Constants.System.DefaultUmbracoPath;
-                string defaultNormalized = Normalize(defaultUmbracoPath);
+                var defaultNormalized = Normalize(defaultUmbracoPath);
 
-                string path = managementApiUri.AbsolutePath;
+                var path = managementApiUri.AbsolutePath;
 
                 const string marker = "/management/api/";
-                int markerIndex = path.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+                var markerIndex = path.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
                 if (markerIndex <= 0)
                 {
                     return defaultNormalized;
                 }
 
-                string prefix = path[..markerIndex];
+                var prefix = path[..markerIndex];
                 prefix = string.IsNullOrWhiteSpace(prefix) ? defaultUmbracoPath : prefix;
 
                 prefix = Normalize(prefix);
@@ -207,7 +207,7 @@ namespace Articulate.Controllers
 
                 static string Normalize(string value)
                 {
-                    string normalized = value;
+                    var normalized = value;
                     normalized = normalized.TrimStart('~');
                     normalized = normalized.EnsureStartsWith('/');
                     normalized = normalized.TrimEnd('/');
@@ -218,7 +218,7 @@ namespace Articulate.Controllers
 
         private static string GetDefaultPostLogoutRedirectUrl(Uri baseUri, ArticulateOpenIdClientOptions options)
         {
-            foreach (string candidate in options.PostLogoutRedirectUris)
+            foreach (var candidate in options.PostLogoutRedirectUris)
             {
                 if (Uri.TryCreate(candidate, UriKind.Absolute, out Uri? redirectUri))
                 {

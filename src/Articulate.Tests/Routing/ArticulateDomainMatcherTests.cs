@@ -14,7 +14,7 @@ namespace Articulate.Tests.Routing
             Domain candidate = new(10, "blog.local", 1, "en-US", false, 0);
             Domain currentDomain = new(11, "blog.local", 2, "da-DK", false, 0);
 
-            bool matches = ArticulateDomainMatcher.Matches(candidate, currentDomain);
+            var matches = ArticulateDomainMatcher.Matches(candidate, currentDomain);
 
             Assert.That(matches, Is.False);
         }
@@ -25,7 +25,7 @@ namespace Articulate.Tests.Routing
             Domain candidate = new(10, "blog.local", 1, string.Empty, true, 0);
             Domain currentDomain = new(11, "blog.local", 2, string.Empty, false, 0);
 
-            bool matches = ArticulateDomainMatcher.Matches(candidate, currentDomain);
+            var matches = ArticulateDomainMatcher.Matches(candidate, currentDomain);
 
             Assert.That(matches, Is.False);
         }
@@ -36,7 +36,7 @@ namespace Articulate.Tests.Routing
             Domain candidate = new(10, "blog.local/articles/", 1, string.Empty, false, 0);
             Domain currentDomain = new(11, "https://blog.local/news/", 2, string.Empty, false, 0);
 
-            bool matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://blog.local/"));
+            var matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://blog.local/"));
 
             Assert.That(matches, Is.False);
         }
@@ -47,7 +47,7 @@ namespace Articulate.Tests.Routing
             Domain candidate = new(10, "blog.local/articles/", 1, string.Empty, false, 0);
             Domain currentDomain = new(11, "https://blog.local/articles", 2, string.Empty, false, 0);
 
-            bool matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://blog.local/"));
+            var matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://blog.local/"));
 
             Assert.That(matches, Is.True);
         }
@@ -58,7 +58,7 @@ namespace Articulate.Tests.Routing
             Domain candidate = new(10, "bad host/", 1, string.Empty, false, 0);
             Domain currentDomain = new(11, "bad host", 2, string.Empty, false, 0);
 
-            bool matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://example.local/"));
+            var matches = ArticulateDomainMatcher.Matches(candidate, currentDomain, new Uri("https://example.local/"));
 
             Assert.That(matches, Is.True);
         }

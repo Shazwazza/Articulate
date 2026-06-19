@@ -31,10 +31,13 @@ namespace Articulate.Routing
     {
         private readonly ReaderWriterLockSlim _lock = new();
         private long _builtVersion;
-        private volatile bool _hasCache;
         private bool _disposedValue;
+        private volatile bool _hasCache;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        public void Dispose() => Dispose(true);
+
+        /// <inheritdoc />
         public override async ValueTask<RouteValueDictionary> TransformAsync(
             HttpContext httpContext,
             RouteValueDictionary values)
@@ -68,17 +71,14 @@ namespace Articulate.Routing
 
             EnsureRouteCache(umbracoContext, httpContext);
 
-            bool routeSuccess = await TryRouteAsync(umbracoContext, umbracoRouteValues, httpContext, newValues);
+            var routeSuccess = await TryRouteAsync(umbracoContext, umbracoRouteValues, httpContext, newValues);
 
             return routeSuccess ? newValues : [];
         }
 
-        /// <inheritdoc/>
-        public void Dispose() => Dispose(disposing: true);
-
         private void EnsureRouteCache(IUmbracoContext umbracoContext, HttpContext httpContext)
         {
-            long currentVersion = routeRefreshState.CurrentVersion;
+            var currentVersion = routeRefreshState.CurrentVersion;
             if (_hasCache && Volatile.Read(ref _builtVersion) == currentVersion)
             {
                 return;

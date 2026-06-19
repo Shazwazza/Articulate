@@ -13,7 +13,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 namespace Articulate.Components
 {
     /// <summary>
-    /// Validates Articulate routing configuration before publish so editors see backoffice validation errors.
+    ///     Validates Articulate routing configuration before publish so editors see backoffice validation errors.
     /// </summary>
     internal sealed class ContentPublishingHandler(
         IContentService contentService,
@@ -26,7 +26,7 @@ namespace Articulate.Components
     {
         private static readonly Uri _domainValidationBaseUri = new("https://localhost/");
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Handle(ContentPublishingNotification notification)
         {
             var rootsToPublish = notification.PublishedEntities
@@ -57,14 +57,12 @@ namespace Articulate.Components
             }
         }
 
-        private void ValidateConfiguredRouteSegments(IContent root)
-        {
+        private void ValidateConfiguredRouteSegments(IContent root) =>
             ArticulateRouteValidator.ValidateConfiguredRouteSegments(
                 root,
                 GetChildren(root.Id),
                 shortStringHelper,
                 urlSegmentProviders);
-        }
 
         private void ValidateRootPathMappings(IReadOnlyList<IContent> rootsToPublish)
         {
@@ -85,7 +83,7 @@ namespace Articulate.Components
                 return;
             }
 
-            List<Domain> domains = [.. domainCacheService.GetAll(includeWildcards: true)];
+            List<Domain> domains = [.. domainCacheService.GetAll(true)];
             var contentCache = new Dictionary<int, IContent>();
 
             IEnumerable<IGrouping<string, IContent>> groupedByPath = allRoots
@@ -102,9 +100,13 @@ namespace Articulate.Components
             }
         }
 
-        private string BuildRootNodePath(IContent root, IReadOnlyList<Domain> domains, IDictionary<int, IContent> contentCache)
+        private string BuildRootNodePath(
+            IContent root,
+            IReadOnlyList<Domain> domains,
+            IDictionary<int, IContent> contentCache)
         {
-            HashSet<int> domainContentIds = [.. ArticulateRouteValidator.DomainsForContent(root, domains).Select(x => x.ContentId)];
+            HashSet<int> domainContentIds =
+                [.. ArticulateRouteValidator.DomainsForContent(root, domains).Select(x => x.ContentId)];
             List<string> segments = [];
             IContent? current = root;
 
@@ -115,8 +117,8 @@ namespace Articulate.Components
                     break;
                 }
 
-                string? segment = ArticulateRouteSegmentHelper.NormalizeOrNull(
-                    current.GetUrlSegment(shortStringHelper, urlSegmentProviders, culture: null, published: false));
+                var segment = ArticulateRouteSegmentHelper.NormalizeOrNull(
+                    current.GetUrlSegment(shortStringHelper, urlSegmentProviders, null, false));
 
                 if (segment is not null)
                 {
@@ -148,15 +150,13 @@ namespace Articulate.Components
             return content;
         }
 
-        private List<IContent> GetChildren(int rootId)
-        {
-            return contentService.EnumeratePagedChildren(
+        private List<IContent> GetChildren(int rootId) =>
+            contentService.EnumeratePagedChildren(
                     rootId,
                     0,
                     int.MaxValue,
                     out _)
                 .ToList();
-        }
 
         private static bool IsArticulateRoot(IContent content) =>
             content.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.Articulate);

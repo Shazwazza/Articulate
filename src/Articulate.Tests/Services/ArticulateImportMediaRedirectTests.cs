@@ -14,8 +14,8 @@ namespace Articulate.Tests.Services
         {
             using HttpResponseMessage response = Redirect(HttpStatusCode.Redirect, "http://example.com/image.png");
 
-            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
-                () => GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 0))!;
+            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(() =>
+                GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 0))!;
 
             Assert.That(exception.InnerException, Is.TypeOf<HttpRequestException>());
             Assert.That(exception.InnerException!.Message, Does.Contain("cannot downgrade"));
@@ -36,8 +36,8 @@ namespace Articulate.Tests.Services
         {
             using HttpResponseMessage response = new(HttpStatusCode.Redirect);
 
-            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
-                () => GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 0))!;
+            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(() =>
+                GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 0))!;
 
             Assert.That(exception.InnerException, Is.TypeOf<HttpRequestException>());
         }
@@ -47,8 +47,8 @@ namespace Articulate.Tests.Services
         {
             using HttpResponseMessage response = Redirect(HttpStatusCode.Redirect, "/image.png");
 
-            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(
-                () => GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 5))!;
+            TargetInvocationException exception = Assert.Throws<TargetInvocationException>(() =>
+                GetValidatedRedirectUri(response, new Uri("https://example.com/start"), 5))!;
 
             Assert.That(exception.InnerException, Is.TypeOf<HttpRequestException>());
             Assert.That(exception.InnerException!.Message, Does.Contain("Too many redirects"));

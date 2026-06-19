@@ -13,13 +13,13 @@
     <title>Articulate: Create New Post</title>
 
     <environment include="Development">
-      <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/mdl/material.pink-blue.min.css">
-      <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/fonts/material-icons/material-icons.css">
-      <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/src/css/md-editor.css" asp-append-version="true">
-      <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/tiny-mde/tiny-mde.min.css">
+        <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/mdl/material.pink-blue.min.css">
+        <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/fonts/material-icons/material-icons.css">
+        <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/src/css/md-editor.css" asp-append-version="true">
+        <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/tiny-mde/tiny-mde.min.css">
     </environment>
     <environment exclude="Development">
-      <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/dist/css/md-editor.min.css" asp-append-version="true" fetchpriority="high" >
+        <link rel="stylesheet" href="~/App_Plugins/Articulate/MarkdownEditor/assets/dist/css/md-editor.min.css" asp-append-version="true" fetchpriority="high">
     </environment>
 
     <link rel="preload" as="image" href="@Model.LoginLogoUrl" fetchpriority="high">
@@ -27,210 +27,238 @@
 </head>
 
 <body x-data="markdownEditor" x-init="init" x-cloak x-bind:class="loginBodyClass" x-bind:aria-busy="isLoading"
-    data-articulate-blog-node="@Html.Encode(Model.ArticulateBlogNode)"
-    data-auth-url="@Html.Encode(Model.AuthorizeUrl)"
-    data-auth-end-url="@Html.Encode(Model.EndSessionUrl)"
-    data-token-url="@Html.Encode(Model.TokenUrl)"
-    data-current-user-url="@Html.Encode(Model.CurrentUserUrl)"
-    data-editor-post-url="@Html.Encode(Model.EditorPostUrl)"
-    data-oauth-client-id="@Html.Encode(Model.BackOfficeClientId)"
-    data-post-logout-redirect-url="@Html.Encode(Model.PostLogoutRedirectUrl)"
-    data-revocation-url="@Html.Encode(Model.RevocationUrl)">
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-        <header class="mdl-layout__header" x-cloak x-show="showHeader">
-            <div class="mdl-layout__header-row md-editor__container">
-                <span class="mdl-layout-title" x-text="caption"></span>
-                <div class="mdl-layout-spacer"></div>
-                <nav class="mdl-navigation" x-show="currentUser">
-                    <button type="button" class="mdl-chip mdl-chip--contact md-editor__logout" @@click.prevent="logout"
-                        aria-label="Log out of Umbraco">
-                        <span class="mdl-chip__contact mdl-color--blue mdl-color-text--white"
-                            x-text="userInitials"></span>
-                        <span class="mdl-chip__text">Logout</span>
-                        <span class="mdl-chip__action" aria-hidden="true"><i class="material-icons"
-                                aria-hidden="true">logout</i></span>
-                    </button>
-                </nav>
-                <div x-show="isLoading" class="mdl-spinner mdl-js-spinner is-active"></div>
-            </div>
-        </header>
+      data-articulate-blog-node="@Html.Encode(Model.ArticulateBlogNode)"
+      data-auth-url="@Html.Encode(Model.AuthorizeUrl)"
+      data-auth-end-url="@Html.Encode(Model.EndSessionUrl)"
+      data-token-url="@Html.Encode(Model.TokenUrl)"
+      data-current-user-url="@Html.Encode(Model.CurrentUserUrl)"
+      data-editor-post-url="@Html.Encode(Model.EditorPostUrl)"
+      data-oauth-client-id="@Html.Encode(Model.BackOfficeClientId)"
+      data-post-logout-redirect-url="@Html.Encode(Model.PostLogoutRedirectUrl)"
+      data-revocation-url="@Html.Encode(Model.RevocationUrl)">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<header class="mdl-layout__header" x-cloak x-show="showHeader">
+    <div class="mdl-layout__header-row md-editor__container">
+        <span class="mdl-layout-title" x-text="caption"></span>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation" x-show="currentUser">
+            <button type="button" class="mdl-chip mdl-chip--contact md-editor__logout" @@click.prevent="logout"
+                    aria-label="Log out of Umbraco">
+                <span class="mdl-chip__contact mdl-color--blue mdl-color-text--white"
+                      x-text="userInitials">
+                </span>
+                <span class="mdl-chip__text">Logout</span>
+                <span class="mdl-chip__action" aria-hidden="true">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        logout
+                    </i>
+                </span>
+            </button>
+        </nav>
+        <div x-show="isLoading" class="mdl-spinner mdl-js-spinner is-active"></div>
+    </div>
+</header>
 
-        <main class="mdl-layout__content md-editor__main">
-            <div class="page-content md-editor__container">
-                <!-- Login View -->
-                <template x-if="isLoginStep">
-                    <div class="mdl-card fill-height md-editor__card md-editor__card--compact" x-ref="loginView">
-                        <div class="mdl-card__supporting-text md-editor__login">
-                            <div class="md-editor__login-brand">
-                                <img class="md-editor__login-logo"
-                                    src="@Model.LoginLogoUrl"
-                                    alt="Umbraco logo" fetchpriority="high" width="200" height="55" />
-                            </div>
-                            <div class="mdl-card md-editor__login-content-card">
-                                <div class="mdl-card__supporting-text">
-                                    <h1 class="md-editor__login-greeting">Welcome</h1>
-                                    <p class="md-editor__login-notice" x-text="loginNotice" aria-live="polite"></p>
-
-                                    <button type="button"
-                                        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent md-editor__login-button"
-                                        x-ref="loginButton" @@click="startLogin" :disabled="isLoading">
-                                        <i aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg"
-                                                fill="currentColor" viewBox="0 0 315.89 315.89">
-                                                <path
-                                                    d="M0 157.74a157.95 157.95 0 1 1 158 158.15A157.95 157.95 0 0 1 0 157.74m154.74 54.09a155.4 155.4 0 0 1-36.5-3.29 27.92 27.92 0 0 1-19.94-16q-5.35-12.34-5.21-38.1a243 243 0 0 1 1.69-26.84q1.55-13 3.09-21.46l1.07-5.59a2 2 0 0 0 0-.49 3.2 3.2 0 0 0-2.65-3.17l-20.37-3.22h-.44a3.19 3.19 0 0 0-3.11 2.48c-.35 1.31-.56 2.27-1.17 5.38-1.16 6-2.24 11.85-3.43 20.38a264 264 0 0 0-2.3 27.94 145 145 0 0 0 0 19.57q.72 25.94 8.9 41.42t27.72 22.3q19.53 6.81 54.43 6.66h2.91q34.94.15 54.41-6.66t27.71-22.3q8.17-15.53 8.91-41.42a145 145 0 0 0 0-19.57 267 267 0 0 0-2.3-27.94c-1.2-8.44-2.27-14.26-3.44-20.38-.61-3.11-.81-4.07-1.16-5.38a3.21 3.21 0 0 0-3.12-2.48h-.52l-20.38 3.18a3.2 3.2 0 0 0-2.68 3.17 4 4 0 0 0 0 .49l1.08 5.59q1.55 8.48 3.12 21.46a246 246 0 0 1 1.65 26.84q.27 25.69-5.21 38.07a27.9 27.9 0 0 1-19.76 16.07 155.2 155.2 0 0 1-36.48 3.29Z">
-                                                </path>
-                                            </svg></i>
-                                        <span>Sign in</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+<main class="mdl-layout__content md-editor__main">
+    <div class="page-content md-editor__container">
+        <!-- Login View -->
+        <template x-if="isLoginStep">
+            <div class="mdl-card fill-height md-editor__card md-editor__card--compact" x-ref="loginView">
+                <div class="mdl-card__supporting-text md-editor__login">
+                    <div class="md-editor__login-brand">
+                        <img class="md-editor__login-logo"
+                             src="@Model.LoginLogoUrl"
+                             alt="Umbraco logo" fetchpriority="high" width="200" height="55"/>
                     </div>
-                </template>
-
-                <!-- Editor View -->
-                <template x-if="isEditorStep">
-                    <div x-ref="editorView" class="mdl-card fill-height md-editor__card">
+                    <div class="mdl-card md-editor__login-content-card">
                         <div class="mdl-card__supporting-text">
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__title md-editor__title--editor"
-                                :class="titleCssClass">
-                                <input class="mdl-textfield__input" type="text" id="title" :value="postTitle"
-                                    x-ref="titleInput" @@input="updatePostTitle" @@blur="markTitleTouched" required>
-                                <label class="mdl-textfield__label" for="title">Title</label>
-                            </div>
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__body">
-                                <textarea x-ref="editor" id="editor" class="mdl-textfield__input" rows="12"></textarea>
-                                <label class="mdl-textfield__label" x-bind:class="bodyLabelClass" for="editor">## CommonMark or GitHub Flavored Markdown content</label>
-                            </div>
-                        </div>
-                    </div>
-                </template>
+                            <h1 class="md-editor__login-greeting">Welcome</h1>
+                            <p class="md-editor__login-notice" x-text="loginNotice" aria-live="polite"></p>
 
-                <!-- Optional View -->
-                <template x-if="isOptionalStep">
-                    <div x-ref="optionalView" class="mdl-card fill-height md-editor__card">
-                        <div class="mdl-card__supporting-text">
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
-                                :class="tagsCssClass">
-                                <input class="mdl-textfield__input" type="text" id="tags" :value="postTags"
-                                    x-ref="tagsInput" @@input="updatePostField">
-                                <label class="mdl-textfield__label" for="tags">Tags</label>
-                            </div>
-
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
-                                :class="categoriesCssClass">
-                                <input class="mdl-textfield__input" type="text" id="categories" :value="postCategories"
-                                    x-ref="categoriesInput" @@input="updatePostField">
-                                <label class="mdl-textfield__label" for="categories">Categories</label>
-                            </div>
-
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
-                                :class="excerptCssClass">
-                                <textarea class="mdl-textfield__input" id="excerpt" rows="3" :value="postExcerpt"
-                                    x-ref="excerptInput" @@input="updatePostField"></textarea>
-                                <label class="mdl-textfield__label" for="excerpt">Excerpt</label>
-                            </div>
-
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
-                                :class="slugCssClass">
-                                <input class="mdl-textfield__input" type="text" id="slug" :value="postSlug"
-                                    x-ref="slugInput" @@input="updatePostField">
-                                <label class="mdl-textfield__label" for="slug">Slug</label>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <!-- Success View -->
-                <template x-if="isSuccessStep">
-                    <div x-ref="successView" class="mdl-card fill-height md-editor__card md-editor__card--success">
-                        <div class="mdl-card__supporting-text md-editor__success-body">
-                            <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" x-show="isLoading">
-                            </div>
-                            <div class="md-editor__success-content" x-show="isNotLoading">
-                                <h3>Success!</h3>
-                                <p>Your post has been published. Click below to view it.</p>
-                            </div>
-                        </div>
-                        <div class="mdl-card__actions mdl-card--border md-editor__success-actions"
-                            x-show="isNotLoading">
-                            <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" :href="successUrl"
-                                target="_blank" rel="noopener noreferrer" x-ref="viewPostButton">
-                                View Post
-                            </a>
-                            <button type="button" class="mdl-button mdl-js-button mdl-button--primary" @@click="resetForNewPost" x-ref="createAnotherButton">
-                                Create Another Post
+                            <button type="button"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent md-editor__login-button"
+                                    x-ref="loginButton" @@click="startLogin" :disabled="isLoading">
+                                <i aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         fill="currentColor" viewBox="0 0 315.89 315.89">
+                                        <path
+                                            d="M0 157.74a157.95 157.95 0 1 1 158 158.15A157.95 157.95 0 0 1 0 157.74m154.74 54.09a155.4 155.4 0 0 1-36.5-3.29 27.92 27.92 0 0 1-19.94-16q-5.35-12.34-5.21-38.1a243 243 0 0 1 1.69-26.84q1.55-13 3.09-21.46l1.07-5.59a2 2 0 0 0 0-.49 3.2 3.2 0 0 0-2.65-3.17l-20.37-3.22h-.44a3.19 3.19 0 0 0-3.11 2.48c-.35 1.31-.56 2.27-1.17 5.38-1.16 6-2.24 11.85-3.43 20.38a264 264 0 0 0-2.3 27.94 145 145 0 0 0 0 19.57q.72 25.94 8.9 41.42t27.72 22.3q19.53 6.81 54.43 6.66h2.91q34.94.15 54.41-6.66t27.71-22.3q8.17-15.53 8.91-41.42a145 145 0 0 0 0-19.57 267 267 0 0 0-2.3-27.94c-1.2-8.44-2.27-14.26-3.44-20.38-.61-3.11-.81-4.07-1.16-5.38a3.21 3.21 0 0 0-3.12-2.48h-.52l-20.38 3.18a3.2 3.2 0 0 0-2.68 3.17 4 4 0 0 0 0 .49l1.08 5.59q1.55 8.48 3.12 21.46a246 246 0 0 1 1.65 26.84q.27 25.69-5.21 38.07a27.9 27.9 0 0 1-19.76 16.07 155.2 155.2 0 0 1-36.48 3.29Z">
+                                        </path>
+                                    </svg>
+                                </i>
+                                <span>Sign in</span>
                             </button>
                         </div>
                     </div>
-                </template>
+                </div>
             </div>
-            <!-- Global Error Banner + Retry -->
-            <div class="articulate-error-box" x-show="errorDetails" x-transition role="alert" aria-live="assertive">
-                <div class="articulate-error-box__content">
-                    <strong x-text="errorTitle"></strong>
-                    <template x-if="hasErrorDetails">
-                        <ul class="articulate-error-list">
-                            <template x-for="(detail, index) in errorDetails.details" :key="index">
-                                <li x-text="detail"></li>
-                            </template>
-                        </ul>
+        </template>
+
+        <!-- Editor View -->
+        <template x-if="isEditorStep">
+            <div x-ref="editorView" class="mdl-card fill-height md-editor__card">
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__title md-editor__title--editor"
+                         :class="titleCssClass">
+                        <input class="mdl-textfield__input" type="text" id="title" :value="postTitle"
+                               x-ref="titleInput" @@input="updatePostTitle" @@blur="markTitleTouched" required>
+                        <label class="mdl-textfield__label" for="title">Title</label>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__body">
+                        <textarea x-ref="editor" id="editor" class="mdl-textfield__input" rows="12"></textarea>
+                        <label class="mdl-textfield__label" x-bind:class="bodyLabelClass" for="editor">## CommonMark or GitHub Flavored Markdown content</label>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Optional View -->
+        <template x-if="isOptionalStep">
+            <div x-ref="optionalView" class="mdl-card fill-height md-editor__card">
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
+                         :class="tagsCssClass">
+                        <input class="mdl-textfield__input" type="text" id="tags" :value="postTags"
+                               x-ref="tagsInput" @@input="updatePostField">
+                        <label class="mdl-textfield__label" for="tags">Tags</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
+                         :class="categoriesCssClass">
+                        <input class="mdl-textfield__input" type="text" id="categories" :value="postCategories"
+                               x-ref="categoriesInput" @@input="updatePostField">
+                        <label class="mdl-textfield__label" for="categories">Categories</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
+                         :class="excerptCssClass">
+                        <textarea class="mdl-textfield__input" id="excerpt" rows="3" :value="postExcerpt"
+                                    x-ref="excerptInput" @@input="updatePostField"></textarea>
+                        <label class="mdl-textfield__label" for="excerpt">Excerpt</label>
+                    </div>
+
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label md-editor__field"
+                         :class="slugCssClass">
+                        <input class="mdl-textfield__input" type="text" id="slug" :value="postSlug"
+                               x-ref="slugInput" @@input="updatePostField">
+                        <label class="mdl-textfield__label" for="slug">Slug</label>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!-- Success View -->
+        <template x-if="isSuccessStep">
+            <div x-ref="successView" class="mdl-card fill-height md-editor__card md-editor__card--success">
+                <div class="mdl-card__supporting-text md-editor__success-body">
+                    <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" x-show="isLoading">
+                    </div>
+                    <div class="md-editor__success-content" x-show="isNotLoading">
+                        <h3>Success!</h3>
+                        <p>Your post has been published. Click below to view it.</p>
+                    </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border md-editor__success-actions"
+                     x-show="isNotLoading">
+                    <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" :href="successUrl"
+                       target="_blank" rel="noopener noreferrer" x-ref="viewPostButton">
+                        View Post
+                    </a>
+                    <button type="button" class="mdl-button mdl-js-button mdl-button--primary" @@click="resetForNewPost" x-ref="createAnotherButton">
+                        Create Another Post
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+    <!-- Global Error Banner + Retry -->
+    <div class="articulate-error-box" x-show="errorDetails" x-transition role="alert" aria-live="assertive">
+        <div class="articulate-error-box__content">
+            <strong x-text="errorTitle"></strong>
+            <template x-if="hasErrorDetails">
+                <ul class="articulate-error-list">
+                    <template x-for="(detail, index) in errorDetails.details" :key="index">
+                        <li x-text="detail"></li>
                     </template>
-                </div>
-                <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                    x-show="hasRetryAction" :disabled="isRetryDisabled" @@click="triggerRetry" x-text="retryLabel"
-                    aria-live="off"></button>
+                </ul>
+            </template>
+        </div>
+        <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                x-show="hasRetryAction" :disabled="isRetryDisabled" @@click="triggerRetry" x-text="retryLabel"
+                aria-live="off">
+        </button>
+    </div>
+
+    <footer class="md-editor__footer">
+        <div class="md-editor__container md-editor__footer-inner">
+            <div class="md-editor__footer-left">
+                <button x-show="isEditorStep" @@click="triggerImageUpload"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                        title="Upload Image" aria-label="Upload Image">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        photo
+                    </i>
+                </button>
+                <button x-show="isEditorStep" @@click="triggerCamera"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                        title="Use Camera" aria-label="Use Camera">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        photo_camera
+                    </i>
+                </button>
             </div>
+            <div class="md-editor__footer-right">
+                <button x-show="isOptionalStep" @@click="goToEditorStep"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent md-editor__btn-prev"
+                        title="Previous" aria-label="Previous">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        forward
+                    </i>
+                </button>
+                <button x-show="canShowNextButton" :disabled="disableNextButton" @@click="goToOptionalStep"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
+                        title="Next" aria-label="Next">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        forward
+                    </i>
+                </button>
+                <button x-show="canShowPublishButton" :disabled="disablePublishButton" @@click="handlePublish"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
+                        title="Publish" aria-label="Publish">
+                    <i class="material-icons"
+                       aria-hidden="true">
+                        done
+                    </i>
+                </button>
+            </div>
+        </div>
+    </footer>
+</main>
+</div>
 
-            <footer class="md-editor__footer">
-                <div class="md-editor__container md-editor__footer-inner">
-                    <div class="md-editor__footer-left">
-                        <button x-show="isEditorStep" @@click="triggerImageUpload"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                            title="Upload Image" aria-label="Upload Image"><i class="material-icons"
-                                aria-hidden="true">photo</i></button>
-                        <button x-show="isEditorStep" @@click="triggerCamera"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                            title="Use Camera" aria-label="Use Camera"><i class="material-icons"
-                                aria-hidden="true">photo_camera</i></button>
-                    </div>
-                    <div class="md-editor__footer-right">
-                        <button x-show="isOptionalStep" @@click="goToEditorStep"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent md-editor__btn-prev"
-                            title="Previous" aria-label="Previous"><i class="material-icons"
-                                aria-hidden="true">forward</i></button>
-                        <button x-show="canShowNextButton" :disabled="disableNextButton" @@click="goToOptionalStep"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
-                            title="Next" aria-label="Next"><i class="material-icons"
-                                aria-hidden="true">forward</i></button>
-                        <button x-show="canShowPublishButton" :disabled="disablePublishButton" @@click="handlePublish"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--accent"
-                            title="Publish" aria-label="Publish"><i class="material-icons"
-                                aria-hidden="true">done</i></button>
-                    </div>
-                </div>
-            </footer>
-        </main>
-    </div>
+<!-- Hidden file inputs -->
+<div class="hidden-insert-file">
+    <input x-ref="imageUpload" type="file" accept="image/*" @@change="handleImageUpload">
+    <input x-ref="cameraUpload" type="file" accept="image/*" capture="user"
+           @@change="handleImageUpload">
+</div>
 
-    <!-- Hidden file inputs -->
-    <div class="hidden-insert-file">
-        <input x-ref="imageUpload" type="file" accept="image/*" @@change="handleImageUpload">
-        <input x-ref="cameraUpload" type="file" accept="image/*" capture="user"
-            @@change="handleImageUpload">
-    </div>
+<script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/mdl/material.min.js"></script>
+<script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/tiny-mde/tiny-mde.min.js"></script>
 
-    <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/mdl/material.min.js"></script>
-    <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/tiny-mde/tiny-mde.min.js"></script>
+<!-- Load entry module only; it imports dependencies, load before alpine -->
+<environment include="Development">
+    <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/src/js/md-editor.js" type="module" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+    <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/dist/js/md-editor.min.js" type="module" asp-append-version="true"></script>
+</environment>
 
-    <!-- Load entry module only; it imports dependencies, load before alpine -->
-    <environment include="Development">
-        <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/src/js/md-editor.js" type="module" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/dist/js/md-editor.min.js" type="module" asp-append-version="true"></script>
-    </environment>
-
-    <script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/alpine/alpine-csp.min.js"></script>
+<script defer src="~/App_Plugins/Articulate/MarkdownEditor/assets/vendor/alpine/alpine-csp.min.js"></script>
 
 </body>
 

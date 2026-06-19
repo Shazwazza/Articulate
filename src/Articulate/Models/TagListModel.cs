@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model for a list of tags.
+    ///     Model for a list of tags.
     /// </summary>
     public class TagListModel : MasterModel
     {
@@ -37,11 +37,11 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the collection of tags.
+        ///     Gets the collection of tags.
         /// </summary>
         public PostTagCollection Tags { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override string Name { get; }
     }
 }

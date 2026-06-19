@@ -20,7 +20,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 namespace Articulate.ImportExport
 {
     /// <summary>
-    /// Exporter for blog content to BlogML format.
+    ///     Exporter for blog content to BlogML format.
     /// </summary>
     public class BlogMlExporter(
         IContentService contentService,
@@ -36,7 +36,7 @@ namespace Articulate.ImportExport
         IArticulateMarkdownConverter articulateMarkdownConverter)
     {
         /// <summary>
-        /// Exports the blog content from a root node to a BlogML file.
+        ///     Exports the blog content from a root node to a BlogML file.
         /// </summary>
         /// <param name="blogRootNode">The unique identifier of the Articulate root node.</param>
         /// <param name="exportFileName">The name of the file to create.</param>
@@ -265,9 +265,8 @@ namespace Articulate.ImportExport
             return string.Empty;
         }
 
-        private static BlogMLPost CreateBlogMlPost(IContent child, string content, Uri postUrl)
-        {
-            return new BlogMLPost
+        private static BlogMLPost CreateBlogMlPost(IContent child, string content, Uri postUrl) =>
+            new()
             {
                 Id = child.Key.ToString(),
                 Name = new BlogMLTextConstruct(child.Name),
@@ -280,7 +279,6 @@ namespace Articulate.ImportExport
                 Excerpt = new BlogMLTextConstruct(child.GetValue<string>("excerpt")),
                 Url = postUrl
             };
-        }
 
         private static void AssignAuthorToPost(BlogMLPost blogMlPost, BlogMLDocument blogMlDoc, string? authorName)
         {
@@ -318,10 +316,8 @@ namespace Articulate.ImportExport
             BlogMLPost blogMlPost,
             IContent child,
             Uri postAbsoluteUrl,
-            bool exportImagesAsBase64)
-        {
+            bool exportImagesAsBase64) =>
             _ = TryExtractImage(exportImagesAsBase64, child, postAbsoluteUrl, blogMlPost);
-        }
 
         private bool TryExtractImage(
             bool exportImagesAsBase64,
@@ -345,7 +341,7 @@ namespace Articulate.ImportExport
                 return false;
             }
 
-            if (!TryGetMediaPath(media, out string? mediaPath))
+            if (!TryGetMediaPath(media, out var mediaPath))
             {
                 logger.LogWarning(
                     "Post '{PostName}' (Id: {PostId}) references Media {MediaId} ('{MediaName}') but its file path could not be resolved.",
@@ -455,7 +451,9 @@ namespace Articulate.ImportExport
                 catch (JsonException)
                 {
                     // Ignore, fall back to standard path handling
-                    logger.LogDebug("Failed to parse JSON for media value '{MediaValue}', falling back to standard path handling.", rawValue);
+                    logger.LogDebug(
+                        "Failed to parse JSON for media value '{MediaValue}', falling back to standard path handling.",
+                        rawValue);
                 }
             }
 

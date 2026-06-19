@@ -12,7 +12,7 @@ namespace Articulate.Tests.Controllers
         {
             byte[] bytes = [1, 2, 3];
             await using var inner = new MemoryStream(bytes);
-            await using var stream = new SizeLimitedStream(inner, maxBytes: bytes.Length);
+            await using var stream = new SizeLimitedStream(inner, bytes.Length);
             var buffer = new byte[bytes.Length];
 
             await stream.ReadExactlyAsync(buffer);
@@ -24,11 +24,11 @@ namespace Articulate.Tests.Controllers
         public async Task ReadAsync_throws_when_stream_exceeds_limit()
         {
             await using var inner = new MemoryStream([1, 2, 3]);
-            await using var stream = new SizeLimitedStream(inner, maxBytes: 2);
+            await using var stream = new SizeLimitedStream(inner, 2);
             var buffer = new byte[3];
 
-            InvalidOperationException? exception = Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await stream.ReadExactlyAsync(buffer));
+            InvalidOperationException? exception =
+                Assert.ThrowsAsync<InvalidOperationException>(async () => await stream.ReadExactlyAsync(buffer));
 
             Assert.That(exception, Is.Not.Null);
             Assert.That(exception!.Message, Is.EqualTo("Request body exceeded the configured limit of 2 bytes"));
@@ -41,7 +41,7 @@ namespace Articulate.Tests.Controllers
 
             ArgumentOutOfRangeException? exception = Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                using var stream = new SizeLimitedStream(inner, maxBytes: 0);
+                using var stream = new SizeLimitedStream(inner, 0);
             });
 
             Assert.That(exception, Is.Not.Null);

@@ -1,8 +1,8 @@
+@inject IOptionsMonitor<CookieAuthenticationOptions> backOfficeCookieOptions
+
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.Extensions.Options
 @using Umbraco.Cms.Core
-@inject IOptionsMonitor<CookieAuthenticationOptions> backOfficeCookieOptions
-
 @model IMasterModel
 @{
     var theme = Model.Theme;
@@ -47,58 +47,58 @@
     @await RenderSectionAsync("Head", false)
 </head>
 <body class="theme-sample @ViewBag.CssBodyClass">
-    @Model.GoogleAnalyticsNoScript()
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+@Model.GoogleAnalyticsNoScript()
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <div class="page-shell">
-        <header class="@headerClass" style="@bannerStyle">
-            <div class="site-header__inner">
-                <div class="site-brand">
-                    @if (!Model.BlogLogo.IsNullOrWhiteSpace())
-                    {
-                        <a class="site-brand__logo-link" href="@Model.ArticulateRootUrl()">
-                            <img class="site-brand__logo" src="@Model.BlogLogo" alt="@Model.BlogTitle">
-                        </a>
-                    }
-                    <h1 class="site-brand__title">
-                        <a href="@Model.ArticulateRootUrl()">@Model.BlogTitle</a>
-                    </h1>
-                    @if (!Model.BlogDescription.IsNullOrWhiteSpace())
-                    {
-                        <p class="site-brand__description">@Model.BlogDescription</p>
-                    }
-                </div>
-
-                <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
-                    <span>Menu</span>
-                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                </button>
+<div class="page-shell">
+    <header class="@headerClass" style="@bannerStyle">
+        <div class="site-header__inner">
+            <div class="site-brand">
+                @if (!Model.BlogLogo.IsNullOrWhiteSpace())
+                {
+                    <a class="site-brand__logo-link" href="@Model.ArticulateRootUrl()">
+                        <img class="site-brand__logo" src="@Model.BlogLogo" alt="@Model.BlogTitle">
+                    </a>
+                }
+                <h1 class="site-brand__title">
+                    <a href="@Model.ArticulateRootUrl()">@Model.BlogTitle</a>
+                </h1>
+                @if (!Model.BlogDescription.IsNullOrWhiteSpace())
+                {
+                    <p class="site-brand__description">@Model.BlogDescription</p>
+                }
             </div>
 
-            @await Html.PartialAsync("Menu", Model)
-        </header>
+            <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+                <span>Menu</span>
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
 
-        <main id="main-content" class="page-shell__content" tabindex="-1">
-            @RenderBody()
-        </main>
+        @await Html.PartialAsync("Menu", Model)
+    </header>
 
-        <footer class="site-footer">
-            <p class="site-footer__kicker">Built for readable, expressive publishing.</p>
-            <p>&copy; @DateTime.UtcNow.Year @Model.BlogTitle &nbsp;&middot;&nbsp; <a href="@Model.ArticulateRssUrl()" aria-label="RSS feed"><i class="fa-solid fa-rss" aria-hidden="true"></i> RSS</a></p>
-        </footer>
-    </div>
+    <main id="main-content" class="page-shell__content" tabindex="-1">
+        @RenderBody()
+    </main>
 
-    @if (isBackOfficeLoggedIn)
-    {
-        <a class="fab-new-post" href="@Model.ArticulateCreateBlogEntryUrl()" rel="nofollow" title="Create new blog post">
-            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-            <span class="sr-only">Create new blog post</span>
-        </a>
-    }
+    <footer class="site-footer">
+        <p class="site-footer__kicker">Built for readable, expressive publishing.</p>
+        <p>&copy; @DateTime.UtcNow.Year @Model.BlogTitle &nbsp;&middot;&nbsp; <a href="@Model.ArticulateRssUrl()" aria-label="RSS feed"><i class="fa-solid fa-rss" aria-hidden="true"></i> RSS</a></p>
+    </footer>
+</div>
 
-    <div class="site-toast" data-site-toast role="status" aria-live="polite" hidden></div>
+@if (isBackOfficeLoggedIn)
+{
+    <a class="fab-new-post" href="@Model.ArticulateCreateBlogEntryUrl()" rel="nofollow" title="Create new blog post">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span class="sr-only">Create new blog post</span>
+    </a>
+}
 
-    <script src="~/App_Plugins/Articulate/Themes/@theme/assets/js/site.js" asp-append-version="true" defer></script>
-    @await RenderSectionAsync("Scripts", false)
+<div class="site-toast" data-site-toast role="status" aria-live="polite" hidden></div>
+
+<script src="~/App_Plugins/Articulate/Themes/@theme/assets/js/site.js" asp-append-version="true" defer></script>
+@await RenderSectionAsync("Scripts", false)
 </body>
 </html>

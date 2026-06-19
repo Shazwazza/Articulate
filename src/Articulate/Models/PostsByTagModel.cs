@@ -2,7 +2,7 @@
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model for posts grouped by a specific tag or category.
+    ///     Model for posts grouped by a specific tag or category.
     /// </summary>
     public class PostsByTagModel
     {
@@ -27,27 +27,27 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Posts in this group.
+        ///     Posts in this group.
         /// </summary>
         public IEnumerable<PostModel>? Posts { get; }
 
         /// <summary>
-        /// Name of the tag.
+        ///     Name of the tag.
         /// </summary>
         public string TagName { get; }
 
         /// <summary>
-        /// URL for the tag.
+        ///     URL for the tag.
         /// </summary>
         public string TagUrl { get; }
 
         /// <summary>
-        /// Gets a string that can represent a html id for the tag
+        ///     Gets a string that can represent a html id for the tag
         /// </summary>
         public string HtmlId => TagName.SafeEncodeUrlSegments();
 
         /// <summary>
-        /// Gets the number of posts for this tag.
+        ///     Gets the number of posts for this tag.
         /// </summary>
         public int PostCount
         {

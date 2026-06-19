@@ -6,7 +6,7 @@ using Umbraco.Cms.Core.IO;
 namespace Articulate.ImportExport
 {
     /// <summary>
-    /// A temporary file system for Articulate import/export operations.
+    ///     A temporary file system for Articulate import/export operations.
     /// </summary>
     public class ArticulateTempFileSystem(
         IIOHelper ioHelper,

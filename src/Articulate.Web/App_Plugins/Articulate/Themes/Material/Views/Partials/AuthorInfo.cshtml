@@ -10,6 +10,7 @@
             <div class="minilogo" style="@thumbnail"></div>
         }
     }
+
     <div>
         <strong>
             @if (Model.Author.BlogUrl is not null)
@@ -22,5 +23,5 @@
             }
         </strong>
         <span>@(Model.PublishedDate.ToString("MMMM dd, yyyy"))</span>
-        </div>
+    </div>
 }

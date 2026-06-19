@@ -14,7 +14,9 @@ else
     {
         <article class="preview">
             <header>
-                <h1 class="post-title"><a href="@post.Url()" title="Read this article">@post.Name</a></h1>
+                <h1 class="post-title">
+                    <a href="@post.Url()" title="Read this article">@post.Name</a>
+                </h1>
                 <div class="post-meta">
                     <time datetime="@post.PublishedDate.ToString("yyyy-MM-dd")">
                         @post.PublishedDate.ToString("dddd, MMMM dd, yyyy")
@@ -22,7 +24,7 @@ else
                 </div>
             </header>
             <section class="post-excerpt">
-                @{ 
+                @{
                     var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "blogPost", preferFocalPoint: true, useCropDimensions: true)?.ToCssBackgroundImageVariableValue("--post-thumb-image");
                 }
                 @if (!string.IsNullOrEmpty(thumbnail))

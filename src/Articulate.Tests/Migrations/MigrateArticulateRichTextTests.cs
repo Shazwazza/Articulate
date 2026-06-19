@@ -1,7 +1,7 @@
 #nullable enable
+using System.Reflection;
 using Articulate.Migrations.Upgrade.V_6_0_0;
 using NUnit.Framework;
-using System.Reflection;
 
 namespace Articulate.Tests.Migrations
 {
@@ -13,7 +13,8 @@ namespace Articulate.Tests.Migrations
         {
             var result = MigrateArticulateRichText.IsTinyMcePackageInstalled(
                 ["TinyMCE.Umbraco"],
-                _ => throw new AssertionException("Assembly load should not be attempted when TinyMCE is already loaded."));
+                _ => throw new AssertionException(
+                    "Assembly load should not be attempted when TinyMCE is already loaded."));
 
             Assert.That(result, Is.True);
         }

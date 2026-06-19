@@ -8,12 +8,12 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate.Syndication
 {
     /// <summary>
-    /// Default RSS feed generator for Articulate.
+    ///     Default RSS feed generator for Articulate.
     /// </summary>
     public class RssFeedGenerator(ILogger<RssFeedGenerator> logger, IHostingEnvironment hostingEnvironment)
         : IRssFeedGenerator
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public SyndicationFeed GetFeed(IMasterModel rootPageModel, IEnumerable<PostModel> posts)
         {
             var feed = new SyndicationFeed(
@@ -22,20 +22,20 @@ namespace Articulate.Syndication
                 new Uri(rootPageModel.RootBlogNode.Url(mode: UrlMode.Absolute)),
                 GetFeedItems(rootPageModel, posts))
             {
-                Generator = "Articulate, blogging built on Umbraco", ImageUrl = GetBlogImage(rootPageModel),
+                Generator = "Articulate, blogging built on Umbraco", ImageUrl = GetBlogImage(rootPageModel)
             };
             return feed;
         }
 
         /// <summary>
-        /// Gets the HTML content for a post to be included in the feed.
+        ///     Gets the HTML content for a post to be included in the feed.
         /// </summary>
         /// <param name="model">The post model.</param>
         /// <returns>A string containing the HTML content.</returns>
         protected virtual string GetPostContent(PostModel model) => model.Body.ToHtmlString();
 
         /// <summary>
-        /// Converts a <see cref="PostModel"/> into a <see cref="SyndicationItem"/>.
+        ///     Converts a <see cref="PostModel" /> into a <see cref="SyndicationItem" />.
         /// </summary>
         /// <param name="post">The post to convert.</param>
         /// <param name="rootUrl">The absolute root URL of the blog.</param>
@@ -75,7 +75,7 @@ namespace Articulate.Syndication
                 post.Id.ToString(CultureInfo.InvariantCulture),
                 post.PublishedDate)
             {
-                PublishDate = post.PublishedDate,
+                PublishDate = post.PublishedDate
 
                 // don't include this as it will override the main content bits
                 // Summary = new TextSyndicationContent(post.Excerpt)
@@ -89,7 +89,7 @@ namespace Articulate.Syndication
         }
 
         /// <summary>
-        /// Resolves the absolute URI for the blog logo.
+        ///     Resolves the absolute URI for the blog logo.
         /// </summary>
         /// <param name="rootPageModel">The blog root model.</param>
         /// <returns>The logo URI, or null if not set or invalid.</returns>

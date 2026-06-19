@@ -12,7 +12,7 @@ namespace Articulate.Options
     internal sealed class ConfigureArticulateRazorViewEngineOptions
         : IConfigureOptions<RazorViewEngineOptions>
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Configure(RazorViewEngineOptions options) =>
             options.ViewLocationExpanders.Add(new ArticulateViewLocationExpander());
     }

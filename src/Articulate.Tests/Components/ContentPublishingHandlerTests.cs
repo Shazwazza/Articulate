@@ -6,8 +6,8 @@ using NUnit.Framework;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Persistence.Querying;
 using Umbraco.Cms.Core.PublishedCache;
-using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Persistence;
@@ -25,7 +25,7 @@ namespace Articulate.Tests.Components
             IContent secondChild = CreateContent("child");
             ContentPublishingNotification notification = new(root, new EventMessages());
 
-            CreateSut([firstChild, secondChild], routeSegment: "shared").Handle(notification);
+            CreateSut([firstChild, secondChild], "shared").Handle(notification);
 
             Assert.That(notification.Cancel, Is.True);
             Assert.That(notification.Messages, Is.Not.Empty);
@@ -57,7 +57,16 @@ namespace Articulate.Tests.Components
                     null,
                     null,
                     true))
-                .Returns((int _, long _, int _, out long total, string[]? _, Umbraco.Cms.Core.Persistence.Querying.IQuery<IContent>? _, Ordering? _, bool _) =>
+                .Returns(
+                    (
+                        int _,
+                        long _,
+                        int _,
+                        out long total,
+                        string[]? _,
+                        IQuery<IContent>? _,
+                        Ordering? _,
+                        bool _) =>
                 {
                     total = children.Count;
                     return children;

@@ -6,6 +6,7 @@ using Articulate.Services;
 using FileSignatures;
 using FileSignatures.Formats;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Cms.Api.Management.Routing;
@@ -15,14 +16,14 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
-using Microsoft.Extensions.Options;
 
 namespace Articulate.Tests.Services
 {
     [TestFixture]
     public class ArticulateImportMediaServiceTests
     {
-        private const string OneByOnePngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=";
+        private const string OneByOnePngBase64 =
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=";
 
         [Test]
         public async Task ValidateImageAsync_returns_failure_when_extension_is_blocked_by_upload_settings()
@@ -114,7 +115,8 @@ namespace Articulate.Tests.Services
         {
             ArticulateImportMediaService sut = CreateSut();
 
-            ImportMediaValidationResult result = await sut.DecodeAndValidateBase64ImageAsync(OneByOnePngBase64, "image.png");
+            ImportMediaValidationResult result =
+                await sut.DecodeAndValidateBase64ImageAsync(OneByOnePngBase64, "image.png");
 
             Assert.That(result.IsValid, Is.True);
             Assert.That(result.CorrectExtension, Is.EqualTo(".png"));
@@ -179,7 +181,7 @@ namespace Articulate.Tests.Services
         [Test]
         public async Task ProcessImageResponseAsync_returns_failure_when_streamed_content_exceeds_limit()
         {
-            byte[] imageBytes = Convert.FromBase64String(OneByOnePngBase64);
+            var imageBytes = Convert.FromBase64String(OneByOnePngBase64);
             ArticulateImportMediaService sut = CreateSut(articulateOptions: new ArticulateOptions
             {
                 MaxImportImageBytes = imageBytes.Length - 1
@@ -217,7 +219,7 @@ namespace Articulate.Tests.Services
         {
             ArticulateImportMediaService sut = CreateSut();
 
-            byte[] imageBytes = Convert.FromBase64String(OneByOnePngBase64);
+            var imageBytes = Convert.FromBase64String(OneByOnePngBase64);
             using var response = new HttpResponseMessage(HttpStatusCode.OK);
             response.Content = new ByteArrayContent(imageBytes);
             response.Content.Headers.ContentLength = imageBytes.Length;
@@ -290,7 +292,10 @@ namespace Articulate.Tests.Services
             {
                 AllowedUploadedFileExtensions = new HashSet<string> { ".png", ".jpg", ".jpeg" },
                 DisallowedUploadedFileExtensions = new HashSet<string>(),
-                Imaging = new ContentImagingSettings { ImageFileTypes = new HashSet<string> { "png", "jpg", "jpeg" } }
+                Imaging = new ContentImagingSettings
+                {
+                    ImageFileTypes = new HashSet<string> { "png", "jpg", "jpeg" }
+                }
             };
 
             Lazy<ICoreScopeProvider> coreScopeProvider = new(Mock.Of<ICoreScopeProvider>);

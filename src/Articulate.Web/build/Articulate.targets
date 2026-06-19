@@ -9,7 +9,7 @@
   <Target Name="CopyArticulateXmlDocumentation" AfterTargets="PrepareForRun">
     <ItemGroup>
       <_ArticulateDllItem Include="@(ReferenceCopyLocalPaths)"
-                             Condition="$([System.String]::new('%(Filename)').Equals('Articulate'))" />
+                          Condition="$([System.String]::new('%(Filename)').Equals('Articulate'))" />
     </ItemGroup>
     <PropertyGroup>
       <_ArticulateSourceXmlPath>$([System.IO.Path]::ChangeExtension('%(_ArticulateDllItem.FullPath)', '.xml'))</_ArticulateSourceXmlPath>

@@ -12,7 +12,7 @@ using Umbraco.Cms.Web.Common.Controllers;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Controller for OpenSearch description.
+    ///     Controller for OpenSearch description.
     /// </summary>
     [ArticulateDynamicRoute]
     public class OpenSearchController(
@@ -24,7 +24,7 @@ namespace Articulate.Controllers
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         /// <summary>
-        /// Renders the OpenSearch description XML.
+        ///     Renders the OpenSearch description XML.
         /// </summary>
         [HttpGet]
         public ActionResult Index(int id)
@@ -71,7 +71,7 @@ namespace Articulate.Controllers
                 return new NotFoundResult();
             }
 
-            var searchTemplateUrl = model.ArticulateSearchUrl(includeDomain: true) + "?term={searchTerms}";
+            var searchTemplateUrl = model.ArticulateSearchUrl(true) + "?term={searchTerms}";
 
             XNamespace ns = "http://a9.com/-/spec/opensearch/1.1/";
 

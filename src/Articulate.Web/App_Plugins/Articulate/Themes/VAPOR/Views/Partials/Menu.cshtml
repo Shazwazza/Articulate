@@ -4,11 +4,15 @@
     <ul>
         @if (Model.HasCategoriesRoute())
         {
-            <li><a title="View Categories" href="@Model.ArticulateCategoriesUrl()">Categories</a></li>
+            <li>
+                <a title="View Categories" href="@Model.ArticulateCategoriesUrl()">Categories</a>
+            </li>
         }
         @if (Model.HasTagsRoute())
         {
-            <li><a title="View Tags" href="@Model.ArticulateTagsUrl()">Tags</a></li>
+            <li>
+                <a title="View Tags" href="@Model.ArticulateTagsUrl()">Tags</a>
+            </li>
         }
         @if (Model.HasSearchRoute())
         {

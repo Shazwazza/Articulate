@@ -11,11 +11,11 @@ namespace Articulate.Tests.Services
         [Test]
         public void ValidateHost_returns_null_for_allowlisted_public_host()
         {
-            string? result = ExternalImageHostPolicy.ValidateHost(
+            var result = ExternalImageHostPolicy.ValidateHost(
                 "Images.Example.com.",
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "images.example.com" },
-                allowUnsafeLocalExternalImageHosts: false,
-                isProductionMode: false);
+                false,
+                false);
 
             Assert.That(result, Is.Null);
         }
@@ -25,11 +25,11 @@ namespace Articulate.Tests.Services
         [TestCase("cdn.nip.io")]
         public void ValidateHost_blocks_metadata_and_rebinding_hosts_even_when_allowlisted(string host)
         {
-            string? result = ExternalImageHostPolicy.ValidateHost(
+            var result = ExternalImageHostPolicy.ValidateHost(
                 host,
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { host },
-                allowUnsafeLocalExternalImageHosts: true,
-                isProductionMode: false);
+                true,
+                false);
 
             Assert.That(result, Does.Contain("is not allowed"));
         }
@@ -39,16 +39,16 @@ namespace Articulate.Tests.Services
         {
             var allowedHosts = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "localhost" };
 
-            string? productionResult = ExternalImageHostPolicy.ValidateHost(
+            var productionResult = ExternalImageHostPolicy.ValidateHost(
                 "localhost",
                 allowedHosts,
-                allowUnsafeLocalExternalImageHosts: false,
-                isProductionMode: true);
-            string? developmentResult = ExternalImageHostPolicy.ValidateHost(
+                false,
+                true);
+            var developmentResult = ExternalImageHostPolicy.ValidateHost(
                 "localhost",
                 allowedHosts,
-                allowUnsafeLocalExternalImageHosts: true,
-                isProductionMode: false);
+                true,
+                false);
 
             Assert.That(productionResult, Does.Contain("is a local host"));
             Assert.That(developmentResult, Is.Null);
@@ -56,13 +56,14 @@ namespace Articulate.Tests.Services
 
         [TestCase("169.254.169.254")]
         [TestCase("168.63.129.16")]
-        public void ValidateHost_blocks_metadata_literal_addresses_even_when_development_override_is_enabled(string host)
+        public void ValidateHost_blocks_metadata_literal_addresses_even_when_development_override_is_enabled(
+            string host)
         {
-            string? result = ExternalImageHostPolicy.ValidateHost(
+            var result = ExternalImageHostPolicy.ValidateHost(
                 host,
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { host },
-                allowUnsafeLocalExternalImageHosts: true,
-                isProductionMode: false);
+                true,
+                false);
 
             Assert.That(result, Does.Contain("is not allowed"));
         }
@@ -70,10 +71,10 @@ namespace Articulate.Tests.Services
         [Test]
         public void ValidateResolvedAddresses_blocks_private_addresses_without_development_override()
         {
-            string? result = ExternalImageHostPolicy.ValidateResolvedAddresses(
+            var result = ExternalImageHostPolicy.ValidateResolvedAddresses(
                 [IPAddress.Parse("10.0.0.5")],
                 "images.example.com",
-                allowUnsafeLocalExternalImageHosts: false);
+                false);
 
             Assert.That(result, Does.Contain("is not allowed"));
         }
@@ -81,10 +82,10 @@ namespace Articulate.Tests.Services
         [Test]
         public void ValidateResolvedAddresses_keeps_metadata_addresses_blocked_with_development_override()
         {
-            string? result = ExternalImageHostPolicy.ValidateResolvedAddresses(
+            var result = ExternalImageHostPolicy.ValidateResolvedAddresses(
                 [IPAddress.Parse("169.254.169.254")],
                 "metadata.example.com",
-                allowUnsafeLocalExternalImageHosts: true);
+                true);
 
             Assert.That(result, Does.Contain("is not allowed"));
         }

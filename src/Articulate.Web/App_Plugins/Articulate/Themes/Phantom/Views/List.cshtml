@@ -23,7 +23,9 @@
                         @await Html.PartialAsync("PostTags", post)
                     </span>
 
-                    <h2 class="post-title"><a href="@post.Url()">@post.Name</a></h2>
+                    <h2 class="post-title">
+                        <a href="@post.Url()">@post.Name</a>
+                    </h2>
 
                 </header>
                 <section class="post-excerpt">
@@ -31,7 +33,7 @@
                         var thumbnail = post.PostImage?.GetCropUrl(cropAlias: "thumbnail", preferFocalPoint: true, useCropDimensions: true);
                         if (thumbnail != null)
                         {
-                            <img class="thumb" src="@thumbnail" alt="@post.Name" />
+                            <img class="thumb" src="@thumbnail" alt="@post.Name"/>
                         }
                     }
                     <p>@post.Excerpt&hellip;</p>

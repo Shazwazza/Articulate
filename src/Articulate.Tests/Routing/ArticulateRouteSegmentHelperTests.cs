@@ -12,7 +12,7 @@ namespace Articulate.Tests.Routing
         [TestCase(" /search/ ", "search")]
         public void NormalizeOrNull_trims_wrapping_whitespace_and_slashes(string routeSegment, string expected)
         {
-            string? normalizedRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(routeSegment);
+            var normalizedRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(routeSegment);
 
             Assert.That(normalizedRouteSegment, Is.EqualTo(expected));
         }
@@ -20,7 +20,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void CombineRoutePath_returns_normalized_route_path()
         {
-            string? routePath = ArticulateRouteSegmentHelper.CombineRoutePath("/blog/", " /topics/ ");
+            var routePath = ArticulateRouteSegmentHelper.CombineRoutePath("/blog/", " /topics/ ");
 
             Assert.That(routePath, Is.EqualTo("/blog/topics"));
         }
@@ -28,7 +28,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void CombineRoutePath_returns_null_for_empty_value()
         {
-            string? routePath = ArticulateRouteSegmentHelper.CombineRoutePath("/blog/", "///");
+            var routePath = ArticulateRouteSegmentHelper.CombineRoutePath("/blog/", "///");
 
             Assert.That(routePath, Is.Null);
         }

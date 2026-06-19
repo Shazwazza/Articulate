@@ -8,7 +8,7 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Articulate.Migrations.Upgrade.V_6_0_0
 {
     /// <summary>
-    /// Migration to update Articulate RichText data type configuration to use Tiptap editor.
+    ///     Migration to update Articulate RichText data type configuration to use Tiptap editor.
     /// </summary>
     public class MigrateArticulateRichText(
         IMigrationContext context,
@@ -20,7 +20,7 @@ namespace Articulate.Migrations.Upgrade.V_6_0_0
         private const string TinyMceAssemblyName = "TinyMCE.Umbraco";
         private const string TiptapEditorUiAlias = "Umb.PropertyEditorUi.Tiptap";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override async Task MigrateAsync()
         {
             try

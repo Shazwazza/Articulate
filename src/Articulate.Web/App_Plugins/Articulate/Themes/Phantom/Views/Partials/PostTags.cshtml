@@ -3,10 +3,10 @@
 @if (Model.HasTagsRoute())
 {
     @Model.ListTags(
-    @<a href="@Model.ArticulateTagUrl(item)">@item</a>)
+        @<a href="@Model.ArticulateTagUrl(item)">@item</a>)
 }
 else
 {
     @Model.ListTags(
-    @<span>@item</span>)
+        @<span>@item</span>)
 }

@@ -4,16 +4,15 @@ using Articulate.Attributes;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-
 namespace Articulate
 {
     /// <summary>
-    /// Extensions for <see cref="IApiDescriptionGroupCollectionProvider"/>.
+    ///     Extensions for <see cref="IApiDescriptionGroupCollectionProvider" />.
     /// </summary>
     public static class ApiExplorerExtensions
     {
         /// <summary>
-        /// Generates a mapping of Controller.Action to relative URL for the specified management API groups.
+        ///     Generates a mapping of Controller.Action to relative URL for the specified management API groups.
         /// </summary>
         /// <param name="provider">The API description provider.</param>
         /// <param name="apiGroupNames">The groups to include in the mapping.</param>

@@ -14,7 +14,8 @@ using Umbraco.Cms.Web.Common.Authorization;
 namespace Articulate.Controllers.Api
 {
     /// <summary>
-    /// Provides API endpoints for managing Articulate themes, including operations for copying a theme to a new name and retrieving default themes.
+    ///     Provides API endpoints for managing Articulate themes, including operations for copying a theme to a new name and
+    ///     retrieving default themes.
     /// </summary>
     [ManagementApi(ArticulateConstants.ManagementApi.ThemeOptions)]
     [ApiVersion("1.0")]
@@ -26,7 +27,7 @@ namespace Articulate.Controllers.Api
         ILogger<ThemeOptionsApiController> logger) : ManagementApiControllerBase
     {
         /// <summary>
-        /// Copies a theme to a new theme name.
+        ///     Copies a theme to a new theme name.
         /// </summary>
         /// <param name="model">The model containing the theme name to copy and the new theme name.</param>
         /// <returns>The new theme name.</returns>
@@ -50,20 +51,24 @@ namespace Articulate.Controllers.Api
             }
             catch (DirectoryNotFoundException ex)
             {
-                logger.LogWarning(ex, "Theme copy failed because the source theme '{ThemeName}' was not found.", model.ThemeName);
+                logger.LogWarning(
+                    ex,
+                    "Theme copy failed because the source theme '{ThemeName}' was not found.",
+                    model.ThemeName);
                 return NotFound(new ProblemDetails
                 {
-                    Title = "Theme Not Found",
-                    Detail = "The requested source theme could not be found."
+                    Title = "Theme Not Found", Detail = "The requested source theme could not be found."
                 });
             }
             catch (ArgumentException ex) when (ex.ParamName == "newThemeName")
             {
-                logger.LogWarning(ex, "Theme copy was rejected because the destination theme name '{NewThemeName}' is reserved.", model.NewThemeName);
+                logger.LogWarning(
+                    ex,
+                    "Theme copy was rejected because the destination theme name '{NewThemeName}' is reserved.",
+                    model.NewThemeName);
                 return BadRequest(new ProblemDetails
                 {
-                    Title = "Reserved Theme Name",
-                    Detail = "Built-in theme names cannot be used for copied themes."
+                    Title = "Reserved Theme Name", Detail = "Built-in theme names cannot be used for copied themes."
                 });
             }
             catch (IOException ex)
@@ -88,13 +93,13 @@ namespace Articulate.Controllers.Api
         }
 
         /// <summary>
-        /// Retrieves the list of default Articulate themes.
+        ///     Retrieves the list of default Articulate themes.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns the names of all default themes available in the system.
+        ///     This endpoint returns the names of all default themes available in the system.
         /// </remarks>
         /// <returns>
-        /// A list of default theme names as strings.
+        ///     A list of default theme names as strings.
         /// </returns>
         /// <response code="200">Returns the list of default theme names.</response>
         /// <response code="500">An unexpected error occurred while retrieving default themes.</response>

@@ -1,15 +1,23 @@
 @model IMasterModel
 <nav id="site-nav" class="site-nav" aria-label="Primary">
     <ul class="site-nav__list">
-        <li><a href="@Model.ArticulateRootUrl()"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a></li>
+        <li>
+            <a href="@Model.ArticulateRootUrl()"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a>
+        </li>
         @if (Model.HasCategoriesRoute())
         {
-            <li><a href="@Model.ArticulateCategoriesUrl()"><i class="fa-solid fa-folder-tree" aria-hidden="true"></i> Categories</a></li>
+            <li>
+                <a href="@Model.ArticulateCategoriesUrl()"><i class="fa-solid fa-folder-tree" aria-hidden="true"></i> Categories</a>
+            </li>
         }
         @if (Model.HasTagsRoute())
         {
-            <li><a href="@Model.ArticulateTagsUrl()"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> Tags</a></li>
+            <li>
+                <a href="@Model.ArticulateTagsUrl()"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> Tags</a>
+            </li>
         }
-        <li><a href="@Model.ArticulateAuthorsUrl()"><i class="fa-solid fa-users" aria-hidden="true"></i> Authors</a></li>
+        <li>
+            <a href="@Model.ArticulateAuthorsUrl()"><i class="fa-solid fa-users" aria-hidden="true"></i> Authors</a>
+        </li>
     </ul>
 </nav>

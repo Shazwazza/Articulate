@@ -14,7 +14,7 @@ namespace Articulate.ImportExport
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     /// <summary>
-    /// Exporter for blog comments to Disqus XML format.
+    ///     Exporter for blog comments to Disqus XML format.
     /// </summary>
     public class DisqusXmlExporter(
         IPublishedUrlProvider publishedUrlProvider,
@@ -24,7 +24,7 @@ namespace Articulate.ImportExport
         private const string DisqusGmtDateFormat = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary>
-        /// Exports the comments from a collection of posts to a Disqus-compatible XML document.
+        ///     Exports the comments from a collection of posts to a Disqus-compatible XML document.
         /// </summary>
         /// <param name="posts">The posts whose comments should be exported.</param>
         /// <param name="document">The source BlogML document containing the comments.</param>
@@ -129,9 +129,8 @@ namespace Articulate.ImportExport
             DateTime publishedDate,
             XNamespace nsContent,
             XNamespace nsDsq,
-            XNamespace nsWp)
-        {
-            return new XElement(
+            XNamespace nsWp) =>
+            new(
                 "item",
                 new XElement("title", post.Name),
                 new XElement("link", publishedUrlProvider.GetUrl(post.Id, UrlMode.Absolute)),
@@ -139,7 +138,6 @@ namespace Articulate.ImportExport
                 new XElement(nsDsq + "thread_identifier", post.Key.ToString()),
                 new XElement(nsWp + "post_date_gmt", FormatAsDisqusDate(publishedDate)),
                 new XElement(nsWp + "comment_status", "open"));
-        }
 
         private XElement CreateCommentElement(BlogMLComment comment, XNamespace nsWp)
         {

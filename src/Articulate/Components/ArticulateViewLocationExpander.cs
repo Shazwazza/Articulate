@@ -12,12 +12,14 @@ namespace Articulate.Components
         private const string ThemeKey = "articulate-theme";
         private const string ThemeItemsKey = "ThemeName";
 
-        /// <inheritdoc/>
-        public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
+        /// <inheritdoc />
+        public IEnumerable<string> ExpandViewLocations(
+            ViewLocationExpanderContext context,
+            IEnumerable<string> viewLocations)
         {
             IDictionary<string, string?> values = context.Values;
 
-            _ = values.TryGetValue(ThemeKey, out string? themeName);
+            _ = values.TryGetValue(ThemeKey, out var themeName);
 
             if (string.IsNullOrEmpty(themeName))
             {
@@ -31,8 +33,10 @@ namespace Articulate.Components
 
             if (string.IsNullOrEmpty(themeName))
             {
-                ILogger<ArticulateViewLocationExpander>? logger = context.ActionContext.HttpContext.RequestServices.GetService<ILogger<ArticulateViewLocationExpander>>();
-                logger?.LogDebug("No Articulate theme specified. Bypassing Articulate theme engine and falling back to standard view locations.");
+                ILogger<ArticulateViewLocationExpander>? logger = context.ActionContext.HttpContext.RequestServices
+                    .GetService<ILogger<ArticulateViewLocationExpander>>();
+                logger?.LogDebug(
+                    "No Articulate theme specified. Bypassing Articulate theme engine and falling back to standard view locations.");
                 return viewLocations;
             }
 
@@ -49,14 +53,14 @@ namespace Articulate.Components
             return themeLocations.Concat(viewLocations);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void PopulateValues(ViewLocationExpanderContext context)
         {
             HttpContext httpContext = context.ActionContext.HttpContext;
 
             IArticulateThemeResolver? themeResolver =
                 httpContext.RequestServices.GetService<IArticulateThemeResolver>();
-            string themeName = themeResolver?.GetCurrentThemeName() ?? string.Empty;
+            var themeName = themeResolver?.GetCurrentThemeName() ?? string.Empty;
 
             // Values may be null in unit testing scenarios when constructed directly.
             IDictionary<string, string?> values = context.Values;

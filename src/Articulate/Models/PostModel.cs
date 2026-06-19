@@ -17,22 +17,22 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the tags associated with the post.
+        ///     Gets the tags associated with the post.
         /// </summary>
         public IEnumerable<string> Tags => this.Value<IEnumerable<string>>("tags") ?? [];
 
         /// <summary>
-        /// Gets the categories associated with the post.
+        ///     Gets the categories associated with the post.
         /// </summary>
         public IEnumerable<string> Categories => this.Value<IEnumerable<string>>("categories") ?? [];
 
         /// <summary>
-        /// Gets a value indicating whether comments are enabled for this post.
+        ///     Gets a value indicating whether comments are enabled for this post.
         /// </summary>
         public bool EnableComments => Unwrap().Value<bool>("enableComments", fallback: Fallback.ToAncestors);
 
         /// <summary>
-        /// Gets the author of the post.
+        ///     Gets the author of the post.
         /// </summary>
         public PostAuthorModel Author
         {
@@ -43,10 +43,7 @@ namespace Articulate.Models
                     return field;
                 }
 
-                field = new PostAuthorModel
-                {
-                    Name = Unwrap().Value<string>("author", fallback: Fallback.ToAncestors),
-                };
+                field = new PostAuthorModel { Name = Unwrap().Value<string>("author", fallback: Fallback.ToAncestors) };
 
                 // look up associated author node if we can
                 IEnumerable<IPublishedContent> authorContainers =
@@ -74,22 +71,22 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the post excerpt.
+        ///     Gets the post excerpt.
         /// </summary>
         public string Excerpt => this.Value<string>("excerpt") ?? string.Empty;
 
         /// <summary>
-        /// Gets the published date of the post.
+        ///     Gets the published date of the post.
         /// </summary>
         public DateTime PublishedDate => Unwrap().Value<DateTime>("publishedDate");
 
         /// <summary>
-        /// Gets the post image item.
+        ///     Gets the post image item.
         /// </summary>
         public MediaWithCrops? PostImage => field ??= Unwrap().Value<MediaWithCrops>("postImage");
 
         /// <summary>
-        /// Gets the wide cropped image URL for the post.
+        ///     Gets the wide cropped image URL for the post.
         /// </summary>
         public string CroppedPostImageUrl
         {
@@ -112,12 +109,12 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the social meta description.
+        ///     Gets the social meta description.
         /// </summary>
         public string SocialMetaDescription => this.Value<string>("socialDescription") ?? string.Empty;
 
         /// <summary>
-        /// Gets the post body content as HTML.
+        ///     Gets the post body content as HTML.
         /// </summary>
         public IHtmlContent Body =>
             new HtmlString(
@@ -126,21 +123,21 @@ namespace Articulate.Models
                     ?.ToHtmlString());
 
         /// <summary>
-        /// Gets the external URL for the post if set.
+        ///     Gets the external URL for the post if set.
         /// </summary>
         // Not used internally or by default themes, but exposed for custom themes
         public string ExternalUrl => this.Value<string>("externalUrl") ?? string.Empty;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         MediaWithCrops? IImageModel.Image => PostImage;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         string IImageModel.Name => Name;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         string IImageModel.Url => this.Url();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         string IImageModel.CroppedWideUrl => CroppedPostImageUrl;
     }
 }

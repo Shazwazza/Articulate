@@ -11,7 +11,7 @@ using Umbraco.Cms.Web.Website.ActionResults;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Controller for displaying author details and their posts.
+    ///     Controller for displaying author details and their posts.
     /// </summary>
     public class ArticulateAuthorController(
         ILogger<ArticulateAuthorController> logger,
@@ -24,14 +24,14 @@ namespace Articulate.Controllers
             publishedValueFallback)
     {
         /// <summary>
-        /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
+        ///     Override and declare a NonAction so that we get routed to the Index action with the optional page route
         /// </summary>
         /// <returns></returns>
         [NonAction]
         public override IActionResult Index() => Index(0);
 
         /// <summary>
-        /// Renders the author page and their posts with optional pagination.
+        ///     Renders the author page and their posts with optional pagination.
         /// </summary>
         public IActionResult Index(int? p)
         {
@@ -44,7 +44,7 @@ namespace Articulate.Controllers
             // create a master model
             var masterModel = new MasterModel(CurrentPage, PublishedValueFallback);
             IEnumerable<IPublishedContent> archiveNodes = masterModel.RootBlogNode.Children()
-                    .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
+                .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
             IPublishedContent[] listNodes = archiveNodes.ToArray();
             if (listNodes.Length == 0)
             {
@@ -61,7 +61,7 @@ namespace Articulate.Controllers
 
             PagerModel initialPager = CreateRequestedPager(masterModel, p);
 
-            (int totalPosts, IPublishedContent[] posts) = umbracoHelper.GetPagedContentByAuthor(
+            (var totalPosts, IPublishedContent[] posts) = umbracoHelper.GetPagedContentByAuthor(
                 listNodes,
                 CurrentPage.Name,
                 initialPager);

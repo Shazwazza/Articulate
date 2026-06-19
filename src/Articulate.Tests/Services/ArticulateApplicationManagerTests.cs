@@ -20,10 +20,7 @@ namespace Articulate.Tests.Services
             var logger = new RecordingLogger<ArticulateApplicationManager>();
             ArticulateApplicationManager sut = CreateSut(
                 logger,
-                articulateOptions: new ArticulateOptions
-                {
-                    AllowUnsafeLocalExternalImageHostsInDevelopment = false
-                });
+                articulateOptions: new ArticulateOptions { AllowUnsafeLocalExternalImageHostsInDevelopment = false });
 
             await sut.HandleAsync(null!, CancellationToken.None);
 
@@ -37,11 +34,8 @@ namespace Articulate.Tests.Services
             var logger = new RecordingLogger<ArticulateApplicationManager>();
             ArticulateApplicationManager sut = CreateSut(
                 logger,
-                runtimeMode: RuntimeMode.BackofficeDevelopment,
-                articulateOptions: new ArticulateOptions
-                {
-                    AllowUnsafeLocalExternalImageHostsInDevelopment = true
-                });
+                RuntimeMode.BackofficeDevelopment,
+                new ArticulateOptions { AllowUnsafeLocalExternalImageHostsInDevelopment = true });
 
             await sut.HandleAsync(null!, CancellationToken.None);
 
@@ -55,11 +49,8 @@ namespace Articulate.Tests.Services
             var logger = new RecordingLogger<ArticulateApplicationManager>();
             ArticulateApplicationManager sut = CreateSut(
                 logger,
-                runtimeMode: RuntimeMode.Production,
-                articulateOptions: new ArticulateOptions
-                {
-                    AllowUnsafeLocalExternalImageHostsInDevelopment = true
-                });
+                RuntimeMode.Production,
+                new ArticulateOptions { AllowUnsafeLocalExternalImageHostsInDevelopment = true });
 
             await sut.HandleAsync(null!, CancellationToken.None);
 
@@ -70,19 +61,14 @@ namespace Articulate.Tests.Services
         private static ArticulateApplicationManager CreateSut(
             RecordingLogger<ArticulateApplicationManager> logger,
             RuntimeMode runtimeMode = RuntimeMode.BackofficeDevelopment,
-            ArticulateOptions? articulateOptions = null)
-        {
-            return new ArticulateApplicationManager(
+            ArticulateOptions? articulateOptions = null) =>
+            new(
                 Mock.Of<IServiceScopeFactory>(),
-                Microsoft.Extensions.Options.Options.Create(new ArticulateOpenIdClientOptions
-                {
-                    Enabled = false
-                }),
+                Microsoft.Extensions.Options.Options.Create(new ArticulateOpenIdClientOptions { Enabled = false }),
                 Microsoft.Extensions.Options.Options.Create(articulateOptions ?? new ArticulateOptions()),
                 Microsoft.Extensions.Options.Options.Create(new RuntimeSettings { Mode = runtimeMode }),
                 Mock.Of<IRuntimeState>(runtimeState => runtimeState.Level == RuntimeLevel.Run),
                 logger);
-        }
 
         private sealed class RecordingLogger<T> : ILogger<T>
         {
@@ -101,10 +87,8 @@ namespace Articulate.Tests.Services
                 EventId eventId,
                 TState state,
                 Exception? exception,
-                Func<TState, Exception?, string> formatter)
-            {
+                Func<TState, Exception?, string> formatter) =>
                 _messages.Add(formatter(state, exception));
-            }
 
             private sealed class NoopDisposable : IDisposable
             {

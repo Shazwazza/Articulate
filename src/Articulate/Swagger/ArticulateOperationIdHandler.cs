@@ -1,7 +1,7 @@
 #nullable enable
 #if !UMBRACO_18_OR_GREATER
-using Asp.Versioning;
 using Articulate.Controllers.Api;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
@@ -10,17 +10,17 @@ using Umbraco.Cms.Api.Common.OpenApi;
 namespace Articulate.Swagger
 {
     /// <summary>
-    /// Handles the generation of operation IDs for Articulate API endpoints.
+    ///     Handles the generation of operation IDs for Articulate API endpoints.
     /// </summary>
 #pragma warning disable CS9107
     internal class ArticulateOperationIdHandler(IOptions<ApiVersioningOptions> apiVersioningOptions)
         : OperationIdHandler(apiVersioningOptions)
 #pragma warning restore CS9107
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override string Handle(ApiDescription apiDescription) => ArticulateOperationId(apiDescription);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override bool CanHandle(
             ApiDescription apiDescription,
             ControllerActionDescriptor controllerActionDescriptor)
@@ -122,7 +122,8 @@ namespace Articulate.Swagger
             var namespaceName = type.Namespace ?? "Articulate.Api.Management.Controllers";
             var controllerNamespace = controllerActionDescriptor.ControllerTypeInfo.Namespace;
 
-            var shouldHandle = controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true
+            var shouldHandle =
+ controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true
                                || controllerNamespace?.StartsWith("Articulate.Api.Management.Controllers", StringComparison.InvariantCultureIgnoreCase) is true;
 
             if (!shouldHandle)
@@ -130,7 +131,8 @@ namespace Articulate.Swagger
                 return null;
             }
 
-            ApiVersion defaultVersion = context.ApplicationServices.GetRequiredService<IOptions<ApiVersioningOptions>>().Value.DefaultApiVersion;
+            ApiVersion defaultVersion =
+ context.ApplicationServices.GetRequiredService<IOptions<ApiVersioningOptions>>().Value.DefaultApiVersion;
             var httpMethod = apiDescription.HttpMethod?.ToLower().ToFirstUpper() ?? "Get";
 
             if (string.IsNullOrWhiteSpace(apiDescription.ActionDescriptor.AttributeRouteInfo?.Name) == false)

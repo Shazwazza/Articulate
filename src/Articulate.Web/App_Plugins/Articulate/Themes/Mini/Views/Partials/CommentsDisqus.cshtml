@@ -1,3 +1,4 @@
+@using System.Text.Json
 @model PostModel
 
 @if (Model.IsDisqusEnabled)
@@ -7,12 +8,12 @@
             <script type="text/javascript">
                 var disqus_config = function () {
                     // Use JSON serialization for safe JS values
-                    this.page.url = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Url(mode: UrlMode.Absolute)));
-                    this.page.identifier = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Key));
+                    this.page.url = @Html.Raw(JsonSerializer.Serialize(Model.Url(mode: UrlMode.Absolute)));
+                    this.page.identifier = @Html.Raw(JsonSerializer.Serialize(Model.Key));
                 };
                 (function() {
                     var d = document, s = d.createElement('script');
-                    const disqusShortName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DisqusShortName));
+                    const disqusShortName = @Html.Raw(JsonSerializer.Serialize(Model.DisqusShortName));
                     s.src = 'https://' + disqusShortName + '.disqus.com/embed.js';
                     s.setAttribute('data-timestamp', +new Date());
                     (d.head || d.body).appendChild(s);

@@ -43,17 +43,16 @@
 </head>
 
 <body class="@ViewBag.CssBodyClass">
-    @Model.GoogleAnalyticsNoScript()
+@Model.GoogleAnalyticsNoScript()
 
-    @RenderBody()
+@RenderBody()
 
-    <environment include="Development">
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/share.js" type="text/javascript" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/dist/js/@(themeLower).min.js" type="text/javascript" asp-append-version="true"></script>
-    </environment>
+<environment include="Development">
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/share.js" type="text/javascript" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/dist/js/@(themeLower).min.js" type="text/javascript" asp-append-version="true"></script>
+</environment>
 
 </body>
 </html>
-

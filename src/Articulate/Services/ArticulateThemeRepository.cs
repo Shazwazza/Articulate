@@ -1,6 +1,6 @@
 #nullable enable
-using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Cache;
@@ -9,7 +9,7 @@ using static Articulate.ArticulateConstants;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Repository for retrieving and managing Articulate themes.
+    ///     Repository for retrieving and managing Articulate themes.
     /// </summary>
     public sealed class ArticulateThemeRepository(
         IWebHostEnvironment hostingEnvironment,
@@ -21,10 +21,11 @@ namespace Articulate.Services
         private const string AllThemesCacheKey = "Articulate_AllThemes";
         private const string EmbeddedResourceRoot = "Articulate.Theme://";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         async Task IArticulateThemeRepository.CopyThemeAsync(string themeName, string newThemeName)
         {
-            if (DefaultThemes.AllThemeNames.Any(theme => string.Equals(theme, newThemeName, StringComparison.OrdinalIgnoreCase)))
+            if (DefaultThemes.AllThemeNames.Any(theme =>
+                    string.Equals(theme, newThemeName, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ArgumentException(
                     $@"The theme name '{newThemeName}' is reserved for a built-in theme.",
@@ -117,6 +118,34 @@ namespace Articulate.Services
                 throw;
             }
         }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<string>?> GetAllThemesAsync() =>
+            await appCaches.RuntimeCache.GetCacheItemAsync(
+                AllThemesCacheKey,
+                async () =>
+                {
+                    Task<IEnumerable<string>> defaultThemesTask = GetDefaultThemesAsync();
+                    Task<IEnumerable<string>> userThemesTask = GetUserThemesAsync();
+                    var packageThemeKeys = GetPackageThemeKeys().ToArray();
+
+                    IEnumerable<string>[] themeKeyGroups =
+                        await Task.WhenAll(defaultThemesTask, userThemesTask);
+
+                    var defaultThemeKeys = themeKeyGroups[0].ToArray();
+                    var userThemeKeys = themeKeyGroups[1].ToArray();
+                    WarnForReservedUserThemeKeys(userThemeKeys);
+
+                    return defaultThemeKeys
+                        .Union(userThemeKeys)
+                        .Union(packageThemeKeys)
+                        .OrderBy(themeKey => themeKey, StringComparer.OrdinalIgnoreCase);
+                },
+                TimeSpan.FromSeconds(30));
+
+        /// <inheritdoc />
+        public Task<IEnumerable<string>> GetDefaultThemesAsync() =>
+            Task.FromResult<IEnumerable<string>>(DefaultThemes.AllThemeNames);
 
         private static IEnumerable<string> GetThemeResourcesByType(
             Assembly assembly,
@@ -245,30 +274,6 @@ namespace Articulate.Services
             await stream.CopyToAsync(fileStream);
         }
 
-        /// <inheritdoc/>
-        public async Task<IEnumerable<string>?> GetAllThemesAsync() =>
-            await appCaches.RuntimeCache.GetCacheItemAsync(
-                AllThemesCacheKey,
-                async () =>
-                {
-                    Task<IEnumerable<string>> defaultThemesTask = GetDefaultThemesAsync();
-                    Task<IEnumerable<string>> userThemesTask = GetUserThemesAsync();
-                    string[] packageThemeKeys = GetPackageThemeKeys().ToArray();
-
-                    IEnumerable<string>[] themeKeyGroups =
-                        await Task.WhenAll(defaultThemesTask, userThemesTask);
-
-                    string[] defaultThemeKeys = themeKeyGroups[0].ToArray();
-                    string[] userThemeKeys = themeKeyGroups[1].ToArray();
-                    WarnForReservedUserThemeKeys(userThemeKeys);
-
-                    return defaultThemeKeys
-                        .Union(userThemeKeys)
-                        .Union(packageThemeKeys)
-                        .OrderBy(themeKey => themeKey, StringComparer.OrdinalIgnoreCase);
-                },
-                TimeSpan.FromSeconds(30));
-
         private static Assembly GetWebAssembly()
         {
             // 1. Try to find Articulate.Web if already loaded
@@ -279,9 +284,6 @@ namespace Articulate.Services
             return assembly ?? throw new InvalidOperationException(
                 "Could not find 'Articulate.Web' assembly. Ensure the Articulate package is installed correctly.");
         }
-
-        /// <inheritdoc/>
-        public Task<IEnumerable<string>> GetDefaultThemesAsync() => Task.FromResult<IEnumerable<string>>(DefaultThemes.AllThemeNames);
 
         private static Task<IEnumerable<string>> GetThemesFromPhysicalPathAsync(string physicalPath) =>
             Task.FromResult(Directory.Exists(physicalPath)
@@ -298,7 +300,7 @@ namespace Articulate.Services
         {
             var builtInThemeKeys = new HashSet<string>(DefaultThemes.AllThemeNames, StringComparer.OrdinalIgnoreCase);
 
-            foreach (string userThemeKey in userThemeKeys.Where(builtInThemeKeys.Contains))
+            foreach (var userThemeKey in userThemeKeys.Where(builtInThemeKeys.Contains))
             {
                 logger.LogWarning(
                     "User Articulate theme key '{ThemeKey}' matches a built-in theme key. User theme views are searched before built-in theme views.",
@@ -324,9 +326,9 @@ namespace Articulate.Services
             HashSet<string> builtInThemeKeys,
             HashSet<string> packageThemeKeys)
         {
-            foreach (string rawThemeKey in provider.GetThemeKeys())
+            foreach (var rawThemeKey in provider.GetThemeKeys())
             {
-                if (!TryNormalizeThemeKey(provider, rawThemeKey, builtInThemeKeys, out string? themeKey))
+                if (!TryNormalizeThemeKey(provider, rawThemeKey, builtInThemeKeys, out var themeKey))
                 {
                     continue;
                 }
@@ -372,5 +374,3 @@ namespace Articulate.Services
         }
     }
 }
-
-

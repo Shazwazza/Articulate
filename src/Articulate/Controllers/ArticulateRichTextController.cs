@@ -7,7 +7,7 @@ using Umbraco.Cms.Core.Web;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Controller for Articulate Rich Text blog posts.
+    ///     Controller for Articulate Rich Text blog posts.
     /// </summary>
     public class ArticulateRichTextController(
         ILogger<ArticulateRichTextController> logger,

@@ -4,7 +4,7 @@
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model to initialize the Markdown editor with security and endpoint configuration.
+    ///     Model to initialize the Markdown editor with security and endpoint configuration.
     /// </summary>
     public class MarkdownEditorInitModel
     {
@@ -27,6 +27,5 @@ namespace Articulate.Models
         public required string BackOfficeClientId { get; init; }
 
         public required string PostLogoutRedirectUrl { get; init; }
-
     }
 }

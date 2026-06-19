@@ -5,25 +5,25 @@ using System.Web;
 namespace Articulate
 {
     /// <summary>
-    /// Extension methods for <see cref="string"/>.
+    ///     Extension methods for <see cref="string" />.
     /// </summary>
     public static class StringExtensions
     {
+        private static readonly Regex _newlineRegex = new(@"[\r\n]+", RegexOptions.Compiled);
+
         /// <summary>
-        /// Replaces newlines with spaces.
+        ///     Replaces newlines with spaces.
         /// </summary>
         public static string NewLinesToSpaces(this string input) =>
             _newlineRegex.Replace(input, " ");
 
         /// <summary>
-        /// Decodes HTML-encoded strings.
+        ///     Decodes HTML-encoded strings.
         /// </summary>
         public static string DecodeHtml(this string input) => HttpUtility.HtmlDecode(input);
 
-        private static readonly Regex _newlineRegex = new(@"[\r\n]+", RegexOptions.Compiled);
-
         /// <summary>
-        /// Truncates a string at a word boundary.
+        ///     Truncates a string at a word boundary.
         /// </summary>
         public static string TruncateAtWord(
             this string? text,
@@ -51,7 +51,7 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Encodes URL segments safely.
+        ///     Encodes URL segments safely.
         /// </summary>
         public static string SafeEncodeUrlSegments(this string urlPath)
         {
@@ -85,7 +85,7 @@ namespace Articulate
                     .Select(x => x.Replace('.', '-')));
 
         /// <summary>
-        /// Gets the MIME type for an image based on its file extension.
+        ///     Gets the MIME type for an image based on its file extension.
         /// </summary>
         public static string GetImageMimeType(this string filePathOrExtension)
         {

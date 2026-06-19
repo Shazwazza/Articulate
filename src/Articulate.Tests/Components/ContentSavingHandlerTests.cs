@@ -45,7 +45,11 @@ namespace Articulate.Tests.Components
 
             var setValueCalls = new List<(string Alias, object? Value)>();
             content
-                .Setup(x => x.SetValue(It.IsAny<string>(), It.IsAny<object?>(), It.IsAny<string?>(), It.IsAny<string?>()))
+                .Setup(x => x.SetValue(
+                    It.IsAny<string>(),
+                    It.IsAny<object?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>()))
                 .Callback<string, object?, string?, string?>((alias, value, _, _) => setValueCalls.Add((alias, value)));
 
             Mock<IContentTypeService> contentTypeService = new();
@@ -101,7 +105,11 @@ namespace Articulate.Tests.Components
 
             var setValueCalls = new List<string>();
             content
-                .Setup(x => x.SetValue(It.IsAny<string>(), It.IsAny<object?>(), It.IsAny<string?>(), It.IsAny<string?>()))
+                .Setup(x => x.SetValue(
+                    It.IsAny<string>(),
+                    It.IsAny<object?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>()))
                 .Callback<string, object?, string?, string?>((alias, _, _, _) => setValueCalls.Add(alias));
 
             Mock<IContentTypeService> contentTypeService = new();
@@ -143,7 +151,11 @@ namespace Articulate.Tests.Components
 
             var setValueCalls = new List<string>();
             content
-                .Setup(x => x.SetValue(It.IsAny<string>(), It.IsAny<object?>(), It.IsAny<string?>(), It.IsAny<string?>()))
+                .Setup(x => x.SetValue(
+                    It.IsAny<string>(),
+                    It.IsAny<object?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<string?>()))
                 .Callback<string, object?, string?, string?>((alias, _, _, _) => setValueCalls.Add(alias));
 
             Mock<IContentTypeService> contentTypeService = new();

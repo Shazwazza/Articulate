@@ -41,55 +41,55 @@
     @await RenderSectionAsync("Header", false)
 </head>
 <body class="@ViewBag.CssBodyClass">
-    @Model.GoogleAnalyticsNoScript()
-    <a href="#main-content" class="skip-link" title="Skip to main content">Skip to main content</a>
+@Model.GoogleAnalyticsNoScript()
+<a href="#main-content" class="skip-link" title="Skip to main content">Skip to main content</a>
 
-    <header id="site-head" role="banner">
+<header id="site-head" role="banner">
 
-        @if (!string.IsNullOrEmpty(blogLogoStyle))
-        {
-            <a id="blog-logo" href="@Model.ArticulateRootUrl()" title="Blog Home">
-                <div class="bloglogo" style="@blogLogoStyle"></div>
-            </a>
-        }
+    @if (!string.IsNullOrEmpty(blogLogoStyle))
+    {
+        <a id="blog-logo" href="@Model.ArticulateRootUrl()" title="Blog Home">
+            <div class="bloglogo" style="@blogLogoStyle"></div>
+        </a>
+    }
 
-        <h1 class="blog-title">
-            <a href="@Model.ArticulateRootUrl()" title="Blog Home">
-                @Model.BlogTitle
-            </a>
-        </h1>
+    <h1 class="blog-title">
+        <a href="@Model.ArticulateRootUrl()" title="Blog Home">
+            @Model.BlogTitle
+        </a>
+    </h1>
 
-        @await Html.PartialAsync("HeaderDescription", Model)
-        @await Html.PartialAsync("Menu", Model)
+    @await Html.PartialAsync("HeaderDescription", Model)
+    @await Html.PartialAsync("Menu", Model)
 
-    </header>
+</header>
 
-    <main id="main-content" role="main" tabindex="-1">
-        @RenderBody()
-    </main>
+<main id="main-content" role="main" tabindex="-1">
+    @RenderBody()
+</main>
 
 
-    <footer class="site-footer">
-        <div class="inner">
+<footer class="site-footer">
+    <div class="inner">
 
-            @await Html.PartialAsync("FooterDescription", Model)
+        @await Html.PartialAsync("FooterDescription", Model)
 
-            <section class="copyright">
-                &copy; @DateTime.Now.ToString("yyyy")
-                <a href="/" title="Blog Home">@Model.BlogTitle</a>. All rights reserved.
-            </section>
-            <section>Vapor theme by <a href="https://sethlilly.com/" title="Theme Author Website">Seth Lilly</a></section>
+        <section class="copyright">
+            &copy; @DateTime.Now.ToString("yyyy")
+            <a href="/" title="Blog Home">@Model.BlogTitle</a>. All rights reserved.
+        </section>
+        <section>Vapor theme by <a href="https://sethlilly.com/" title="Theme Author Website">Seth Lilly</a></section>
 
-        </div>
-    </footer>
+    </div>
+</footer>
 
-    <environment include="Development">
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/a11y.js" type="text/javascript" asp-append-version="true"></script>
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/share.js" type="text/javascript" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/dist/js/@(themeLower).min.js" type="text/javascript" asp-append-version="true"></script>
-    </environment>
+<environment include="Development">
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/a11y.js" type="text/javascript" asp-append-version="true"></script>
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/share.js" type="text/javascript" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/dist/js/@(themeLower).min.js" type="text/javascript" asp-append-version="true"></script>
+</environment>
 
 </body>
 </html>

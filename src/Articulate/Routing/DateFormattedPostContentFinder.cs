@@ -37,7 +37,12 @@ namespace Articulate.Routing
             IDocumentUrlService documentUrlService,
             IPublishedContentCache publishedContentCache,
             IOptionsMonitor<WebRoutingSettings> webRoutingSettings)
-            : base(logger, umbracoContextAccessor, documentUrlService, publishedContentCache, webRoutingSettings)
+            : base(
+                logger,
+                umbracoContextAccessor,
+                documentUrlService,
+                publishedContentCache,
+                webRoutingSettings)
         {
             _documentUrlService = documentUrlService;
             _publishedContentCache = publishedContentCache;

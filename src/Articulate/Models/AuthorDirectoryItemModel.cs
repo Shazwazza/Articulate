@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model for rendering an author item in the authors directory.
+    ///     Model for rendering an author item in the authors directory.
     /// </summary>
     public class AuthorDirectoryItemModel
     {

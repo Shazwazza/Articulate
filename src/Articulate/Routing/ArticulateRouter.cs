@@ -48,7 +48,9 @@ namespace Articulate.Routing
         private static readonly string _sMetaWeblogControllerName =
             ControllerExtensions.GetControllerName<MetaWeblogController>();
 
-        internal ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> RouteCache { get; private set; } = [];
+        internal ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache>
+            RouteCache { get; private set; } = [];
+
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private readonly ILogger<ArticulateRouter> _logger;
         private readonly IScopeProvider _scopeProvider;
@@ -94,7 +96,10 @@ namespace Articulate.Routing
 #endif
         }
 
-        public bool TryMatch(PathString path, RouteValueDictionary routeValues, out ArticulateRootNodeCache? articulateRootNodeCache)
+        public bool TryMatch(
+            PathString path,
+            RouteValueDictionary routeValues,
+            out ArticulateRootNodeCache? articulateRootNodeCache)
         {
             ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> routeCache = RouteCache;
             _sSharedRouteValues ??= [];
@@ -122,7 +127,7 @@ namespace Articulate.Routing
         }
 
         /// <summary>
-        /// Builds all route caches.
+        ///     Builds all route caches.
         /// </summary>
         /// <param name="httpContext"></param>
         /// <param name="umbracoContext"></param>
@@ -146,7 +151,8 @@ namespace Articulate.Routing
 
                     var domains = umbracoContext.Domains.GetAll(false).ToList();
 
-                    var rebuiltRouteCache = new ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache>();
+                    var rebuiltRouteCache =
+                        new ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache>();
 
                     // For each articulate root, we need to create some custom route, BUT routes can overlap
                     // based on multi-tenancy so we need to deal with that.
@@ -176,7 +182,8 @@ namespace Articulate.Routing
                             rootNodePath,
                             groupedNodes,
                             domains,
-                            new Uri($"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}/"));
+                            new Uri(
+                                $"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}/"));
 
                         if (groupedNodes.Count > 1)
                         {
@@ -216,7 +223,7 @@ namespace Articulate.Routing
         }
 
         /// <summary>
-        /// Generically caches a url path for a particular controller
+        ///     Generically caches a url path for a particular controller
         /// </summary>
         private void MapRoute(
             ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> routeCache,
@@ -250,7 +257,9 @@ namespace Articulate.Routing
                     $"'{controllerName}.{actionName}'. Check the configured route segments on your Articulate roots.");
             }
 
-            dynamicRouteValues.Add(articulateRootNode.Id, ArticulateRouteValidator.DomainsForContent(articulateRootNode, domains));
+            dynamicRouteValues.Add(
+                articulateRootNode.Id,
+                ArticulateRouteValidator.DomainsForContent(articulateRootNode, domains));
         }
 
         private void ValidateRootPathMappings(
@@ -338,7 +347,7 @@ namespace Articulate.Routing
         }
 
         /// <summary>
-        /// Create route for root RSS
+        ///     Create route for root RSS
         /// </summary>
         /// <param name="routeCache"></param>
         /// <param name="httpContext"></param>
@@ -454,7 +463,7 @@ namespace Articulate.Routing
             IPublishedContent articulateRootNode,
             IReadOnlyList<Domain> domains)
         {
-            string? searchRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(
+            var searchRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(
                 rootNodePath,
                 articulateRootNode.Value<string>("searchUrlName"));
             if (searchRoutePath is null)
@@ -496,21 +505,24 @@ namespace Articulate.Routing
             }
         }
 
-        private static List<(string ControllerName, string ActionName, string TemplateText)> GetTagAndCategoryRouteMappings(
-            string rootNodePath,
-            string? categoriesUrlName,
-            string? tagsUrlName)
+        private static List<(string ControllerName, string ActionName, string TemplateText)>
+            GetTagAndCategoryRouteMappings(
+                string rootNodePath,
+                string? categoriesUrlName,
+                string? tagsUrlName)
         {
             List<(string ControllerName, string ActionName, string TemplateText)> mappings = [];
 
-            string? categoriesRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(rootNodePath, categoriesUrlName);
+            var categoriesRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(rootNodePath, categoriesUrlName);
             if (categoriesRoutePath is not null)
             {
-                mappings.Add((_sTagsControllerName, nameof(ArticulateTagsController.Categories), $"{categoriesRoutePath}/{{tag?}}"));
-                mappings.Add((_sRssControllerName, nameof(ArticulateRssController.Categories), $"{categoriesRoutePath}/{{tag}}/rss"));
+                mappings.Add((_sTagsControllerName, nameof(ArticulateTagsController.Categories),
+                    $"{categoriesRoutePath}/{{tag?}}"));
+                mappings.Add((_sRssControllerName, nameof(ArticulateRssController.Categories),
+                    $"{categoriesRoutePath}/{{tag}}/rss"));
             }
 
-            string? tagsRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(rootNodePath, tagsUrlName);
+            var tagsRoutePath = ArticulateRouteSegmentHelper.CombineRoutePath(rootNodePath, tagsUrlName);
             if (tagsRoutePath is null)
             {
                 return mappings;

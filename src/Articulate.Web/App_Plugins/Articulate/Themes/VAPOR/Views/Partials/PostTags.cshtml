@@ -15,7 +15,7 @@
             <div>
                 Categories
 
-                @for (int i = 0; i < categories.Count; i++)
+                @for (var i = 0; i < categories.Count; i++)
                 {
                     var category = categories[i];
                     if (hasCategoriesRoute)
@@ -26,6 +26,7 @@
                     {
                         <span>@category</span>
                     }
+
                     if (i < categories.Count - 1)
                     {
                         <span>, </span>
@@ -39,7 +40,7 @@
             <div>
                 Posted in
 
-                @for (int i = 0; i < tags.Count; i++)
+                @for (var i = 0; i < tags.Count; i++)
                 {
                     var tag = tags[i];
                     if (hasTagsRoute)
@@ -50,6 +51,7 @@
                     {
                         <span>@tag</span>
                     }
+
                     if (i < tags.Count - 1)
                     {
                         <span>, </span>

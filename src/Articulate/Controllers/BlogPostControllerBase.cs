@@ -8,7 +8,7 @@ using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Articulate.Controllers
 {
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public abstract class BlogPostControllerBase(
         ILogger<BlogPostControllerBase> logger,
         ICompositeViewEngine compositeViewEngine,
@@ -16,7 +16,7 @@ namespace Articulate.Controllers
         IPublishedValueFallback publishedValueFallback)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override IActionResult Index()
         {
             if (CurrentPage is null)

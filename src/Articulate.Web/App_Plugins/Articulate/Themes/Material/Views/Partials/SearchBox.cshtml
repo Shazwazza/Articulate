@@ -8,13 +8,14 @@
 {
     <form method="get" action="@Model.ArticulateSearchUrl()" class="search-card__form">
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input type="text" name="term" class="mdl-textfield__input" id="term" value="@term" aria-label="Search term" />
+            <input type="text" name="term" class="mdl-textfield__input" id="term" value="@term" aria-label="Search term"/>
             <label for="term" class="mdl-textfield__label">Search</label>
         </div>
         <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" type="submit" aria-label="Submit search">
             <i class="material-icons" role="presentation">search</i><span class="visuallyhidden">Search</span>
-            <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
         </button>
     </form>
 }
-

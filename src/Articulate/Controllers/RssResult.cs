@@ -10,7 +10,7 @@ namespace Articulate.Controllers
 {
     internal class RssResult(SyndicationFeed feed, IMasterModel model) : ActionResult
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override async Task ExecuteResultAsync(ActionContext context)
         {
             context.HttpContext.Response.ContentType = "application/xml";

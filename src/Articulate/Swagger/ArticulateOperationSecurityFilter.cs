@@ -5,12 +5,12 @@ using Umbraco.Cms.Api.Management.OpenApi;
 namespace Articulate.Swagger
 {
     /// <summary>
-    /// Adds backoffice security requirements to Articulate API operations.
+    ///     Adds backoffice security requirements to Articulate API operations.
     /// </summary>
     internal class ArticulateOperationSecurityFilter : BackOfficeSecurityRequirementsOperationFilterBase
     {
         /// <summary>
-        /// Gets the API name for which security requirements are applied.
+        ///     Gets the API name for which security requirements are applied.
         /// </summary>
         protected override string ApiName => ArticulateConstants.ManagementApi.Name;
     }

@@ -16,7 +16,7 @@ namespace Articulate.Controllers.Api
     // [ApiController] attribute also infers [FromBody] for model binding
 
     /// <summary>
-    /// Provides API endpoints for copying an Articulate default theme to a new theme name to allow customisation.
+    ///     Provides API endpoints for copying an Articulate default theme to a new theme name to allow customisation.
     /// </summary>
     [ManagementApi(ArticulateConstants.ManagementApi.ThemePicker)]
     [ApiVersion("1.0")]
@@ -28,13 +28,13 @@ namespace Articulate.Controllers.Api
         ILogger<ThemePickerApiController> logger) : ManagementApiControllerBase
     {
         /// <summary>
-        /// Gets the list of all available Articulate themes, both default and user-defined.
+        ///     Gets the list of all available Articulate themes, both default and user-defined.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns the names of all available themes, including both default and user-defined themes.
+        ///     This endpoint returns the names of all available themes, including both default and user-defined themes.
         /// </remarks>
         /// <returns>
-        /// A list of theme names as strings.
+        ///     A list of theme names as strings.
         /// </returns>
         /// <response code="200">Returns the list of all available theme names.</response>
         [HttpGet("themes")]

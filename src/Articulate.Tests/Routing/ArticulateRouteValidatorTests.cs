@@ -16,7 +16,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void DomainsForContent_returns_domains_for_root_and_ancestors_in_path()
         {
-            IPublishedContent content = CreateRoot(id: 200, path: "-1,100,200");
+            IPublishedContent content = CreateRoot(200, path: "-1,100,200");
             List<Domain> domains =
             [
                 new(10, "section.local", 100, string.Empty, false, 0),
@@ -32,7 +32,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void DomainsForContent_returns_empty_when_no_domains_match_path()
         {
-            IPublishedContent content = CreateRoot(id: 200, path: "-1,100,200");
+            IPublishedContent content = CreateRoot(200, path: "-1,100,200");
             List<Domain> domains =
             [
                 new(10, "elsewhere.local", 999, string.Empty, false, 0)
@@ -57,8 +57,8 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_rejects_same_path_without_domains()
         {
-            IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
-            IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+            IPublishedContent left = CreateRoot(1, "Blog A", "-1,1");
+            IPublishedContent right = CreateRoot(2, "Blog B", "-1,2");
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
                 ArticulateRouteValidator.ValidateRootPathMappings(
@@ -73,8 +73,8 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_allows_same_path_with_distinct_domains()
         {
-            IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
-            IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+            IPublishedContent left = CreateRoot(1, "Blog A", "-1,1");
+            IPublishedContent right = CreateRoot(2, "Blog B", "-1,2");
 
             List<Domain> domains =
             [
@@ -93,8 +93,8 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_rejects_same_path_with_equivalent_domains_even_when_ids_differ()
         {
-            IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
-            IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+            IPublishedContent left = CreateRoot(1, "Blog A", "-1,1");
+            IPublishedContent right = CreateRoot(2, "Blog B", "-1,2");
 
             List<Domain> domains =
             [
@@ -115,7 +115,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_allows_single_root_without_domains()
         {
-            IPublishedContent single = CreateRoot(id: 1, name: "Blog", path: "-1,1");
+            IPublishedContent single = CreateRoot(1, "Blog", "-1,1");
 
             Assert.DoesNotThrow(() =>
                 ArticulateRouteValidator.ValidateRootPathMappings(
@@ -128,8 +128,8 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_allows_same_path_with_same_host_but_distinct_cultures()
         {
-            IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
-            IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+            IPublishedContent left = CreateRoot(1, "Blog A", "-1,1");
+            IPublishedContent right = CreateRoot(2, "Blog B", "-1,2");
 
             List<Domain> domains =
             [
@@ -148,8 +148,8 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateRootPathMappings_rejects_same_path_with_equivalent_path_based_domains()
         {
-            IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
-            IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+            IPublishedContent left = CreateRoot(1, "Blog A", "-1,1");
+            IPublishedContent right = CreateRoot(2, "Blog B", "-1,2");
 
             List<Domain> domains =
             [

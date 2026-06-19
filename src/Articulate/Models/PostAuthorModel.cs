@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model for a post author.
+    ///     Model for a post author.
     /// </summary>
     public class PostAuthorModel
     {

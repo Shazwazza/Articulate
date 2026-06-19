@@ -15,7 +15,7 @@ namespace Articulate.Tests.Routing
             var sut = new ArticulateRootNodeCache(new ControllerActionDescriptor());
             sut.Add(123, [new Domain(10, "https://blog.local/", 1, string.Empty, false, 0)]);
 
-            int contentId = sut.GetContentId(new Domain(99, "https://blog.local", 2, string.Empty, false, 0));
+            var contentId = sut.GetContentId(new Domain(99, "https://blog.local", 2, string.Empty, false, 0));
 
             Assert.That(contentId, Is.EqualTo(123));
         }
@@ -26,7 +26,7 @@ namespace Articulate.Tests.Routing
             var sut = new ArticulateRootNodeCache(new ControllerActionDescriptor());
             sut.Add(123, [new Domain(10, "blog-a.local", 1, string.Empty, false, 0)]);
 
-            int contentId = sut.GetContentId(new Domain(99, "blog-b.local", 2, string.Empty, false, 0));
+            var contentId = sut.GetContentId(new Domain(99, "blog-b.local", 2, string.Empty, false, 0));
 
             Assert.That(contentId, Is.Zero);
         }

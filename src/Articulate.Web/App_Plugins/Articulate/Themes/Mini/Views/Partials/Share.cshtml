@@ -8,11 +8,15 @@
     <a href="https://www.facebook.com/sharer.php?u=@Uri.EscapeDataString(Model.Url(mode: UrlMode.Absolute))" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"
        aria-label="Share on Facebook (opens in new window)"
        rel="noopener noreferrer" title="Share on Facebook (opens in new window)">
-        <div class="share-button"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></div>
+        <div class="share-button">
+            <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+        </div>
     </a>
     <a href="https://x.com/share?text=@Uri.EscapeDataString(Model.Name)&amp;url=@Uri.EscapeDataString(Model.Url(mode: UrlMode.Absolute))" onclick="window.open(this.href, 'x-share', 'width=550,height=235');return false;"
-      aria-label="Share on X (opens in new window)"
-      rel="noopener noreferrer" title="Share on X (opens in new window)">
-        <div class="share-button"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i></div>
+       aria-label="Share on X (opens in new window)"
+       rel="noopener noreferrer" title="Share on X (opens in new window)">
+        <div class="share-button">
+            <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+        </div>
     </a>
 </div>

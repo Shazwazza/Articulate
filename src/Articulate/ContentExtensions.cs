@@ -1,10 +1,10 @@
+#nullable enable
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 
-#nullable enable
 namespace Articulate
 {
     internal static class ContentExtensions
@@ -71,10 +71,10 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Sets property values for all cultures or invariant, depending on content type variance.
+        ///     Sets property values for all cultures or invariant, depending on content type variance.
         /// </summary>
         /// <remarks>
-        /// Only sets values for cultures already defined on the content item.
+        ///     Only sets values for cultures already defined on the content item.
         /// </remarks>
         internal static async Task SetInvariantOrDefaultCultureValueAsync(
             this IContentBase content,
@@ -218,10 +218,9 @@ namespace Articulate
             content.SetValue(propertyAlias, propertyValue);
         }
 
-        private static bool IsNullOrEmptyValue(object? value)
-        {
-            return value is null || (value is string propValAsString && string.IsNullOrWhiteSpace(propValAsString));
-        }
+        private static bool IsNullOrEmptyValue(object? value) => value is null ||
+                                                                 (value is string propValAsString &&
+                                                                  string.IsNullOrWhiteSpace(propValAsString));
 
         private static bool VariesByCulture(string propertyTypeAlias, IContentTypeComposition contentType)
         {

@@ -24,9 +24,9 @@ namespace Articulate
             int? page,
             out PagerModel? pager)
         {
-            int pageNumber = NormalizePageNumber(page);
-            int normalizedPageSize = NormalizePageSize(pageSize);
-            int totalPages = CalculateTotalPages(totalPosts, normalizedPageSize);
+            var pageNumber = NormalizePageNumber(page);
+            var normalizedPageSize = NormalizePageSize(pageSize);
+            var totalPages = CalculateTotalPages(totalPosts, normalizedPageSize);
 
             if (totalPages < pageNumber)
             {
@@ -42,13 +42,13 @@ namespace Articulate
                     continue;
                 }
 
-                foreach (string? v in val)
+                foreach (var v in val)
                 {
                     queryStrings.Append($"&{WebUtility.UrlEncode(key)}={WebUtility.UrlEncode(v)}");
                 }
             }
 
-            string queryString = queryStrings.ToString();
+            var queryString = queryStrings.ToString();
 
             pager = new PagerModel(
                 normalizedPageSize,

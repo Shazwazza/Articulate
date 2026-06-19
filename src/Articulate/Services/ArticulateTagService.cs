@@ -9,11 +9,11 @@ using Umbraco.Cms.Web.Common;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Service layer for Articulate tag/category queries.
+    ///     Service layer for Articulate tag/category queries.
     /// </summary>
     /// <remarks>
-    /// Provides database scoping for <see cref="ArticulateTagRepository"/>, which uses custom SQL
-    /// for path-scoped queries (multi-blog), paging, and sorting by publishedDate.
+    ///     Provides database scoping for <see cref="ArticulateTagRepository" />, which uses custom SQL
+    ///     for path-scoped queries (multi-blog), paging, and sorting by publishedDate.
     /// </remarks>
     public class ArticulateTagService(
         IArticulateTagRepository repository,
@@ -23,7 +23,7 @@ namespace Articulate.Services
         : RepositoryService(provider, loggerFactory, eventMessagesFactory)
     {
         /// <summary>
-        /// Gets content grouped by tags.
+        ///     Gets content grouped by tags.
         /// </summary>
         /// <param name="helper">The Umbraco helper.</param>
         /// <param name="tagQuery">The tag query service.</param>
@@ -50,7 +50,7 @@ namespace Articulate.Services
         }
 
         /// <summary>
-        /// Gets content for a specific tag with paging.
+        ///     Gets content for a specific tag with paging.
         /// </summary>
         /// <param name="helper">The Umbraco helper.</param>
         /// <param name="masterModel">The master model for the blog root.</param>
@@ -84,7 +84,7 @@ namespace Articulate.Services
 
         // Not used internally or by default themes, but exposed for custom themes
         /// <summary>
-        /// Gets all categories for a given blog root.
+        ///     Gets all categories for a given blog root.
         /// </summary>
         /// <param name="masterModel">The master model for the blog root.</param>
         /// <returns>A collection of category names.</returns>
@@ -98,7 +98,7 @@ namespace Articulate.Services
         }
 
         /// <summary>
-        /// Gets all distinct tags or categories for a given blog root path.
+        ///     Gets all distinct tags or categories for a given blog root path.
         /// </summary>
         /// <param name="rootPath">The blog root path.</param>
         /// <param name="tagGroup">The Umbraco tag group.</param>
@@ -112,7 +112,7 @@ namespace Articulate.Services
         }
 
         /// <summary>
-        /// Gets all distinct tags with IDs for a given blog root path.
+        ///     Gets all distinct tags with IDs for a given blog root path.
         /// </summary>
         /// <param name="rootPath">The blog root path.</param>
         /// <param name="tagGroup">The Umbraco tag group.</param>

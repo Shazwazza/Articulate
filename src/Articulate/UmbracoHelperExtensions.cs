@@ -1,6 +1,6 @@
 #nullable enable
-using Articulate.Services;
 using Articulate.Routing;
+using Articulate.Services;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Web.Common;
@@ -68,7 +68,8 @@ namespace Articulate
             ITagQuery tagQuery,
             ArticulateTagService articulateTagService)
         {
-            string? tagsBaseUrl = ArticulateRouteSegmentHelper.GetConfiguredSegment(masterModel.RootBlogNode, "tagsUrlName");
+            var tagsBaseUrl =
+                ArticulateRouteSegmentHelper.GetConfiguredSegment(masterModel.RootBlogNode, "tagsUrlName");
             if (tagsBaseUrl is null)
             {
                 return new PostTagCollection([]);
@@ -148,7 +149,6 @@ namespace Articulate
         /// <returns></returns>
 
         // Not used internally or by default themes, but exposed for custom themes
-
         public static IEnumerable<PostModel> GetRecentPostsByArchive(
             this UmbracoHelper helper,
             IMasterModel masterModel,
@@ -158,7 +158,8 @@ namespace Articulate
         {
             var pager = new PagerModel(pageSize, page - 1, 1);
 
-            IPublishedContent[] listItems = helper.GetPagedPostsSortedByPublishedDate(pager, null, masterModel.Id).Posts;
+            IPublishedContent[] listItems =
+                helper.GetPagedPostsSortedByPublishedDate(pager, null, masterModel.Id).Posts;
 
             var rootPageModel = new ListModel(masterModel, pager, listItems, publishedValueFallback);
             return rootPageModel.Posts;
@@ -170,7 +171,7 @@ namespace Articulate
             string authorName,
             PagerModel pager)
         {
-            int[] listNodeIds = listNodes.Select(x => x.Id).ToArray();
+            var listNodeIds = listNodes.Select(x => x.Id).ToArray();
 
             (int TotalPosts, IPublishedContent[] Posts) postWithAuthor = helper.GetPagedPostsSortedByPublishedDate(
                 pager,
@@ -208,6 +209,6 @@ namespace Articulate
 
         internal static string NormalizeAuthorName(string? authorName) =>
             (authorName ?? string.Empty)
-                .Trim();
+            .Trim();
     }
 }

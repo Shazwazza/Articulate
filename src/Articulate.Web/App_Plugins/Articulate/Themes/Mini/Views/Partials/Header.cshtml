@@ -3,15 +3,17 @@
 <div class="header-placeholder">&nbsp;</div>
 
 @{
-    string backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
+    var backgroundStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
 }
 <div class="header-content" style="@backgroundStyle">
 
     @if (!string.IsNullOrWhiteSpace(Model.BlogLogo)
-        && Uri.TryCreate(Model.BlogLogo, UriKind.RelativeOrAbsolute, out var logoUri)
-        && (!logoUri.IsAbsoluteUri || (logoUri.Scheme == Uri.UriSchemeHttp || logoUri.Scheme == Uri.UriSchemeHttps)))
+         && Uri.TryCreate(Model.BlogLogo, UriKind.RelativeOrAbsolute, out var logoUri)
+         && (!logoUri.IsAbsoluteUri || logoUri.Scheme == Uri.UriSchemeHttp || logoUri.Scheme == Uri.UriSchemeHttps))
     {
-        <a class="logo" href="@Model.ArticulateRootUrl()"><img src="@Model.BlogLogo" alt="Blog Logo" class="blog-logo" /></a>
+        <a class="logo" href="@Model.ArticulateRootUrl()">
+            <img src="@Model.BlogLogo" alt="Blog Logo" class="blog-logo"/>
+        </a>
     }
 
     <!--- Title --->

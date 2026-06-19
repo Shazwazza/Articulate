@@ -13,7 +13,8 @@ namespace Articulate.Syndication.BlogML
 
         public Collection<string> Tags
         {
-            get => _extensionTags; set => _extensionTags = value;
+            get => _extensionTags;
+            set => _extensionTags = value;
         }
 
         public bool Load(XPathNavigator source, XmlNamespaceManager manager)

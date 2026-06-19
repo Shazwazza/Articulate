@@ -1,15 +1,18 @@
 #nullable enable
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
-using Microsoft.Extensions.Logging;
 
 namespace Articulate.Services
 {
-    internal class ArticulateThemeResolver(IUmbracoContextAccessor umbracoContextAccessor, AppCaches appCaches, ILogger<ArticulateThemeResolver> logger)
+    internal class ArticulateThemeResolver(
+        IUmbracoContextAccessor umbracoContextAccessor,
+        AppCaches appCaches,
+        ILogger<ArticulateThemeResolver> logger)
         : IArticulateThemeResolver
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string? GetCurrentThemeName() =>
 
             // cache a single request.
@@ -30,7 +33,9 @@ namespace Articulate.Services
                     var themeName = articulateRoot.Value<string>("theme");
                     if (string.IsNullOrWhiteSpace(themeName))
                     {
-                        logger.LogInformation("No theme has been set for the Articulate root node '{BlogName}'. Articulate theme view resolution will be bypassed.", articulateRoot.Name);
+                        logger.LogInformation(
+                            "No theme has been set for the Articulate root node '{BlogName}'. Articulate theme view resolution will be bypassed.",
+                            articulateRoot.Name);
                     }
 
                     return themeName?.StripHtml().StripNewLines().StripWhitespace() ?? string.Empty;

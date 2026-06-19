@@ -2,6 +2,7 @@
 using Articulate.Attributes;
 using Articulate.ImportExport;
 using Articulate.Models.Api;
+using Articulate.Options;
 using Articulate.Services;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,7 @@ using Umbraco.Cms.Web.Common.Authorization;
 namespace Articulate.Controllers.Api
 {
     /// <summary>
-    /// Provides import and export of Articulate blog data using BlogML and Disqus formats.
+    ///     Provides import and export of Articulate blog data using BlogML and Disqus formats.
     /// </summary>
     [ManagementApi(ArticulateConstants.ManagementApi.BlogMl)]
     [ApiVersion("1.0")]
@@ -31,16 +32,17 @@ namespace Articulate.Controllers.Api
         BlogMlImporter blogMlImporter,
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         ArticulateTempFileSystem articulateTempFileSystem,
-        IOptionsMonitor<Options.ArticulateOptions> articulateOptions,
+        IOptionsMonitor<ArticulateOptions> articulateOptions,
         IOptionsMonitor<RuntimeSettings> runtimeSettings,
         ILogger<BlogMlApiController> logger)
         : ManagementApiControllerBase
     {
         /// <summary>
-        /// Begins the BlogML import process by accepting an uploaded XML file.
+        ///     Begins the BlogML import process by accepting an uploaded XML file.
         /// </summary>
         /// <param name="importFile">The file to import, must be an XML file in BlogML format.</param>
-        /// <remarks>The name specified in the form's element or FormData must match the name of the parameter, e.g., <![CDATA[<input type="file" name="importFile">]]></remarks>
+        /// <remarks>
+        ///     The name specified in the form's element or FormData must match the name of the parameter, e.g., <![CDATA[<input type="file" name="importFile">]]></remarks>
         /// <response code="200">Returns the temporary file name and post count.</response>
         /// <response code="415">The request is not a valid form file, file is missing, or the file is not XML.</response>
         /// <response code="500">Upload failed due to a server error.</response>
@@ -90,13 +92,13 @@ namespace Articulate.Controllers.Api
                 articulateTempFileSystem.AddFile(fileName, buffer);
 
                 BlogMlImportFileSummary summary = blogMlImporter.GetImportFileSummary(fileName);
-                Options.ArticulateOptions options = articulateOptions.CurrentValue;
-                bool isProductionMode = runtimeSettings.CurrentValue.Mode == RuntimeMode.Production;
-                bool allowUnsafeLocalExternalImageHosts =
+                ArticulateOptions options = articulateOptions.CurrentValue;
+                var isProductionMode = runtimeSettings.CurrentValue.Mode == RuntimeMode.Production;
+                var allowUnsafeLocalExternalImageHosts =
                     !isProductionMode &&
                     options.AllowUnsafeLocalExternalImageHostsInDevelopment;
                 ISet<string> allowedHosts = options.AllowedMediaHosts.ToHashSet(StringComparer.OrdinalIgnoreCase);
-                string[] blockedExternalHosts = summary.ExternalHosts
+                var blockedExternalHosts = summary.ExternalHosts
                     .Where(host => ExternalImageHostPolicy.ValidateHost(
                         host,
                         allowedHosts,
@@ -126,7 +128,7 @@ namespace Articulate.Controllers.Api
         }
 
         /// <summary>
-        /// Deletes a previously uploaded temporary BlogML import file.
+        ///     Deletes a previously uploaded temporary BlogML import file.
         /// </summary>
         /// <param name="tempFile">The temporary file name returned by the import-file endpoint.</param>
         /// <response code="204">The temporary file was deleted or did not exist.</response>
@@ -153,7 +155,7 @@ namespace Articulate.Controllers.Api
         }
 
         /// <summary>
-        /// Exports blog data as a BlogML XML file.
+        ///     Exports blog data as a BlogML XML file.
         /// </summary>
         /// <param name="model">The export options including the Articulate node ID and image export settings.</param>
         /// <response code="200">Returns the BlogML XML file as a downloadable stream.</response>
@@ -206,7 +208,8 @@ namespace Articulate.Controllers.Api
                     "Export failed due to an invalid operation, likely a missing or invalid blog node.");
                 return Problem(
                     title: "Service Unavailable",
-                    detail: "The requested blog export could not be completed because the Articulate blog node was unavailable or invalid.",
+                    detail:
+                    "The requested blog export could not be completed because the Articulate blog node was unavailable or invalid.",
                     statusCode: StatusCodes.Status503ServiceUnavailable);
             }
             catch (Exception ex)
@@ -231,14 +234,16 @@ namespace Articulate.Controllers.Api
                     catch
                     {
                         // Best effort cleanup
-                        logger.LogWarning("An error occurred while deleting the temporary export file '{ExportFileName}'.", exportFileName);
+                        logger.LogWarning(
+                            "An error occurred while deleting the temporary export file '{ExportFileName}'.",
+                            exportFileName);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Imports blog data from a previously uploaded BlogML XML file.
+        ///     Imports blog data from a previously uploaded BlogML XML file.
         /// </summary>
         /// <param name="model">The import options including the temporary file name, Articulate node ID, and import settings.</param>
         /// <response code="200">Returns import statistics.</response>
@@ -320,7 +325,7 @@ namespace Articulate.Controllers.Api
         }
 
         /// <summary>
-        /// Downloads the exported Disqus comment XML file.
+        ///     Downloads the exported Disqus comment XML file.
         /// </summary>
         /// <response code="200">Returns the Disqus comment XML file as a downloadable stream.</response>
         /// <response code="404">The Disqus XML export file could not be found.</response>

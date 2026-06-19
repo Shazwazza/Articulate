@@ -5,7 +5,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Model for an individual author.
+    ///     Model for an individual author.
     /// </summary>
     public class AuthorModel : ListModel, IImageModel
     {
@@ -41,20 +41,17 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the author's bio.
+        ///     Gets the author's bio.
         /// </summary>
         public string Bio => this.Value<string>("authorBio") ?? string.Empty;
 
         /// <summary>
-        /// Gets the author's URL.
+        ///     Gets the author's URL.
         /// </summary>
         public string? AuthorUrl => this.Value<string>("authorUrl").ToSafeHrefUrl();
 
-        /// <inheritdoc/>
-        public MediaWithCrops? Image => _image.Value;
-
         /// <summary>
-        /// Gets the total post count for this author.
+        ///     Gets the total post count for this author.
         /// </summary>
         public int PostCount { get; }
 
@@ -62,16 +59,20 @@ namespace Articulate.Models
         // Not used internally or by default themes, but exposed for custom themes
 
         /// <summary>
-        /// Gets the date of the last post by this author.
+        ///     Gets the date of the last post by this author.
         /// </summary>
         public DateTime? LastPostDate => _lastPostDate.Value;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        public MediaWithCrops? Image => _image.Value;
+
+        /// <inheritdoc />
         string IImageModel.Url => this.Url();
 
         /// <summary>
-        /// Gets the wide cropped image URL.
+        ///     Gets the wide cropped image URL.
         /// </summary>
-        public string CroppedWideUrl => Image?.GetCropUrl(cropAlias: "wide", preferFocalPoint: true, useCropDimensions: true) ?? string.Empty;
+        public string CroppedWideUrl =>
+            Image?.GetCropUrl(cropAlias: "wide", preferFocalPoint: true, useCropDimensions: true) ?? string.Empty;
     }
 }

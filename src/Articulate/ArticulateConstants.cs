@@ -2,14 +2,14 @@
 namespace Articulate
 {
     /// <summary>
-    /// Constants used throughout the Articulate project.
+    ///     Constants used throughout the Articulate project.
     /// </summary>
     public static class ArticulateConstants
     {
         internal const string RefreshRoutesToken = "articulate-refresh-routes";
 
         /// <summary>
-        /// Content type aliases.
+        ///     Content type aliases.
         /// </summary>
         public static class ContentType
         {
@@ -23,7 +23,7 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Naming conventions and document aliases.
+        ///     Naming conventions and document aliases.
         /// </summary>
         public static class Convention
         {
@@ -33,7 +33,7 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Data type aliases and keys.
+        ///     Data type aliases and keys.
         /// </summary>
         public static class DataType
         {
@@ -46,23 +46,24 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Default theme names.
+        ///     Default theme names.
         /// </summary>
         public static class DefaultThemes
         {
-            /// <summary>
-            /// Gets all built-in theme names.
-            /// </summary>
-            public static IReadOnlyList<string> AllThemeNames { get; } = Array.AsReadOnly([Vapor, Material, Phantom, Mini]);
-
             private const string Material = "Material";
             private const string Mini = "Mini";
             private const string Phantom = "Phantom";
             private const string Vapor = "VAPOR";
+
+            /// <summary>
+            ///     Gets all built-in theme names.
+            /// </summary>
+            public static IReadOnlyList<string> AllThemeNames { get; } =
+                Array.AsReadOnly([Vapor, Material, Phantom, Mini]);
         }
 
         /// <summary>
-        /// Migration plan and step names.
+        ///     Migration plan and step names.
         /// </summary>
         public static class Migration
         {
@@ -85,7 +86,7 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Management API names and groups.
+        ///     Management API names and groups.
         /// </summary>
         public static class ManagementApi
         {

@@ -8,7 +8,7 @@ namespace Articulate
     public static class HtmlHelperExtensions
     {
         /// <summary>
-        /// Adds generic social meta tags.
+        ///     Adds generic social meta tags.
         /// </summary>
         public static IHtmlContent SocialMetaTags(this IHtmlHelper html, IMasterModel model)
         {

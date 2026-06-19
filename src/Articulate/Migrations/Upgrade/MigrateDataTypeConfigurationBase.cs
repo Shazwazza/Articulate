@@ -11,16 +11,17 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Articulate.Migrations.Upgrade
 {
     /// <summary>
-    /// Base class for migrations that update data type configurations.
+    ///     Base class for migrations that update data type configurations.
     /// </summary>
     public abstract class MigrateDataTypeConfigurationBase : AsyncMigrationBase
     {
-        private readonly IScopeProvider _scopeProvider;
+        private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = false };
         private readonly IDataTypeService _dataTypeService;
         private readonly ILogger<MigrateDataTypeConfigurationBase> _logger;
+        private readonly IScopeProvider _scopeProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MigrateDataTypeConfigurationBase"/> class.
+        ///     Initializes a new instance of the <see cref="MigrateDataTypeConfigurationBase" /> class.
         /// </summary>
         protected MigrateDataTypeConfigurationBase(
             IMigrationContext context,
@@ -35,7 +36,7 @@ namespace Articulate.Migrations.Upgrade
         }
 
         /// <summary>
-        /// Updates a data type with the specified configuration.
+        ///     Updates a data type with the specified configuration.
         /// </summary>
         /// <param name="id">The data type ID.</param>
         /// <param name="editorUiAlias">The editor UI alias.</param>
@@ -110,8 +111,6 @@ namespace Articulate.Migrations.Upgrade
             }
         }
 
-        private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = false };
-
         private static bool EqualsConfig(object? a, object? b, ILogger logger)
         {
             try
@@ -134,7 +133,7 @@ namespace Articulate.Migrations.Upgrade
                 return node;
             }
 
-            string json = JsonSerializer.Serialize(value ?? new Dictionary<string, object?>(), _serializerOptions);
+            var json = JsonSerializer.Serialize(value ?? new Dictionary<string, object?>(), _serializerOptions);
             var parsed = JsonNode.Parse(json);
             return parsed ?? JsonNode.Parse("{}")!;
         }

@@ -12,7 +12,7 @@ using Umbraco.Cms.Web.Common.Controllers;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Really simple discovery controller
+    ///     Really simple discovery controller
     /// </summary>
     [ArticulateDynamicRoute]
     public class RsdController(
@@ -23,7 +23,7 @@ namespace Articulate.Controllers
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         /// <summary>
-        /// Renders the RSD for the articulate node id
+        ///     Renders the RSD for the articulate node id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -50,7 +50,9 @@ namespace Articulate.Controllers
                         "api",
                         new XAttribute("name", "MetaWeblog"),
                         new XAttribute("preferred", true),
-                        new XAttribute("apiLink", node.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "metaweblog/" + id),
+                        new XAttribute(
+                            "apiLink",
+                            node.Url(mode: UrlMode.Absolute).EnsureEndsWith('/') + "metaweblog/" + id),
                         new XAttribute("blogID", node.Url(mode: UrlMode.Absolute)))));
 
             return new XmlResult(new XDocument(rsd));

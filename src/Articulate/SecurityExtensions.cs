@@ -2,12 +2,12 @@
 namespace Articulate
 {
     /// <summary>
-    /// Security extension methods for validating and sanitizing URLs to prevent XSS and injection attacks.
+    ///     Security extension methods for validating and sanitizing URLs to prevent XSS and injection attacks.
     /// </summary>
     public static class SecurityExtensions
     {
         /// <summary>
-        /// Validates a URL for use in href or src attributes. Allows http/https/mailto/tel and relative URLs.
+        ///     Validates a URL for use in href or src attributes. Allows http/https/mailto/tel and relative URLs.
         /// </summary>
         /// <param name="url">The URL to validate.</param>
         /// <returns>The URL if safe, otherwise <c>null</c>.</returns>
@@ -53,7 +53,7 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Validates and escapes a URL for use in CSS url() functions. Only allows http/https and relative URLs.
+        ///     Validates and escapes a URL for use in CSS url() functions. Only allows http/https and relative URLs.
         /// </summary>
         /// <param name="url">The URL to validate and escape.</param>
         /// <returns>The CSS-escaped URL if safe, otherwise <c>null</c>.</returns>
@@ -88,7 +88,9 @@ namespace Articulate
             try
             {
                 // AbsoluteUri preserves URI separators and query delimiters while escaping unsafe characters.
-                normalized = uri.IsAbsoluteUri ? uri.AbsoluteUri :
+                normalized = uri.IsAbsoluteUri
+                    ? uri.AbsoluteUri
+                    :
                     // For relative URLs, percent-encode literal spaces which commonly break requests.
                     url.Replace(" ", "%20");
             }
@@ -110,8 +112,8 @@ namespace Articulate
         }
 
         /// <summary>
-        /// Produces a safe CSS custom property declaration (e.g. "--post-image: url('...');") for
-        /// assigning URL-bearing background images from Razor attributes.
+        ///     Produces a safe CSS custom property declaration (e.g. "--post-image: url('...');") for
+        ///     assigning URL-bearing background images from Razor attributes.
         /// </summary>
         /// <param name="url">The URL to validate and escape for CSS.</param>
         /// <param name="variableName">The CSS custom property name, including the leading "--".</param>
@@ -120,7 +122,9 @@ namespace Articulate
         {
             if (!IsSafeCssCustomPropertyName(variableName))
             {
-                throw new ArgumentException("CSS custom property names must start with '--' and contain only letters, numbers, underscores, or hyphens.", nameof(variableName));
+                throw new ArgumentException(
+                    "CSS custom property names must start with '--' and contain only letters, numbers, underscores, or hyphens.",
+                    nameof(variableName));
             }
 
             var safe = url.ToSafeCssUrl();

@@ -21,7 +21,8 @@ namespace Articulate.Tests.Services
         public async Task IsBackOfficeLoggedInAsync_requires_the_requested_authentication_scheme()
         {
             const string requestedScheme = "BackOffice";
-            ClaimsPrincipal principal = new(new ClaimsIdentity([new Claim(ClaimTypes.Name, "editor")], requestedScheme));
+            ClaimsPrincipal principal =
+                new(new ClaimsIdentity([new Claim(ClaimTypes.Name, "editor")], requestedScheme));
             AuthenticationTicket ticket = new(principal, "DifferentScheme");
             Mock<IAuthenticationService> authentication = new();
             authentication
@@ -31,11 +32,11 @@ namespace Articulate.Tests.Services
             DefaultHttpContext context = new()
             {
                 RequestServices = new ServiceCollection()
-                .AddSingleton(authentication.Object)
-                .BuildServiceProvider()
+                    .AddSingleton(authentication.Object)
+                    .BuildServiceProvider()
             };
 
-            bool result = await CreateSut().IsBackOfficeLoggedInAsync(context, requestedScheme);
+            var result = await CreateSut().IsBackOfficeLoggedInAsync(context, requestedScheme);
 
             Assert.That(result, Is.False);
         }
@@ -54,12 +55,9 @@ namespace Articulate.Tests.Services
                 .Setup(x => x.GetPermissionsForPath(user.Object, "-1,100"))
                 .Returns(new EntityPermissionSet(
                     100,
-                    new EntityPermissionCollection
-                    {
-                        new(1, 100, new HashSet<string> { "A" })
-                    }));
+                    new EntityPermissionCollection { new EntityPermission(1, 100, new HashSet<string> { "A" }) }));
 
-            bool result = CreateSut(userService.Object).HasPermissions(user.Object, content.Object, ["A", "B"]);
+            var result = CreateSut(userService.Object).HasPermissions(user.Object, content.Object, ["A", "B"]);
 
             Assert.That(result, Is.False);
         }
@@ -67,7 +65,7 @@ namespace Articulate.Tests.Services
         [Test]
         public void HasPermissions_fails_closed_when_no_permissions_are_requested()
         {
-            bool result = CreateSut().HasPermissions(Mock.Of<IUser>(), Mock.Of<IContent>(), []);
+            var result = CreateSut().HasPermissions(Mock.Of<IUser>(), Mock.Of<IContent>(), []);
 
             Assert.That(result, Is.False);
         }

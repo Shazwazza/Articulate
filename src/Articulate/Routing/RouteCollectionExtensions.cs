@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Http;
 namespace Articulate.Routing
 {
     /// <summary>
-    /// Extension methods for route collections.
+    ///     Extension methods for route collections.
     /// </summary>
     public static class RouteCollectionExtensions
     {
         /// <summary>
-        /// Returns a route path from a given node's URL since a node's Url might contain a domain which we can't use in our routing.
+        ///     Returns a route path from a given node's URL since a node's Url might contain a domain which we can't use in our
+        ///     routing.
         /// </summary>
         /// <param name="httpContext">The HTTP context.</param>
         /// <param name="routePath">The route path or URL to convert.</param>

@@ -4,13 +4,14 @@ using Umbraco.Cms.Core.Models;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Service for processing and validating images across Articulate features (BlogML import, MetaWeblog, Markdown editor).
-    /// Centralizes image validation, processing, and storage logic.
+    ///     Service for processing and validating images across Articulate features (BlogML import, MetaWeblog, Markdown
+    ///     editor).
+    ///     Centralizes image validation, processing, and storage logic.
     /// </summary>
     public interface IArticulateImportMediaService
     {
         /// <summary>
-        /// Validates an image stream (extension matching only).
+        ///     Validates an image stream (extension matching only).
         /// </summary>
         /// <param name="stream">The image stream to validate.</param>
         /// <param name="originalExtension">The original file extension.</param>
@@ -18,7 +19,7 @@ namespace Articulate.Services
         public ValueTask<ImportMediaValidationResult> ValidateImageAsync(Stream stream, string originalExtension);
 
         /// <summary>
-        /// Decodes and validates a base64-encoded image, capped by Articulate:MaxImportImageBytes.
+        ///     Decodes and validates a base64-encoded image, capped by Articulate:MaxImportImageBytes.
         /// </summary>
         /// <param name="base64Content">The base64-encoded image content.</param>
         /// <param name="originalFileName">The original filename.</param>
@@ -28,7 +29,7 @@ namespace Articulate.Services
             string originalFileName);
 
         /// <summary>
-        /// Downloads and validates an image from an external URL.
+        ///     Downloads and validates an image from an external URL.
         /// </summary>
         /// <param name="imageUrl">The URL of the external image.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -38,7 +39,7 @@ namespace Articulate.Services
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Saves a validated image to the Umbraco media library.
+        ///     Saves a validated image to the Umbraco media library.
         /// </summary>
         /// <param name="imageStream">The image stream to save.</param>
         /// <param name="mediaName">The name for the media item.</param>
@@ -52,7 +53,7 @@ namespace Articulate.Services
             IMedia? parentFolder = null);
 
         /// <summary>
-        /// Saves a validated image to the Articulate file system (articulate/{guid}/{filename}).
+        ///     Saves a validated image to the Articulate file system (articulate/{guid}/{filename}).
         /// </summary>
         /// <param name="imageStream">The image stream to save.</param>
         /// <param name="extension">The file extension.</param>
@@ -61,44 +62,44 @@ namespace Articulate.Services
         public string SaveToFileSystem(Stream imageStream, string extension, string? originalFileName = null);
 
         /// <summary>
-        /// Gets or creates the Articulate media folder in the media library.
+        ///     Gets or creates the Articulate media folder in the media library.
         /// </summary>
         /// <returns>The media item representing the Articulate folder.</returns>
         public IMedia GetOrCreateArticulateMediaFolder();
     }
 
     /// <summary>
-    /// Represents the result of an image validation operation.
+    ///     Represents the result of an image validation operation.
     /// </summary>
     public class ImportMediaValidationResult
     {
         /// <summary>
-        /// Gets a value indicating whether the image is valid.
+        ///     Gets a value indicating whether the image is valid.
         /// </summary>
         public bool IsValid { get; init; }
 
         /// <summary>
-        /// The validated image stream. Caller is responsible for disposing this stream.
+        ///     The validated image stream. Caller is responsible for disposing this stream.
         /// </summary>
         public Stream? ValidatedStream { get; init; }
 
         /// <summary>
-        /// The correct file extension.
+        ///     The correct file extension.
         /// </summary>
         public string? CorrectExtension { get; init; }
 
         /// <summary>
-        /// The MIME type based on file extension (e.g., "image/jpeg", "image/png").
+        ///     The MIME type based on file extension (e.g., "image/jpeg", "image/png").
         /// </summary>
         public string? MimeType { get; init; }
 
         /// <summary>
-        /// Any error message if validation failed.
+        ///     Any error message if validation failed.
         /// </summary>
         public string? ErrorMessage { get; init; }
 
         /// <summary>
-        /// Creates a successful validation result.
+        ///     Creates a successful validation result.
         /// </summary>
         /// <param name="stream">The image stream.</param>
         /// <param name="correctExtension">The correct extension.</param>
@@ -111,7 +112,7 @@ namespace Articulate.Services
             };
 
         /// <summary>
-        /// Creates a failed validation result.
+        ///     Creates a failed validation result.
         /// </summary>
         /// <param name="errorMessage">The error message.</param>
         /// <returns>A failed validation result.</returns>
@@ -120,32 +121,32 @@ namespace Articulate.Services
     }
 
     /// <summary>
-    /// Represents the result of an image save operation.
+    ///     Represents the result of an image save operation.
     /// </summary>
     public class ImportMediaSaveResult
     {
         /// <summary>
-        /// Gets a value indicating whether the save was successful.
+        ///     Gets a value indicating whether the save was successful.
         /// </summary>
         public bool Success { get; init; }
 
         /// <summary>
-        /// The saved media item.
+        ///     The saved media item.
         /// </summary>
         public IMedia? Media { get; init; }
 
         /// <summary>
-        /// The UDI of the saved media item.
+        ///     The UDI of the saved media item.
         /// </summary>
         public string? MediaUdi { get; init; }
 
         /// <summary>
-        /// Any error message if saving failed.
+        ///     Any error message if saving failed.
         /// </summary>
         public string? ErrorMessage { get; init; }
 
         /// <summary>
-        /// Creates a successful save result.
+        ///     Creates a successful save result.
         /// </summary>
         /// <param name="media">The saved media item.</param>
         /// <param name="mediaUdi">The UDI of the media item.</param>
@@ -154,7 +155,7 @@ namespace Articulate.Services
             new() { Success = true, Media = media, MediaUdi = mediaUdi };
 
         /// <summary>
-        /// Creates a failed save result.
+        ///     Creates a failed save result.
         /// </summary>
         /// <param name="errorMessage">The error message.</param>
         /// <returns>A failed save result.</returns>

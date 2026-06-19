@@ -1,6 +1,6 @@
+@inject BackOfficeAuthService BackOfficeAuthService
 @using Articulate.Services
 @using Umbraco.Cms.Core
-@inject BackOfficeAuthService BackOfficeAuthService
 @inherits UmbracoViewPage<IMasterModel>
 
 <div class="mdl-card title-banner mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop">
@@ -21,7 +21,7 @@
     }
     <div class="mdl-card__media mdl-color--white mdl-color-text--grey-600">
         <a href="@Model.ArticulateRootUrl()">
-            <img src="@Model.BlogLogo" alt="Blog Logo" />
+            <img src="@Model.BlogLogo" alt="Blog Logo"/>
         </a>
     </div>
     @if (hasCustomBlogTitle || hasMenuItems)

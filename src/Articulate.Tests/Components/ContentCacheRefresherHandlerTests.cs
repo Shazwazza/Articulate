@@ -1,10 +1,12 @@
 #nullable enable
+using System.Data;
 using Articulate.Components;
 using Articulate.Routing;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Notifications;
@@ -12,6 +14,9 @@ using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services.Changes;
 using Umbraco.Cms.Core.Sync;
+using Umbraco.Cms.Core.Web;
+using IScope = Umbraco.Cms.Infrastructure.Scoping.IScope;
+using IScopeProvider = Umbraco.Cms.Infrastructure.Scoping.IScopeProvider;
 
 namespace Articulate.Tests.Components
 {
@@ -21,7 +26,7 @@ namespace Articulate.Tests.Components
         [Test]
         public void AffectsArticulateRoutes_returns_true_for_articulate_root_change()
         {
-            bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes(
+            var result = ArticulateRouteChangeDetector.AffectsArticulateRoutes(
                 "-1,100",
                 1,
                 0,
@@ -35,13 +40,13 @@ namespace Articulate.Tests.Components
         public void AffectsArticulateRoutes_returns_true_for_ancestor_of_nested_root()
         {
             IPublishedContent nestedRoot = CreatePublishedContent(
-                id: 200,
-                path: "-1,100,200",
-                level: 2,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                200,
+                "-1,100,200",
+                2,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
-            bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,100", 1, 0, "Home", [nestedRoot]);
+            var result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,100", 1, 0, "Home", [nestedRoot]);
 
             Assert.That(result, Is.True);
         }
@@ -50,13 +55,14 @@ namespace Articulate.Tests.Components
         public void AffectsArticulateRoutes_returns_false_for_unrelated_content()
         {
             IPublishedContent nestedRoot = CreatePublishedContent(
-                id: 200,
-                path: "-1,100,200",
-                level: 2,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                200,
+                "-1,100,200",
+                2,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
-            bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,999", 1, 0, "Elsewhere", [nestedRoot]);
+            var result =
+                ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,999", 1, 0, "Elsewhere", [nestedRoot]);
 
             Assert.That(result, Is.False);
         }
@@ -65,13 +71,13 @@ namespace Articulate.Tests.Components
         public void AffectsArticulateRoutes_returns_true_for_same_level_sort_precedence_change()
         {
             IPublishedContent root = CreatePublishedContent(
-                id: 200,
-                path: "-1,200",
-                level: 1,
-                sortOrder: 5,
-                alias: ArticulateConstants.ContentType.Articulate);
+                200,
+                "-1,200",
+                1,
+                5,
+                ArticulateConstants.ContentType.Articulate);
 
-            bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,150", 1, 1, "Sibling", [root]);
+            var result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,150", 1, 1, "Sibling", [root]);
 
             Assert.That(result, Is.True);
         }
@@ -80,16 +86,16 @@ namespace Articulate.Tests.Components
         public void Handle_refreshes_routes_for_refresh_by_id_when_content_affects_routes()
         {
             IPublishedContent changedContent = CreatePublishedContent(
-                id: 100,
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                100,
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateUmbracoContextAccessor(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById));
 
@@ -100,23 +106,23 @@ namespace Articulate.Tests.Components
         public void Handle_does_not_refresh_routes_for_refresh_by_id_when_content_does_not_affect_routes()
         {
             IPublishedContent articulateRoot = CreatePublishedContent(
-                id: 200,
-                path: "-1,100,200",
-                level: 2,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                200,
+                "-1,100,200",
+                2,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             IPublishedContent changedContent = CreatePublishedContent(
-                id: 999,
-                path: "-1,999",
-                level: 1,
-                sortOrder: 0,
-                alias: "Elsewhere");
+                999,
+                "-1,999",
+                1,
+                0,
+                "Elsewhere");
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [articulateRoot],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateUmbracoContextAccessor(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(999, MessageType.RefreshById));
 
@@ -127,16 +133,16 @@ namespace Articulate.Tests.Components
         public void Handle_refresh_by_payload_refreshes_when_payload_contains_refresh_node()
         {
             IPublishedContent changedContent = CreatePublishedContent(
-                id: 100,
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                100,
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateUmbracoContextAccessor(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(
                 new[] { new ContentCacheRefresher.JsonPayload { Id = 100, ChangeTypes = TreeChangeTypes.RefreshNode } },
@@ -177,8 +183,8 @@ namespace Articulate.Tests.Components
         [Test]
         public void Handle_refresh_by_id_returns_when_umbraco_context_is_unavailable()
         {
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContextAccessor> umbracoContextAccessor = new();
-            Umbraco.Cms.Core.Web.IUmbracoContext? context = null;
+            Mock<IUmbracoContextAccessor> umbracoContextAccessor = new();
+            IUmbracoContext? context = null;
             umbracoContextAccessor
                 .Setup(x => x.TryGetUmbracoContext(out context))
                 .Returns(false);
@@ -197,11 +203,11 @@ namespace Articulate.Tests.Components
         public void Handle_refresh_by_id_does_not_refresh_when_only_preview_content_exists()
         {
             IPublishedContent changedContent = CreatePublishedContent(
-                id: 100,
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                100,
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             Mock<IPublishedContentCache> publishedContentCache = new();
             publishedContentCache.Setup(x => x.GetById(100)).Returns((IPublishedContent?)null);
@@ -222,11 +228,11 @@ namespace Articulate.Tests.Components
         public void Handle_remove_by_id_uses_preview_lookup_when_live_lookup_returns_null()
         {
             IPublishedContent changedContent = CreatePublishedContent(
-                id: 100,
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                100,
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             Mock<IPublishedContentCache> publishedContentCache = new();
             publishedContentCache.Setup(x => x.GetById(100)).Returns((IPublishedContent?)null);
@@ -257,10 +263,10 @@ namespace Articulate.Tests.Components
         public void Handle_refresh_by_instance_marks_routes_dirty_when_content_affects_routes()
         {
             IContent changedContent = CreateContent(
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate);
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate);
 
             ContentCacheRefresherHandler sut = CreateSut([], out Mock<IArticulateRouteRefreshState> routeRefreshState);
 
@@ -273,11 +279,11 @@ namespace Articulate.Tests.Components
         public void Handle_refresh_by_instance_ignores_unpublished_content()
         {
             IContent changedContent = CreateContent(
-                path: "-1,100",
-                level: 1,
-                sortOrder: 0,
-                alias: ArticulateConstants.ContentType.Articulate,
-                published: false);
+                "-1,100",
+                1,
+                0,
+                ArticulateConstants.ContentType.Articulate,
+                false);
 
             ContentCacheRefresherHandler sut = CreateSut([], out Mock<IArticulateRouteRefreshState> routeRefreshState);
 
@@ -289,8 +295,8 @@ namespace Articulate.Tests.Components
         private static ContentCacheRefresherHandler CreateSut(
             IEnumerable<IPublishedContent> articulateRoots,
             out Mock<IArticulateRouteRefreshState> routeRefreshState,
-            Umbraco.Cms.Core.Web.IUmbracoContextAccessor? umbracoContextAccessor = null,
-            Umbraco.Cms.Infrastructure.Scoping.IScopeProvider? scopeProvider = null)
+            IUmbracoContextAccessor? umbracoContextAccessor = null,
+            IScopeProvider? scopeProvider = null)
         {
             routeRefreshState = new Mock<IArticulateRouteRefreshState>();
 
@@ -305,7 +311,7 @@ namespace Articulate.Tests.Components
                 .Returns(articulateRoots);
 
             return new ContentCacheRefresherHandler(
-                umbracoContextAccessor ?? Mock.Of<Umbraco.Cms.Core.Web.IUmbracoContextAccessor>(),
+                umbracoContextAccessor ?? Mock.Of<IUmbracoContextAccessor>(),
                 routeRefreshState.Object,
                 contentTypeCache.Object,
                 documentCacheService.Object,
@@ -313,16 +319,23 @@ namespace Articulate.Tests.Components
                 NullLogger<ContentCacheRefresherHandler>.Instance);
         }
 
-        private static Umbraco.Cms.Infrastructure.Scoping.IScopeProvider CreateScopeProvider()
+        private static IScopeProvider CreateScopeProvider()
         {
-            Mock<Umbraco.Cms.Infrastructure.Scoping.IScopeProvider> scopeProvider = new();
+            Mock<IScopeProvider> scopeProvider = new();
             scopeProvider
-                .Setup(x => x.CreateScope(It.IsAny<System.Data.IsolationLevel>(), It.IsAny<RepositoryCacheMode>(), It.IsAny<Umbraco.Cms.Core.Events.IEventDispatcher?>(), It.IsAny<Umbraco.Cms.Core.Events.IScopedNotificationPublisher?>(), It.IsAny<bool?>(), It.IsAny<bool>(), It.IsAny<bool>()))
-                .Returns(Mock.Of<Umbraco.Cms.Infrastructure.Scoping.IScope>());
+                .Setup(x => x.CreateScope(
+                    It.IsAny<IsolationLevel>(),
+                    It.IsAny<RepositoryCacheMode>(),
+                    It.IsAny<IEventDispatcher?>(),
+                    It.IsAny<IScopedNotificationPublisher?>(),
+                    It.IsAny<bool?>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<bool>()))
+                .Returns(Mock.Of<IScope>());
             return scopeProvider.Object;
         }
 
-        private static Umbraco.Cms.Core.Web.IUmbracoContextAccessor CreateUmbracoContextAccessor(
+        private static IUmbracoContextAccessor CreateUmbracoContextAccessor(
             IPublishedContent? liveContent = null,
             IPublishedContent? previewContent = null,
             IPublishedContentCache? publishedContentCache = null)
@@ -344,11 +357,11 @@ namespace Articulate.Tests.Components
                 }
             }
 
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContext> umbracoContext = new();
+            Mock<IUmbracoContext> umbracoContext = new();
             umbracoContext.SetupGet(x => x.Content).Returns(contentCache.Object);
 
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContextAccessor> umbracoContextAccessor = new();
-            Umbraco.Cms.Core.Web.IUmbracoContext? context = umbracoContext.Object;
+            Mock<IUmbracoContextAccessor> umbracoContextAccessor = new();
+            IUmbracoContext? context = umbracoContext.Object;
             umbracoContextAccessor
                 .Setup(x => x.TryGetUmbracoContext(out context))
                 .Returns(true);
@@ -356,7 +369,12 @@ namespace Articulate.Tests.Components
             return umbracoContextAccessor.Object;
         }
 
-        private static IContent CreateContent(string path, int level, int sortOrder, string alias, bool published = true)
+        private static IContent CreateContent(
+            string path,
+            int level,
+            int sortOrder,
+            string alias,
+            bool published = true)
         {
             Mock<ISimpleContentType> contentType = new();
             contentType.SetupGet(x => x.Alias).Returns(alias);
@@ -370,7 +388,12 @@ namespace Articulate.Tests.Components
             return content.Object;
         }
 
-        private static IPublishedContent CreatePublishedContent(int id, string path, int level, int sortOrder, string alias)
+        private static IPublishedContent CreatePublishedContent(
+            int id,
+            string path,
+            int level,
+            int sortOrder,
+            string alias)
         {
             Mock<IPublishedContentType> contentType = new();
             contentType.SetupGet(x => x.Alias).Returns(alias);

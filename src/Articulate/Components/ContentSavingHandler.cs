@@ -11,7 +11,7 @@ using Umbraco.Cms.Core.Services;
 namespace Articulate.Components
 {
     /// <summary>
-    /// Notification handler to set default values and auto-generate excerpts when Articulate content is saving.
+    ///     Notification handler to set default values and auto-generate excerpts when Articulate content is saving.
     /// </summary>
     public sealed class ContentSavingHandler(
         IContentTypeService contentTypeService,
@@ -22,7 +22,7 @@ namespace Articulate.Components
     {
         private readonly ArticulateOptions _articulateOptions = articulateOptions.Value;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Handle(ContentSavingNotification notification)
         {
             var saved = notification.SavedEntities.ToList();

@@ -22,7 +22,7 @@ using Task = System.Threading.Tasks.Task;
 namespace Articulate.ImportExport
 {
     /// <summary>
-    /// Importer for blog content from BlogML format.
+    ///     Importer for blog content from BlogML format.
     /// </summary>
     public class BlogMlImporter(
         DisqusXmlExporter disqusXmlExporter,
@@ -42,7 +42,7 @@ namespace Articulate.ImportExport
 #if UMBRACO_18_OR_GREATER
         , IIdKeyMap idKeyMap
 #endif
-        )
+    )
     {
         private const long MaxXmlCharacters = 10_000_000;
 
@@ -52,7 +52,7 @@ namespace Articulate.ImportExport
         {
             BlogMLDocument document = GetDocument(fileName);
 
-            string[] externalHosts = document.Posts
+            var externalHosts = document.Posts
                 .SelectMany(post => post.Attachments)
                 .Where(attachment => attachment.ExternalUri is not null && attachment.ExternalUri.IsAbsoluteUri)
                 .Select(attachment => attachment.ExternalUri!.Host)
@@ -61,7 +61,7 @@ namespace Articulate.ImportExport
                 .OrderBy(host => host, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
-            int externalImageCount = document.Posts
+            var externalImageCount = document.Posts
                 .SelectMany(post => post.Attachments)
                 .Count(attachment => attachment.ExternalUri is not null && attachment.ExternalUri.IsAbsoluteUri);
 
@@ -69,7 +69,7 @@ namespace Articulate.ImportExport
         }
 
         /// <summary>
-        /// Imports the blog content from a BlogML file.
+        ///     Imports the blog content from a BlogML file.
         /// </summary>
         /// <param name="userId">The ID of the user performing the import.</param>
         /// <param name="fileName">The name of the BlogML file in the temporary file system.</param>
@@ -80,7 +80,7 @@ namespace Articulate.ImportExport
         /// <param name="publishAll">If true, all imported posts are published.</param>
         /// <param name="exportDisqusXml">If true, an XML file for Disqus import is generated.</param>
         /// <param name="importFirstImage">If true, the first image in each post is extracted to a property.</param>
-        /// <returns>An <see cref="ImportResponseDto"/> containing import statistics.</returns>
+        /// <returns>An <see cref="ImportResponseDto" /> containing import statistics.</returns>
         internal async Task<ImportResponseDto> ImportAsync(
             int userId,
             string fileName,
@@ -198,7 +198,7 @@ namespace Articulate.ImportExport
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
                 MaxCharactersInDocument = MaxXmlCharacters,
-                MaxCharactersFromEntities = 1024,
+                MaxCharactersFromEntities = 1024
             };
 
             return XmlReader.Create(stream, settings);
@@ -267,10 +267,10 @@ namespace Articulate.ImportExport
                 languageService,
                 logger);
 
-            OperationResult authorsSaveResult = contentService.Save(authorsNode, userId: userId);
+            OperationResult authorsSaveResult = contentService.Save(authorsNode, userId);
             authorsSaveResult.EnsureSuccess(logger, $"save authors container {authorsNode.Id}");
 
-            PublishResult authorsPublishResult = contentService.Publish(authorsNode, ["*"], userId: userId);
+            PublishResult authorsPublishResult = contentService.Publish(authorsNode, ["*"], userId);
             authorsPublishResult.EnsureSuccess(logger, $"publish authors container {authorsNode.Id}");
 
             return authorsNode;
@@ -317,10 +317,10 @@ namespace Articulate.ImportExport
                 languageService,
                 logger);
 
-            OperationResult authorSaveResult = contentService.Save(authorNode, userId: userId);
+            OperationResult authorSaveResult = contentService.Save(authorNode, userId);
             authorSaveResult.EnsureSuccess(logger, $"save author {authorNode.Name}");
 
-            PublishResult authorPublishResult = contentService.Publish(authorNode, ["*"], userId: userId);
+            PublishResult authorPublishResult = contentService.Publish(authorNode, ["*"], userId);
             authorPublishResult.EnsureSuccess(logger, $"publish author {authorNode.Name}");
 
             return authorNode;
@@ -722,7 +722,9 @@ namespace Articulate.ImportExport
             catch (RegexMatchTimeoutException ex)
             {
                 logger.LogWarning(ex, "Regex operation timed out during import for pattern: {RegexMatch}", regexMatch);
-                throw new InvalidOperationException("The regex operation timed out. The pattern might be too complex.", ex);
+                throw new InvalidOperationException(
+                    "The regex operation timed out. The pattern might be too complex.",
+                    ex);
             }
         }
 
@@ -733,7 +735,7 @@ namespace Articulate.ImportExport
                 return;
             }
 
-            string slug = ExtractSlugFromPost(post);
+            var slug = ExtractSlugFromPost(post);
             await postNode.SetInvariantOrDefaultCultureValueAsync(
                 Constants.Conventions.Content.UrlName,
                 slug,
@@ -753,7 +755,7 @@ namespace Articulate.ImportExport
             var fileNameAndQuery = slugArray[^1];
             var fileNameAndQueryArray = fileNameAndQuery.Split(['?'], StringSplitOptions.RemoveEmptyEntries);
             var fileName = fileNameAndQueryArray[0];
-            int lastDotIndex = fileName.LastIndexOf('.');
+            var lastDotIndex = fileName.LastIndexOf('.');
             return lastDotIndex > 0 ? fileName[..lastDotIndex] : fileName;
         }
 
@@ -769,7 +771,7 @@ namespace Articulate.ImportExport
             if (post.Authors.Count > 0)
             {
                 BlogMLAuthor? author = authors.FirstOrDefault(x => x.Id.InvariantEquals(post.Authors[0]));
-                if (author is not null && authorIdsToName.TryGetValue(author.Id, out string? name))
+                if (author is not null && authorIdsToName.TryGetValue(author.Id, out var name))
                 {
                     await postNode
                         .SetInvariantOrDefaultCultureValueAsync("author", name, postType, languageService, logger);
@@ -784,7 +786,7 @@ namespace Articulate.ImportExport
         {
             if (publishAll)
             {
-                OperationResult saveResult = contentService.Save(postNode, userId: userId);
+                OperationResult saveResult = contentService.Save(postNode, userId);
                 saveResult.EnsureSuccess(logger, $"save post {postNode.Id}");
 
                 PublishResult publishResult = contentService.Publish(postNode, ["*"], userId);

@@ -22,7 +22,7 @@ using Tag = WilderMinds.MetaWeblog.Tag;
 namespace Articulate.MetaWeblog
 {
     /// <summary>
-    /// MetaWeblog API provider for Articulate.
+    ///     MetaWeblog API provider for Articulate.
     /// </summary>
     public class ArticulateMetaWeblogProvider(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -47,20 +47,20 @@ namespace Articulate.MetaWeblog
 #if UMBRACO_18_OR_GREATER
         , IIdKeyMap idKeyMap
 #endif
-        )
+    )
         : IMetaWeblogProvider
     {
         private static readonly char[] _commaSeparator = [','];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
             IUser user = await ValidateUserAsync(username, password);
@@ -91,11 +91,11 @@ namespace Articulate.MetaWeblog
             return content.Id.ToString(CultureInfo.InvariantCulture);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> DeletePostAsync(
             string key,
             string postid,
@@ -135,7 +135,7 @@ namespace Articulate.MetaWeblog
             return false;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<bool> EditPageAsync(
             string blogid,
             string pageid,
@@ -144,7 +144,7 @@ namespace Articulate.MetaWeblog
             Page page,
             bool publish) => throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
         {
             IUser user = await ValidateUserAsync(username, password);
@@ -191,11 +191,11 @@ namespace Articulate.MetaWeblog
             return true;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         {
             _ = await ValidateUserAsync(username, password);
@@ -206,21 +206,19 @@ namespace Articulate.MetaWeblog
 
             return categories.Select(x => new CategoryInfo
             {
-                title = x.Name,
-                description = x.Name,
-                categoryid = x.Id.ToString(CultureInfo.InvariantCulture)
+                title = x.Name, description = x.Name, categoryid = x.Id.ToString(CultureInfo.InvariantCulture)
             }).ToArray();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<Post> GetPostAsync(string postid, string username, string password)
         {
             _ = await ValidateUserAsync(username, password);
@@ -245,7 +243,7 @@ namespace Articulate.MetaWeblog
             return fromContent;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<Post[]> GetRecentPostsAsync(
             string blogid,
             string username,
@@ -262,7 +260,8 @@ namespace Articulate.MetaWeblog
             _ = await ValidateUserAsync(username, password);
 
             IEnumerable<IPublishedContent> archiveNodes =
-                BlogRoot().Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
+                BlogRoot().Children()
+                    .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
             IPublishedContent node =
                 archiveNodes.FirstOrDefault() ??
                 throw new InvalidOperationException("No Articulate Archive node found");
@@ -274,7 +273,7 @@ namespace Articulate.MetaWeblog
                         node.Id,
                         0,
                         numberOfPosts,
-                        out var _,
+                        out _,
                         ordering: Ordering.By("updateDate", Direction.Descending))
                     .Select(FromContent)
             ];
@@ -282,7 +281,7 @@ namespace Articulate.MetaWeblog
             return recent;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<Tag[]> GetTagsAsync(string blogid, string username, string password)
         {
             _ = await ValidateUserAsync(username, password);
@@ -296,11 +295,11 @@ namespace Articulate.MetaWeblog
             return tags;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task<UserInfo> GetUserInfoAsync(string key, string username, string password) =>
             throw new NotSupportedException();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         {
             _ = await ValidateUserAsync(username, password);
@@ -314,7 +313,7 @@ namespace Articulate.MetaWeblog
             return blogs;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<MediaObjectInfo> NewMediaObjectAsync(
             string blogid,
             string username,
@@ -443,7 +442,7 @@ namespace Articulate.MetaWeblog
         }
 
         /// <summary>
-        /// Processes rich text content from MetaWebLog clients.
+        ///     Processes rich text content from MetaWebLog clients.
         /// </summary>
         private async Task ProcessRichTextContentAsync(
             IContent content,
@@ -485,11 +484,11 @@ namespace Articulate.MetaWeblog
         }
 
         /// <summary>
-        /// Strips images with invalid protocols from HTML.
+        ///     Strips images with invalid protocols from HTML.
         /// </summary>
         /// <remarks>
-        /// Prevents file:///, javascript:, data:, and protocol-relative URLs.
-        /// Only allows http://, https://, and /media/ URLs.
+        ///     Prevents file:///, javascript:, data:, and protocol-relative URLs.
+        ///     Only allows http://, https://, and /media/ URLs.
         /// </remarks>
         internal static string StripInvalidImageUrls(string content)
         {
@@ -650,8 +649,8 @@ namespace Articulate.MetaWeblog
 
         private Post FromContent(IContent post)
         {
-            string[] tags = GetTagValues(post, "tags");
-            string[] categories = GetTagValues(post, "categories");
+            var tags = GetTagValues(post, "tags");
+            var categories = GetTagValues(post, "categories");
             DateTime? publishedDate = post.GetValue<DateTime?>("publishedDate");
 
             return new Post
@@ -660,7 +659,9 @@ namespace Articulate.MetaWeblog
                 postid = post.Id.ToString(CultureInfo.InvariantCulture),
                 dateCreated = publishedDate is { } value && value != default
                     ? value
-                    : post.CreateDate != default ? post.CreateDate : post.UpdateDate,
+                    : post.CreateDate != default
+                        ? post.CreateDate
+                        : post.UpdateDate,
                 mt_excerpt = post.GetValue<string>("excerpt"),
                 link = string.Empty,
                 mt_keywords = string.Join(',', tags),
@@ -670,20 +671,20 @@ namespace Articulate.MetaWeblog
                     : articulateMarkdownConverter.ToHtml(post.GetValue<string>("markdown") ?? string.Empty),
                 permalink = post.GetValue<string>(Constants.Conventions.Content.UrlName).IsNullOrWhiteSpace()
                     ? post.Name?.ToUrlSegment(shortStringHelper)
-                    : post.GetValue<string>(Constants.Conventions.Content.UrlName)?.ToUrlSegment(shortStringHelper),
+                    : post.GetValue<string>(Constants.Conventions.Content.UrlName)?.ToUrlSegment(shortStringHelper)
             };
         }
 
         private static string[] GetTagValues(IContent post, string propertyAlias)
         {
-            object? value = post.GetValue(propertyAlias);
+            var value = post.GetValue(propertyAlias);
             return value switch
             {
                 null => [],
                 string raw => SplitTagValue(raw),
                 IEnumerable<string> values => CleanTagValues(values),
                 IEnumerable<object> values => CleanTagValues(values.Select(x => x?.ToString())),
-                _ => SplitTagValue(value.ToString()),
+                _ => SplitTagValue(value.ToString())
             };
         }
 
@@ -705,13 +706,14 @@ namespace Articulate.MetaWeblog
         ///     can find.
         /// </summary>
         /// <param name="post">The Articulate post model to convert.</param>
-        /// <returns>A MetaWeblog <see cref="Post"/> populated from the Articulate post.</returns>
+        /// <returns>A MetaWeblog <see cref="Post" /> populated from the Articulate post.</returns>
         /// <remarks>
         ///     http://msdn.microsoft.com/en-us/library/bb463260.aspx
         ///     http://xmlrpc.scripting.com/metaWeblogApi.html
         ///     http://cyber.law.harvard.edu/rss/rss.html#hrelementsOfLtitemgt
         ///     http://codex.wordpress.org/XML-RPC_MetaWeblog_API
-        ///     https://blogengine.codeplex.com/SourceControl/latest#BlogEngine/BlogEngine.Core/API/MetaWeblog/MetaWeblogHandler.cs .
+        ///     https://blogengine.codeplex.com/SourceControl/latest#BlogEngine/BlogEngine.Core/API/MetaWeblog/MetaWeblogHandler.cs
+        ///     .
         /// </remarks>
         private static Post FromPost(PostModel post) => new()
         {
@@ -722,7 +724,7 @@ namespace Articulate.MetaWeblog
             wp_slug = post.Url(),
             mt_excerpt = post.Excerpt,
             mt_keywords = string.Join(',', post.Tags.ToArray()),
-            title = post.Name,
+            title = post.Name
         };
 
         private async Task<IUser> ValidateUserAsync(string username, string password)

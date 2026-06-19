@@ -8,36 +8,40 @@
 
 @if (hasCategoriesRoute || hasTagsRoute || hasSearchRoute)
 {
-<ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="menubtn">
-    @if (hasCategoriesRoute)
-    {
-        <li class="mdl-menu__item"><a href="@Model.ArticulateCategoriesUrl()">Archive</a></li>
-    }
-    @if (hasTagsRoute)
-    {
-        <li class="mdl-menu__item"><a href="@Model.ArticulateTagsUrl()">Tags</a></li>
-    }
-    @{
-        var onSearch = hasSearchRoute && Model.IsSearchRoute(Context);
-    }
-    @if (hasSearchRoute)
-    {
-        <li class="mdl-menu__item">
-            @if (onSearch)
-            {
-                <span aria-disabled="true" class="is-disabled">Search</span>
-            }
-            else
-            {
-                <a href="@Model.ArticulateSearchUrl()">Search</a>
-            }
-        </li>
-    }
-</ul>
-<button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-    <i class="material-icons" role="presentation">more_vert</i>
-    <span class="visuallyhidden">show menu</span>
-</button>
+    <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="menubtn">
+        @if (hasCategoriesRoute)
+        {
+            <li class="mdl-menu__item">
+                <a href="@Model.ArticulateCategoriesUrl()">Archive</a>
+            </li>
+        }
+        @if (hasTagsRoute)
+        {
+            <li class="mdl-menu__item">
+                <a href="@Model.ArticulateTagsUrl()">Tags</a>
+            </li>
+        }
+        @{
+            var onSearch = hasSearchRoute && Model.IsSearchRoute(Context);
+        }
+        @if (hasSearchRoute)
+        {
+            <li class="mdl-menu__item">
+                @if (onSearch)
+                {
+                    <span aria-disabled="true" class="is-disabled">Search</span>
+                }
+                else
+                {
+                    <a href="@Model.ArticulateSearchUrl()">Search</a>
+                }
+            </li>
+        }
+    </ul>
+    <button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">more_vert</i>
+        <span class="visuallyhidden">show menu</span>
+    </button>
 }
 
 <!-- Inline menu removed: rely on the dots dropdown menu only -->

@@ -15,10 +15,10 @@ using Umbraco.Cms.Web.Common.Controllers;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Rss controller
+    ///     Rss controller
     /// </summary>
     /// <remarks>
-    /// Cached for one minute
+    ///     Cached for one minute
     /// </remarks>
     [OutputCache(PolicyName = "Articulate300")]
     [ArticulateDynamicRoute]
@@ -33,12 +33,12 @@ namespace Articulate.Controllers
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         // NonAction so it is not routed since we want to use an overload below
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [NonAction]
         public override IActionResult Index() => Index(0);
 
         /// <summary>
-        /// Renders the main RSS feed.
+        ///     Renders the main RSS feed.
         /// </summary>
         public IActionResult Index(int? maxItems)
         {
@@ -87,7 +87,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Renders the RSS feed for a specific author.
+        ///     Renders the RSS feed for a specific author.
         /// </summary>
         public IActionResult Author(int authorId, int? maxItems)
         {
@@ -100,7 +100,8 @@ namespace Articulate.Controllers
             // create a master model
             var masterModel = new MasterModel(author, publishedValueFallback);
 
-            IEnumerable<IPublishedContent> archiveNodes = masterModel.RootBlogNode.Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
+            IEnumerable<IPublishedContent> archiveNodes = masterModel.RootBlogNode.Children()
+                .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
             IPublishedContent[] listNodes = archiveNodes.ToArray();
             if (listNodes.Length == 0)
             {
@@ -123,7 +124,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Renders the RSS feed for a specific category.
+        ///     Renders the RSS feed for a specific category.
         /// </summary>
         public IActionResult Categories(
             string tag,
@@ -141,7 +142,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Renders the RSS feed for a specific tag.
+        ///     Renders the RSS feed for a specific tag.
         /// </summary>
         public IActionResult Tags(
             string tag,
@@ -159,7 +160,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Renders an RSS feed for a tag group (categories or tags).
+        ///     Renders an RSS feed for a tag group (categories or tags).
         /// </summary>
         public IActionResult RenderTagsOrCategoriesRss(string tagGroup, string baseUrl, int maxItems, string tag)
         {
@@ -206,7 +207,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Returns the XSLT to render the RSS nicely in a browser
+        ///     Returns the XSLT to render the RSS nicely in a browser
         /// </summary>
         /// <returns></returns>
         public IActionResult FeedXslt()

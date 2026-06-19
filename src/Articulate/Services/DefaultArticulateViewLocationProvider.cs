@@ -34,8 +34,8 @@ namespace Articulate.Services
         }
 
         /// <summary>
-        /// Combines path segments and forces Forward Slashes for Razor View Engine compatibility.
-        /// Ensure the result starts with "/" to denote application root relative.
+        ///     Combines path segments and forces Forward Slashes for Razor View Engine compatibility.
+        ///     Ensure the result starts with "/" to denote application root relative.
         /// </summary>
         private static string BuildPath(params string[] parts)
         {

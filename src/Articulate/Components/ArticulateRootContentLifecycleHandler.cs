@@ -9,7 +9,7 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Articulate.Components
 {
     /// <summary>
-    /// Ensures required Articulate root child nodes exist on save and are published with the root when needed.
+    ///     Ensures required Articulate root child nodes exist on save and are published with the root when needed.
     /// </summary>
     internal class ArticulateRootContentLifecycleHandler(
         IContentTypeService contentTypeService,
@@ -20,40 +20,7 @@ namespace Articulate.Components
         : INotificationAsyncHandler<ContentSavedNotification>,
             INotificationAsyncHandler<ContentPublishedNotification>
     {
-        /// <inheritdoc/>
-        public async Task HandleAsync(ContentSavedNotification notification, CancellationToken cancellationToken)
-        {
-            foreach (IContent c in notification.SavedEntities)
-            {
-                if (!c.WasPropertyDirty("Id") ||
-                    !c.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.Articulate))
-                {
-                    continue;
-                }
-
-                var defaultLang = await languageService.GetDefaultIsoCodeAsync();
-                cancellationToken.ThrowIfCancellationRequested();
-
-                using IScope scope = scopeProvider.CreateScope(autoComplete: true);
-                _ = EnsureChildNodeExists(
-                    c,
-                    ArticulateConstants.ContentType.ArticulateArchive,
-                    ArticulateConstants.Convention.ArticlesDocument,
-                    defaultLang,
-                    cancellationToken);
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                _ = EnsureChildNodeExists(
-                    c,
-                    ArticulateConstants.ContentType.ArticulateAuthors,
-                    ArticulateConstants.Convention.AuthorsDocument,
-                    defaultLang,
-                    cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task HandleAsync(ContentPublishedNotification notification, CancellationToken cancellationToken)
         {
             foreach (IContent root in notification.PublishedEntities)
@@ -85,6 +52,39 @@ namespace Articulate.Components
                         ArticulateConstants.Convention.AuthorsDocument,
                         defaultLang,
                         cancellationToken),
+                    cancellationToken);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task HandleAsync(ContentSavedNotification notification, CancellationToken cancellationToken)
+        {
+            foreach (IContent c in notification.SavedEntities)
+            {
+                if (!c.WasPropertyDirty("Id") ||
+                    !c.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.Articulate))
+                {
+                    continue;
+                }
+
+                var defaultLang = await languageService.GetDefaultIsoCodeAsync();
+                cancellationToken.ThrowIfCancellationRequested();
+
+                using IScope scope = scopeProvider.CreateScope(autoComplete: true);
+                _ = EnsureChildNodeExists(
+                    c,
+                    ArticulateConstants.ContentType.ArticulateArchive,
+                    ArticulateConstants.Convention.ArticlesDocument,
+                    defaultLang,
+                    cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                _ = EnsureChildNodeExists(
+                    c,
+                    ArticulateConstants.ContentType.ArticulateAuthors,
+                    ArticulateConstants.Convention.AuthorsDocument,
+                    defaultLang,
                     cancellationToken);
             }
         }

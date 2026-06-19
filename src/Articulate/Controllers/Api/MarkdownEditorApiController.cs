@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Actions;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Membership;
@@ -47,7 +48,7 @@ namespace Articulate.Controllers.Api
 #if UMBRACO_18_OR_GREATER
         , IIdKeyMap idKeyMap
 #endif
-        )
+    )
         : ManagementApiControllerBase
     {
         /// <summary>
@@ -83,8 +84,8 @@ namespace Articulate.Controllers.Api
                 return permissionError;
             }
 
-            bool extractFirstImageAsProperty = articulateNode!.HasProperty("extractFirstImage")
-                                               && articulateNode.GetValue<bool>("extractFirstImage");
+            var extractFirstImageAsProperty = articulateNode!.HasProperty("extractFirstImage")
+                                              && articulateNode.GetValue<bool>("extractFirstImage");
 
             ParseImageResponse parsedImageResponse = await ParseImages(
                 model!.Body,
@@ -356,29 +357,6 @@ namespace Articulate.Controllers.Api
             return ImageProcessResult.FirstImage(saveResult.MediaUdi!, $"![{altText}]({absoluteMediaUrl})");
         }
 
-        private class ImageProcessResult
-        {
-            public bool IsFirstImage { get; private init; }
-            public string? FirstImageUdi { get; private init; }
-            public string ReplacementMarkdown { get; private init; } = string.Empty;
-
-            public static ImageProcessResult FirstImage(string udi, string markdown) =>
-                new() { IsFirstImage = true, FirstImageUdi = udi, ReplacementMarkdown = markdown };
-
-            public static ImageProcessResult RegularImage(string markdown) =>
-                new() { IsFirstImage = false, ReplacementMarkdown = markdown };
-
-            public static ImageProcessResult Removed() =>
-                new() { IsFirstImage = false, ReplacementMarkdown = string.Empty };
-        }
-
-        private class ParseImageResponse
-        {
-            public string BodyText { get; init; } = string.Empty;
-
-            public string FirstImage { get; init; } = string.Empty;
-        }
-
         private async Task PopulateContentPropertiesAsync(
             IContent content,
             IContentType contentType,
@@ -454,7 +432,7 @@ namespace Articulate.Controllers.Api
             if (!model.Slug.IsNullOrWhiteSpace())
             {
                 await content.SetInvariantOrDefaultCultureValueAsync(
-                    Umbraco.Cms.Core.Constants.Conventions.Content.UrlName,
+                    Constants.Conventions.Content.UrlName,
                     model.Slug,
                     contentType,
                     languageService,
@@ -493,6 +471,29 @@ namespace Articulate.Controllers.Api
             }
 
             return null;
+        }
+
+        private class ImageProcessResult
+        {
+            public bool IsFirstImage { get; private init; }
+            public string? FirstImageUdi { get; private init; }
+            public string ReplacementMarkdown { get; private init; } = string.Empty;
+
+            public static ImageProcessResult FirstImage(string udi, string markdown) =>
+                new() { IsFirstImage = true, FirstImageUdi = udi, ReplacementMarkdown = markdown };
+
+            public static ImageProcessResult RegularImage(string markdown) =>
+                new() { IsFirstImage = false, ReplacementMarkdown = markdown };
+
+            public static ImageProcessResult Removed() =>
+                new() { IsFirstImage = false, ReplacementMarkdown = string.Empty };
+        }
+
+        private class ParseImageResponse
+        {
+            public string BodyText { get; init; } = string.Empty;
+
+            public string FirstImage { get; init; } = string.Empty;
         }
     }
 }

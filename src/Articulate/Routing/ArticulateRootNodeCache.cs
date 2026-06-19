@@ -6,7 +6,7 @@ using Umbraco.Cms.Core.Routing;
 namespace Articulate.Routing
 {
     /// <summary>
-    /// Used to create all the dynamic routes.
+    ///     Used to create all the dynamic routes.
     /// </summary>
     internal class ArticulateRootNodeCache(ControllerActionDescriptor controllerActionDescriptor)
     {
@@ -21,7 +21,8 @@ namespace Articulate.Routing
         {
             KeyValuePair<int, IReadOnlyList<Domain>> found = _content.FirstOrDefault(x =>
                 (currentDomain is null && x.Value.Count == 0) ||
-                (currentDomain is not null && x.Value.Any(d => ArticulateDomainMatcher.Matches(d, currentDomain, (currentDomain as DomainAndUri)?.Uri))));
+                (currentDomain is not null && x.Value.Any(d =>
+                    ArticulateDomainMatcher.Matches(d, currentDomain, (currentDomain as DomainAndUri)?.Uri))));
 
             return found.Key; // 0 if no match (default KeyValuePair<int,...>.Key)
         }

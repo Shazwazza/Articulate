@@ -16,8 +16,5 @@ public class CustomGlobalSetupTeardown
     }
 
     [OneTimeTearDown]
-    public void TearDown()
-    {
-        _setupTearDown?.TearDown();
-    }
+    public void TearDown() => _setupTearDown?.TearDown();
 }

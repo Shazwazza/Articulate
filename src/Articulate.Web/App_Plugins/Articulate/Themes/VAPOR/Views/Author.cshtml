@@ -11,14 +11,18 @@
 <article class="post">
 
     <header>
-        <h1 class="post-title"><a href="@Model.ArticulateAuthorRssUrl()" title="AuthorRSS feed"><i class="fa-solid fa-rss"></i><span class="hidden">RSS</span></a> @Model.Name</h1>
+        <h1 class="post-title">
+            <a href="@Model.ArticulateAuthorRssUrl()" title="AuthorRSS feed">
+                <i class="fa-solid fa-rss"></i><span class="hidden">RSS</span>
+            </a> @Model.Name
+        </h1>
     </header>
     <section class="post-content">
 
         @if (Model.Image is not null)
         {
             var img = Model.Image.GetCropUrl(cropAlias: "wide", preferFocalPoint: true, useCropDimensions: true);
-            <img class="postImage" src="@img" fetchpriority="high" width="625" height="320" alt="@Model.Name author profile image" />
+            <img class="postImage" src="@img" fetchpriority="high" width="625" height="320" alt="@Model.Name author profile image"/>
         }
         <p>@Model.Bio</p>
         @if (Model.AuthorUrl is not null)
@@ -29,7 +33,7 @@
         }
     </section>
 
-    <hr />
+    <hr/>
 
     @if (Model.PostCount == 0)
     {
@@ -44,10 +48,6 @@
 
             @await Html.PartialAsync("Pager", Model.Pages)
         </div>
-
     }
 
 </article>
-
-
-

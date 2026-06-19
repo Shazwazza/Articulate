@@ -13,7 +13,7 @@ using Umbraco.Cms.Core.Services;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Ensures the Articulate-specific OpenIddict client is registered at application startup.
+    ///     Ensures the Articulate-specific OpenIddict client is registered at application startup.
     /// </summary>
     internal sealed class ArticulateApplicationManager(
         IServiceScopeFactory scopeFactory,
@@ -34,8 +34,8 @@ namespace Articulate.Services
         {
             ArticulateOpenIdClientOptions settings = options.Value;
             ArticulateOptions articulateSettings = articulateOptions.Value;
-            bool isProductionMode = runtimeSettings.Value.Mode == RuntimeMode.Production;
-            bool allowUnsafeLocalExternalImageHosts =
+            var isProductionMode = runtimeSettings.Value.Mode == RuntimeMode.Production;
+            var allowUnsafeLocalExternalImageHosts =
                 !isProductionMode &&
                 articulateSettings.AllowUnsafeLocalExternalImageHostsInDevelopment;
 
@@ -86,7 +86,7 @@ namespace Articulate.Services
                 return;
             }
 
-            object? existing = await applications.FindByClientIdAsync(settings.ClientId, cancellationToken);
+            var existing = await applications.FindByClientIdAsync(settings.ClientId, cancellationToken);
 
             if (existing is null)
             {
@@ -143,9 +143,9 @@ namespace Articulate.Services
 
         private bool TryPopulateMandatoryUris(ICollection<Uri> target, IEnumerable<string> sources, string clientId)
         {
-            bool added = false;
+            var added = false;
 
-            foreach (string candidate in sources)
+            foreach (var candidate in sources)
             {
                 if (Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri))
                 {
@@ -166,7 +166,7 @@ namespace Articulate.Services
 
         private void TryPopulateOptionalUris(ICollection<Uri> target, IEnumerable<string> sources, string clientId)
         {
-            foreach (string candidate in sources)
+            foreach (var candidate in sources)
             {
                 if (Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri))
                 {

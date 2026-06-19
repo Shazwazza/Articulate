@@ -1,39 +1,41 @@
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core;
 using Umbraco.Cms.Infrastructure.Migrations;
 
-namespace Articulate.Migrations.Upgrade.V_6_0_0;
-
-public class MakeBlogUrlNamesOptional(IMigrationContext context, IContentTypeService contentTypeService)
-    : AsyncMigrationBase(context)
+namespace Articulate.Migrations.Upgrade.V_6_0_0
 {
-    private static readonly string[] _optionalRouteAliases = ["categoriesUrlName", "tagsUrlName"];
-
-    protected override async Task MigrateAsync()
+    public class MakeBlogUrlNamesOptional(IMigrationContext context, IContentTypeService contentTypeService)
+        : AsyncMigrationBase(context)
     {
-        IContentType articulateContentType = contentTypeService.Get(ArticulateConstants.ContentType.Articulate);
-        if (articulateContentType == null)
-        {
-            return;
-        }
+        private static readonly string[] _optionalRouteAliases = ["categoriesUrlName", "tagsUrlName"];
 
-        var changed = false;
-        foreach (string propertyAlias in _optionalRouteAliases)
+        protected override async Task MigrateAsync()
         {
-            IPropertyType routeProperty = articulateContentType.PropertyTypes.FirstOrDefault(x => x.Alias == propertyAlias);
-            if (routeProperty is null || !routeProperty.Mandatory)
+            IContentType articulateContentType = contentTypeService.Get(ArticulateConstants.ContentType.Articulate);
+            if (articulateContentType == null)
             {
-                continue;
+                return;
             }
 
-            routeProperty.Mandatory = false;
-            changed = true;
-        }
+            var changed = false;
+            foreach (var propertyAlias in _optionalRouteAliases)
+            {
+                IPropertyType routeProperty =
+                    articulateContentType.PropertyTypes.FirstOrDefault(x => x.Alias == propertyAlias);
+                if (routeProperty is null || !routeProperty.Mandatory)
+                {
+                    continue;
+                }
 
-        if (changed)
-        {
-            await contentTypeService.UpdateAsync(articulateContentType, Constants.Security.SuperUserKey);
+                routeProperty.Mandatory = false;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                await contentTypeService.UpdateAsync(articulateContentType, Constants.Security.SuperUserKey);
+            }
         }
     }
 }

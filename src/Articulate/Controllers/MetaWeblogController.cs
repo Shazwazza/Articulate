@@ -17,13 +17,13 @@ using WilderMinds.MetaWeblog;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Custom controller to handle the weblog endpoints so that we can wire
-    /// up the articulate start node for the IMetaWeblogProvider data source.
+    ///     Custom controller to handle the weblog endpoints so that we can wire
+    ///     up the articulate start node for the IMetaWeblogProvider data source.
     /// </summary>
     /// <remarks>
-    /// The nuget package we use https://github.com/shawnwildermuth/MetaWeblog has
-    /// middleware but that just supports one endpoint, we are basically wrapping that
-    /// with our own multi-tenanted version.
+    ///     The nuget package we use https://github.com/shawnwildermuth/MetaWeblog has
+    ///     middleware but that just supports one endpoint, we are basically wrapping that
+    ///     with our own multi-tenanted version.
     /// </remarks>
     [ArticulateDynamicRoute]
     public class MetaWeblogController(
@@ -40,12 +40,12 @@ namespace Articulate.Controllers
         private const int RequestBodyLimitMultiplier = 2;
 
         /// <summary>
-        /// Handles MetaWeblog XML-RPC requests for the specified blog node.
+        ///     Handles MetaWeblog XML-RPC requests for the specified blog node.
         /// </summary>
         /// <param name="id">The node ID of the Articulate blog root.</param>
         /// <returns>
-        /// A 200 XML-RPC response with the MetaWeblog API result, a 400 if the node ID, size configuration,
-        /// or XML-RPC envelope is invalid, or a 413 if the request body exceeds the configured size limit.
+        ///     A 200 XML-RPC response with the MetaWeblog API result, a 400 if the node ID, size configuration,
+        ///     or XML-RPC envelope is invalid, or a 413 if the request body exceeds the configured size limit.
         /// </returns>
         [HttpPost]
         public async Task<ActionResult> IndexAsync(int id)
@@ -55,17 +55,18 @@ namespace Articulate.Controllers
                 return Problem("Invalid root node id");
             }
 
-            long maxImportImageBytes = articulateOptions.CurrentValue.MaxImportImageBytes;
+            var maxImportImageBytes = articulateOptions.CurrentValue.MaxImportImageBytes;
             if (maxImportImageBytes <= 0)
             {
                 return Problem("MaxImportImageBytes must be greater than zero");
             }
+
             if (maxImportImageBytes > long.MaxValue / RequestBodyLimitMultiplier)
             {
                 return Problem("MaxImportImageBytes is too large");
             }
 
-            long maxRequestBodyBytes = maxImportImageBytes * RequestBodyLimitMultiplier;
+            var maxRequestBodyBytes = maxImportImageBytes * RequestBodyLimitMultiplier;
 
             if (Request.ContentLength is { } contentLength && contentLength > maxRequestBodyBytes)
             {
@@ -84,7 +85,7 @@ namespace Articulate.Controllers
             using var reader = new StreamReader(
                 new SizeLimitedStream(Request.Body, maxRequestBodyBytes),
                 Encoding.UTF8,
-                detectEncodingFromByteOrderMarks: true);
+                true);
             try
             {
                 rawContent = await reader.ReadToEndAsync(HttpContext.RequestAborted);
@@ -94,7 +95,7 @@ namespace Articulate.Controllers
                 return StatusCode(413, $"Request body exceeds the configured limit of {maxRequestBodyBytes} bytes");
             }
 
-            string normalized = NormalizeMetaWeblogRequest(rawContent);
+            var normalized = NormalizeMetaWeblogRequest(rawContent);
 
             if (!IsValidXmlRpcEnvelope(normalized))
             {
@@ -119,7 +120,7 @@ namespace Articulate.Controllers
             {
                 var doc = XDocument.Parse(content);
                 return doc.Root?.Name.LocalName == "methodCall"
-                    && doc.Descendants("methodName").FirstOrDefault() is not null;
+                       && doc.Descendants("methodName").FirstOrDefault() is not null;
             }
             catch (XmlException)
             {

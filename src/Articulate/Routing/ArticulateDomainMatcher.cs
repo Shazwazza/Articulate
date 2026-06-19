@@ -8,7 +8,10 @@ namespace Articulate.Routing
         public static bool Matches(Domain candidate, Domain currentDomain, Uri? currentUri = null)
         {
             if (candidate.IsWildcard != currentDomain.IsWildcard ||
-                !string.Equals(candidate.Culture ?? string.Empty, currentDomain.Culture ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+                !string.Equals(
+                    candidate.Culture ?? string.Empty,
+                    currentDomain.Culture ?? string.Empty,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -19,14 +22,17 @@ namespace Articulate.Routing
                 TryGetComparableUri(currentDomain, effectiveCurrentUri, out Uri? currentDomainUri))
             {
                 return Uri.Compare(
-                           candidateUri,
-                           currentDomainUri,
-                           UriComponents.SchemeAndServer | UriComponents.Path,
-                           UriFormat.Unescaped,
-                           StringComparison.OrdinalIgnoreCase) == 0;
+                    candidateUri,
+                    currentDomainUri,
+                    UriComponents.SchemeAndServer | UriComponents.Path,
+                    UriFormat.Unescaped,
+                    StringComparison.OrdinalIgnoreCase) == 0;
             }
 
-            return string.Equals(NormalizeName(candidate.Name), NormalizeName(currentDomain.Name), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(
+                NormalizeName(candidate.Name),
+                NormalizeName(currentDomain.Name),
+                StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool TryGetComparableUri(Domain domain, Uri currentUri, out Uri? comparableUri)

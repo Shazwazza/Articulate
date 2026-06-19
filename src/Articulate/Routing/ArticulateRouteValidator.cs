@@ -11,7 +11,8 @@ namespace Articulate.Routing
 {
     internal static class ArticulateRouteValidator
     {
-        private static readonly string[] _configuredRouteAliases = ["searchUrlName", "categoriesUrlName", "tagsUrlName"];
+        private static readonly string[] _configuredRouteAliases =
+            ["searchUrlName", "categoriesUrlName", "tagsUrlName"];
 
         private static readonly HashSet<string> _reservedRouteSegments = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -49,14 +50,15 @@ namespace Articulate.Routing
             foreach (IPublishedContent child in configuredChildren)
             {
 #if UMBRACO_18_OR_GREATER
-                string? childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(documentUrlService.GetUrlSegment(child.Key, string.Empty, true));
+                string? childRouteSegment =
+ ArticulateRouteSegmentHelper.NormalizeOrNull(documentUrlService.GetUrlSegment(child.Key, string.Empty, true));
 #else
-                string? childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(child.UrlSegment);
+                var childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(child.UrlSegment);
 #endif
                 if (childRouteSegment is not null)
                 {
-                    string childDescription = $"child content '{child.Name}'";
-                    if (configuredSegments.TryGetValue(childRouteSegment, out string? existingRouteSource))
+                    var childDescription = $"child content '{child.Name}'";
+                    if (configuredSegments.TryGetValue(childRouteSegment, out var existingRouteSource))
                     {
                         throw new InvalidOperationException(
                             $"Articulate root '{articulateRootNode.Name}' (id: {articulateRootNode.Id}) uses the same route segment " +
@@ -67,7 +69,7 @@ namespace Articulate.Routing
                 }
             }
 
-            foreach (string propertyAlias in _configuredRouteAliases)
+            foreach (var propertyAlias in _configuredRouteAliases)
             {
                 ValidateConfiguredRouteSegment(
                     articulateRootNode,
@@ -83,22 +85,23 @@ namespace Articulate.Routing
             IShortStringHelper shortStringHelper,
             IEnumerable<IUrlSegmentProvider> urlSegmentProviders)
         {
-            IReadOnlyList<IUrlSegmentProvider> urlSegmentProviderList = urlSegmentProviders as IReadOnlyList<IUrlSegmentProvider>
+            IReadOnlyList<IUrlSegmentProvider> urlSegmentProviderList =
+                urlSegmentProviders as IReadOnlyList<IUrlSegmentProvider>
                 ?? urlSegmentProviders.ToList();
             var configuredSegments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (IContent child in children)
             {
-                string? childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(
-                    child.GetUrlSegment(shortStringHelper, urlSegmentProviderList, culture: null, published: false));
+                var childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(
+                    child.GetUrlSegment(shortStringHelper, urlSegmentProviderList, null, false));
 
                 if (childRouteSegment is null)
                 {
                     continue;
                 }
 
-                string childDescription = $"child content '{child.Name}'";
-                if (configuredSegments.TryGetValue(childRouteSegment, out string? existingRouteSource))
+                var childDescription = $"child content '{child.Name}'";
+                if (configuredSegments.TryGetValue(childRouteSegment, out var existingRouteSource))
                 {
                     throw new InvalidOperationException(
                         $"Articulate root '{articulateRootNode.Name}' (id: {articulateRootNode.Id}) uses the same route segment " +
@@ -108,7 +111,7 @@ namespace Articulate.Routing
                 configuredSegments[childRouteSegment] = childDescription;
             }
 
-            foreach (string propertyAlias in _configuredRouteAliases)
+            foreach (var propertyAlias in _configuredRouteAliases)
             {
                 ValidateConfiguredRouteSegment(
                     articulateRootNode.Name ?? articulateRootNode.Id.ToString(),
@@ -139,7 +142,8 @@ namespace Articulate.Routing
                     List<string> overlappingDomains =
                     [
                         .. leftDomains
-                            .Where(leftDomain => rightDomains.Any(rightDomain => ArticulateDomainMatcher.Matches(leftDomain, rightDomain, currentUri)))
+                            .Where(leftDomain => rightDomains.Any(rightDomain =>
+                                ArticulateDomainMatcher.Matches(leftDomain, rightDomain, currentUri)))
                             .Select(leftDomain => leftDomain.Name)
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                     ];
@@ -181,7 +185,8 @@ namespace Articulate.Routing
                     List<string> overlappingDomains =
                     [
                         .. leftDomains
-                            .Where(leftDomain => rightDomains.Any(rightDomain => ArticulateDomainMatcher.Matches(leftDomain, rightDomain, currentUri)))
+                            .Where(leftDomain => rightDomains.Any(rightDomain =>
+                                ArticulateDomainMatcher.Matches(leftDomain, rightDomain, currentUri)))
                             .Select(leftDomain => leftDomain.Name)
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                     ];
@@ -222,7 +227,7 @@ namespace Articulate.Routing
             string? routeSegment,
             IDictionary<string, string> configuredSegments)
         {
-            string? normalizedRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(routeSegment);
+            var normalizedRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(routeSegment);
             if (normalizedRouteSegment is null)
             {
                 if (!string.IsNullOrEmpty(routeSegment))
@@ -250,7 +255,7 @@ namespace Articulate.Routing
                     $"'{normalizedRouteSegment}' for '{propertyAlias}'.");
             }
 
-            if (configuredSegments.TryGetValue(normalizedRouteSegment, out string? existingPropertyAlias))
+            if (configuredSegments.TryGetValue(normalizedRouteSegment, out var existingPropertyAlias))
             {
                 throw new InvalidOperationException(
                     $"Articulate root '{articulateRootName}' (id: {articulateRootId}) uses the same route segment " +
@@ -270,9 +275,9 @@ namespace Articulate.Routing
         {
             HashSet<int> nodePaths = [];
 
-            foreach (string pathSegment in path.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            foreach (var pathSegment in path.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                if (!int.TryParse(pathSegment, out int pathId))
+                if (!int.TryParse(pathSegment, out var pathId))
                 {
                     throw new InvalidOperationException(
                         $"Articulate root '{contentName}' (id: {contentId}) has invalid path '{path}'.");

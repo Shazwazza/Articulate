@@ -10,7 +10,7 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 namespace Articulate.Components
 {
     /// <summary>
-    /// Component to execute Articulate migration plans.
+    ///     Component to execute Articulate migration plans.
     /// </summary>
     public class ArticulatePlanComponent(
         ICoreScopeProvider scopeProvider,
@@ -19,11 +19,11 @@ namespace Articulate.Components
         IRuntimeState runtimeState)
         : IAsyncComponent
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task InitializeAsync(bool isRestarting, CancellationToken cancellationToken)
             => InitializeAsync(cancellationToken);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public Task TerminateAsync(bool isRestarting, CancellationToken cancellationToken) => Task.CompletedTask;
 
         private async Task InitializeAsync(CancellationToken cancellationToken)

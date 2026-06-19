@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate.Models
 {
     /// <summary>
-    /// Represents a page that displays a list of blog posts
+    ///     Represents a page that displays a list of blog posts
     /// </summary>
     public class ListModel : MasterModel
     {
@@ -12,15 +12,15 @@ namespace Articulate.Models
         private readonly Lazy<PostModel[]> _posts;
 
         /// <summary>
-        /// Accepts an explicit list of child items
+        ///     Accepts an explicit list of child items
         /// </summary>
         /// <param name="content"></param>
         /// <param name="listItems"></param>
         /// <param name="pager"></param>
         /// <param name="publishedValueFallback"></param>
         /// <remarks>
-        /// Default sorting by published date will be disabled for this list model, it is assumed that the list items will
-        /// already be sorted.
+        ///     Default sorting by published date will be disabled for this list model, it is assumed that the list items will
+        ///     already be sorted.
         /// </remarks>
         public ListModel(
             IPublishedContent? content,
@@ -48,12 +48,12 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Gets the pager model
+        ///     Gets the pager model
         /// </summary>
         public PagerModel? Pages { get; }
 
         /// <summary>
-        /// Gets a strongly typed access to the list of blog posts
+        ///     Gets a strongly typed access to the list of blog posts
         /// </summary>
         public IEnumerable<PostModel> Posts => _posts.Value;
 

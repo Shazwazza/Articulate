@@ -11,7 +11,7 @@ using Umbraco.Cms.Web.Common;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders the Articulate root node as the main blog post list by date
+    ///     Renders the Articulate root node as the main blog post list by date
     /// </summary>
     public class ArticulateController(
         ILogger<ArticulateController> logger,
@@ -24,7 +24,7 @@ namespace Articulate.Controllers
             publishedValueFallback)
     {
         /// <summary>
-        /// Declare new Index action with optional page number
+        ///     Declare new Index action with optional page number
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -40,7 +40,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
+        ///     Override and declare a NonAction so that we get routed to the Index action with the optional page route
         /// </summary>
         /// <returns></returns>
         [NonAction]
@@ -49,12 +49,15 @@ namespace Articulate.Controllers
         private IActionResult RenderView(ContentModel model, int? p = null)
         {
             IEnumerable<IPublishedContent> archiveNodes =
-                model.Content.Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
+                model.Content.Children()
+                    .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
             IPublishedContent[] listNodes = archiveNodes.ToArray();
 
             if (listNodes.Length == 0)
             {
-                logger.LogWarning("Articulate root {NodeId} has no published ArticulateArchive children", CurrentPage?.Id);
+                logger.LogWarning(
+                    "Articulate root {NodeId} has no published ArticulateArchive children",
+                    CurrentPage?.Id);
                 return NotFound();
             }
 
@@ -62,7 +65,7 @@ namespace Articulate.Controllers
 
             PagerModel pager = CreateRequestedPager(master, p);
 
-            (int totalPosts, IPublishedContent[] posts) = umbracoHelper.GetPagedPostsSortedByPublishedDate(
+            (var totalPosts, IPublishedContent[] posts) = umbracoHelper.GetPagedPostsSortedByPublishedDate(
                 pager,
                 null,
                 [.. listNodes.Select(x => x.Id)]);

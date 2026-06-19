@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Website.Routing;
 
 namespace Articulate.Tests.Routing
@@ -18,11 +19,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void TryMatch_returns_registered_root_cache_for_matching_path()
         {
-            ControllerActionDescriptor descriptor = new()
-            {
-                ControllerName = "ArticulateRss",
-                ActionName = "Index"
-            };
+            ControllerActionDescriptor descriptor = new() { ControllerName = "ArticulateRss", ActionName = "Index" };
 
             ArticulateRootNodeCache rootCache = new(descriptor);
             rootCache.Add(123, []);
@@ -34,7 +31,10 @@ namespace Articulate.Tests.Routing
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/rss"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/rss"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.True);
             Assert.That(matchedCache, Is.SameAs(rootCache));
@@ -53,7 +53,10 @@ namespace Articulate.Tests.Routing
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/search"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/search"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.False);
             Assert.That(matchedCache, Is.Null);
@@ -68,12 +71,12 @@ namespace Articulate.Tests.Routing
                 new ArticulateRouteTemplate(TemplateParser.Parse("/blog/rss")),
                 new ArticulateRootNodeCache(new ControllerActionDescriptor()));
 
-            RouteValueDictionary routeValues = new()
-            {
-                ["existing"] = "value"
-            };
+            RouteValueDictionary routeValues = new() { ["existing"] = "value" };
 
-            bool matched = sut.TryMatch(new PathString("/blog/search"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/search"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.False);
             Assert.That(matchedCache, Is.Null);
@@ -83,22 +86,23 @@ namespace Articulate.Tests.Routing
         [Test]
         public void TryMatch_populates_route_values_for_parameterized_match()
         {
-            ControllerActionDescriptor descriptor = new()
-            {
-                ControllerName = "ArticulateRss",
-                ActionName = "Author"
-            };
+            ControllerActionDescriptor descriptor = new() { ControllerName = "ArticulateRss", ActionName = "Author" };
 
             ArticulateRootNodeCache rootCache = new(descriptor);
             rootCache.Add(123, []);
 
             ArticulateRouter sut = CreateSut();
             ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> routeCache = sut.RouteCache;
-            routeCache.TryAdd(new ArticulateRouteTemplate(TemplateParser.Parse("/blog/author/{authorId}/rss")), rootCache);
+            routeCache.TryAdd(
+                new ArticulateRouteTemplate(TemplateParser.Parse("/blog/author/{authorId}/rss")),
+                rootCache);
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/author/alice/rss"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/author/alice/rss"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.True);
             Assert.That(matchedCache, Is.SameAs(rootCache));
@@ -108,25 +112,23 @@ namespace Articulate.Tests.Routing
         [Test]
         public void TryMatch_preserves_prepopulated_route_values_for_parameterized_match()
         {
-            ControllerActionDescriptor descriptor = new()
-            {
-                ControllerName = "ArticulateRss",
-                ActionName = "Author"
-            };
+            ControllerActionDescriptor descriptor = new() { ControllerName = "ArticulateRss", ActionName = "Author" };
 
             ArticulateRootNodeCache rootCache = new(descriptor);
             rootCache.Add(123, []);
 
             ArticulateRouter sut = CreateSut();
             ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache> routeCache = sut.RouteCache;
-            routeCache.TryAdd(new ArticulateRouteTemplate(TemplateParser.Parse("/blog/author/{authorId}/rss")), rootCache);
+            routeCache.TryAdd(
+                new ArticulateRouteTemplate(TemplateParser.Parse("/blog/author/{authorId}/rss")),
+                rootCache);
 
-            RouteValueDictionary routeValues = new()
-            {
-                ["existing"] = "value"
-            };
+            RouteValueDictionary routeValues = new() { ["existing"] = "value" };
 
-            bool matched = sut.TryMatch(new PathString("/blog/author/alice/rss"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/author/alice/rss"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.True);
             Assert.That(matchedCache, Is.SameAs(rootCache));
@@ -142,8 +144,7 @@ namespace Articulate.Tests.Routing
 
             ArticulateRootNodeCache expectedCache = new(new ControllerActionDescriptor
             {
-                ControllerName = "ArticulateRss",
-                ActionName = "FeedXslt"
+                ControllerName = "ArticulateRss", ActionName = "FeedXslt"
             });
 
             // These two routes have different segment counts, so only one can match
@@ -152,18 +153,23 @@ namespace Articulate.Tests.Routing
                 new ArticulateRouteTemplate(TemplateParser.Parse("/blog/author/{authorId}/rss")),
                 new ArticulateRootNodeCache(new ControllerActionDescriptor
                 {
-                    ControllerName = "ArticulateRss",
-                    ActionName = "Author"
+                    ControllerName = "ArticulateRss", ActionName = "Author"
                 }));
             routeCache.TryAdd(new ArticulateRouteTemplate(TemplateParser.Parse("/blog/rss/xslt")), expectedCache);
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/rss/xslt"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/rss/xslt"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.True);
             Assert.That(matchedCache, Is.SameAs(expectedCache));
-            Assert.That(routeValues.ContainsKey("authorId"), Is.False, "Route values should not contain leftovers from the non-matching parameterized route.");
+            Assert.That(
+                routeValues.ContainsKey("authorId"),
+                Is.False,
+                "Route values should not contain leftovers from the non-matching parameterized route.");
         }
 
         [Test]
@@ -177,7 +183,10 @@ namespace Articulate.Tests.Routing
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/author/alice/posts"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/author/alice/posts"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.False);
             Assert.That(matchedCache, Is.Null);
@@ -190,7 +199,10 @@ namespace Articulate.Tests.Routing
             ArticulateRouter sut = CreateSut();
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/blog/rss"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/blog/rss"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.False);
             Assert.That(matchedCache, Is.Null);
@@ -200,11 +212,7 @@ namespace Articulate.Tests.Routing
         [Test]
         public void TryMatch_matches_path_case_insensitively()
         {
-            ControllerActionDescriptor descriptor = new()
-            {
-                ControllerName = "ArticulateRss",
-                ActionName = "Index"
-            };
+            ControllerActionDescriptor descriptor = new() { ControllerName = "ArticulateRss", ActionName = "Index" };
 
             ArticulateRootNodeCache rootCache = new(descriptor);
             rootCache.Add(123, []);
@@ -215,7 +223,10 @@ namespace Articulate.Tests.Routing
 
             RouteValueDictionary routeValues = new();
 
-            bool matched = sut.TryMatch(new PathString("/Blog/RSS"), routeValues, out ArticulateRootNodeCache? matchedCache);
+            var matched = sut.TryMatch(
+                new PathString("/Blog/RSS"),
+                routeValues,
+                out ArticulateRootNodeCache? matchedCache);
 
             Assert.That(matched, Is.True);
             Assert.That(matchedCache, Is.SameAs(rootCache));
@@ -224,7 +235,7 @@ namespace Articulate.Tests.Routing
         private static ArticulateRouter CreateSut() =>
             new(
                 Mock.Of<IControllerActionSearcher>(),
-                Mock.Of<Umbraco.Cms.Infrastructure.Scoping.IScopeProvider>(),
+                Mock.Of<IScopeProvider>(),
                 NullLogger<ArticulateRouter>.Instance
 #if UMBRACO_18_OR_GREATER
                 , Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>()

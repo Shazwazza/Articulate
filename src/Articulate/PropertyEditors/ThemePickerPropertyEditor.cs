@@ -6,7 +6,7 @@ namespace Articulate.PropertyEditors
     // Maps to alias: \Client\src\editors\theme-picker.element.ts
     // ArticulateThemePicker | Umbraco.Plain.String
     /// <summary>
-    /// Property editor for picking Articulate themes.
+    ///     Property editor for picking Articulate themes.
     /// </summary>
     [DataEditor(
         ArticulateConstants.DataType.ArticulateThemePicker,
@@ -15,7 +15,7 @@ namespace Articulate.PropertyEditors
     public class ThemePickerPropertyEditor(IDataValueEditorFactory dataValueEditorFactory)
         : DataEditor(dataValueEditorFactory)
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override IConfigurationEditor CreateConfigurationEditor() => new ThemePickerConfigurationEditor();
     }
 }

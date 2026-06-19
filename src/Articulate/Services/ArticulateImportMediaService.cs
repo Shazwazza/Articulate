@@ -2,6 +2,7 @@
 using System.Collections.Frozen;
 using System.Net;
 using System.Net.Sockets;
+using Articulate.Options;
 using FileSignatures;
 using FileSignatures.Formats;
 using Microsoft.Extensions.Logging;
@@ -18,29 +19,32 @@ using Umbraco.Cms.Core.Strings;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Service for importing media into Articulate.
+    ///     Service for importing media into Articulate.
     /// </summary>
     public sealed class ArticulateImportMediaService : IArticulateImportMediaService
     {
+        private const int MaxRedirects = 5;
+
         private static readonly HttpRequestOptionsKey<IPAddress> _pinnedAddressOption =
             new("ArticulatePinnedAddress");
-        private const int MaxRedirects = 5;
+
         private static readonly FrozenSet<string> _fallbackAllowedExtensions =
             FrozenSet.ToFrozenSet([".png", ".jpg", ".jpeg", ".gif"]);
 
-        private readonly ILogger<ArticulateImportMediaService> _logger;
-        private readonly IMediaService _mediaService;
-        private readonly MediaFileManager _mediaFileManager;
-        private readonly IShortStringHelper _shortStringHelper;
-        private readonly MediaUrlGeneratorCollection _mediaUrlGenerators;
-        private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
         private readonly IAbsoluteUrlBuilder _absoluteUrlBuilder;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IOptionsMonitor<ContentSettings> _contentSettings;
-        private readonly IOptionsMonitor<RuntimeSettings> _runtimeSettings;
-        private readonly IOptionsMonitor<Options.ArticulateOptions> _articulateOptions;
-        private readonly IFileFormatInspector _fileFormatInspector;
         private readonly Lazy<IMedia> _articulateMediaFolder;
+        private readonly IOptionsMonitor<ArticulateOptions> _articulateOptions;
+        private readonly IOptionsMonitor<ContentSettings> _contentSettings;
+        private readonly IContentTypeBaseServiceProvider _contentTypeBaseServiceProvider;
+        private readonly IFileFormatInspector _fileFormatInspector;
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        private readonly ILogger<ArticulateImportMediaService> _logger;
+        private readonly MediaFileManager _mediaFileManager;
+        private readonly IMediaService _mediaService;
+        private readonly MediaUrlGeneratorCollection _mediaUrlGenerators;
+        private readonly IOptionsMonitor<RuntimeSettings> _runtimeSettings;
+        private readonly IShortStringHelper _shortStringHelper;
 
         public ArticulateImportMediaService(
             ILogger<ArticulateImportMediaService> logger,
@@ -54,7 +58,7 @@ namespace Articulate.Services
             IFileFormatInspector fileFormatInspector,
             IOptionsMonitor<ContentSettings> contentSettings,
             IOptionsMonitor<RuntimeSettings> runtimeSettings,
-            IOptionsMonitor<Options.ArticulateOptions> articulateOptions)
+            IOptionsMonitor<ArticulateOptions> articulateOptions)
         {
             _logger = logger;
             _mediaService = mediaService;
@@ -81,10 +85,10 @@ namespace Articulate.Services
             });
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IMedia GetOrCreateArticulateMediaFolder() => _articulateMediaFolder.Value;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<ImportMediaValidationResult> ValidateImageAsync(Stream stream, string originalExtension)
         {
             ContentSettings contentSettings = _contentSettings.CurrentValue;
@@ -108,11 +112,12 @@ namespace Articulate.Services
                     $"Extension '{extension}' not allowed. Supported: {string.Join(", ", allowedExtensions)}"));
             }
 
-            string? imageLimitError = TryGetMaxImportImageBytes(out long maxImportImageBytes);
+            var imageLimitError = TryGetMaxImportImageBytes(out var maxImportImageBytes);
             if (imageLimitError is not null)
             {
                 return ValueTask.FromResult(ImportMediaValidationResult.Failure(imageLimitError));
             }
+
             if (stream.CanSeek && stream.Length > maxImportImageBytes)
             {
                 return ValueTask.FromResult(ImportMediaValidationResult.Failure(
@@ -122,7 +127,7 @@ namespace Articulate.Services
             return ValueTask.FromResult(ValidateImageSignature(stream, extension, allowedExtensions));
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<ImportMediaValidationResult> DecodeAndValidateBase64ImageAsync(
             string base64Content,
             string originalFileName)
@@ -132,12 +137,13 @@ namespace Articulate.Services
                 return ImportMediaValidationResult.Failure("Base64 content is empty");
             }
 
-            string? imageLimitError = TryGetMaxImportImageBytes(out long maxImportImageBytes);
+            var imageLimitError = TryGetMaxImportImageBytes(out var maxImportImageBytes);
             if (imageLimitError is not null)
             {
                 return ImportMediaValidationResult.Failure(imageLimitError);
             }
-            long? estimatedDecodedBytes = TryEstimateBase64DecodedBytes(base64Content);
+
+            var estimatedDecodedBytes = TryEstimateBase64DecodedBytes(base64Content);
             if (estimatedDecodedBytes is { } estimatedBytes && estimatedBytes > maxImportImageBytes)
             {
                 return ImportMediaValidationResult.Failure(
@@ -161,7 +167,7 @@ namespace Articulate.Services
             }
 
             var stream = new MemoryStream(bytes);
-            string extension = Path.GetExtension(originalFileName).ToLowerInvariant();
+            var extension = Path.GetExtension(originalFileName).ToLowerInvariant();
 
             ImportMediaValidationResult result = await ValidateImageAsync(stream, extension);
             if (!result.IsValid)
@@ -172,55 +178,7 @@ namespace Articulate.Services
             return result;
         }
 
-        private static long? TryEstimateBase64DecodedBytes(string base64Content)
-        {
-            long nonWhitespaceLength = CountNonWhitespaceCharacters(base64Content);
-
-            if (nonWhitespaceLength == 0 || nonWhitespaceLength % 4 != 0)
-            {
-                return null;
-            }
-
-            return (nonWhitespaceLength / 4 * 3) - CountBase64PaddingCharacters(base64Content);
-        }
-
-        private static long CountNonWhitespaceCharacters(string value)
-        {
-            long count = 0;
-            foreach (char c in value)
-            {
-                if (!char.IsWhiteSpace(c))
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        private static int CountBase64PaddingCharacters(string value)
-        {
-            var count = 0;
-            for (var i = value.Length - 1; i >= 0 && count < 2; i--)
-            {
-                char c = value[i];
-                if (char.IsWhiteSpace(c))
-                {
-                    continue;
-                }
-
-                if (c != '=')
-                {
-                    break;
-                }
-
-                count++;
-            }
-
-            return count;
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<ImportMediaValidationResult> DownloadAndValidateImageAsync(
             Uri imageUrl,
             CancellationToken cancellationToken = default)
@@ -252,9 +210,155 @@ namespace Articulate.Services
             }
         }
 
+        /// <inheritdoc />
+        public ImportMediaSaveResult SaveToMediaLibrary(
+            Stream imageStream,
+            string mediaName,
+            string extension,
+            IMedia? parentFolder = null)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(mediaName))
+                {
+                    throw new ArgumentException(@"Media name cannot be empty", nameof(mediaName));
+                }
+
+                // Strip extension to avoid doubling up (e.g., image.png -> image-png.png)
+                var cleanMediaName = Path.GetFileNameWithoutExtension(mediaName);
+                if (string.IsNullOrWhiteSpace(cleanMediaName))
+                {
+                    cleanMediaName = "image";
+                }
+
+                var safeFileName = $"{cleanMediaName.ToSafeFileName(_shortStringHelper)}{extension}";
+
+                // Display name for backoffice - ToFriendlyName strips extensions and applies Title Case
+                var displayName = safeFileName.ToFriendlyName();
+                if (string.IsNullOrWhiteSpace(displayName))
+                {
+                    displayName = "Image";
+                }
+
+                if (displayName.Length > 100)
+                {
+                    displayName = displayName[..100];
+                }
+
+                var parentId = parentFolder?.Id ?? Constants.System.Root;
+
+                IMedia media = _mediaService.CreateMedia(displayName, parentId, Constants.Conventions.MediaTypes.Image);
+                media.SetValue(
+                    _mediaFileManager,
+                    _mediaUrlGenerators,
+                    _shortStringHelper,
+                    _contentTypeBaseServiceProvider,
+                    Constants.Conventions.Media.File,
+                    safeFileName,
+                    imageStream);
+
+                Attempt<OperationResult?> saveResult = _mediaService.Save(media);
+                if (!saveResult.Success)
+                {
+                    return ImportMediaSaveResult.Failed($"Failed to save media item: {displayName}");
+                }
+
+                var udi = Udi.Create(Constants.UdiEntityType.Media, media.Key).ToString();
+                return ImportMediaSaveResult.Succeeded(media, udi);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving image to media library");
+                return ImportMediaSaveResult.Failed($"Unexpected error: {ex.Message}");
+            }
+        }
+
+        /// <inheritdoc />
+        public string SaveToFileSystem(Stream imageStream, string extension, string? originalFileName = null)
+        {
+            try
+            {
+                // 8-char GUID folder for file isolation
+                var uniqueFolder = Guid.NewGuid().ToString("N")[..8];
+                string safeFileName;
+
+                if (!string.IsNullOrWhiteSpace(originalFileName))
+                {
+                    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
+                    var sanitized = fileNameWithoutExt.ToSafeFileName(_shortStringHelper);
+                    safeFileName = $"{sanitized}{extension}";
+                }
+                else
+                {
+                    safeFileName = $"{Guid.NewGuid():N}{extension}".ToSafeFileName(_shortStringHelper);
+                }
+
+                var fileUrl = $"articulate/{uniqueFolder}/{safeFileName}";
+
+                imageStream.Position = 0;
+                _mediaFileManager.FileSystem.AddFile(fileUrl, imageStream);
+
+                var fileSystemUrl = _mediaFileManager.FileSystem.GetUrl(fileUrl);
+                return _absoluteUrlBuilder.ToAbsoluteUrl(fileSystemUrl).ToString();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving image to file system");
+                return string.Empty;
+            }
+        }
+
+        private static long? TryEstimateBase64DecodedBytes(string base64Content)
+        {
+            var nonWhitespaceLength = CountNonWhitespaceCharacters(base64Content);
+
+            if (nonWhitespaceLength == 0 || nonWhitespaceLength % 4 != 0)
+            {
+                return null;
+            }
+
+            return (nonWhitespaceLength / 4 * 3) - CountBase64PaddingCharacters(base64Content);
+        }
+
+        private static long CountNonWhitespaceCharacters(string value)
+        {
+            long count = 0;
+            foreach (var c in value)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static int CountBase64PaddingCharacters(string value)
+        {
+            var count = 0;
+            for (var i = value.Length - 1; i >= 0 && count < 2; i--)
+            {
+                var c = value[i];
+                if (char.IsWhiteSpace(c))
+                {
+                    continue;
+                }
+
+                if (c != '=')
+                {
+                    break;
+                }
+
+                count++;
+            }
+
+            return count;
+        }
+
         /// <summary>
-        /// Applies size-limit checks and image validation to an already-received HTTP response.
-        /// Exposed as internal so unit tests can verify size-limiting without requiring a live HTTP server.
+        ///     Applies size-limit checks and image validation to an already-received HTTP response.
+        ///     Exposed as internal so unit tests can verify size-limiting without requiring a live HTTP server.
         /// </summary>
         internal async Task<ImportMediaValidationResult> ProcessImageResponseAsync(
             HttpResponseMessage response,
@@ -266,13 +370,13 @@ namespace Articulate.Services
                 return ImportMediaValidationResult.Failure($"HTTP error: {response.StatusCode}");
             }
 
-            string? imageLimitError = TryGetMaxImportImageBytes(out long maxImportImageBytes);
+            var imageLimitError = TryGetMaxImportImageBytes(out var maxImportImageBytes);
             if (imageLimitError is not null)
             {
                 return ImportMediaValidationResult.Failure(imageLimitError);
             }
 
-            long? contentLength = response.Content.Headers.ContentLength;
+            var contentLength = response.Content.Headers.ContentLength;
             if (contentLength is { } knownLength && knownLength > maxImportImageBytes)
             {
                 return ImportMediaValidationResult.Failure(
@@ -281,7 +385,7 @@ namespace Articulate.Services
 
             var memoryStream = new MemoryStream();
             await using Stream httpStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            bool copiedWithinLimit = await TryCopyToMemoryStreamAsync(
+            var copiedWithinLimit = await TryCopyToMemoryStreamAsync(
                 httpStream,
                 memoryStream,
                 maxImportImageBytes,
@@ -295,7 +399,7 @@ namespace Articulate.Services
             }
 
             memoryStream.Position = 0;
-            string extension = Path.GetExtension(finalUri.AbsolutePath).ToLowerInvariant();
+            var extension = Path.GetExtension(finalUri.AbsolutePath).ToLowerInvariant();
             ImportMediaValidationResult result = await ValidateImageAsync(memoryStream, extension);
 
             if (!result.IsValid)
@@ -367,9 +471,11 @@ namespace Articulate.Services
             throw new HttpRequestException("Image redirect handling failed unexpectedly");
         }
 
-        private async Task<IPAddress[]> GetValidatedPinnedAddressesAsync(Uri imageUrl, CancellationToken cancellationToken)
+        private async Task<IPAddress[]> GetValidatedPinnedAddressesAsync(
+            Uri imageUrl,
+            CancellationToken cancellationToken)
         {
-            (IPAddress[]? pinnedAddresses, string? validationError) =
+            (IPAddress[]? pinnedAddresses, var validationError) =
                 await ValidateExternalImageUrlAsync(imageUrl, cancellationToken);
 
             if (validationError is not null || pinnedAddresses is null || pinnedAddresses.Length == 0)
@@ -421,12 +527,12 @@ namespace Articulate.Services
             long maxBytes,
             CancellationToken cancellationToken)
         {
-            byte[] buffer = new byte[81920];
+            var buffer = new byte[81920];
             long totalBytes = 0;
 
             while (true)
             {
-                int bytesRead = await source.ReadAsync(buffer, cancellationToken);
+                var bytesRead = await source.ReadAsync(buffer, cancellationToken);
                 if (bytesRead == 0)
                 {
                     break;
@@ -446,7 +552,7 @@ namespace Articulate.Services
 
         private FrozenSet<string> GetAllowedImageExtensions()
         {
-            string[] configuredExtensions = _contentSettings.CurrentValue.Imaging.ImageFileTypes
+            var configuredExtensions = _contentSettings.CurrentValue.Imaging.ImageFileTypes
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.StartsWith('.') ? x.ToLowerInvariant() : $".{x.ToLowerInvariant()}")
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -477,15 +583,16 @@ namespace Articulate.Services
                     "File does not appear to be a valid image");
             }
 
-            string detectedExtension = NormalizeExtension($".{imageFormat.Extension}");
-            string canonicalExtension = GetCanonicalImageExtension(requestedExtension, detectedExtension, allowedExtensions);
+            var detectedExtension = NormalizeExtension($".{imageFormat.Extension}");
+            var canonicalExtension =
+                GetCanonicalImageExtension(requestedExtension, detectedExtension, allowedExtensions);
             if (!allowedExtensions.Contains(canonicalExtension))
             {
                 return ImportMediaValidationResult.Failure(
                     $"Detected image format '{detectedExtension}' not allowed. Supported: {string.Join(", ", allowedExtensions)}");
             }
 
-            string mimeType = canonicalExtension.GetImageMimeType();
+            var mimeType = canonicalExtension.GetImageMimeType();
             return ImportMediaValidationResult.Success(stream, canonicalExtension, mimeType);
         }
 
@@ -495,13 +602,13 @@ namespace Articulate.Services
         {
             // Articulate provides the explicit host allowlist via Articulate:AllowedMediaHosts.
             // After host validation we still resolve and vet the destination IPs per OWASP SSRF guidance.
-            Options.ArticulateOptions articulateOptions = _articulateOptions.CurrentValue;
-            bool isProductionMode = _runtimeSettings.CurrentValue.Mode == RuntimeMode.Production;
-            bool allowUnsafeLocalExternalImageHosts =
+            ArticulateOptions articulateOptions = _articulateOptions.CurrentValue;
+            var isProductionMode = _runtimeSettings.CurrentValue.Mode == RuntimeMode.Production;
+            var allowUnsafeLocalExternalImageHosts =
                 !isProductionMode &&
                 articulateOptions.AllowUnsafeLocalExternalImageHostsInDevelopment;
 
-            string? validationError = ValidateExternalImageUri(imageUrl);
+            var validationError = ValidateExternalImageUri(imageUrl);
             if (validationError is not null)
             {
                 return (null, validationError);
@@ -590,9 +697,12 @@ namespace Articulate.Services
                 UseProxy = false,
                 ConnectCallback = async (context, cancellationToken) =>
                 {
-                    if (!context.InitialRequestMessage.Options.TryGetValue(_pinnedAddressOption, out IPAddress? pinnedAddress))
+                    if (!context.InitialRequestMessage.Options.TryGetValue(
+                            _pinnedAddressOption,
+                            out IPAddress? pinnedAddress))
                     {
-                        throw new HttpRequestException("No validated IP address was available for the outbound image request");
+                        throw new HttpRequestException(
+                            "No validated IP address was available for the outbound image request");
                     }
 
                     var socket = new Socket(pinnedAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -600,7 +710,7 @@ namespace Articulate.Services
                     try
                     {
                         await socket.ConnectAsync(pinnedAddress, context.DnsEndPoint.Port, cancellationToken);
-                        return new NetworkStream(socket, ownsSocket: true);
+                        return new NetworkStream(socket, true);
                     }
                     catch
                     {
@@ -614,7 +724,7 @@ namespace Articulate.Services
         {
             SocketsHttpHandler handler = CreatePinnedHttpHandler();
 
-            HttpClient client = new(handler, disposeHandler: true)
+            HttpClient client = new(handler, true)
             {
                 BaseAddress = templateClient.BaseAddress,
                 DefaultRequestVersion = templateClient.DefaultRequestVersion,
@@ -630,7 +740,7 @@ namespace Articulate.Services
 
         private static string NormalizeExtension(string extension)
         {
-            string normalized = extension.ToLowerInvariant();
+            var normalized = extension.ToLowerInvariant();
             return normalized.StartsWith('.') ? normalized : $".{normalized}";
         }
 
@@ -652,103 +762,5 @@ namespace Articulate.Services
             (requestedExtension, detectedExtension) is
             (".jpg", ".jpeg") or
             (".jpeg", ".jpg");
-
-        /// <inheritdoc/>
-        public ImportMediaSaveResult SaveToMediaLibrary(
-            Stream imageStream,
-            string mediaName,
-            string extension,
-            IMedia? parentFolder = null)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(mediaName))
-                {
-                    throw new ArgumentException(@"Media name cannot be empty", nameof(mediaName));
-                }
-
-                // Strip extension to avoid doubling up (e.g., image.png -> image-png.png)
-                var cleanMediaName = Path.GetFileNameWithoutExtension(mediaName);
-                if (string.IsNullOrWhiteSpace(cleanMediaName))
-                {
-                    cleanMediaName = "image";
-                }
-
-                var safeFileName = $"{cleanMediaName.ToSafeFileName(_shortStringHelper)}{extension}";
-
-                // Display name for backoffice - ToFriendlyName strips extensions and applies Title Case
-                var displayName = safeFileName.ToFriendlyName();
-                if (string.IsNullOrWhiteSpace(displayName))
-                {
-                    displayName = "Image";
-                }
-
-                if (displayName.Length > 100)
-                {
-                    displayName = displayName[..100];
-                }
-
-                var parentId = parentFolder?.Id ?? Constants.System.Root;
-
-                IMedia media = _mediaService.CreateMedia(displayName, parentId, Constants.Conventions.MediaTypes.Image);
-                media.SetValue(
-                    _mediaFileManager,
-                    _mediaUrlGenerators,
-                    _shortStringHelper,
-                    _contentTypeBaseServiceProvider,
-                    Constants.Conventions.Media.File,
-                    safeFileName,
-                    imageStream);
-
-                Attempt<OperationResult?> saveResult = _mediaService.Save(media);
-                if (!saveResult.Success)
-                {
-                    return ImportMediaSaveResult.Failed($"Failed to save media item: {displayName}");
-                }
-
-                var udi = Udi.Create(Constants.UdiEntityType.Media, media.Key).ToString();
-                return ImportMediaSaveResult.Succeeded(media, udi);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving image to media library");
-                return ImportMediaSaveResult.Failed($"Unexpected error: {ex.Message}");
-            }
-        }
-
-        /// <inheritdoc/>
-        public string SaveToFileSystem(Stream imageStream, string extension, string? originalFileName = null)
-        {
-            try
-            {
-                // 8-char GUID folder for file isolation
-                var uniqueFolder = Guid.NewGuid().ToString("N")[..8];
-                string safeFileName;
-
-                if (!string.IsNullOrWhiteSpace(originalFileName))
-                {
-                    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
-                    var sanitized = fileNameWithoutExt.ToSafeFileName(_shortStringHelper);
-                    safeFileName = $"{sanitized}{extension}";
-                }
-                else
-                {
-                    safeFileName = $"{Guid.NewGuid():N}{extension}".ToSafeFileName(_shortStringHelper);
-                }
-
-                var fileUrl = $"articulate/{uniqueFolder}/{safeFileName}";
-
-                imageStream.Position = 0;
-                _mediaFileManager.FileSystem.AddFile(fileUrl, imageStream);
-
-                var fileSystemUrl = _mediaFileManager.FileSystem.GetUrl(fileUrl);
-                return _absoluteUrlBuilder.ToAbsoluteUrl(fileSystemUrl).ToString();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving image to file system");
-                return string.Empty;
-            }
-        }
     }
 }

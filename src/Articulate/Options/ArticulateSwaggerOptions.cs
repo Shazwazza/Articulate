@@ -1,29 +1,28 @@
 #nullable enable
-#if !UMBRACO_18_OR_GREATER
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.SwaggerGen;
-#endif
+
 using Articulate.Swagger;
 using Microsoft.Extensions.Options;
+#if !UMBRACO_18_OR_GREATER
+using System.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.SwaggerGen;
+#endif
+using Microsoft.OpenApi;
 #if UMBRACO_18_OR_GREATER
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
-#else
-using Microsoft.OpenApi;
 #endif
 
 namespace Articulate.Options
 {
 #if !UMBRACO_18_OR_GREATER
     /// <summary>
-    /// Configures Articulate management API OpenAPI generation across supported Umbraco versions.
+    ///     Configures Articulate management API OpenAPI generation across supported Umbraco versions.
     /// </summary>
     public class ArticulateSwaggerOptions(ILogger<ArticulateSwaggerOptions> logger)
         : IConfigureOptions<SwaggerGenOptions>
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void Configure(SwaggerGenOptions options)
         {
             var year = DateTime.Now.Year.ToString();
@@ -95,7 +94,8 @@ namespace Articulate.Options
             {
                 document.Info.Version = "Latest";
                 document.Info.Title = "Articulate Management API";
-                document.Info.Description = "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.";
+                document.Info.Description =
+ "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.";
                 return Task.CompletedTask;
             });
         }

@@ -40,14 +40,13 @@
 
 </head>
 <body class="@ViewBag.CssBodyClass">
-    @Model.GoogleAnalyticsNoScript()
+@Model.GoogleAnalyticsNoScript()
 
-    @await Html.PartialAsync("Sidebar", Model)
+@await Html.PartialAsync("Sidebar", Model)
 
-    <div class="content">
-        @RenderBody()
-    </div>
+<div class="content">
+    @RenderBody()
+</div>
 
 </body>
 </html>
-

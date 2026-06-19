@@ -4,12 +4,12 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate
 {
     /// <summary>
-    /// Provides searching capabilities for Articulate posts.
+    ///     Provides searching capabilities for Articulate posts.
     /// </summary>
     public interface IArticulateSearcher
     {
         /// <summary>
-        /// Searches for posts based on the provided term and criteria.
+        ///     Searches for posts based on the provided term and criteria.
         /// </summary>
         public IEnumerable<IPublishedContent>? Search(
             string term,

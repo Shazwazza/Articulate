@@ -30,7 +30,7 @@ namespace Articulate.Tests.Routing
         {
             ArticulateRouteRefreshState sut = new();
 
-            long version = sut.MarkDirty();
+            var version = sut.MarkDirty();
 
             Assert.That(version, Is.EqualTo(2));
             Assert.That(sut.CurrentVersion, Is.EqualTo(version));

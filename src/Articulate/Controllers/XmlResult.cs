@@ -8,7 +8,8 @@ namespace Articulate.Controllers
     internal class XmlResult(XDocument xDocument) : ActionResult
     {
         /// <summary>
-        /// Serialises the object that was passed into the constructor to XML and writes the corresponding XML to the result stream.
+        ///     Serialises the object that was passed into the constructor to XML and writes the corresponding XML to the result
+        ///     stream.
         /// </summary>
         public override Task ExecuteResultAsync(ActionContext context)
         {

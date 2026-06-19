@@ -1,8 +1,8 @@
 #nullable enable
+using System.Data;
 using Articulate.Routing;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -76,7 +76,7 @@ namespace Articulate.Tests.Routing
             Mock<IScopeProvider> scopeProvider = new();
             scopeProvider
                 .Setup(x => x.CreateCoreScope(
-                    It.IsAny<System.Data.IsolationLevel>(),
+                    It.IsAny<IsolationLevel>(),
                     It.IsAny<RepositoryCacheMode>(),
                     It.IsAny<IEventDispatcher?>(),
                     It.IsAny<IScopedNotificationPublisher?>(),
@@ -99,7 +99,8 @@ namespace Articulate.Tests.Routing
             IPublishedContentType articulateContentType = Mock.Of<IPublishedContentType>();
             IPublishedContentTypeCache publishedContentTypeCache =
                 Mock.Of<IPublishedContentTypeCache>(x =>
-                    x.Get(PublishedItemType.Content, ArticulateConstants.ContentType.Articulate) == articulateContentType);
+                    x.Get(PublishedItemType.Content, ArticulateConstants.ContentType.Articulate) ==
+                    articulateContentType);
             IDocumentCacheService documentCacheService =
                 Mock.Of<IDocumentCacheService>(x =>
                     x.GetByContentType(articulateContentType) == Array.Empty<IPublishedContent>());

@@ -8,13 +8,13 @@ namespace Articulate.Syndication
         [GeneratedRegex(
             " src=(?:\"|')(/media/.*?)(?:\"|')",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled,
-            matchTimeoutMilliseconds: 1000)]
+            1000)]
         public static partial Regex RelativeMediaSrcRegex();
 
         [GeneratedRegex(
             " href=(?:\"|')(/media/.*?)(?:\"|')",
             RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled,
-            matchTimeoutMilliseconds: 1000)]
+            1000)]
         public static partial Regex RelativeMediaHrefRegex();
     }
 }

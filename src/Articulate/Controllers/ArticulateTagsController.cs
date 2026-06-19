@@ -15,10 +15,10 @@ using Umbraco.Cms.Web.Common;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders the blog post archive by tags/categories and also the tag/category blog listing
+    ///     Renders the blog post archive by tags/categories and also the tag/category blog listing
     /// </summary>
     /// <remarks>
-    /// Cached for one minute
+    ///     Cached for one minute
     /// </remarks>
     [OutputCache(PolicyName = "Articulate60")]
     [ArticulateDynamicRoute]
@@ -35,7 +35,7 @@ namespace Articulate.Controllers
             publishedValueFallback)
     {
         /// <summary>
-        /// Used to render the category listing (virtual node)
+        ///     Used to render the category listing (virtual node)
         /// </summary>
         /// <param name="tag">The category to display if supplied</param>
         /// <param name="p"></param>
@@ -48,7 +48,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            string? categoriesUrlName = ArticulateRouteSegmentHelper.GetConfiguredSegment(CurrentPage, "categoriesUrlName");
+            var categoriesUrlName = ArticulateRouteSegmentHelper.GetConfiguredSegment(CurrentPage, "categoriesUrlName");
             if (categoriesUrlName is null)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Used to render the tag listing (virtual node)
+        ///     Used to render the tag listing (virtual node)
         /// </summary>
         /// <param name="tag">The tag to display if supplied</param>
         /// <param name="p"></param>
@@ -73,7 +73,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            string? tagUrlName = ArticulateRouteSegmentHelper.GetConfiguredSegment(CurrentPage, "tagsUrlName");
+            var tagUrlName = ArticulateRouteSegmentHelper.GetConfiguredSegment(CurrentPage, "tagsUrlName");
             if (tagUrlName is null)
             {
                 return NotFound();
@@ -88,7 +88,8 @@ namespace Articulate.Controllers
         {
             if (CurrentPage is null)
             {
-                logger.LogWarning("ArticulateTagsController.RenderTagsOrCategories: CurrentPage is null, returning 404");
+                logger.LogWarning(
+                    "ArticulateTagsController.RenderTagsOrCategories: CurrentPage is null, returning 404");
                 return NotFound();
             }
 
@@ -147,7 +148,9 @@ namespace Articulate.Controllers
                     masterModel.PageSize);
             }
 
-            return contentByTag is not { Posts: not null } ? NotFound() : GetPagedListView(masterModel, CurrentPage, contentByTag.Posts, contentByTag.PostCount, p);
+            return contentByTag is not { Posts: not null }
+                ? NotFound()
+                : GetPagedListView(masterModel, CurrentPage, contentByTag.Posts, contentByTag.PostCount, p);
         }
     }
 }

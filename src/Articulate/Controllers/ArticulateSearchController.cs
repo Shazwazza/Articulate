@@ -2,7 +2,9 @@
 using Articulate.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -10,7 +12,7 @@ using Umbraco.Cms.Core.Web;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders search results
+    ///     Renders search results
     /// </summary>
     [ArticulateDynamicRoute]
     public class ArticulateSearchController(
@@ -24,13 +26,13 @@ namespace Articulate.Controllers
             publishedValueFallback)
     {
         /// <summary>
-        /// Used to render the search result listing (virtual node)
+        ///     Used to render the search result listing (virtual node)
         /// </summary>
         /// <param name="term">
-        /// The search term
+        ///     The search term
         /// </param>
         /// <param name="indexName">
-        /// The searcher name (optional)
+        ///     The searcher name (optional)
         /// </param>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -78,10 +80,10 @@ namespace Articulate.Controllers
             }
 
             if (!indexName.Equals(
-                    Umbraco.Cms.Core.Constants.UmbracoIndexes.InternalIndexName,
+                    Constants.UmbracoIndexes.InternalIndexName,
                     StringComparison.OrdinalIgnoreCase) &&
                 !indexName.Equals(
-                    Umbraco.Cms.Core.Constants.UmbracoIndexes.MembersIndexName,
+                    Constants.UmbracoIndexes.MembersIndexName,
                     StringComparison.OrdinalIgnoreCase))
             {
                 return indexName;
@@ -91,7 +93,7 @@ namespace Articulate.Controllers
                 "ArticulateSearchController.Search: Blocked access to sensitive index '{IndexName}'",
                 indexName);
 
-            return Umbraco.Cms.Core.Constants.UmbracoIndexes.ExternalIndexName;
+            return Constants.UmbracoIndexes.ExternalIndexName;
         }
 
         private ListModel CreateEmptyListModel(IPublishedContent currentPage, MasterModel masterModel) =>
@@ -107,12 +109,12 @@ namespace Articulate.Controllers
 
             if (!string.IsNullOrWhiteSpace(term))
             {
-                url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(url, "term", term);
+                url = QueryHelpers.AddQueryString(url, "term", term);
             }
 
             if (!string.IsNullOrWhiteSpace(indexName))
             {
-                url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(url, "indexName", indexName);
+                url = QueryHelpers.AddQueryString(url, "indexName", indexName);
             }
 
             return url;

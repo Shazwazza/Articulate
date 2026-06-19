@@ -14,17 +14,14 @@ namespace Articulate
             int pageSize,
             out long totalRecords,
             IQuery<IContent>? filter = null,
-            Ordering? ordering = null)
-        {
-            return contentService.GetPagedChildren(
+            Ordering? ordering = null) =>
+            contentService.GetPagedChildren(
                 id,
                 pageIndex,
                 pageSize,
                 out totalRecords,
-                propertyAliases: null,
+                null,
                 filter,
-                ordering,
-                loadTemplates: true);
-        }
+                ordering);
     }
 }

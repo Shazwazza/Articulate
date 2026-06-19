@@ -9,7 +9,7 @@ namespace Articulate.Routing
 
         public static string? NormalizeOrNull(string? routeSegment)
         {
-            string normalizedRouteSegment = Normalize(routeSegment);
+            var normalizedRouteSegment = Normalize(routeSegment);
             return normalizedRouteSegment.Length == 0 ? null : normalizedRouteSegment;
         }
 
@@ -18,7 +18,7 @@ namespace Articulate.Routing
 
         public static string? CombineRoutePath(string rootNodePath, string? routeSegment)
         {
-            string? normalizedRouteSegment = NormalizeOrNull(routeSegment);
+            var normalizedRouteSegment = NormalizeOrNull(routeSegment);
             return normalizedRouteSegment is null ? null : $"{rootNodePath}{normalizedRouteSegment}";
         }
     }

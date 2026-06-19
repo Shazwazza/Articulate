@@ -7,7 +7,7 @@
 @section header
 {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css"
-        integrity="sha256-ko4j5rn874LF8dHwW29/xabhh8YBleWfvxb8nQce4Fc=" crossorigin="anonymous" media="all">
+          integrity="sha256-ko4j5rn874LF8dHwW29/xabhh8YBleWfvxb8nQce4Fc=" crossorigin="anonymous" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.38/dist/katex.min.css" integrity="sha256-RY5cj+WCt7sIKd7ocDoL1HSUDQ7IMt+1RVhHRVS2MJg=" crossorigin="anonymous" media="all">
 }
 
@@ -23,10 +23,10 @@
 
     <section class="post-content">
         @if (!string.IsNullOrWhiteSpace(Model.CroppedPostImageUrl)
-                && Uri.TryCreate(Model.CroppedPostImageUrl, UriKind.RelativeOrAbsolute, out var imgUri)
-                && (!imgUri.IsAbsoluteUri || (imgUri.Scheme == Uri.UriSchemeHttp || imgUri.Scheme == Uri.UriSchemeHttps)))
+             && Uri.TryCreate(Model.CroppedPostImageUrl, UriKind.RelativeOrAbsolute, out var imgUri)
+             && (!imgUri.IsAbsoluteUri || imgUri.Scheme == Uri.UriSchemeHttp || imgUri.Scheme == Uri.UriSchemeHttps))
         {
-            <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl" />
+            <img class="postImage" alt="@Model.Name" src="@Model.CroppedPostImageUrl"/>
         }
         @Model.Body
     </section>
@@ -41,10 +41,10 @@
 </article>
 
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-core.min.js"
-    integrity="sha256-bKrTFt2ZHyT4AE4LnBnAVctYKf9l6XP77kBvltgbjn4=" crossorigin="anonymous" defer></script>
+        integrity="sha256-bKrTFt2ZHyT4AE4LnBnAVctYKf9l6XP77kBvltgbjn4=" crossorigin="anonymous" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/autoloader/prism-autoloader.min.js"
-    integrity="sha256-AjM0J5XIbiB590BrznLEgZGLnOQWrt62s3BEq65Q/I0=" crossorigin="anonymous"
-    data-autoloader-path="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/" defer></script>
+        integrity="sha256-AjM0J5XIbiB590BrznLEgZGLnOQWrt62s3BEq65Q/I0=" crossorigin="anonymous"
+        data-autoloader-path="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.38/dist/katex.min.js" integrity="sha256-G2hiT4+WhwSWAR3lRvrTOAWxEuHhwPf6Z17ea6pHE2w=" crossorigin="anonymous" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.38/dist/contrib/auto-render.min.js" integrity="sha256-5TctGZvNrotN5x0PfOunKkuhJ3SifGCm8fd9A7MijuQ=" crossorigin="anonymous" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.13.0/dist/mermaid.min.js" integrity="sha256-PiACvzM5B/rnwdaGC7x49dpBe8cLZPPSJoWBuguouWo=" crossorigin="anonymous" defer></script>

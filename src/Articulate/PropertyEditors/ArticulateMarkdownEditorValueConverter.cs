@@ -13,7 +13,7 @@ namespace Articulate.PropertyEditors
     // Prevent conflicts if both Markdown Editors on content type
     // Keep this clone while supported Umbraco versions still expose the legacy Markdown editor shape.
     /// <summary>
-    /// Value converter for the Articulate Markdown editor.
+    ///     Value converter for the Articulate Markdown editor.
     /// </summary>
     public class ArticulateMarkdownEditorValueConverter(
         HtmlLocalLinkParser localLinkParser,
@@ -22,12 +22,12 @@ namespace Articulate.PropertyEditors
         IArticulateMarkdownConverter articulateMarkdownConverter)
         : MarkdownEditorValueConverter(localLinkParser, urlParser, umbracoMarkdownConverter)
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override bool IsConverter(IPublishedPropertyType propertyType)
             => propertyType.EditorUiAlias.Equals(ArticulateConstants.DataType.ArticulateMarkdownEditor) ||
                propertyType.EditorAlias.Equals(ArticulateConstants.DataType.ArticulateMarkdownEditor);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override object ConvertIntermediateToObject(
             IPublishedElement owner,
             IPublishedPropertyType propertyType,

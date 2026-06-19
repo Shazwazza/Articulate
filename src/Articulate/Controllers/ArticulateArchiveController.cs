@@ -11,7 +11,7 @@ using Umbraco.Cms.Web.Common;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Renders the Articulate Archive node as a blog post list by date
+    ///     Renders the Articulate Archive node as a blog post list by date
     /// </summary>
     public class ArticulateArchiveController(
         ILogger<ArticulateArchiveController> logger,
@@ -26,7 +26,7 @@ namespace Articulate.Controllers
         private UmbracoHelper Umbraco { get; } = umbraco;
 
         /// <summary>
-        /// Declare new Index action with optional page number
+        ///     Declare new Index action with optional page number
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
@@ -42,7 +42,7 @@ namespace Articulate.Controllers
         }
 
         /// <summary>
-        /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
+        ///     Override and declare a NonAction so that we get routed to the Index action with the optional page route
         /// </summary>
         /// <returns></returns>
         [NonAction]
@@ -59,7 +59,8 @@ namespace Articulate.Controllers
             }
 
             PagerModel pager = CreateRequestedPager(archive, p);
-            (var totalPosts, IPublishedContent[] posts) = Umbraco.GetPagedPostsSortedByPublishedDate(pager, null, archive.Id);
+            (var totalPosts, IPublishedContent[] posts) =
+                Umbraco.GetPagedPostsSortedByPublishedDate(pager, null, archive.Id);
 
             return GetPagedListView(archive, archive, posts, totalPosts, p);
         }

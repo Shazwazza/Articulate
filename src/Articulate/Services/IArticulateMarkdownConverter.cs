@@ -1,12 +1,12 @@
 namespace Articulate.Services
 {
     /// <summary>
-    /// Defines a service that converts Markdown-formatted text to HTML.
+    ///     Defines a service that converts Markdown-formatted text to HTML.
     /// </summary>
     public interface IArticulateMarkdownConverter
     {
         /// <summary>
-        /// Converts the specified Markdown-formatted text to an HTML-encoded string.
+        ///     Converts the specified Markdown-formatted text to an HTML-encoded string.
         /// </summary>
         /// <param name="markdown">The input string containing Markdown syntax to be converted.</param>
         /// <returns>A string containing the HTML representation of the input Markdown.</returns>

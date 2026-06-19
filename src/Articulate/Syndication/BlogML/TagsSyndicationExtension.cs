@@ -14,9 +14,9 @@ namespace Articulate.Syndication.BlogML
         {
             get;
         }
-        = new();
+            = new();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public int CompareTo(object? obj) =>
             obj switch
             {
@@ -38,7 +38,12 @@ namespace Articulate.Syndication.BlogML
                         syndicationExtension.Context.Tags,
                         StringComparison.OrdinalIgnoreCase),
                 _ => throw new ArgumentException(
-                    string.Format(null, @"obj is not of type {0}, type was found to be '{1}'.", GetType().FullName, obj.GetType().FullName), nameof(obj)),
+                    string.Format(
+                        null,
+                        @"obj is not of type {0}, type was found to be '{1}'.",
+                        GetType().FullName,
+                        obj.GetType().FullName),
+                    nameof(obj))
             };
 
         /// <inheritdoc />
@@ -70,16 +75,16 @@ namespace Articulate.Syndication.BlogML
             Context.WriteTo(writer, XmlNamespace);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override string ToString()
         {
             using var memoryStream = new MemoryStream();
-            using (var writer = XmlWriter.Create(memoryStream, new XmlWriterSettings
-            {
-                ConformanceLevel = ConformanceLevel.Fragment,
-                Indent = true,
-                OmitXmlDeclaration = true,
-            }))
+            using (var writer = XmlWriter.Create(
+                       memoryStream,
+                       new XmlWriterSettings
+                       {
+                           ConformanceLevel = ConformanceLevel.Fragment, Indent = true, OmitXmlDeclaration = true
+                       }))
             {
                 WriteTo(writer);
             }
@@ -89,7 +94,7 @@ namespace Articulate.Syndication.BlogML
             return streamReader.ReadToEnd();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override bool Equals(object? obj)
         {
             if (obj is not TagsSyndicationExtension)
@@ -100,7 +105,7 @@ namespace Articulate.Syndication.BlogML
             return CompareTo(obj) == 0;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hash = new HashCode();

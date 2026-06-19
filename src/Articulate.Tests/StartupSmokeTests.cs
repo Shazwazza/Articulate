@@ -8,29 +8,25 @@ namespace Articulate.Tests
     public class StartupSmokeTests
     {
         [Test]
-        public void WebsiteHostStartup_DoesNotThrow()
-        {
+        public void WebsiteHostStartup_DoesNotThrow() =>
             Assert.DoesNotThrow(() =>
             {
                 using WebApplication app = BuildApplication();
             });
-        }
 
         [Test]
-        public void DeliveryApiHostStartup_DoesNotThrow()
-        {
+        public void DeliveryApiHostStartup_DoesNotThrow() =>
             Assert.DoesNotThrow(() =>
             {
                 using WebApplication app = BuildApplication(static builder => builder.AddDeliveryApi());
             });
-        }
 
         [Test]
         public void DeliveryApiHostStartup_WithDevelopmentModeBackOfficeReferenced_DoesNotThrow()
         {
             var developmentModeType = Type.GetType(
                 "Umbraco.Cms.DevelopmentMode.Backoffice.InMemoryAuto.InMemoryModelFactory, Umbraco.Cms.DevelopmentMode.Backoffice",
-                throwOnError: false);
+                false);
 
             Assert.That(developmentModeType, Is.Not.Null);
 
@@ -50,7 +46,7 @@ namespace Articulate.Tests
             {
                 ApplicationName = typeof(StartupSmokeTests).Assembly.GetName().Name,
                 ContentRootPath = AppContext.BaseDirectory,
-                EnvironmentName = environmentName,
+                EnvironmentName = environmentName
             });
 
             IUmbracoBuilder umbracoBuilder = builder.CreateUmbracoBuilder()

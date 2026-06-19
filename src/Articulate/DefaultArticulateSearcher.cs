@@ -4,13 +4,14 @@ using System.Text;
 using Examine;
 using Examine.Search;
 using Lucene.Net.QueryParsers.Classic;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 
 namespace Articulate
 {
     /// <summary>
-    /// Default implementation of <see cref="IArticulateSearcher"/>.
+    ///     Default implementation of <see cref="IArticulateSearcher" />.
     /// </summary>
     public class DefaultArticulateSearcher(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -28,10 +29,10 @@ namespace Articulate
             { "nodeName", 3 },
             { "tags", 1 },
             { "categories", 1 },
-            { "umbracoUrlName", 3 },
+            { "umbracoUrlName", 3 }
         }.ToFrozenDictionary();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IEnumerable<IPublishedContent> Search(
             string term,
             string? indexName,
@@ -100,7 +101,7 @@ namespace Articulate
             }
 
             indexName = string.IsNullOrWhiteSpace(indexName)
-                ? Umbraco.Cms.Core.Constants.UmbracoIndexes.ExternalIndexName
+                ? Constants.UmbracoIndexes.ExternalIndexName
                 : indexName;
 
             if (!examineManager.TryGetIndex(indexName, out IIndex? index) || index is null)

@@ -10,7 +10,7 @@ using Umbraco.Cms.Core.Services;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Service for checking back-office authentication and permissions.
+    ///     Service for checking back-office authentication and permissions.
     /// </summary>
     public sealed class BackOfficeAuthService(
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
@@ -18,7 +18,7 @@ namespace Articulate.Services
         ILogger<BackOfficeAuthService> logger)
     {
         /// <summary>
-        /// Checks if a back-office user is logged in.
+        ///     Checks if a back-office user is logged in.
         /// </summary>
         /// <param name="context">The HTTP context.</param>
         /// <param name="authenticationType">The authentication type to check.</param>
@@ -28,7 +28,8 @@ namespace Articulate.Services
             try
             {
                 AuthenticateResult authenticateResult = await context.AuthenticateAsync(authenticationType);
-                return authenticateResult is { Succeeded: true, Principal.Identity.IsAuthenticated: true, Ticket: not null }
+                return authenticateResult is
+                           { Succeeded: true, Principal.Identity.IsAuthenticated: true, Ticket: not null }
                        && string.Equals(
                            authenticateResult.Ticket.AuthenticationScheme,
                            authenticationType,
@@ -42,13 +43,13 @@ namespace Articulate.Services
         }
 
         /// <summary>
-        /// Gets the current back-office user.
+        ///     Gets the current back-office user.
         /// </summary>
         /// <returns>The current user, or null if not found.</returns>
         public IUser? GetCurrentUser() => backOfficeSecurityAccessor.BackOfficeSecurity?.CurrentUser;
 
         /// <summary>
-        /// Checks if a back-office user has specified permissions for a content item.
+        ///     Checks if a back-office user has specified permissions for a content item.
         /// </summary>
         /// <param name="user">The user to check.</param>
         /// <param name="contentItem">The content item to check permissions against.</param>

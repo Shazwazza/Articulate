@@ -5,19 +5,19 @@ using Umbraco.Cms.Web.Common;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Repository interface for Articulate tag/category queries.
+    ///     Repository interface for Articulate tag/category queries.
     /// </summary>
     public interface IArticulateTagRepository
     {
         /// <summary>
-        /// Gets all category names for a given blog root.
+        ///     Gets all category names for a given blog root.
         /// </summary>
         /// <param name="masterModel">The blog root model.</param>
         /// <returns>A collection of category names.</returns>
         internal IEnumerable<string> GetAllCategories(IMasterModel masterModel);
 
         /// <summary>
-        /// Gets all distinct tag names for a given blog root path and tag group.
+        ///     Gets all distinct tag names for a given blog root path and tag group.
         /// </summary>
         /// <param name="rootPath">The root node path to scope the query to.</param>
         /// <param name="tagGroup">The Umbraco tag group.</param>
@@ -25,7 +25,7 @@ namespace Articulate.Services
         internal IEnumerable<string> GetAllTags(string rootPath, string tagGroup);
 
         /// <summary>
-        /// Gets all distinct tags with IDs for a given blog root path and tag group.
+        ///     Gets all distinct tags with IDs for a given blog root path and tag group.
         /// </summary>
         /// <param name="rootPath">The root node path to scope the query to.</param>
         /// <param name="tagGroup">The Umbraco tag group.</param>
@@ -33,7 +33,7 @@ namespace Articulate.Services
         internal IEnumerable<ArticulateTagInfo> GetAllTagInfos(string rootPath, string tagGroup);
 
         /// <summary>
-        /// Gets all posts grouped by tag for the tags listing page.
+        ///     Gets all posts grouped by tag for the tags listing page.
         /// </summary>
         /// <param name="helper">The Umbraco helper.</param>
         /// <param name="tagQuery">The tag query service.</param>
@@ -49,7 +49,7 @@ namespace Articulate.Services
             string baseUrlName);
 
         /// <summary>
-        /// Gets paged posts for a specific tag.
+        ///     Gets paged posts for a specific tag.
         /// </summary>
         /// <param name="helper">The Umbraco helper.</param>
         /// <param name="masterModel">The blog root model.</param>

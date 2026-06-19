@@ -5,7 +5,7 @@ using Umbraco.Cms.Core.Security;
 namespace Articulate.Services
 {
     /// <summary>
-    /// Service for converting Markdown to HTML with sanitization.
+    ///     Service for converting Markdown to HTML with sanitization.
     /// </summary>
     public class ArticulateMarkdownService(IHtmlSanitizer htmlSanitizer) : IArticulateMarkdownConverter
     {
@@ -13,7 +13,7 @@ namespace Articulate.Services
             .UseAdvancedExtensions()
             .Build();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string ToHtml(string markdown)
         {
             if (string.IsNullOrWhiteSpace(markdown))

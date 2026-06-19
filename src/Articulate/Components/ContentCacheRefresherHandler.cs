@@ -1,7 +1,8 @@
 #nullable enable
+using Articulate.Routing;
 using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Notifications;
@@ -10,12 +11,11 @@ using Umbraco.Cms.Core.Services.Changes;
 using Umbraco.Cms.Core.Sync;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Scoping;
-using Articulate.Routing;
 
 namespace Articulate.Components
 {
     /// <summary>
-    /// Notification handler to refresh Articulate routes when the content cache is updated.
+    ///     Notification handler to refresh Articulate routes when the content cache is updated.
     /// </summary>
     public sealed class ContentCacheRefresherHandler(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -27,10 +27,10 @@ namespace Articulate.Components
         : INotificationHandler<ContentCacheRefresherNotification>
     {
         /// <summary>
-        /// When the page/content cache is refreshed, mark Articulate routes dirty when a relevant change is detected.
+        ///     When the page/content cache is refreshed, mark Articulate routes dirty when a relevant change is detected.
         /// </summary>
         /// <remarks>
-        /// This also works for load balanced scenarios since this event executes on all servers.
+        ///     This also works for load balanced scenarios since this event executes on all servers.
         /// </remarks>
         public void Handle(ContentCacheRefresherNotification notification)
         {
@@ -120,10 +120,12 @@ namespace Articulate.Components
                     if (item is null)
                     {
                         MarkRoutesDirty(
-                            allowUnpublishedRefresh ? "content cache remove by id for unresolved content" : "content cache refresh by id for unresolved content",
+                            allowUnpublishedRefresh
+                                ? "content cache remove by id for unresolved content"
+                                : "content cache refresh by id for unresolved content",
                             id,
-                            contentTypeAlias: null,
-                            contentPath: null);
+                            null,
+                            null);
                         return;
                     }
 

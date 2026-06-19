@@ -4,14 +4,14 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 namespace Articulate.Models
 {
     /// <summary>
-    /// The basic model for all articulate objects
+    ///     The basic model for all articulate objects
     /// </summary>
     public class MasterModel : PublishedContentWrapped, IMasterModel
     {
         private int? _pageSize;
 
         /// <summary>
-        /// The basic model for all articulate objects
+        ///     The basic model for all articulate objects
         /// </summary>
 #if UMBRACO_18_OR_GREATER
         public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(content)
@@ -23,7 +23,40 @@ namespace Articulate.Models
 #endif
 
         /// <summary>
-        /// Returns the current theme
+        ///     This will return the first authors node found under the blog root
+        /// </summary>
+        // Not used internally or by default themes, but exposed for custom themes
+        public IPublishedContent BlogAuthorsNode
+        {
+            get
+            {
+                if (field is not null)
+                {
+                    return field;
+                }
+
+                IEnumerable<IPublishedContent> authorNodes = RootBlogNode
+                    .Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateAuthors);
+                IPublishedContent authors = authorNodes.FirstOrDefault();
+                field = authors ??
+                        throw new InvalidOperationException(
+                            "Could not find the ArticulateAuthors document for the current rendered page");
+                return field;
+            }
+            protected set;
+        }
+
+        /// <summary>
+        ///     Gets whether Disqus comments are enabled and configured with a valid shortname.
+        ///     Validates that the DisqusShortName is not empty and contains only valid characters (alphanumeric and hyphens).
+        /// </summary>
+        public bool IsDisqusEnabled => !string.IsNullOrWhiteSpace(DisqusShortName)
+                                       && IsValidDisqusShortName(DisqusShortName);
+
+        protected IPublishedValueFallback PublishedValueFallback { get; }
+
+        /// <summary>
+        ///     Returns the current theme
         /// </summary>
         public string Theme
         {
@@ -31,7 +64,7 @@ namespace Articulate.Models
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public IPublishedContent RootBlogNode
         {
             get
@@ -51,7 +84,7 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// This will return the first archive node found under the blog root
+        ///     This will return the first archive node found under the blog root
         /// </summary>
         public IPublishedContent BlogArchiveNode
         {
@@ -63,7 +96,8 @@ namespace Articulate.Models
                 }
 
                 IEnumerable<IPublishedContent> archiveNodes =
-                    RootBlogNode.Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
+                    RootBlogNode.Children().Where(x =>
+                        x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
                 IPublishedContent list = archiveNodes.FirstOrDefault();
                 field = list ??
                         throw new InvalidOperationException(
@@ -73,112 +107,79 @@ namespace Articulate.Models
             protected set;
         }
 
-        /// <summary>
-        /// This will return the first authors node found under the blog root
-        /// </summary>
-        // Not used internally or by default themes, but exposed for custom themes
-        public IPublishedContent BlogAuthorsNode
-        {
-            get
-            {
-                if (field is not null)
-                {
-                    return field;
-                }
-
-                IEnumerable<IPublishedContent> authorNodes = RootBlogNode
-                    .Children().Where(x=> x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateAuthors);
-                IPublishedContent authors = authorNodes.FirstOrDefault();
-                field = authors ??
-                        throw new InvalidOperationException(
-                            "Could not find the ArticulateAuthors document for the current rendered page");
-                return field;
-            }
-            protected set;
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string DisqusShortName
         {
             get => field ??= Unwrap().Value<string>("disqusShortname", fallback: Fallback.ToAncestors);
             protected set;
         }
 
-        /// <summary>
-        /// Gets whether Disqus comments are enabled and configured with a valid shortname.
-        /// Validates that the DisqusShortName is not empty and contains only valid characters (alphanumeric and hyphens).
-        /// </summary>
-        public bool IsDisqusEnabled => !string.IsNullOrWhiteSpace(DisqusShortName)
-                                       && IsValidDisqusShortName(DisqusShortName);
-
-        private static bool IsValidDisqusShortName(ReadOnlySpan<char> shortName)
-        {
-            foreach (var c in shortName)
-            {
-                if (!char.IsAsciiLetterOrDigit(c) && c != '-')
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string CustomRssFeed
         {
             get => field ??= RootBlogNode.Value<string>("customRssFeedUrl");
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string BlogLogo
         {
-            get => field ??= RootBlogNode.Value<MediaWithCrops>("blogLogo")?.GetCropUrl(cropAlias: "square", preferFocalPoint: true, useCropDimensions: true) ?? string.Empty;
+            get => field ??=
+                RootBlogNode.Value<MediaWithCrops>("blogLogo")?.GetCropUrl(
+                    cropAlias: "square",
+                    preferFocalPoint: true,
+                    useCropDimensions: true) ?? string.Empty;
             protected set;
         }
 
         /// <summary>
-        /// Gets the blog logo URL with CSS escaping for compatibility with legacy inline style usage.
+        ///     Gets the blog logo URL with CSS escaping for compatibility with legacy inline style usage.
         /// </summary>
-        [Obsolete("Use BlogLogo.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
+        [Obsolete(
+            "Use BlogLogo.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
         public string BlogLogoCss
         {
             get => field ??= BlogLogo.ToSafeCssUrl();
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string BlogBanner
         {
-            get => field ??= RootBlogNode.Value<MediaWithCrops>("blogBanner")?.GetCropUrl(cropAlias: "wide", preferFocalPoint: true, useCropDimensions: true) ?? string.Empty;
+            get => field ??=
+                RootBlogNode.Value<MediaWithCrops>("blogBanner")?.GetCropUrl(
+                    cropAlias: "wide",
+                    preferFocalPoint: true,
+                    useCropDimensions: true) ?? string.Empty;
             protected set;
         }
 
         /// <summary>
-        /// Gets the blog banner URL with CSS escaping for compatibility with legacy inline style usage.
+        ///     Gets the blog banner URL with CSS escaping for compatibility with legacy inline style usage.
         /// </summary>
-        [Obsolete("Use BlogBanner.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
+        [Obsolete(
+            "Use BlogBanner.ToCssBackgroundImageVariableValue() and consume the CSS custom property from a stylesheet. Scheduled for removal in a future release.")]
         public string BlogBannerCss
         {
             get => field ??= BlogBanner.ToSafeCssUrl();
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string BlogTitle
         {
             get => field ??= Unwrap().Value<string>("blogTitle", fallback: Fallback.ToAncestors);
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string BlogDescription
         {
             get => field ??= Unwrap().Value<string>("blogDescription", fallback: Fallback.ToAncestors);
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public int PageSize
         {
             get
@@ -193,23 +194,34 @@ namespace Articulate.Models
             protected set => _pageSize = value;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string PageTitle
         {
             get => field ??= Name + " - " + BlogTitle;
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string PageDescription
         {
             get => field ??= BlogDescription;
             protected set;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string PageTags { get; protected set; }
 
-        protected IPublishedValueFallback PublishedValueFallback { get; }
+        private static bool IsValidDisqusShortName(ReadOnlySpan<char> shortName)
+        {
+            foreach (var c in shortName)
+            {
+                if (!char.IsAsciiLetterOrDigit(c) && c != '-')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

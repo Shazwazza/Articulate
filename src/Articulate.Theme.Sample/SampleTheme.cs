@@ -20,9 +20,7 @@ namespace Articulate.Theme.Sample
 
     public sealed class SampleThemeComposer : IComposer
     {
-        public void Compose(IUmbracoBuilder builder)
-        {
-            _ = builder.Services.AddSingleton<IArticulateThemeDescriptorProvider, SampleThemeDescriptorProvider>();
-        }
+        public void Compose(IUmbracoBuilder builder) => _ = builder.Services
+            .AddSingleton<IArticulateThemeDescriptorProvider, SampleThemeDescriptorProvider>();
     }
 }

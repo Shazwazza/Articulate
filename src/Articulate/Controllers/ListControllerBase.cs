@@ -11,7 +11,7 @@ using Umbraco.Cms.Web.Website.ActionResults;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Base controller providing common functionality for listing pages
+    ///     Base controller providing common functionality for listing pages
     /// </summary>
     public abstract class ListControllerBase(
         ILogger<ListControllerBase> logger,
@@ -34,7 +34,7 @@ namespace Articulate.Controllers
                 1);
 
         /// <summary>
-        /// Gets a paged list view for a given posts by author/tags/categories model.
+        ///     Gets a paged list view for a given posts by author/tags/categories model.
         /// </summary>
         protected IActionResult GetPagedListView(
             IMasterModel masterModel,
@@ -59,7 +59,17 @@ namespace Articulate.Controllers
             return View("List", listModel);
         }
 
-        protected bool GetPagerModel(IMasterModel masterModel, long totalPosts, int? p, out PagerModel? pager)
-            => PagingHelper.TryCreatePager(masterModel.Url(), Request.Query, masterModel.PageSize, totalPosts, p, out pager);
+        protected bool GetPagerModel(
+            IMasterModel masterModel,
+            long totalPosts,
+            int? p,
+            out PagerModel? pager)
+            => PagingHelper.TryCreatePager(
+                masterModel.Url(),
+                Request.Query,
+                masterModel.PageSize,
+                totalPosts,
+                p,
+                out pager);
     }
 }

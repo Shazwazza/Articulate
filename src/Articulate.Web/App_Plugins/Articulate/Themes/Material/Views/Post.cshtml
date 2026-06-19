@@ -29,7 +29,9 @@
             {
                 <div class="meta__favorites">
                     <a class="mdl-color-text--grey-700" href="@Model.Url()#disqus_thread" data-disqus-identifier="@Model.Key"></a>
-                    <a class="mdl-color-text--grey-700" href="@Model.Url()#disqus_thread" data-disqus-identifier="@Model.Key"><i class="material-icons" role="presentation">comment</i></a>
+                    <a class="mdl-color-text--grey-700" href="@Model.Url()#disqus_thread" data-disqus-identifier="@Model.Key">
+                        <i class="material-icons" role="presentation">comment</i>
+                    </a>
                     <span class="visuallyhidden">comments</span>
                 </div>
             }
@@ -71,7 +73,6 @@
                 @await Html.PartialAsync("CommentsDisqus", Model)
 
             </div>
-
         }
 
 
@@ -80,7 +81,6 @@
     @{
         var next = Model.Next();
         var prev = Model.Previous();
-
     }
     <nav class="demo-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
         @if (next is not null)
