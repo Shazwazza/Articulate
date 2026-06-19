@@ -544,3 +544,5 @@ src/Articulate.Tests/appsettings-schema.json
 temp.md
 build/ClientAssets/BackofficeClient_v18.stamp
 build/ClientAssets/BackofficeClient_v17.stamp
+
+.actrc

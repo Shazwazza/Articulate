@@ -137,6 +137,7 @@ static class BuildApp
             if (clean)
             {
                 await RunAsync("pnpm", ["--workspace-concurrency=1", "-r", "run", "clean"], clientRoot);
+                DeleteDirectory(Path.Combine(clientRoot, "node_modules"));
             }
             
             var pnpmArgs = inCi

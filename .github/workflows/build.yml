@@ -21,7 +21,9 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
-      VSTEST_CONNECTION_TIMEOUT: 240
+      # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
+      VSTEST_CONNECTION_TIMEOUT: 60
+      DOTNET_SYSTEM_NET_DISABLEIPV6: 1
 
     steps:
       - name: Checkout
@@ -34,7 +36,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
           cache: true
-          cache-dependency-path: '**/packages.*.lock.json'
+          cache-dependency-path: "**/packages.*.lock.json"
 
       - uses: dotnet/nbgv@v0.5
         with:
@@ -78,7 +80,7 @@ jobs:
           case "$V18_VERSION" in
             7.*) ;;
             *)
-              echo "Invalid v18 base in build/v18-version.txt: '$V18_VERSION'." >&2
+              echo "Invalid v18 base in build/v18-version.txt: '$V18_VERSION'" >&2
               exit 1
               ;;
           esac
@@ -102,13 +104,18 @@ jobs:
         run: |
           set -euo pipefail
 
+          # --clean wipes src/**/bin|obj, build/ClientAssets, BackOffice
+          # static web assets. Without it, the v17 hashed JS asset (e.g.
+          # client.gen-XXXX.js) is referenced by Articulate.Theme.Sample's
+          # static web assets after v18 lane overwrites it (MSB4018).
           ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
-          dotnet run --file build/build.cs -- build --lane v17 --sample
+          dotnet run --file build/build.cs -- build --lane v17 --sample --clean
 
           ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
-          dotnet run --file build/build.cs -- build --lane v18 --sample
+          dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
       - name: Upload v17 packages
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v7
         with:
           name: Articulate-${{ env.V17_VERSION }}
@@ -117,6 +124,7 @@ jobs:
             ${{ env.RELEASE_FOLDER }}/v17/*.snupkg
 
       - name: Upload v18 packages
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v7
         with:
           name: Articulate-${{ env.V18_VERSION }}
