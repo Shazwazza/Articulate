@@ -41,9 +41,9 @@ namespace Articulate.ImportExport
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
         IHtmlSanitizer htmlSanitizer,
-        IOptionsMonitor<ArticulateOptions> articulateOptions)
+        IOptions<ArticulateOptions> articulateOptions)
     {
-        private readonly long _maxXmlCharacters = articulateOptions.CurrentValue.BlogMlImportMaxXmlCharacters;
+        private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 
