@@ -66,8 +66,8 @@ pnpm run generate:api
 
 ## Build And Pack
 
-| Shell | Command |
-| --- | --- |
+| Shell                 | Command                                     |
+|-----------------------|---------------------------------------------|
 | Windows, Linux, macOS | `dotnet run --file build/build.cs -- build` |
 
 - The scripts clean, restore, build, and pack one package lane at a time. The default lane is `v17`.
@@ -77,16 +77,16 @@ pnpm run generate:api
 
 ### Build Script Parameters
 
-| Parameter | Default | Description |
-| --- | --- | --- |
-| `BUILD_CONFIGURATION` | `Release` | Build configuration: `Debug` or `Release`. Debug is typical for local development. |
-| `ARTICULATE_PACKAGE_LANE` | `v17` | Package lane: `v17` (Articulate 6.1 for Umbraco 17) or `v18` (Articulate 7.0 for Umbraco 18). |
-| `ARTICULATE_PACKAGE_VERSION` | Calculated | Optional explicit package-version override. Normally v17 comes from NBGV and v18 comes from `build/v18-version.txt` plus NBGV development metadata. |
-| `ENABLE_CLIENT_BUILD` | `true` (CI/Release) / `false` (Debug) | Enable TypeScript Back Office client build (Vite + tsc). Release builds enable by default; disable for faster local iteration. |
-| `RUN_TESTS` | `true` (CI) / `false` (local) | Run dotnet test after build. Enabled in CI; disabled by default locally. |
-| `PACK_SAMPLE_THEME` | `true` (local) / `false` (CI) | Pack `Articulate.Theme.Sample` NuGet package. Local builds include by default; CI skips unless explicitly set. |
-| `SKIP_CLEAN` | `false` | Reuse build outputs from the same lane. Cleaning is the default because both lanes write to the same Backoffice asset path. Do not use between lanes or in CI. |
-| `MAXCPU` | *(auto-detected)* | Limit parallel restore to N MSBuild nodes. Build and pack remain sequential. |
+| Parameter                    | Default                               | Description                                                                                                                                                    |
+|------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BUILD_CONFIGURATION`        | `Release`                             | Build configuration: `Debug` or `Release`. Debug is typical for local development.                                                                             |
+| `ARTICULATE_PACKAGE_LANE`    | `v17`                                 | Package lane: `v17` (Articulate 6.1 for Umbraco 17) or `v18` (Articulate 7.0 for Umbraco 18).                                                                  |
+| `ARTICULATE_PACKAGE_VERSION` | Calculated                            | Optional explicit package-version override. Normally v17 comes from NBGV and v18 comes from `build/v18-version.txt` plus NBGV development metadata.            |
+| `ENABLE_CLIENT_BUILD`        | `true` (CI/Release) / `false` (Debug) | Enable TypeScript Back Office client build (Vite + tsc). Release builds enable by default; disable for faster local iteration.                                 |
+| `RUN_TESTS`                  | `true` (CI) / `false` (local)         | Run dotnet test after build. Enabled in CI; disabled by default locally.                                                                                       |
+| `PACK_SAMPLE_THEME`          | `true` (local) / `false` (CI)         | Pack `Articulate.Theme.Sample` NuGet package. Local builds include by default; CI skips unless explicitly set.                                                 |
+| `SKIP_CLEAN`                 | `false`                               | Reuse build outputs from the same lane. Cleaning is the default because both lanes write to the same Backoffice asset path. Do not use between lanes or in CI. |
+| `MAXCPU`                     | *(auto-detected)*                     | Limit parallel restore to N MSBuild nodes. Build and pack remain sequential.                                                                                   |
 
 **Common build commands:**
 
@@ -129,10 +129,10 @@ dotnet run --file build/build.cs -- build --lane v18
 
 The source tree supports two package lanes:
 
-| Lane | Package line | Umbraco support | Target frameworks | Output folder |
-| --- | --- | --- | --- | --- |
-| `v17` | Articulate 6.1.x | Umbraco 17 | `net10.0` | `build/Release/v17` |
-| `v18` | Articulate 7.0.x | Umbraco 18 | `net10.0` | `build/Release/v18` |
+| Lane  | Package line     | Umbraco support | Target frameworks | Output folder       |
+|-------|------------------|-----------------|-------------------|---------------------|
+| `v17` | Articulate 6.1.x | Umbraco 17      | `net10.0`         | `build/Release/v17` |
+| `v18` | Articulate 7.0.x | Umbraco 18      | `net10.0`         | `build/Release/v18` |
 
 The lanes produce separate NuGet packages because the compiled Umbraco 17 and Umbraco 18 extension points are not binary-compatible. Do not install an Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 17.
 
@@ -252,17 +252,17 @@ dotnet run --file build/build.cs -- docker-prod
 
 All lane parameters are passed via environment variables; `docker-compose.yml` supplies defaults.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `PACKAGE_SOURCE` | `build/Release/v17` | NuGet package folder inside the repo |
-| `UMBRACO_CMS_VERSION` | `[17.4.0,18.0.0)` | Umbraco version constraint for the Docker build |
-| `TARGET_FRAMEWORK` | `net10.0` | .NET TFM for the Docker build |
-| `IMAGE_TAG` | `articulate-local:chiseled` | Docker image tag |
-| `COMPOSE_VOLUME_PREFIX` | `articulate` | Prefix for named Umbraco data/media volumes |
-| `CADDY_HTTPS_PORT` | `18443` | Host port Caddy listens on for HTTPS |
-| `UMBRACO_PUBLIC_URL` | `https://localhost:18443/` | Public URL passed to Umbraco and smoke scripts |
-| `UMBRACO_RUNTIME_MODE` | `BackofficeDevelopment` | Umbraco runtime mode |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required)* | Secret for the dev automation API client |
+| Variable                                  | Default                     | Purpose                                         |
+|-------------------------------------------|-----------------------------|-------------------------------------------------|
+| `PACKAGE_SOURCE`                          | `build/Release/v17`         | NuGet package folder inside the repo            |
+| `UMBRACO_CMS_VERSION`                     | `[17.4.0,18.0.0)`           | Umbraco version constraint for the Docker build |
+| `TARGET_FRAMEWORK`                        | `net10.0`                   | .NET TFM for the Docker build                   |
+| `IMAGE_TAG`                               | `articulate-local:chiseled` | Docker image tag                                |
+| `COMPOSE_VOLUME_PREFIX`                   | `articulate`                | Prefix for named Umbraco data/media volumes     |
+| `CADDY_HTTPS_PORT`                        | `18443`                     | Host port Caddy listens on for HTTPS            |
+| `UMBRACO_PUBLIC_URL`                      | `https://localhost:18443/`  | Public URL passed to Umbraco and smoke scripts  |
+| `UMBRACO_RUNTIME_MODE`                    | `BackofficeDevelopment`     | Umbraco runtime mode                            |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required)*                | Secret for the dev automation API client        |
 
 ## End-to-End Docker Testing (v17 & v18)
 

@@ -33,17 +33,17 @@
 
 For Razor themes migrating from older Articulate versions, helper usage should move from `Html` and `Url` helpers to model extension methods:
 
-| Old (v5) | New (v6) |
-| --- | --- |
-| `@Html.AuthorCitation(Model)` | `@Model.AuthorCitation()` |
-| `@Html.RenderOpenSearch(Model)` | `@Model.RenderOpenSearch()` |
-| `@Html.RssFeed(Model)` | `@Model.RssFeed()` |
-| `@Html.MetaTags(Model)` | `@Model.MetaTags()` |
+| Old (v5)                               | New (v6)                           |
+|----------------------------------------|------------------------------------|
+| `@Html.AuthorCitation(Model)`          | `@Model.AuthorCitation()`          |
+| `@Html.RenderOpenSearch(Model)`        | `@Model.RenderOpenSearch()`        |
+| `@Html.RssFeed(Model)`                 | `@Model.RssFeed()`                 |
+| `@Html.MetaTags(Model)`                | `@Model.MetaTags()`                |
 | `@Html.GoogleAnalyticsTracking(Model)` | `@Model.GoogleAnalyticsTracking()` |
-| `@Html.TagCloud(...)` | `@Model.Tags.TagCloud(...)` |
-| `@Html.ThemedPartialAsync("Name")` | `@await Html.PartialAsync("Name")` |
-| `@Url.ArticulateSearchUrl(Model)` | `@Model.ArticulateSearchUrl()` |
-| `@Url.ArticulateRssUrl(Model)` | `@Model.ArticulateRssUrl()` |
+| `@Html.TagCloud(...)`                  | `@Model.Tags.TagCloud(...)`        |
+| `@Html.ThemedPartialAsync("Name")`     | `@await Html.PartialAsync("Name")` |
+| `@Url.ArticulateSearchUrl(Model)`      | `@Model.ArticulateSearchUrl()`     |
+| `@Url.ArticulateRssUrl(Model)`         | `@Model.ArticulateRssUrl()`        |
 
 URL-bearing background images in Razor themes should be assigned through CSS custom properties with `ToCssBackgroundImageVariableValue(...)`. The legacy `BlogLogoCss` and `BlogBannerCss` APIs remain as obsolete compatibility shims, but are scheduled for removal in a future release.
 

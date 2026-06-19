@@ -13,12 +13,12 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 Install the version of Articulate that matches your Umbraco installation:
 
-| Umbraco | Articulate | Status |
-| --- | --- | --- |
-| Umbraco 18 | 7.x | Release candidate |
-| Umbraco 17.4+ | 6.1.x | Current |
-| Umbraco 16.5+ or 17.4+ | 6.0.x | Previous release |
-| Umbraco 13 LTS | 5.x | Maintenance |
+| Umbraco                | Articulate | Status            |
+|------------------------|------------|-------------------|
+| Umbraco 18             | 7.x        | Release candidate |
+| Umbraco 17.4+          | 6.1.x      | Current           |
+| Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release  |
+| Umbraco 13 LTS         | 5.x        | Maintenance       |
 
 For Umbraco 17+, install from NuGet. The Umbraco 18 / Articulate 7.x
 release candidate line requires opting in to prereleases:

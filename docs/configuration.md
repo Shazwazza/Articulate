@@ -4,12 +4,12 @@ Articulate 6.1 and 7 use the `Articulate` section in `appsettings.json`.
 
 ## Core settings
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `AutoGenerateExcerpt` | `true` | Generate an excerpt when a post excerpt is empty |
-| `MaxImportImageBytes` | `10485760` | Maximum size of each imported or uploaded image |
-| `AllowedMediaHosts` | empty | Hosts Articulate may use for external image downloads |
-| `AllowUnsafeLocalExternalImageHostsInDevelopment` | `false` | Permit explicitly allowed local/private hosts outside Production |
+| Setting                                           | Default    | Purpose                                                          |
+|---------------------------------------------------|------------|------------------------------------------------------------------|
+| `AutoGenerateExcerpt`                             | `true`     | Generate an excerpt when a post excerpt is empty                 |
+| `MaxImportImageBytes`                             | `10485760` | Maximum size of each imported or uploaded image                  |
+| `AllowedMediaHosts`                               | empty      | Hosts Articulate may use for external image downloads            |
+| `AllowUnsafeLocalExternalImageHostsInDevelopment` | `false`    | Permit explicitly allowed local/private hosts outside Production |
 
 If `AllowedMediaHosts` is empty, posts still import but external images are not
 downloaded. Redirect destinations must also be allowlisted. Articulate rejects

@@ -1,4 +1,5 @@
 # Articulate
+
 [![Articulate Build](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml/badge.svg)](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml)
 
 ![Articulate](https://raw.githubusercontent.com/Shazwazza/Articulate/develop/assets/Logo.png?raw=true)
@@ -24,14 +25,15 @@ Supporting all the features you'd want in a blogging platform
 - Customizable RSS feeds
 - Customizable URLs
 - Author profiles
+
 ## Compatibility
 
-| Umbraco | Articulate | Status |
-| --- | --- | --- |
-| Umbraco 18 | 7.x | Release candidate |
-| Umbraco 17.4+ | 6.1.x | Current |
-| Umbraco 16.5+ or 17.4+ | 6.0.x | Previous release |
-| Umbraco 13 LTS | 5.x | Maintenance |
+| Umbraco                | Articulate | Status            |
+|------------------------|------------|-------------------|
+| Umbraco 18             | 7.x        | Release candidate |
+| Umbraco 17.4+          | 6.1.x      | Current           |
+| Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release  |
+| Umbraco 13 LTS         | 5.x        | Maintenance       |
 
 ## Upgrading
 
@@ -55,7 +57,6 @@ not moved automatically.
 - [Releases](https://github.com/Shazwazza/Articulate/releases)
 - [Report an issue](https://github.com/Shazwazza/Articulate/issues)
 - [Community discussions](https://forum.umbraco.com/tag/packages)
-
 
 ## Copyright and license
 

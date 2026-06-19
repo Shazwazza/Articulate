@@ -3,12 +3,12 @@
 Back up the site, database, and media before upgrading. Match the Articulate
 package line to the target Umbraco version:
 
-| Umbraco | Articulate |
-| --- | --- |
-| Umbraco 18 | 7.x |
-| Umbraco 17.4+ | 6.1.x |
-| Umbraco 16.5+ or 17.4+ | 6.0.x |
-| Umbraco 13 LTS | 5.x |
+| Umbraco                | Articulate |
+|------------------------|------------|
+| Umbraco 18             | 7.x        |
+| Umbraco 17.4+          | 6.1.x      |
+| Umbraco 16.5+ or 17.4+ | 6.0.x      |
+| Umbraco 13 LTS         | 5.x        |
 
 ## Rich-text editor migration
 
