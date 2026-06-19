@@ -9,17 +9,14 @@ RUN curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 9.0 -
 # Install Node.js 24
 ARG NODE_VERSION=24
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates nodejs sqlite3 libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Corepack and set pnpm version
 RUN corepack enable \
-    && corepack prepare pnpm@11.1.3 --activate
+    && corepack prepare pnpm@11.4.0 --activate
 
-# Install sqlite3 for local database
-RUN apt-get update \
-    && apt-get install -y sqlite3 libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install nbgv as global tool
 RUN dotnet tool install -g nbgv

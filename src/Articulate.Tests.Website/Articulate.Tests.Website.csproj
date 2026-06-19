@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="OpenMcdf" Version="$(OpenMcdfPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="$(UmbracoCmsPackageVersion)" />

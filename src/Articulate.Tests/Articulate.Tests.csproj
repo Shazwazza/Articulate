@@ -13,13 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Umbraco.Cms.Tests.Integration" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="OpenMcdf" Version="$(OpenMcdfPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">

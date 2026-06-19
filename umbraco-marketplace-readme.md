@@ -27,12 +27,12 @@ Supporting all the features you'd want in a blogging platform
 
 ## Minimum requirements
 
-- Umbraco 16.5.1+ (NET 9) and 17.2.2+ (NET 10) - Articulate version 6.x
+- Umbraco 16.5.1+ (NET 9) and 17.4.0+ (NET 10) - Articulate version 6.x
 - Umbraco 13 LTS (maintenance) - Articulate 5.x.
 
 ## Upgrade note for rich text editor compatibility
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is actually registered. 
+On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
 
 - You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
 - This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
@@ -64,6 +64,6 @@ to re-create the Articulate package in the back office with all required depende
 
 ## Copyright & License
 
-&copy; 2025 by Shannon Deminick
+&copy; 2026 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)

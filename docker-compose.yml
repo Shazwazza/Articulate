@@ -3,14 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: chiseled
       args:
         BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.2.2,18.0.0)}
-    image: ${IMAGE_TAG:-articulate-local:net10}
+        TARGET_FRAMEWORK: ${TARGET_FRAMEWORK:-net10.0}
+        DOTNET_SDK_VERSION: ${DOTNET_SDK_VERSION:-10.0}
+        DOTNET_ASPNET_VERSION: ${DOTNET_ASPNET_VERSION:-10.0}
+    image: ${IMAGE_TAG:-articulate-local:chiseled}
     user: "1654:1654"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Container}
       ASPNETCORE_URLS: http://+:8080
+      Umbraco__CMS__Runtime__Mode: ${UMBRACO_RUNTIME_MODE:-BackofficeDevelopment}
       # HTTPS configuration (Caddy terminates TLS)
       Umbraco__CMS__Global__UseHttps: "true"
       Umbraco__CMS__Security__BackOfficeHost: ${UMBRACO_PUBLIC_HOST:-https://localhost:18443}
@@ -21,6 +25,14 @@ services:
       Umbraco__CMS__Unattended__UnattendedUserName: ${UMBRACO_USER_NAME:-Jane Doe}
       Umbraco__CMS__Unattended__UnattendedUserEmail: ${UMBRACO_USER_EMAIL:-admin@localhost}
       Umbraco__CMS__Unattended__UnattendedUserPassword: ${UMBRACO_USER_PASSWORD:-@rticulate}
+      # Dev-only automation bootstrap
+      Articulate__DevAutomation__Enabled: ${ARTICULATE_DEV_AUTOMATION_ENABLED:-true}
+      Articulate__DevAutomation__ClientId: ${ARTICULATE_DEV_AUTOMATION_CLIENT_ID:-articulate-dev-automation}
+      Articulate__DevAutomation__ClientSecret: ${ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET:-articulate-dev-local-secret}
+      Articulate__DevAutomation__UserName: ${ARTICULATE_DEV_AUTOMATION_USER_NAME:-articulate-dev-automation}
+      Articulate__DevAutomation__Email: ${ARTICULATE_DEV_AUTOMATION_USER_EMAIL:-articulate-dev-automation@localhost}
+      Articulate__DevAutomation__Name: ${ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME:-Articulate Dev Automation}
+      Articulate__DevAutomation__UserGroupAliases__0: ${ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS:-admin}
       # Articulate OpenID Connect
       Articulate__ManagementApi__OpenIddict__Client__RedirectUris__0: ${ARTICULATE_REDIRECT_URI:-https://localhost:18443/a-new/}
       Articulate__ManagementApi__OpenIddict__Client__PostLogoutRedirectUris__0: ${ARTICULATE_LOGOUT_REDIRECT_URI:-https://localhost:18443/}
@@ -33,7 +45,6 @@ services:
     volumes:
       - articulate-media:/app/wwwroot/media
       - articulate-db:/app/umbraco/Data
-    read_only: false
     cap_drop:
       - ALL
     cap_add:

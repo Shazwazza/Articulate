@@ -32,6 +32,23 @@ This restores NuGet and npm packages, builds the Back Office client, builds the 
 4. Set `Articulate.Tests.Website` as the startup project.
 5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
 6. The Articulate package migrations will run and install the required schema and content items.
+   - **Tip:** The test site's target framework selects the Umbraco version: `net9.0` runs Umbraco 16, and `net10.0` runs Umbraco 17. Use `net10.0` only when you specifically want the v17 path.
+
+## Docker Modes
+
+The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`. The default is `BackofficeDevelopment`; switch to `Production` for the production-style check.
+
+- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only automation bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
+- `Production` for the production-style check. This disables automation bootstrap and keeps the stack honest about what content was already published in the data volume.
+
+Recommended benchmark flow:
+
+1. Start with an empty Docker volume set in `BackofficeDevelopment` by running the dev script with `RESET_DOCKER_VOLUMES=true`.
+2. Unattended install and package migrations run, automation bootstrap provisions credentials, and `build/docker-site/smoke.mjs` publishes/verifies the Articulate content tree.
+3. Verify `/` returns `200` and record the timing.
+4. Re-run the same volume set in `Production` to confirm the published content still serves without any dev-only automation.
+
+- `RESET_DOCKER_VOLUMES=true` runs `docker compose down -v` before the dev script starts the stack. Use it for empty-DB QA, not for normal iterative runs.
 
 ## Client Development
 
@@ -42,6 +59,8 @@ pnpm install
 pnpm run build
 pnpm run generate:api
 ```
+
+`pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
 `pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
 
@@ -61,12 +80,11 @@ pnpm run generate:api
 - If you change packaged runtime dependencies or client/static assets, regenerate the Docker inputs before validating source-built or Docker-based installs:
   - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
   - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
-- Keep `Articulate` and `Articulate.Theme.Sample` at the same package version in `build/Release`; the Docker site restores both using the selected Articulate package version.
 - The Dockerfile selects the newest `Articulate.[0-9]*.nupkg` in `build/Release` by modified time and ignores `.snupkg` files and theme packages when choosing the version.
 - Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use `docker compose up -d --build --force-recreate articulate`, or run both steps explicitly:
   - `docker compose build articulate`
   - `docker compose up -d --force-recreate --no-deps articulate`
-- The expected image tag is `articulate-local:net10`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
+- The default image tag is `articulate-local:chiseled`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
 - If the Docker back office still appears stale after a rebuild, check the running container, not just the image:
   - `docker compose ps`
   - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`

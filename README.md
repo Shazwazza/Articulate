@@ -25,15 +25,13 @@ _Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Ar
 
 ### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
 
-Articulate 6 targets Umbraco 16.5.1+ and 17.2.2+
-
 - Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
-- When building from source, run the test site `dotnet run -f net9.0 --project src/Articulate.Tests.Website/Articulate.Tests.Website.csproj` (or `-f net10.0` for Umbraco 17) and sign into the Umbraco Back Office to finish setup.
+- When building from source, run the test site with `-f net9.0` for Umbraco 16 or `-f net10.0` for Umbraco 17, then sign into the Umbraco Back Office to finish setup.
 - Migrating from 5.x: in place upgrade or export BlogML from your Articulate 5 site and import it into Articulate 6; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
 
 #### Rich Text Editor upgrade behavior
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is actually registered. 
+On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
 
 - You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
 - This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
@@ -149,7 +147,7 @@ Notes:
 - `AllowUnsafeLocalExternalImageHostsInDevelopment` is ignored when `Umbraco:CMS:Runtime:Mode` is `Production`.
 - `localhost`, loopback, and private-network targets remain blocked unless the development-only override is enabled.
 - For BlogML export/import round-trip tests, use an importer-reachable media hostname end-to-end. `localhost` only works when the importer resolves it to the exporting site. If not, rewrite the BlogML media URLs before import or configure the exporting site to emit a reachable hostname instead.
-- The repository `docker-compose.yml` includes commented example environment variables for the common `host.docker.internal` Docker test setup.
+- See [DEVELOP.md](DEVELOP.md) for Docker-based development and testing notes.
 
 ## Upload and Request Limits
 
@@ -166,7 +164,7 @@ Keep these aligned:
 - Kestrel `Limits.MaxRequestBodySize`
 - IIS `MaxRequestBodySize` when applicable
 
-The checked-in test site config uses:
+The local site config uses:
 
 ```csharp
 builder.Services.Configure<FormOptions>(options =>
@@ -185,7 +183,7 @@ builder.Services.Configure<IISServerOptions>(options =>
 });
 ```
 
-The Docker site uses the same `FormOptions` and Kestrel configuration pattern.
+The included site uses the same `FormOptions` and Kestrel configuration pattern.
 
 Appsettings example:
 
@@ -236,7 +234,6 @@ Supporting all the features you'd want in a blogging platform
 - Customizable RSS feeds
 - Customizable URLs
 - Author profiles
-- Extensible API + modern build tooling aligned with current .NET/Umbraco releases (DI-friendly codebase, multi-target net9/net10, pnpm/Vite client pipeline)
 
 ## Disqus comments
 
@@ -245,7 +242,7 @@ Built-in themes render Disqus comments only when both post comments are enabled 
 ## Minimum requirements
 
 - Articulate 5.x (maintenance): Umbraco 13 LTS (security support through Dec 2025, EOL Dec 2026)
-- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.2.2+ on .NET 10
+- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.4.0+ on .NET 10
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 
@@ -272,7 +269,7 @@ Local development and contributor setup lives in [DEVELOP.md](DEVELOP.md).
 
 ## Copyright & License
 
-&copy; 2025 by Shannon Deminick
+&copy; 2026 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
 

@@ -19,17 +19,15 @@
 		<SystemServiceModelSyndicationPackageVersion>[9.0.14,10.0.3)</SystemServiceModelSyndicationPackageVersion>
 		<SystemSecurityCryptographyXmlPackageVersion>[9.0.15,10.0.0)</SystemSecurityCryptographyXmlPackageVersion>
 		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
-        <OpenMcdfPackageVersion>3.1.3</OpenMcdfPackageVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
 		<!-- Support Umbraco 17.x (including pre-release) on .NET 10 -->
-		<UmbracoCmsPackageVersion>[17.2.2,18.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCmsPackageVersion>[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
 		<MicrosoftOpenApiPackageVersion>[2.3.0,3.0.0)</MicrosoftOpenApiPackageVersion>
 		<MicrosoftCodeAnalysisPackageVersion>[5.3.0,6.0.0)</MicrosoftCodeAnalysisPackageVersion>
 		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
 		<SystemSecurityCryptographyXmlPackageVersion>[10.0.6,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
 		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
-        <OpenMcdfPackageVersion>3.1.3</OpenMcdfPackageVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<!-- TODO: Enable when 6.0 version is shipped -->

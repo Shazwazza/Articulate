@@ -4,12 +4,12 @@
     <TargetFrameworks>net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <AssemblyName>ArticulateDockerSite</AssemblyName>
-    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">6.0.0</ArticulatePackageVersion>
+    <!-- Allow pre-release (rc) package resolution when stable 6.0.0 isn't available locally -->
+    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">6.0.0-*</ArticulatePackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Articulate" Version="$(ArticulatePackageVersion)" />
     <PackageReference Include="Articulate.Theme.Sample" Version="$(ArticulatePackageVersion)" />
-    <PackageReference Include="OpenMcdf" Version="$(OpenMcdfPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 </Project>

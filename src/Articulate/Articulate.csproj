@@ -14,15 +14,14 @@
     <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
 
     <PackageReference Include="Argotic.Core" Version="3001.0.0" />
-    <PackageReference Include="FileSignatures" Version="6.1.1" />
-    <PackageReference Include="Markdig" Version="0.44.0" />
+    <PackageReference Include="FileSignatures" Version="7.2.1" />
+    <PackageReference Include="Markdig" Version="0.45.0" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.3" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup Label="Force minimum versions">
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="OpenMcdf" Version="$(OpenMcdfPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

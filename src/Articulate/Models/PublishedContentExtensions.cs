@@ -779,9 +779,9 @@ namespace Articulate.Models
                 throw new ArgumentNullException(nameof(masterModel));
             }
 
-                IPublishedContent[] listNodes = masterModel.RootBlogNode
-                    .ChildrenOfType(ArticulateConstants.ContentType
-                        .ArticulateArchive).ToArray();
+            IPublishedContent[] listNodes = masterModel.RootBlogNode
+                .ChildrenOfType(ArticulateConstants.ContentType
+                    .ArticulateArchive).ToArray();
 
             if (listNodes.Length == 0)
             {
