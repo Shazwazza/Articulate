@@ -5,9 +5,11 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Argotic.Syndication.Specialized;
+using Articulate.Options;
 using Articulate.Services;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Membership;
@@ -38,9 +40,10 @@ namespace Articulate.ImportExport
         IJsonSerializer jsonSerializer,
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
-        IHtmlSanitizer htmlSanitizer)
+        IHtmlSanitizer htmlSanitizer,
+        IOptions<ArticulateOptions> articulateOptions)
     {
-        private const long MaxXmlCharacters = 10_000_000;
+        private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 
@@ -187,13 +190,13 @@ namespace Articulate.ImportExport
             }
         }
 
-        private static XmlReader CreateSecureXmlReader(Stream stream)
+        private XmlReader CreateSecureXmlReader(Stream stream)
         {
             var settings = new XmlReaderSettings
             {
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
-                MaxCharactersInDocument = MaxXmlCharacters,
+                MaxCharactersInDocument = _maxXmlCharacters,
                 MaxCharactersFromEntities = 1024,
             };
 
