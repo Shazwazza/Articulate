@@ -9,9 +9,6 @@
 ---
 _❤️ If you use and like Articulate please consider [becoming a GitHub Sponsor](https://github.com/sponsors/Shazwazza/) ❤️_
 
-
-
-
 ## Installation
 
 Install the version of Articulate that matches your Umbraco installation:
@@ -23,10 +20,12 @@ Install the version of Articulate that matches your Umbraco installation:
 | Umbraco 16.5+ or 17.4+ | 6.0.x | Previous release |
 | Umbraco 13 LTS | 5.x | Maintenance |
 
-For Umbraco 17+, install from NuGet:
+For Umbraco 17+, install from NuGet. The Umbraco 18 / Articulate 7.x
+release candidate line requires opting in to prereleases:
 
 ```shell
-dotnet add package Articulate
+dotnet add package Articulate             # Umbraco 17 / Articulate 6.x
+dotnet add package Articulate --prerelease  # Umbraco 18 / Articulate 7.x release candidate
 ```
 
 ## Features

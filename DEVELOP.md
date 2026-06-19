@@ -27,10 +27,10 @@ dotnet run --file build/build.cs -- build --configuration Debug --client true
 
 This restores NuGet and npm packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
 
-3. Open `src/Articulate.sln`.
-4. Set `Articulate.Tests.Website` as the startup project.
-5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
-6. The Articulate package migrations will run and install the required schema and content items.
+1. Open `src/Articulate.sln`.
+2. Set `Articulate.Tests.Website` as the startup project.
+3. Start `Articulate.Tests.Website` and complete the Umbraco installer.
+4. The Articulate package migrations will run and install the required schema and content items.
    - **Tip:** The test site defaults to the Umbraco 17 lane. Pass `-p:ArticulatePackageLane=v18` to run Umbraco 18.
 
 ## Docker Modes
@@ -69,6 +69,7 @@ pnpm run generate:api
 | Shell | Command |
 | --- | --- |
 | Windows, Linux, macOS | `dotnet run --file build/build.cs -- build` |
+
 - The scripts clean, restore, build, and pack one package lane at a time. The default lane is `v17`.
 - Run once with `ARTICULATE_PACKAGE_LANE=v17` and once with `ARTICULATE_PACKAGE_LANE=v18` when you need both package sets.
 - The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`).
@@ -101,10 +102,9 @@ dotnet run --file build/build.cs -- build
 Umbraco 18 lane package (pre-release):
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:ENABLE_CLIENT_BUILD='true'
 $env:BUILD_CONFIGURATION='Release'
-dotnet run --file build/build.cs -- build
+dotnet run --file build/build.cs -- build --lane v18
 ```
 
 Local debug build (no client rebuild, no tests):
@@ -165,17 +165,15 @@ Build the Articulate 7 / Umbraco 18 lane:
 PowerShell:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:PACK_SAMPLE_THEME='true'
-dotnet run --file build/build.cs -- build
+dotnet run --file build/build.cs -- build --lane v18
 ```
 
 Bash:
 
 ```bash
-ARTICULATE_PACKAGE_LANE=v18 \
 PACK_SAMPLE_THEME=true \
-dotnet run --file build/build.cs -- build
+dotnet run --file build/build.cs -- build --lane v18
 ```
 
 ## Local Docker Validation
@@ -215,12 +213,10 @@ dotnet run --file build/build.cs -- docker-dev
 Articulate 7 / Umbraco 18:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:PACK_SAMPLE_THEME='true'
-dotnet run --file build/build.cs -- build --lane v17 --sample
+dotnet run --file build/build.cs -- build --lane v18 --sample
 
 $env:UMBRACO_CMS_VERSION='[18.0.0-*,19.0.0)'
-$env:TARGET_FRAMEWORK='net10.0'
 $env:IMAGE_TAG='articulate-local:v18'
 $env:PACKAGE_SOURCE='build/Release/v18'
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
@@ -275,6 +271,7 @@ Run comprehensive Docker validation for both Umbraco versions. Tests build image
 **Test v17 and v18** (separate ports, isolated databases):
 
 PowerShell:
+
 ```powershell
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET = 'articulate-dev-local-secret'
 dotnet run --file build/build.cs -- docker-test --lane all --keep
@@ -282,12 +279,14 @@ dotnet run --file build/build.cs -- docker-test --lane all --keep
 ```
 
 Bash:
+
 ```bash
 ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret' \
 dotnet run --file build/build.cs -- docker-test --lane all --keep
 ```
 
 **Test individual version:**
+
 ```powershell
 dotnet run --file build/build.cs -- docker-test --lane v17 --keep
 # or
@@ -295,6 +294,7 @@ dotnet run --file build/build.cs -- docker-test --lane v18 --keep
 ```
 
 Each test validates:
+
 - ✅ Docker image builds (with correct Umbraco version and package lane)
 - ✅ Unattended Umbraco install completes
 - ✅ Backoffice `/umbraco` returns 200 OK

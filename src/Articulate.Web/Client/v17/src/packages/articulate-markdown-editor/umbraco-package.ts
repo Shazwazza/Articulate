@@ -7,10 +7,10 @@ export const manifests: Array<UmbExtensionManifest> = [...propertyEditors];
 // Prevent any conflicts with the markdown editor in the backoffice
 // TODO: Remove this when HeyRed replaced with Markdig package in Umbraco 18
 export const extensions = [
-    {
-        name: 'Articulate Markdown Editor Bundle',
-        alias: 'Articulate.Bundle.MarkdownEditor',
-        type: 'bundle',
-        js: () => import('./manifests.js'),
-    },
+  {
+    name: 'Articulate Markdown Editor Bundle',
+    alias: 'Articulate.Bundle.MarkdownEditor',
+    type: 'bundle',
+    js: () => import('./manifests.js'),
+  },
 ];
