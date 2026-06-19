@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack" PrivateAssets="All" />
     <PackageReference Include="Umbraco.Cms.Web.Website" />
 
     <PackageReference Include="Umbraco.Cms.Api.Management" />

@@ -11,6 +11,11 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' and ($([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[17.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.')))">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
   </ItemGroup>
+
+  <!-- Umbraco.Code 3 for v18 allows Roslyn 5.x, but NuGet otherwise selects Workspaces 5.0 while Common/CSharp resolve to 5.3. Align them. -->
+  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="All" />
+  </ItemGroup>
   <ItemGroup>
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" />
