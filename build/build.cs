@@ -118,23 +118,40 @@ static class BuildApp
         if (!string.IsNullOrWhiteSpace(packageVersion))
             props.Add($"-p:ArticulatePackageVersion={packageVersion}");
 
-        Console.WriteLine($"Build: {lane}, {configuration}, package {packageVersion ?? "NBGV"}");
+        var clean = options.Flag("clean");
+        Console.WriteLine($"Build: {lane}, {configuration}, package {packageVersion ?? "NBGV"}{(clean ? " (Clean Build)" : "")}");
         // MSBuild invokes pnpm without an interactive terminal; prevent package-manager prompts.
         Environment.SetEnvironmentVariable("CI", "true");
-        await RunAsync("dotnet", ["build-server", "shutdown"], Repo, allowFailure: true);
-        DeleteBuildOutputs(Path.Combine(Repo, "src"));
-        DeleteDirectory(Path.Combine(BuildDir, "ClientAssets"));
-        DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
+        
+        if (clean)
+        {
+            await RunAsync("dotnet", ["build-server", "shutdown"], Repo, allowFailure: true);
+            DeleteBuildOutputs(Path.Combine(Repo, "src"));
+            DeleteDirectory(Path.Combine(BuildDir, "ClientAssets"));
+            DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
+        }
 
         if (clientBuild)
         {
             var clientRoot = Path.Combine(Repo, "src", "Articulate.Web", "Client");
-            await RunAsync("pnpm", ["--workspace-concurrency=1", "-r", "run", "clean"], clientRoot);
-            await RunAsync("pnpm", ["install", "--force", "--prefer-offline"],
-                clientRoot);
+            if (clean)
+            {
+                await RunAsync("pnpm", ["--workspace-concurrency=1", "-r", "run", "clean"], clientRoot);
+            }
+            
+            var pnpmArgs = inCi
+                ? new[] { "install", "--frozen-lockfile", "--prefer-offline" }
+                : new[] { "install", "--prefer-offline" };
+            await RunAsync("pnpm", pnpmArgs, clientRoot);
         }
 
-        await RunAsync("dotnet", ["restore", Solution, "-v", "minimal", "-p:RestoreUseStaticGraphEvaluation=true", .. props], Repo);
+        var restoreArgs = new List<string> { "restore", Solution, "-v", "minimal", "-p:RestoreUseStaticGraphEvaluation=true" };
+        if (inCi)
+        {
+            restoreArgs.Add("--locked-mode");
+        }
+        restoreArgs.AddRange(props);
+        await RunAsync("dotnet", [.. restoreArgs], Repo);
         await RunAsync("dotnet", ["build", Solution, "-c", configuration, "--no-restore", "-v", "minimal",
             "-m:1", "-p:BuildInParallel=false", "-p:UseSharedCompilation=false", .. props], Repo);
         if (runTests)

@@ -21,6 +21,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
+      VSTEST_CONNECTION_TIMEOUT: 240
 
     steps:
       - name: Checkout
@@ -33,7 +34,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: '**/packages.*.lock.json'
 
       - uses: dotnet/nbgv@v0.5
         with:

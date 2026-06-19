@@ -5,6 +5,8 @@
     <PackageId>Articulate</PackageId>
     <Title>Articulate</Title>
     <AssemblyName>Articulate.Web</AssemblyName>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
     <nullable>enable</nullable>
     <UseArticulateUsings>true</UseArticulateUsings>
     <!-- ENABLE Modern Web Assets (Replaces the need for targets files) -->

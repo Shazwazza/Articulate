@@ -9,8 +9,13 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NuGetAuditMode>direct</NuGetAuditMode>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. -->
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' != 'v18'">packages.v17.lock.json</NuGetLockFilePath>
 	</PropertyGroup>
+
+	<!-- Allow local developer overrides (e.g. ArticulatePackageLane) -->
+	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
 	<!-- Umbraco CMS version range per target + NuGet audit mode -->
 	<PropertyGroup>
 		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
