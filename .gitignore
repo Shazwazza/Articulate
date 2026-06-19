@@ -545,4 +545,6 @@ temp.md
 build/ClientAssets/BackofficeClient_v18.stamp
 build/ClientAssets/BackofficeClient_v17.stamp
 
-.actrc
+# Local-only developer tooling overrides
+/.actrc
+/Directory.Build.props.user

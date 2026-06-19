@@ -28,11 +28,11 @@ dotnet add package Articulate             # Umbraco 17 / Articulate 6.x
 dotnet add package Articulate --prerelease  # Umbraco 18 / Articulate 7.x release candidate
 ```
 
+After installation, open Umbraco and complete any on-screen migration prompts.
+
 ## Features
 
-Supporting all the features you'd want in a blogging platform
-The package includes its Backoffice extension, themes, and static assets.
-After installation, open Umbraco and follow any on-screen migration prompts.
+Supporting all the features you'd want in a blogging platform:
 
 - Categories & Tags
 - Themes
@@ -46,27 +46,13 @@ After installation, open Umbraco and follow any on-screen migration prompts.
 - Customizable RSS feeds
 - Customizable URLs
 - Author profiles
-See the [installation and upgrade guide](docs/upgrading.md) for version
-selection and migration advice.
 
 ## Upgrading
 
-Back up your site and database before upgrading.
+Back up your site, database, and media before upgrading.
 
-### From Articulate 5
-
-You can upgrade in place or move content with BlogML export/import. Media under
-`media/articulate` is not moved automatically by BlogML, so review image paths
-as part of the migration.
-
-### Rich-text editor compatibility
-
-When upgrading, Articulate migrates its built-in rich-text editor to Umbraco's
-TipTap editor if a TinyMCE editor UI is unavailable.
-
-To continue using TinyMCE, install
-[TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco)
-before starting the upgraded site for the first time.
+See the [installation and upgrade guide](docs/upgrading.md) for version
+selection, rich-text editor migration, BlogML guidance, and post-upgrade checks.
 
 ## Themes
 
@@ -76,17 +62,12 @@ another package.
 
 See [Themes](docs/themes.md) for customization guidance.
 
-## Importing external images
+## Configuration
 
-BlogML can optionally download external post images. For safety, downloads are
-disabled unless their host is explicitly listed in
-`Articulate:AllowedMediaHosts`.
-
-Only allow hosts you control or trust. Articulate validates redirects, file
-types, and download sizes before accepting an image.
-
-See [Configuration](docs/configuration.md) for allowlisting, request limits,
-Markdown editor authentication, and examples.
+Articulate settings live in `appsettings.json` under the `Articulate` section.
+See [Configuration](docs/configuration.md) for the settings reference,
+external image allowlisting, Markdown editor authentication, and request-limit
+guidance.
 
 ## Getting help
 

@@ -74,6 +74,25 @@ that list. Use exact absolute HTTPS URLs.
 The editor keeps its access token in memory, so refreshing the page requires a
 new sign-in.
 
+### Advanced OpenIddict options
+
+Most installations only need the settings above. The following optional keys
+override the default Umbraco endpoints used by the Markdown editor:
+
+| Setting                | Purpose                                              |
+|------------------------|------------------------------------------------------|
+| `ClientType`           | `Public` (default) or `Confidential`.                |
+| `ClientSecret`         | Required when `ClientType` is `Confidential`.        |
+| `AuthorizeUrl`         | Override the authorization endpoint.                 |
+| `TokenUrl`             | Override the token endpoint.                         |
+| `EndSessionUrl`        | Override the end-session (sign-out) endpoint.        |
+| `RevocationUrl`        | Override the token-revocation endpoint.              |
+| `CurrentUserUrl`       | Override the current-user endpoint.                  |
+| `LoginLogoUrl`         | Override the login logo shown by the editor.         |
+
+When `Enabled=true`, `ClientId` and at least one absolute `RedirectUris` entry
+are required.
+
 ## Upload and request limits
 
 `MaxImportImageBytes` limits each image after Articulate receives a request.

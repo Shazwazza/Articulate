@@ -11,7 +11,7 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform
+Supporting all the features you'd want in a blogging platform:
 
 - Categories & Tags
 - Themes
@@ -35,18 +35,17 @@ Supporting all the features you'd want in a blogging platform
 | Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release  |
 | Umbraco 13 LTS         | 5.x        | Maintenance       |
 
+Install from NuGet. For Umbraco 18, use the prerelease flag:
+
+```shell
+dotnet add package Articulate --prerelease
+```
+
 ## Upgrading
 
-Back up your site and database before upgrading.
+Back up your site, database, and media before upgrading.
 
-When upgrading, Articulate uses Umbraco's TipTap rich-text editor if a TinyMCE
-editor UI is unavailable. To keep using TinyMCE, install
-[TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco)
-before starting the upgraded site for the first time.
-
-Sites moving from Articulate 5 can upgrade in place or transfer posts through
-BlogML. Review media paths during a BlogML migration because media files are
-not moved automatically.
+See the [installation and upgrade guide](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md) for version matching, rich-text editor migration, and BlogML guidance.
 
 ## Learn more
 
