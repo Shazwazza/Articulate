@@ -33,6 +33,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
           cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - uses: dotnet/nbgv@v0.5
         with:
