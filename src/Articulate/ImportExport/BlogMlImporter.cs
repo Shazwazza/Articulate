@@ -43,7 +43,7 @@ namespace Articulate.ImportExport
         IHtmlSanitizer htmlSanitizer,
         IOptionsMonitor<ArticulateOptions> articulateOptions)
     {
-        private readonly long _maxXmlCharacters = articulateOptions.CurrentValue.MaxXmlCharacters;
+        private readonly long _maxXmlCharacters = articulateOptions.CurrentValue.BlogMlImportMaxXmlCharacters;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 

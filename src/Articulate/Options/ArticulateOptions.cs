@@ -52,7 +52,7 @@ namespace Articulate.Options
         /// Maps to <see cref="System.Xml.XmlReaderSettings.MaxCharactersInDocument"/>.
         /// Default: 10,000,000.
         /// </summary>
-        public long MaxXmlCharacters { get; set; } = 10_000_000;
+        public long BlogMlImportMaxXmlCharacters { get; set; } = 10_000_000;
 
     }
 
