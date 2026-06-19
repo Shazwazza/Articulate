@@ -16,7 +16,8 @@ namespace Articulate.Tests.Components
         public void Handle_marks_routes_dirty()
         {
             Mock<IArticulateRouteRefreshState> routeRefreshState = new();
-            DomainCacheRefresherHandler sut = new(routeRefreshState.Object,
+            DomainCacheRefresherHandler sut = new(
+                routeRefreshState.Object,
                 NullLogger<DomainCacheRefresherHandler>.Instance);
 
             sut.Handle(new DomainCacheRefresherNotification(new object(), MessageType.RefreshAll));
@@ -28,7 +29,8 @@ namespace Articulate.Tests.Components
         public void Handle_marks_routes_dirty_for_any_message_type()
         {
             Mock<IArticulateRouteRefreshState> routeRefreshState = new();
-            DomainCacheRefresherHandler sut = new(routeRefreshState.Object,
+            DomainCacheRefresherHandler sut = new(
+                routeRefreshState.Object,
                 NullLogger<DomainCacheRefresherHandler>.Instance);
 
             sut.Handle(new DomainCacheRefresherNotification(new object(), MessageType.RefreshById));
@@ -40,7 +42,8 @@ namespace Articulate.Tests.Components
         public void Handle_marks_routes_dirty_once_per_notification()
         {
             Mock<IArticulateRouteRefreshState> routeRefreshState = new();
-            DomainCacheRefresherHandler sut = new(routeRefreshState.Object,
+            DomainCacheRefresherHandler sut = new(
+                routeRefreshState.Object,
                 NullLogger<DomainCacheRefresherHandler>.Instance);
 
             sut.Handle(new DomainCacheRefresherNotification(new object(), MessageType.RefreshAll));

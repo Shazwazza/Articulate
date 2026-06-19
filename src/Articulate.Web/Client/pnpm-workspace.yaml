@@ -46,3 +46,4 @@ minimumReleaseAgeExclude:
   - '@esbuild/win32-ia32@0.28.1'
   - '@esbuild/win32-x64@0.28.1'
   - dompurify@3.4.11
+  - '@umbraco-cms/backoffice@18.0.0-rc3'

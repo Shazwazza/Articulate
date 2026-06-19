@@ -1,12 +1,19 @@
 # Articulate Release Notes
 
-## PR branch notes (Umbraco 17/18 package lanes)
+## Version 7.0.0-rc.1
 
-- `v17` produces Articulate 6.1.x for Umbraco 17 on .NET 10.
-- `v18` produces Articulate 7.0.x for Umbraco 18 on .NET 10.
-- Articulate 6.0.x remains the released compatibility line for Umbraco 16 and 17.
-- CI derives both lane versions from the NBGV result so patch and prerelease metadata stay aligned.
-- Compatibility was validated against the Umbraco 17 and Umbraco 18 source and package APIs.
+- Adds the Articulate 7 release-candidate line for Umbraco 18 on .NET 10.
+- Uses the Umbraco 18 Backoffice client and native OpenAPI endpoints.
+- Ships separately from Articulate 6 because the Umbraco 17 and 18 extension
+  points are not binary-compatible.
+- The release base version is defined in `build/v18-version.txt`; development
+  builds append matching NBGV commit metadata.
+
+## Version 6.1.0
+
+- Targets Umbraco 17.4 and later on .NET 10.
+- Continues the Articulate 6 package line for supported Umbraco 17 sites.
+- Articulate 6.0 remains the previous compatibility line for Umbraco 16 and 17.
 
 ## Version 6.0.0
 

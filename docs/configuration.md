@@ -33,6 +33,32 @@ larger than `MaxImportImageBytes`.
 Only allow hosts you control or trust. The local/private-host override is
 ignored when `Umbraco:CMS:Runtime:Mode` is `Production`.
 
+### External image import safety
+
+In the BlogML importer, select a file and choose **Verify file** before import.
+The summary reports external image attachments, referenced hosts, and which
+hosts are allowed or blocked. Posts still import when a host is blocked; only
+the external image download is skipped.
+
+External downloads use several protections together:
+
+- the original host and every redirect destination must be explicitly listed
+  in `AllowedMediaHosts`
+- every redirect hop is revalidated, with a bounded redirect count
+- HTTPS URLs cannot redirect to HTTP
+- DNS results are validated and the connection is pinned to the approved IP
+  address, preventing resolution changes between validation and download
+- loopback and private-network addresses remain blocked unless the explicit
+  development-only override is enabled outside Production
+- ambient HTTP proxies and default authentication headers are not inherited
+  by the download client
+- Umbraco upload rules, supported image types, and `MaxImportImageBytes` are
+  enforced
+
+For CDN redirects, allowlist both the original hostname and the destination.
+For BlogML round-trip tests, URLs must use a hostname reachable from the
+importing application; `localhost` refers to the importer itself.
+
 ## Markdown editor authentication
 
 The standalone editor at `/a-new/` uses Umbraco's Backoffice OpenIddict
@@ -108,6 +134,45 @@ Keep these limits aligned:
 
 If one layer has a lower limit, uploads can fail with `413 Payload Too Large`.
 The full request limit must cover the import file plus multipart overhead.
+
+Example for a 100 MB request limit:
+
+```csharp
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600;
+});
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 104857600;
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 104857600;
+});
+```
+
+```json
+{
+  "Umbraco": {
+    "CMS": {
+      "Runtime": {
+        "MaxRequestLength": 102400
+      }
+    }
+  }
+}
+```
+
+`MaxRequestLength` is expressed in KB; the ASP.NET Core server limits above
+are bytes. IIS-hosted deployments may also need the corresponding
+`web.config` request-filtering limit.
 
 ## More detail
 

@@ -56,7 +56,7 @@
     "@hey-api/openapi-ts": "0.97.0",
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",
-    "@umbraco-cms/backoffice": "18.0.0-rc2",
+    "@umbraco-cms/backoffice": "18.0.0-rc3",
     "chalk": "^5.6.2",
     "cross-env": "^10.1.0",
     "dompurify": "^3.4.8",

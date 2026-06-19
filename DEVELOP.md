@@ -74,8 +74,9 @@
   dotnet run --file build/build.cs -- client --lane v17|v18
   dotnet run --file build/build.cs -- site --lane v17|v18 [--configuration Debug] [--reset]
   dotnet run --file build/build.cs -- docker-build [--lane v17|v18] [--tag image:tag]
-  dotnet run --file build/build.cs -- docker-dev [--skip-smoke] [--reset]
-  dotnet run --file build/build.cs -- docker-prod
+  dotnet run --file build/build.cs -- docker-dev [--lane v17|v18] [--skip-smoke] [--reset]
+  dotnet run --file build/build.cs -- docker-prod [--lane v17|v18]
+  dotnet run --file build/build.cs -- docker-status [--lane v17|v18]
   dotnet run --file build/build.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke]
 ```
 
@@ -83,15 +84,15 @@ Environment variables remain supported for CI and local overrides.
 
 ### Build parameters
 
-| Parameter                 | Default                                | Description                                                                                                    |
-|---------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| `--lane`                  | `v17`                                  | Package lane: `v17` (Articulate 6.1 for Umbraco 17) or `v18` (Articulate 7.0 for Umbraco 18).                   |
-| `--configuration`         | `Release`                              | Build configuration: `Debug` or `Release`.                                                                     |
-| `--tests`                 | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                 |
-| `--client`                | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                   |
-| `--sample`                | `true` locally, `false` in CI          | Pack the `Articulate.Theme.Sample` NuGet package.                                                              |
-| `--clean`                 | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and the generated `BackOffice` static web assets.          |
-| `ARTICULATE_PACKAGE_VERSION` | calculated                          | Optional explicit package-version override. v17 uses NBGV; v18 uses `build/v18-version.txt` plus NBGV metadata. |
+| Parameter                    | Default                                | Description                                                                                                     |
+|------------------------------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `--lane`                     | `v17`                                  | Package lane: `v17` (Articulate 6.1 for Umbraco 17) or `v18` (Articulate 7.0 for Umbraco 18).                   |
+| `--configuration`            | `Release`                              | Build configuration: `Debug` or `Release`.                                                                      |
+| `--tests`                    | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                  |
+| `--client`                   | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                    |
+| `--sample`                   | `true` locally, `false` in CI          | Pack the `Articulate.Theme.Sample` NuGet package.                                                               |
+| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and the generated `BackOffice` static web assets.            |
+| `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `build/v18-version.txt` plus NBGV metadata. |
 
 The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj`
 (`PackageId=Articulate`). Packages are written under `build/$(Configuration)/v17`
@@ -227,21 +228,20 @@ and confirms Articulate content via the Management API.
 v17:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='v17'
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
-dotnet run --file build/build.cs -- docker-dev
+dotnet run --file build/build.cs -- docker-dev --lane v17
 ```
 
 v18:
 
 ```powershell
-$env:ARTICULATE_PACKAGE_LANE='v18'
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
-dotnet run --file build/build.cs -- docker-dev
+dotnet run --file build/build.cs -- docker-dev --lane v18
 ```
 
-`docker-dev` uses `ARTICULATE_PACKAGE_LANE` to choose the lane (default `v17`).
-`docker-test` sets the lane-specific ports and project names automatically.
+`docker-dev` ensures the selected lane packages exist, configures its
+lane-specific image, ports, project name, volumes, and callback URLs, then
+builds and starts the Compose stack. The default lane is `v17`.
 
 Use `--reset` to run `docker compose down -v` before starting (empty-DB QA, not
 for normal iterative runs). Use `--skip-smoke` to skip the API publish/confirm
@@ -252,11 +252,17 @@ Trust the local CA once per machine:
 - Windows: `powershell -ExecutionPolicy Bypass -File .\build\docker-site\Trust-CaddyRootCA.ps1`
 - Linux/WSL: `sudo ./build/docker-site/trust-caddy-root-ca.sh`
 
-The default unattended Docker backoffice credentials are:
+The unattended install creates this default **local Docker backoffice
+administrator**:
 
-- Name: `Jane Doe`, Email: `admin@localhost`, Password: `@rticulate`
+- Email: `admin@localhost`
+- Password: `@rticulate`
+- Display name: `Jane Doe`
 
-Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, `UMBRACO_USER_PASSWORD`.
+Use that account to sign in at the selected lane's `/umbraco/` URL. These
+credentials are public repository defaults and must not be used outside the
+local Docker test site. Override the unattended user with `UMBRACO_USER_NAME`,
+`UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD`.
 
 ### Production smoke
 
@@ -265,8 +271,11 @@ content survives a `Production`-mode restart:
 
 ```powershell
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
-dotnet run --file build/build.cs -- docker-prod
+dotnet run --file build/build.cs -- docker-prod --lane v17
 ```
+
+Use the same lane as the preceding `docker-dev` command so production mode
+reuses that lane's volumes and published content.
 
 ### End-to-end Docker testing
 
@@ -282,38 +291,69 @@ Containers stay running at `https://localhost:17017/` (v17) and
 lane. Remove `--keep` to clean up containers after testing. Use `--skip-smoke`
 to skip API publish/confirm tests (faster build validation).
 
+Inspect a running lane and confirm its packaged Backoffice files are present:
+
+```powershell
+dotnet run --file build/build.cs -- docker-status --lane v17
+```
+
+Use `--lane v18` for the v18 stack.
+
 ### Compose environment variables
 
 The compose file and build script use these variables. Lane-specific defaults
 are applied by `docker-test` for v17/v18.
 
-| Variable                                  | Default                                | Purpose                                                                            |
-|-------------------------------------------|----------------------------------------|------------------------------------------------------------------------------------|
-| `ARTICULATE_PACKAGE_LANE`                 | `v17`                                  | Package lane passed to the Docker build.                                           |
-| `BUILD_CONFIGURATION`                     | `Release`                              | .NET build configuration inside the Docker build.                                  |
-| `TARGET_FRAMEWORK`                        | `net10.0`                              | .NET TFM for the Docker build.                                                     |
-| `DOTNET_SDK_IMAGE`                        | `mcr.microsoft.com/dotnet/sdk:10.0`    | SDK image used to build the site container.                                        |
-| `DOTNET_ASPNET_IMAGE`                     | `mcr.microsoft.com/dotnet/aspnet:10.0` | Runtime image used for the site container.                                         |
-| `PACKAGE_SOURCE`                          | `build/Release/v17`                    | NuGet package folder inside the repo.                                              |
-| `UMBRACO_CMS_VERSION`                     | `[17.4.0,18.0.0)`                      | Umbraco version constraint for the Docker build.                                   |
-| `IMAGE_TAG`                               | `articulate-local:chiseled`            | Docker image tag.                                                                  |
-| `COMPOSE_PROJECT_NAME`                    | `articulate`                           | Docker Compose project name.                                                       |
-| `COMPOSE_VOLUME_PREFIX`                   | `articulate`                           | Prefix for named Umbraco data/media volumes.                                       |
-| `CADDY_HTTP_PORT`                         | `8080`                                 | Host port Caddy listens on for HTTP.                                               |
-| `CADDY_HTTPS_PORT`                        | `18443`                                | Host port Caddy listens on for HTTPS.                                              |
-| `CADDY_HTTPS_HOST`                        | `localhost:18443`                      | Host name Caddy presents for HTTPS.                                                |
-| `UMBRACO_PUBLIC_HOST`                     | `https://localhost:18443`              | Public host passed to Umbraco.                                                     |
-| `UMBRACO_PUBLIC_URL`                      | `https://localhost:18443/`             | Public URL passed to Umbraco and smoke scripts.                                    |
-| `UMBRACO_RUNTIME_MODE`                    | `BackofficeDevelopment`                | Umbraco runtime mode (`BackofficeDevelopment` or `Production`).                    |
-| `UMBRACO_USER_NAME`                       | `Jane Doe`                             | Unattended install user name.                                                      |
-| `UMBRACO_USER_EMAIL`                      | `admin@localhost`                      | Unattended install user email.                                                     |
-| `UMBRACO_USER_PASSWORD`                   | `@rticulate`                           | Unattended install user password.                                                  |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required for smoke)*                 | Secret for the dev automation API client.                                          |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`     | `articulate-dev-automation`            | Client ID for the dev automation API user.                                         |
-| `ARTICULATE_OPENID_CLIENT_ID`             | `umbraco-articulate`                   | OpenIddict client ID for the Markdown editor.                                      |
-| `ARTICULATE_OPENID_DISPLAY_NAME`          | `Articulate Markdown Editor`           | Display name for the Markdown editor OpenIddict client.                            |
-| `ARTICULATE_REDIRECT_URI`                 | `https://localhost:18443/a-new/`       | Sign-in callback for the Markdown editor.                                          |
-| `ARTICULATE_LOGOUT_REDIRECT_URI`          | `https://localhost:18443/`             | Post-sign-out destination for the Markdown editor.                                 |
+| Variable                                  | Default                                | Purpose                                                         |
+|-------------------------------------------|----------------------------------------|-----------------------------------------------------------------|
+| `ARTICULATE_PACKAGE_LANE`                 | `v17`                                  | Package lane passed to the Docker build.                        |
+| `BUILD_CONFIGURATION`                     | `Release`                              | .NET build configuration inside the Docker build.               |
+| `TARGET_FRAMEWORK`                        | `net10.0`                              | .NET TFM for the Docker build.                                  |
+| `DOTNET_SDK_IMAGE`                        | `mcr.microsoft.com/dotnet/sdk:10.0`    | SDK image used to build the site container.                     |
+| `DOTNET_ASPNET_IMAGE`                     | `mcr.microsoft.com/dotnet/aspnet:10.0` | Runtime image used for the site container.                      |
+| `PACKAGE_SOURCE`                          | `build/Release/v17`                    | NuGet package folder inside the repo.                           |
+| `UMBRACO_CMS_VERSION`                     | `[17.4.0,18.0.0)`                      | Umbraco version constraint for the Docker build.                |
+| `IMAGE_TAG`                               | `articulate-local:chiseled`            | Docker image tag.                                               |
+| `COMPOSE_PROJECT_NAME`                    | `articulate`                           | Docker Compose project name.                                    |
+| `COMPOSE_VOLUME_PREFIX`                   | `articulate`                           | Prefix for named Umbraco data/media volumes.                    |
+| `CADDY_HTTP_PORT`                         | `8080`                                 | Host port Caddy listens on for HTTP.                            |
+| `CADDY_HTTPS_PORT`                        | `18443`                                | Host port Caddy listens on for HTTPS.                           |
+| `CADDY_HTTPS_HOST`                        | `localhost:18443`                      | Host name Caddy presents for HTTPS.                             |
+| `UMBRACO_PUBLIC_HOST`                     | `https://localhost:18443`              | Public host passed to Umbraco.                                  |
+| `UMBRACO_PUBLIC_URL`                      | `https://localhost:18443/`             | Public URL passed to Umbraco and smoke scripts.                 |
+| `UMBRACO_RUNTIME_MODE`                    | `BackofficeDevelopment`                | Umbraco runtime mode (`BackofficeDevelopment` or `Production`). |
+| `UMBRACO_USER_NAME`                       | `Jane Doe`                             | Unattended install user name.                                   |
+| `UMBRACO_USER_EMAIL`                      | `admin@localhost`                      | Unattended install user email.                                  |
+| `UMBRACO_USER_PASSWORD`                   | `@rticulate`                           | Unattended install user password.                               |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required for smoke)*                 | Secret for the dev automation API client.                       |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`     | `articulate-dev-automation`            | Client ID for the dev automation API user.                      |
+| `ARTICULATE_OPENID_CLIENT_ID`             | `umbraco-articulate`                   | OpenIddict client ID for the Markdown editor.                   |
+| `ARTICULATE_OPENID_DISPLAY_NAME`          | `Articulate Markdown Editor`           | Display name for the Markdown editor OpenIddict client.         |
+| `ARTICULATE_REDIRECT_URI`                 | `https://localhost:18443/a-new/`       | Sign-in callback for the Markdown editor.                       |
+| `ARTICULATE_LOGOUT_REDIRECT_URI`          | `https://localhost:18443/`             | Post-sign-out destination for the Markdown editor.              |
+
+## NuGet lock files
+
+Only the two shipped packages use lock files:
+
+- `src/Articulate.Web/packages.v17.lock.json`
+- `src/Articulate.Web/packages.v18.lock.json`
+- `src/Articulate.Theme.Sample/packages.v17.lock.json`
+- `src/Articulate.Theme.Sample/packages.v18.lock.json`
+
+They are opt-in via `RestorePackagesWithLockFile=true` in each packable
+`.csproj`. CI and the build script use `--locked-mode`, so these files must be
+checked in and kept current.
+
+After changing any centralized package version in `Directory.Packages.props`,
+regenerate the lock files for both lanes:
+
+```powershell
+dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v17 -p:RestoreLockedMode=false --force-evaluate
+dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v18 -p:RestoreLockedMode=false --force-evaluate
+```
+
+Test projects and the test website float; they do not need lock files.
 
 ## Back Office client builds
 

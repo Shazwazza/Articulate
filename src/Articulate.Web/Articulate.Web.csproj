@@ -36,15 +36,16 @@
   -->
   <ItemGroup>
     <!-- Umbraco dependencies (required by Articulate.Core) -->
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" />
     <!-- Third-party dependencies (from Articulate.csproj) -->
-    <PackageReference Include="Argotic.Core" Version="3001.0.0" />
-    <PackageReference Include="FileSignatures" Version="7.2.1" />
-    <PackageReference Include="Markdig" Version="$(MarkdigPackageVersion)" />
-    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.3" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="MessagePack" />
+    <PackageReference Include="Argotic.Core" />
+    <PackageReference Include="FileSignatures" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="WilderMinds.MetaWeblog" />
+    <PackageReference Include="System.ServiceModel.Syndication" />
+    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Build targets shipped with the package (copies XML docs for Swagger) -->
@@ -104,10 +105,6 @@
     <Content Remove="$(BackofficeOutputDir)\**" />
     <None Include="$(BackofficeOutputDir)\**" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Microsoft.Build.Tasks.Core" Version="18.4.0" />
-  </ItemGroup>
-
   <!-- TARGET: BuildBackofficeClient -->
   <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'=='$(ClientBuildTargetFramework)'" BeforeTargets="ResolveStaticWebAssetsInputs" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
     <Message Text="Building Articulate BackOffice Client (Incremental)..." Importance="High" />

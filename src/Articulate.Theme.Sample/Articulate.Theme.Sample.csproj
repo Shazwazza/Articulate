@@ -26,8 +26,4 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Update="Microsoft.Build.Tasks.Core" Version="18.4.0" />
-  </ItemGroup>
-
 </Project>

@@ -47,6 +47,9 @@ static class BuildApp
                 case "docker-prod":
                     await DockerProdAsync(options);
                     break;
+                case "docker-status":
+                    await DockerStatusAsync(options);
+                    break;
                 case "docker-test":
                     await DockerTestAsync(options);
                     break;
@@ -72,8 +75,9 @@ static class BuildApp
           dotnet run --file build/build.cs -- client --lane v17|v18
           dotnet run --file build/build.cs -- site --lane v17|v18 [--configuration Debug] [--reset]
           dotnet run --file build/build.cs -- docker-build [--lane v17|v18] [--tag image:tag]
-          dotnet run --file build/build.cs -- docker-dev [--skip-smoke] [--reset]
-          dotnet run --file build/build.cs -- docker-prod
+          dotnet run --file build/build.cs -- docker-dev [--lane v17|v18] [--skip-smoke] [--reset]
+          dotnet run --file build/build.cs -- docker-prod [--lane v17|v18]
+          dotnet run --file build/build.cs -- docker-status [--lane v17|v18]
           dotnet run --file build/build.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke]
 
         Environment variables remain supported for CI and local overrides.
@@ -203,10 +207,13 @@ static class BuildApp
     static async Task DockerDevAsync(Options options)
     {
         Require("docker");
-        var url = Env("UMBRACO_PUBLIC_URL") ?? "https://localhost:18443/";
-        SetDefault("UMBRACO_RUNTIME_MODE", "BackofficeDevelopment");
+        var lane = Lane(options);
+        await EnsurePackagesAsync(lane);
+        ConfigureLane(lane);
+        var url = Env("UMBRACO_PUBLIC_URL")!;
+        Environment.SetEnvironmentVariable("UMBRACO_RUNTIME_MODE", "BackofficeDevelopment");
         if (options.Flag("reset")) await ComposeAsync(["down", "-v"]);
-        await ComposeAsync(["up", "-d"]);
+        await ComposeAsync(["up", "-d", "--build"]);
         await WaitForAsync(new Uri(new Uri(url), "umbraco/"));
         if (!options.Flag("skip-smoke"))
         {
@@ -219,13 +226,53 @@ static class BuildApp
     static async Task DockerProdAsync(Options options)
     {
         RequireSecret();
-        SetDefault("UMBRACO_RUNTIME_MODE", "Production");
-        SetDefault("UMBRACO_PUBLIC_HOST", "https://localhost:18443");
-        SetDefault("UMBRACO_PUBLIC_URL", "https://localhost:18443/");
+        ConfigureLane(Lane(options));
+        Environment.SetEnvironmentVariable("UMBRACO_RUNTIME_MODE", "Production");
         await ComposeAsync(["up", "-d", "--force-recreate"]);
         await WaitForAsync(new Uri(new Uri(Env("UMBRACO_PUBLIC_URL")!), "umbraco/"));
         await SmokeAsync("smoke");
         await SmokeAsync("theme");
+    }
+
+    static async Task DockerStatusAsync(Options options)
+    {
+        Require("docker");
+        ConfigureLane(Lane(options));
+        await ComposeAsync(["ps"]);
+        var containerId = (await CaptureAsync(
+            "docker",
+            ["compose", "ps", "-q", "articulate"],
+            Repo)).Trim();
+        if (string.IsNullOrWhiteSpace(containerId))
+            throw new InvalidOperationException("The articulate container is not running.");
+
+        var inspectionDir = Path.Combine(Path.GetTempPath(), $"articulate-docker-status-{Guid.NewGuid():N}");
+        try
+        {
+            Directory.CreateDirectory(inspectionDir);
+            await RunAsync(
+                "docker",
+                ["cp", $"{containerId}:/app/wwwroot/App_Plugins/Articulate/.", inspectionDir],
+                Repo);
+
+            var backofficeBundle = Directory
+                .EnumerateFiles(inspectionDir, "articulate-backoffice.js", SearchOption.AllDirectories)
+                .FirstOrDefault();
+            var manifest = Directory
+                .EnumerateFiles(inspectionDir, "umbraco-package.json", SearchOption.AllDirectories)
+                .FirstOrDefault();
+
+            if (backofficeBundle is null || manifest is null)
+                throw new InvalidOperationException(
+                    "The running articulate container is missing the Backoffice bundle or umbraco-package.json.");
+
+            Console.WriteLine($"Backoffice bundle: {Path.GetRelativePath(inspectionDir, backofficeBundle)}");
+            Console.WriteLine($"Package manifest: {Path.GetRelativePath(inspectionDir, manifest)}");
+        }
+        finally
+        {
+            DeleteDirectory(inspectionDir);
+        }
     }
 
     static async Task DockerTestAsync(Options options)
@@ -270,6 +317,7 @@ static class BuildApp
         var is18 = lane == "v18";
         var https = is18 ? "18018" : "17017";
         var http = is18 ? "18080" : "17080";
+        Environment.SetEnvironmentVariable("ARTICULATE_PACKAGE_LANE", lane);
         Environment.SetEnvironmentVariable("COMPOSE_PROJECT_NAME", $"art_{lane}");
         Environment.SetEnvironmentVariable("COMPOSE_VOLUME_PREFIX", $"art_{lane}");
         Environment.SetEnvironmentVariable("IMAGE_TAG", $"articulate-local:{lane}");
