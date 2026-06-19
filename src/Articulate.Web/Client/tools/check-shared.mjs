@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/check-shared.mjs — verifies the 27 byte-identical source files between v17 and v18.
+// tools/check-shared.mjs — verifies the 28 byte-identical source files between v17 and v18.
 // Exits 0 if all match, 1 if any drift. Wired into `pnpm check` in both v17 and v18.
 // Run from either lane: `pnpm check:shared` (or `node ../tools/check-shared.mjs` from v17/v18).
 
@@ -31,6 +31,10 @@ const SHARED = [
     'packages/articulate-markdown-editor/components/input-markdown-editor/index.ts',
     'packages/articulate-markdown-editor/property-editors/manifests.ts',
     'packages/articulate-markdown-editor/property-editors/markdown-editor/manifests.ts',
+    // The markdown-editor validation wrapper. This is the file the AGENTS.md "C12 rescinded"
+    // note depends on (v17/v18 must stay byte-identical so both lanes carry full
+    // UmbFormControlMixin / mandatory / addFormControlElement plumbing). Keep it under the guard.
+    'packages/articulate-markdown-editor/property-editors/markdown-editor/property-editor-ui-markdown-editor.element.ts',
     'packages/articulate-markdown-editor/property-editors/markdown-editor/types.ts',
     'property-value-presets/articulate.property-value-preset.ts',
     'property-value-presets/manifests.ts',
@@ -42,6 +46,12 @@ const SHARED = [
     'utils/template-utils.ts',
     'vite-env.d.ts',
 ];
+
+// Known INTENTIONAL lane divergences — NOT in SHARED on purpose:
+//   components/blogml-importer.element.ts        — v18 adds numeric-response normalization (v18 API shape)
+//   editors/theme-picker.element.ts              — v18 uses UmbChangeEvent (replaces UmbPropertyValueChangeEvent)
+//   packages/.../input-markdown-editor/input-markdown.element.ts — diverges by a single blank line (cosmetic drift)
+//   packages/.../articulate-markdown-editor/umbraco-package.ts   — dead code in both lanes; v18 uses { manifests } import shape
 
 let mismatches = 0;
 let missing = 0;

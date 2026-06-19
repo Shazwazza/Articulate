@@ -122,17 +122,15 @@ namespace Articulate.Swagger
             var namespaceName = type.Namespace ?? "Articulate.Api.Management.Controllers";
             var controllerNamespace = controllerActionDescriptor.ControllerTypeInfo.Namespace;
 
-            var shouldHandle =
- controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true
-                               || controllerNamespace?.StartsWith("Articulate.Api.Management.Controllers", StringComparison.InvariantCultureIgnoreCase) is true;
+            var shouldHandle = controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true
+            || controllerNamespace?.StartsWith("Articulate.Api.Management.Controllers", StringComparison.InvariantCultureIgnoreCase) is true;
 
             if (!shouldHandle)
             {
                 return null;
             }
 
-            ApiVersion defaultVersion =
- context.ApplicationServices.GetRequiredService<IOptions<ApiVersioningOptions>>().Value.DefaultApiVersion;
+            ApiVersion defaultVersion = context.ApplicationServices.GetRequiredService<IOptions<ApiVersioningOptions>>().Value.DefaultApiVersion;
             var httpMethod = apiDescription.HttpMethod?.ToLower().ToFirstUpper() ?? "Get";
 
             if (string.IsNullOrWhiteSpace(apiDescription.ActionDescriptor.AttributeRouteInfo?.Name) == false)

@@ -67,9 +67,9 @@ namespace Articulate.Tests.Components
                         IQuery<IContent>? _,
                         Ordering? _,
                         bool _) =>
-                {
-                    total = children.Count;
-                    return children;
+                    {
+                        total = children.Count;
+                        return children;
                 });
             Mock<IUrlSegmentProvider> urlSegmentProvider = new();
             urlSegmentProvider

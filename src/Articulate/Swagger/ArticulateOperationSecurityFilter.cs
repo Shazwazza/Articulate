@@ -72,8 +72,8 @@ namespace Articulate.Swagger
                 {
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new System.Uri(Paths.BackOfficeApi.AuthorizationEndpoint, UriKind.Relative),
-                        TokenUrl = new System.Uri(Paths.BackOfficeApi.TokenEndpoint, UriKind.Relative),
+                        AuthorizationUrl = new Uri(Paths.BackOfficeApi.AuthorizationEndpoint, UriKind.Relative),
+                        TokenUrl = new Uri(Paths.BackOfficeApi.TokenEndpoint, UriKind.Relative),
                     },
                 },
             };

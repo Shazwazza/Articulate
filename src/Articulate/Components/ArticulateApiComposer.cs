@@ -1,7 +1,9 @@
 #nullable enable
 using Articulate.Options;
 using Articulate.Services;
+#if !UMBRACO_18_OR_GREATER
 using Articulate.Swagger;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 #if UMBRACO_18_OR_GREATER

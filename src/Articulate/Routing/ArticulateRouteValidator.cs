@@ -50,8 +50,7 @@ namespace Articulate.Routing
             foreach (IPublishedContent child in configuredChildren)
             {
 #if UMBRACO_18_OR_GREATER
-                string? childRouteSegment =
- ArticulateRouteSegmentHelper.NormalizeOrNull(documentUrlService.GetUrlSegment(child.Key, string.Empty, true));
+                var childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(documentUrlService.GetUrlSegment(child.Key, string.Empty, true));
 #else
                 var childRouteSegment = ArticulateRouteSegmentHelper.NormalizeOrNull(child.UrlSegment);
 #endif

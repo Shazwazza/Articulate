@@ -62,9 +62,12 @@ services:
   caddy:
     image: caddy:2.11.4-alpine
     restart: unless-stopped
+    # Bind to loopback only: this harness auto-provisions an OAuth client and an
+    # unattended Umbraco install with a known password. `0.0.0.0` would expose
+    # them on the LAN. Keep host/LAN reachable? Override CADDY_BIND_IP below.
     ports:
-      - "${CADDY_HTTP_PORT:-8080}:8080"
-      - "${CADDY_HTTPS_PORT:-18443}:18443"
+      - "${CADDY_BIND_IP:-127.0.0.1}:${CADDY_HTTP_PORT:-8080}:8080"
+      - "${CADDY_BIND_IP:-127.0.0.1}:${CADDY_HTTPS_PORT:-18443}:18443"
     environment:
       ARTICULATE_HOST: articulate
       HTTPS_HOST: ${CADDY_HTTPS_HOST:-localhost:18443}

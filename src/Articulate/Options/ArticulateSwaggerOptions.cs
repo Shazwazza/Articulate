@@ -94,8 +94,7 @@ namespace Articulate.Options
             {
                 document.Info.Version = "Latest";
                 document.Info.Title = "Articulate Management API";
-                document.Info.Description =
- "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.";
+                document.Info.Description = "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.";
                 return Task.CompletedTask;
             });
         }

@@ -143,9 +143,10 @@ Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 17
 
 `version.json` defines the Articulate 6.1 version through NBGV.
 `build/v18-version.txt` defines the Articulate 7 base version. Build scripts
-append NBGV development metadata when present, so `6.1.0-gabcdef` and a v18 base
-of `7.0.0-rc.1` produce `7.0.0-rc.1.gabcdef`. Change the text file to advance the
-v18 release candidate; callers do not normally pass a version.
+append NBGV development metadata when present: a v18 base of `7.0.0-rc.1`
+produces `7.0.0-rc.1.gabcdef` once development metadata is present. Change the
+text file to advance the v18 release candidate; callers do not normally pass a
+version.
 
 ## Client development
 

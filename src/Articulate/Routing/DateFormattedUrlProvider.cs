@@ -125,6 +125,7 @@ namespace Articulate.Routing
             {
                 return null;
             }
+
             UrlInfo? parentPath = base.GetUrl(parent, mode, culture, current);
             var parentUrl = parentPath?.Url?.ToString().EnsureEndsWith("/");
 #if UMBRACO_18_OR_GREATER
@@ -136,6 +137,7 @@ namespace Articulate.Routing
             {
                 return null;
             }
+
             var newUrl = parentUrl + urlFolder + "/" + urlSegment?.EnsureEndsWith("/");
             return UrlInfo.AsUrl(newUrl, "Articulate.Routing.DateFormattedUrlProvider", culture);
         }
