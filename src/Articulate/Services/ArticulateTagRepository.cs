@@ -6,6 +6,7 @@ using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Infrastructure.Persistence.Repositories.Implement;
+using Umbraco.Cms.Infrastructure.Persistence.SqlSyntax;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Common;
 
@@ -263,8 +264,23 @@ namespace Articulate.Services
             string selectCols,
             IMasterModel masterModel,
             int publishedDatePropertyTypeId)
+            => BuildContentByTagQueryForPaging(
+                selectCols,
+                masterModel.RootBlogNode.Path,
+                publishedDatePropertyTypeId,
+                SqlSyntax);
+
+        // Pure builder (no ambient scope dependency) so ArticulateTagRepositorySqlTests can assert
+        // the generated SQL shape — multi-blog path scoping, published-only filters, publishedDate
+        // property filter, parameterisation — without a database.
+        internal static Sql BuildContentByTagQueryForPaging(
+            string selectCols,
+            string rootPath,
+            int publishedDatePropertyTypeId,
+            ISqlSyntaxProvider sqlSyntax)
         {
-            Sql sql = new Sql()
+            var pathColumn = $"{Constants.DatabaseSchema.Tables.Node}.{sqlSyntax.GetQuotedColumnName("path")}";
+            return new Sql()
                 .Select(selectCols)
                 .From(Constants.DatabaseSchema.Tables.Node)
                 .InnerJoin(Constants.DatabaseSchema.Tables.Document)
@@ -290,17 +306,22 @@ namespace Articulate.Services
                     $"{Constants.DatabaseSchema.Tables.PropertyData}.propertytypeid = @propTypeId",
                     new { propTypeId = publishedDatePropertyTypeId })
                 // Scope to current blog root path (multi-blog support)
-                .Where(
-                    $"{Constants.DatabaseSchema.Tables.Node}." +
-                    SqlSyntax.GetQuotedColumnName("path") + " LIKE @path",
-                    new { path = masterModel.RootBlogNode.Path + ",%" });
-            return sql;
+                .Where($"{pathColumn} LIKE @path", new { path = rootPath + ",%" });
         }
 
 
         private Sql GetTagQuery(string selectCols, string rootPath)
+            => BuildTagQuery(selectCols, rootPath, SqlSyntax);
+
+        // Pure builder — see BuildContentByTagQueryForPaging. Path-scoped, node-object-type-filtered
+        // tag join used by every tag/category listing query.
+        internal static Sql BuildTagQuery(
+            string selectCols,
+            string rootPath,
+            ISqlSyntaxProvider sqlSyntax)
         {
-            Sql sql = new Sql()
+            var pathColumn = $"{Constants.DatabaseSchema.Tables.Node}.{sqlSyntax.GetQuotedColumnName("path")}";
+            return new Sql()
                 .Select(selectCols)
                 .From(Constants.DatabaseSchema.Tables.Tag)
                 .InnerJoin(Constants.DatabaseSchema.Tables.TagRelationship)
@@ -316,11 +337,7 @@ namespace Articulate.Services
                     $"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType",
                     new { nodeObjectType = Constants.ObjectTypes.Document })
                 // Scope to current blog root path (multi-blog support)
-                .Where(
-                    $"{Constants.DatabaseSchema.Tables.Node}." +
-                    SqlSyntax.GetQuotedColumnName("path") + " LIKE @path",
-                    new { path = rootPath + ",%" });
-            return sql;
+                .Where($"{pathColumn} LIKE @path", new { path = rootPath + ",%" });
         }
 
         // DTO for NPoco query results

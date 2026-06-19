@@ -68,6 +68,41 @@ namespace Articulate.Tests.Routing
             Assert.That(router.RouteCache, Is.SameAs(rebuiltRouteCache));
         }
 
+        // With no Articulate roots seeded in CreateSut(), MapRoutes builds an empty cache, so the
+        // reference-identity tests above are really "empty rebuild" assertions. These two pin that
+        // contract: empty when no roots, and a dirty rebuild swaps in a fresh dictionary (doesn't
+        // mutate the existing one — which would silently break dirty-detection).
+        [Test]
+        public async Task TransformAsync_builds_empty_route_cache_when_no_articulate_roots_exist()
+        {
+            (ArticulateRouteValueTransformer sut, ArticulateRouter router, _) = CreateSut();
+
+            await sut.TransformAsync(CreateHttpContext(), new RouteValueDictionary());
+
+            Assert.That(router.RouteCache, Is.Empty);
+        }
+
+        [Test]
+        public async Task TransformAsync_rebuild_produces_fresh_empty_cache_after_dirty()
+        {
+            (ArticulateRouteValueTransformer sut, ArticulateRouter router, ArticulateRouteRefreshState refreshState) =
+                CreateSut();
+
+            await sut.TransformAsync(CreateHttpContext(), new RouteValueDictionary());
+            var initialCache = (System.Collections.Concurrent.ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache>)router.RouteCache;
+
+            refreshState.MarkDirty();
+            await sut.TransformAsync(CreateHttpContext(), new RouteValueDictionary());
+            var rebuiltCache = (System.Collections.Concurrent.ConcurrentDictionary<ArticulateRouteTemplate, ArticulateRootNodeCache>)router.RouteCache;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rebuiltCache, Is.Not.SameAs(initialCache));
+                Assert.That(rebuiltCache, Is.Empty);
+                Assert.That(initialCache, Is.Empty);
+            });
+        }
+
         private static (
             ArticulateRouteValueTransformer Transformer,
             ArticulateRouter Router,
