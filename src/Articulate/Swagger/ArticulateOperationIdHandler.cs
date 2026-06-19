@@ -25,15 +25,15 @@ namespace Articulate.Swagger
             ApiDescription apiDescription,
             ControllerActionDescriptor controllerActionDescriptor)
         {
-            Type type = typeof(BlogMlApiController);
-            var namespaceName = type.Namespace ?? "Articulate.Api.Management.Controllers";
+            // Handle only Articulate's own API controllers. The namespace is derived from a real
+            // Articulate controller type rather than a literal so it can't silently diverge if the
+            // controllers are moved.
+            var namespaceName = typeof(BlogMlApiController).Namespace;
             var controllerNamespace = controllerActionDescriptor.ControllerTypeInfo.Namespace;
 
-            return controllerNamespace?.StartsWith(
+            return namespaceName is not null
+                   && controllerNamespace?.StartsWith(
                        namespaceName,
-                       StringComparison.InvariantCultureIgnoreCase) is true
-                   || controllerNamespace?.StartsWith(
-                       "Articulate.Api.Management.Controllers",
                        StringComparison.InvariantCultureIgnoreCase) is true;
         }
 
@@ -119,11 +119,11 @@ namespace Articulate.Swagger
             }
 
             Type type = typeof(Controllers.Api.BlogMlApiController);
-            var namespaceName = type.Namespace ?? "Articulate.Api.Management.Controllers";
+            var namespaceName = type.Namespace;
             var controllerNamespace = controllerActionDescriptor.ControllerTypeInfo.Namespace;
 
-            var shouldHandle = controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true
-            || controllerNamespace?.StartsWith("Articulate.Api.Management.Controllers", StringComparison.InvariantCultureIgnoreCase) is true;
+            var shouldHandle = namespaceName is not null
+                               && controllerNamespace?.StartsWith(namespaceName, StringComparison.InvariantCultureIgnoreCase) is true;
 
             if (!shouldHandle)
             {
