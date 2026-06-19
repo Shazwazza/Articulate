@@ -47,6 +47,13 @@ namespace Articulate.Options
         /// </summary>
         public bool AllowUnsafeLocalExternalImageHostsInDevelopment { get; set; } = false;
 
+        /// <summary>
+        /// Maximum number of characters allowed in a BlogML XML document during import.
+        /// Maps to <see cref="System.Xml.XmlReaderSettings.MaxCharactersInDocument"/>.
+        /// Default: 10,000,000.
+        /// </summary>
+        public long MaxXmlCharacters { get; set; } = 10_000_000;
+
     }
 
 }
