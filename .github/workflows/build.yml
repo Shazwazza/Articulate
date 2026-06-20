@@ -114,14 +114,28 @@ jobs:
           ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
           dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
+      - name: Smoke-test package contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Verify each lane's .nupkg / .snupkg has the expected shape
+          # (manifest, backoffice bundles, themes, embedded resources,
+          # razor-compiled views, no lock files) before we publish them.
+          node build/smoke-package.mjs \
+            build/Release/v17 \
+            build/Release/v18
+
       - name: Upload v17 packages
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v7
         with:
           name: Articulate-${{ env.V17_VERSION }}
+          # Articulate.Theme.Sample is built for the local Docker pipeline
+          # (see build/docker-site/ArticulateDockerSite.csproj) but never
+          # published, so don't upload it as a CI artifact.
           path: |
-            ${{ env.RELEASE_FOLDER }}/v17/*.nupkg
-            ${{ env.RELEASE_FOLDER }}/v17/*.snupkg
+            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
 
       - name: Upload v18 packages
         if: ${{ !env.ACT }}
@@ -129,5 +143,5 @@ jobs:
         with:
           name: Articulate-${{ env.V18_VERSION }}
           path: |
-            ${{ env.RELEASE_FOLDER }}/v18/*.nupkg
-            ${{ env.RELEASE_FOLDER }}/v18/*.snupkg
+            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.snupkg

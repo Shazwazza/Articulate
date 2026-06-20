@@ -85,7 +85,7 @@ local overrides.
 | `--configuration`            | `Release`                              | Build configuration: `Debug` or `Release`.                                                                      |
 | `--tests`                    | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                  |
 | `--client`                   | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                    |
-| `--sample`                   | `true` locally, `false` in CI          | Pack the `Articulate.Theme.Sample` NuGet package.                                                               |
+| `--sample`                   | `true` locally, `false` in CI          | Also pack `Articulate.Theme.Sample`. The sample .nupkg is consumed locally by the Docker pipeline (see `build/docker-site/ArticulateDockerSite.csproj`); it is **not** published and is excluded from CI artifact uploads. |
 | `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and the generated `BackOffice` static web assets.            |
 | `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `build/v18-version.txt` plus NBGV metadata. |
 
@@ -376,6 +376,66 @@ dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v18 -p:RestoreLocke
 ```
 
 Test projects and the test website float; they do not need lock files.
+
+The lock files are restore-time inputs for `<RestoreLockedMode>` and never ship
+in the published package — both packable `.csproj` files exclude
+`packages.*.lock.json` via `<Content Remove>`. The package smoke test
+([Package smoke test](#package-smoke-test)) also fails the build if a lock file
+reappears in any `*.nupkg`.
+
+## Package smoke test
+
+`build/smoke-package.mjs` is an offline smoke test that opens each
+`build/Release/<lane>/*.nupkg` and `*.snupkg`, extracts key files, and verifies
+the package is well-formed before it ships. CI runs it after both lanes pack
+and before artifact upload.
+
+What it checks for `Articulate.<ver>.nupkg`:
+
+- Root files: `LICENSE`, `README.md`, `icon.png`.
+- `.nuspec` parses; `id=Articulate`; has the `net10.0` dependency group with
+  `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`; declares
+  `<contentFiles>`.
+- `lib/net10.0/`: `Articulate.Web.dll` + `.xml`, `Articulate.dll` + `.xml` (the
+  latter shipped via `IncludeProjectReferenceDlls`).
+- `build/`: `Articulate.targets`, `Articulate.props`, and the
+  `Microsoft.AspNetCore.StaticWebAssets*.props` files.
+- `umbraco-package.json` parses and declares a back-office entry.
+- BackOffice bundles present (entrypoint, articulate-backoffice.js, dashboard,
+  theme-picker, markdown editor) and all four theme preview PNGs
+  (`theme-{material,mini,phantom,vapor}.png`).
+- `MarkdownEditor` assets (`md-editor.min.css`, `md-editor.min.js`).
+- Each shipped theme (Material, Mini, Phantom, VAPOR) has its `*.min.css` (and
+  the JS bundles that exist).
+- `Articulate.dll` contains every embedded resource under
+  `Articulate.Packaging.*` — `author.jpg`, `banner.jpg`, `logo.png`,
+  `package.zip` (Starter Kit installer), `post1.jpg`, `post2.jpg`.
+- `Articulate.Web.dll` exposes the `Articulate.Theme://` logical-name prefix
+  (used by `ArticulateThemeRepository.CopyThemeAsync`) and at least 50
+  occurrences of `App_Plugins_Articulate_Themes_*` (compiled razor views).
+- No `packages.*.lock.json` anywhere in the archive.
+
+What it checks for `Articulate.Theme.Sample.<ver>.nupkg`:
+
+- Root files, no lock files, single `.nuspec` with `id=Articulate.Theme.Sample`
+  and a dependency on `Articulate`.
+- `lib/net10.0/Articulate.Theme.Sample.dll` present.
+- `staticwebassets/.../Themes/Sample/assets/{css/site.css,js/site.js}` present.
+
+What it checks for `Articulate.<ver>.snupkg`:
+
+- `lib/net10.0/Articulate.Web.pdb` present and non-trivial (> 50 KB).
+
+Run it locally after a build:
+
+```bash
+node build/smoke-package.mjs build/Release/v17 build/Release/v18
+```
+
+The script exits non-zero on any failed check. CI runs the same command after
+both lanes pack; the workflow upload step is skipped if the smoke test fails,
+so leaks (lock files, missing manifest, missing themes, broken embedded
+resources) never reach the GitHub Actions artifacts.
 
 ## Back Office client builds
 
