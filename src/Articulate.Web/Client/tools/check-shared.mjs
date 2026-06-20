@@ -31,9 +31,8 @@ const SHARED = [
     'packages/articulate-markdown-editor/components/input-markdown-editor/index.ts',
     'packages/articulate-markdown-editor/property-editors/manifests.ts',
     'packages/articulate-markdown-editor/property-editors/markdown-editor/manifests.ts',
-    // The markdown-editor validation wrapper. This is the file the AGENTS.md "C12 rescinded"
-    // note depends on (v17/v18 must stay byte-identical so both lanes carry full
-    // UmbFormControlMixin / mandatory / addFormControlElement plumbing). Keep it under the guard.
+    // Keep both lanes byte-identical so the validation wrapper retains its
+    // UmbFormControlMixin / mandatory / addFormControlElement plumbing.
     'packages/articulate-markdown-editor/property-editors/markdown-editor/property-editor-ui-markdown-editor.element.ts',
     'packages/articulate-markdown-editor/property-editors/markdown-editor/types.ts',
     'property-value-presets/articulate.property-value-preset.ts',

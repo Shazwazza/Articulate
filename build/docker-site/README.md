@@ -2,6 +2,8 @@
 
 `docker-compose.yml` defines the containers. Cross-platform orchestration lives in the .NET 10
 file-based app at `build/build.cs`; `smoke.mjs` contains the Management API assertions.
+Run `dotnet run --file build/build.cs -- help <command>` for canonical option
+defaults and requirements.
 
 ## Commands
 
@@ -26,10 +28,10 @@ Options:
 
 Full smoke tests require `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`.
 
-| Lane  | Image                    | Backoffice URL                       |
-|-------|--------------------------|--------------------------------------|
-| `v17` | `articulate-local:v17`   | `https://localhost:17017/umbraco/`   |
-| `v18` | `articulate-local:v18`   | `https://localhost:18018/umbraco/`   |
+| Lane  | Image                  | Backoffice URL                     |
+|-------|------------------------|------------------------------------|
+| `v17` | `articulate-local:v17` | `https://localhost:17017/umbraco/` |
+| `v18` | `articulate-local:v18` | `https://localhost:18018/umbraco/` |
 
 The unattended install creates this default local Docker backoffice
 administrator:
@@ -64,9 +66,39 @@ for the public route and published-content cache, then publishes descendants.
 Set `NODE_BIN` if `node` is not on `PATH`. On Windows, invoke the script from
 PowerShell or cmd rather than passing `node.exe` through WSL or Git Bash.
 
-The smoke client bypasses certificate validation only for loopback HTTPS hosts
-(`localhost`, `127.0.0.1`, and `::1`) used by Caddy's local certificate.
-Non-loopback URLs use normal certificate validation.
+The smoke client bypasses certificate validation for loopback and RFC1918
+private IPv4 hosts used by the development harness. Public hosts retain normal
+certificate validation.
+
+## LAN access
+
+The harness remains loopback-only by default. To test the standalone editor
+from another machine, set the LAN origin consistently and reset the database so
+OpenIddict registers redirect URIs for that origin:
+
+```powershell
+$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
+$env:CADDY_BIND_IP='0.0.0.0'
+$env:CADDY_HTTPS_HOST='192.168.1.9:17017'
+$env:UMBRACO_PUBLIC_HOST='https://192.168.1.9:17017'
+$env:UMBRACO_PUBLIC_URL='https://192.168.1.9:17017/'
+$env:ARTICULATE_REDIRECT_URI='https://192.168.1.9:17017/a-new/'
+$env:ARTICULATE_LOGOUT_REDIRECT_URI='https://192.168.1.9:17017/'
+dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
+```
+
+Use port `18018` and `--lane v18` for the v18 lane. Browsers must accept
+Caddy's development certificate.
+
+> [!WARNING]
+> LAN exposure makes the site and its fixed development credentials available
+> to the local network. Never use this configuration on a public or untrusted
+> network.
+
+During first installation, Umbraco may log two warnings that an empty culture
+was not found in configured localization sources. The starter package contains
+valid invariant content and no language payload; these warnings are harmless
+package-install noise and require no Articulate change.
 
 ## Package and container diagnostics
 

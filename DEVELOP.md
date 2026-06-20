@@ -69,18 +69,13 @@
 `build/build.cs` is the entry point for local and CI builds:
 
 ```text
-  dotnet run --file build/build.cs -- build [--lane v17|v18] [--configuration Release|Debug]
-                                              [--tests] [--client true|false] [--sample] [--clean]
-  dotnet run --file build/build.cs -- client --lane v17|v18
-  dotnet run --file build/build.cs -- site --lane v17|v18 [--configuration Debug] [--reset]
-  dotnet run --file build/build.cs -- docker-build [--lane v17|v18] [--tag image:tag]
-  dotnet run --file build/build.cs -- docker-dev [--lane v17|v18] [--skip-smoke] [--reset]
-  dotnet run --file build/build.cs -- docker-prod [--lane v17|v18]
-  dotnet run --file build/build.cs -- docker-status [--lane v17|v18]
-  dotnet run --file build/build.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke]
+dotnet run --file build/build.cs -- help
+dotnet run --file build/build.cs -- help <command>
 ```
 
-Environment variables remain supported for CI and local overrides.
+The CLI help is the canonical command/option reference, including defaults and
+environment requirements. Environment variables remain supported for CI and
+local overrides.
 
 ### Build parameters
 
@@ -126,8 +121,8 @@ CI / release build for both lanes:
 
 ```powershell
 # Run once per lane; each run cleans shared outputs first.
-dotnet run --file build/build.cs -- build --lane v17 --sample --clean --tests
-dotnet run --file build/build.cs -- build --lane v18 --sample --clean --tests
+dotnet run --file build/build.cs -- build --lane v17 --clean --client true --tests --sample
+dotnet run --file build/build.cs -- build --lane v18 --clean --client true --tests --sample
 ```
 
 ### Package lanes
@@ -192,6 +187,8 @@ Docker is a local validation tool. GitHub Actions builds package artifacts but
 does not run Docker.
 
 `docker-compose.yml` at the repo root is the authoritative container definition.
+See [`build/docker-site/README.md`](build/docker-site/README.md) for focused
+container diagnostics, certificate trust, smoke commands, and LAN access.
 All Docker workflows set environment variables and call `docker compose`; no
 `docker run` is used directly.
 
@@ -305,34 +302,57 @@ Use `--lane v18` for the v18 stack.
 The compose file and build script use these variables. Lane-specific defaults
 are applied by `docker-test` for v17/v18.
 
-| Variable                                  | Default                                | Purpose                                                         |
-|-------------------------------------------|----------------------------------------|-----------------------------------------------------------------|
-| `ARTICULATE_PACKAGE_LANE`                 | `v17`                                  | Package lane passed to the Docker build.                        |
-| `BUILD_CONFIGURATION`                     | `Release`                              | .NET build configuration inside the Docker build.               |
-| `TARGET_FRAMEWORK`                        | `net10.0`                              | .NET TFM for the Docker build.                                  |
-| `DOTNET_SDK_IMAGE`                        | `mcr.microsoft.com/dotnet/sdk:10.0`    | SDK image used to build the site container.                     |
-| `DOTNET_ASPNET_IMAGE`                     | `mcr.microsoft.com/dotnet/aspnet:10.0` | Runtime image used for the site container.                      |
-| `PACKAGE_SOURCE`                          | `build/Release/v17`                    | NuGet package folder inside the repo.                           |
-| `UMBRACO_CMS_VERSION`                     | `[17.4.0,18.0.0)`                      | Umbraco version constraint for the Docker build.                |
-| `IMAGE_TAG`                               | `articulate-local:chiseled`            | Docker image tag.                                               |
-| `COMPOSE_PROJECT_NAME`                    | `articulate`                           | Docker Compose project name.                                    |
-| `COMPOSE_VOLUME_PREFIX`                   | `articulate`                           | Prefix for named Umbraco data/media volumes.                    |
+| Variable                                  | Default                                | Purpose                                                                                                                                                                          |
+|-------------------------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ARTICULATE_PACKAGE_LANE`                 | `v17`                                  | Package lane passed to the Docker build.                                                                                                                                         |
+| `BUILD_CONFIGURATION`                     | `Release`                              | .NET build configuration inside the Docker build.                                                                                                                                |
+| `TARGET_FRAMEWORK`                        | `net10.0`                              | .NET TFM for the Docker build.                                                                                                                                                   |
+| `DOTNET_SDK_IMAGE`                        | `mcr.microsoft.com/dotnet/sdk:10.0`    | SDK image used to build the site container.                                                                                                                                      |
+| `DOTNET_ASPNET_IMAGE`                     | `mcr.microsoft.com/dotnet/aspnet:10.0` | Runtime image used for the site container.                                                                                                                                       |
+| `PACKAGE_SOURCE`                          | `build/Release/v17`                    | NuGet package folder inside the repo.                                                                                                                                            |
+| `UMBRACO_CMS_VERSION`                     | `[17.4.0,18.0.0)`                      | Umbraco version constraint for the Docker build.                                                                                                                                 |
+| `IMAGE_TAG`                               | `articulate-local:chiseled`            | Docker image tag.                                                                                                                                                                |
+| `COMPOSE_PROJECT_NAME`                    | `articulate`                           | Docker Compose project name.                                                                                                                                                     |
+| `COMPOSE_VOLUME_PREFIX`                   | `articulate`                           | Prefix for named Umbraco data/media volumes.                                                                                                                                     |
 | `CADDY_BIND_IP`                           | `127.0.0.1`                            | Host interface Caddy binds. Loopback by default so the auto-provisioned OAuth client + known admin password aren't exposed on the LAN. Set to `0.0.0.0` to expose intentionally. |
-| `CADDY_HTTP_PORT`                         | `8080`                                 | Host port Caddy listens on for HTTP.                            |
-| `CADDY_HTTPS_PORT`                        | `18443`                                | Host port Caddy listens on for HTTPS.                           |
-| `CADDY_HTTPS_HOST`                        | `localhost:18443`                      | Host name Caddy presents for HTTPS.                             |
-| `UMBRACO_PUBLIC_HOST`                     | `https://localhost:18443`              | Public host passed to Umbraco.                                  |
-| `UMBRACO_PUBLIC_URL`                      | `https://localhost:18443/`             | Public URL passed to Umbraco and smoke scripts.                 |
-| `UMBRACO_RUNTIME_MODE`                    | `BackofficeDevelopment`                | Umbraco runtime mode (`BackofficeDevelopment` or `Production`). |
-| `UMBRACO_USER_NAME`                       | `Jane Doe`                             | Unattended install user name.                                   |
-| `UMBRACO_USER_EMAIL`                      | `admin@localhost`                      | Unattended install user email.                                  |
-| `UMBRACO_USER_PASSWORD`                   | `@rticulate`                           | Unattended install user password.                               |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required for smoke)*                 | Secret for the dev automation API client.                       |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`     | `articulate-dev-automation`            | Client ID for the dev automation API user.                      |
-| `ARTICULATE_OPENID_CLIENT_ID`             | `umbraco-articulate`                   | OpenIddict client ID for the Markdown editor.                   |
-| `ARTICULATE_OPENID_DISPLAY_NAME`          | `Articulate Markdown Editor`           | Display name for the Markdown editor OpenIddict client.         |
-| `ARTICULATE_REDIRECT_URI`                 | `https://localhost:18443/a-new/`       | Sign-in callback for the Markdown editor.                       |
-| `ARTICULATE_LOGOUT_REDIRECT_URI`          | `https://localhost:18443/`             | Post-sign-out destination for the Markdown editor.              |
+| `CADDY_HTTP_PORT`                         | `8080`                                 | Host port Caddy listens on for HTTP.                                                                                                                                             |
+| `CADDY_HTTPS_PORT`                        | `18443`                                | Host port Caddy listens on for HTTPS.                                                                                                                                            |
+| `CADDY_HTTPS_HOST`                        | `localhost:18443`                      | Browser-facing HTTPS authority, including the external port.                                                                                                                     |
+| `CADDY_TLS_HOST`                          | `localhost`                            | Host or IP Caddy mints a certificate for and uses when an IP client omits SNI. Derived from `CADDY_HTTPS_HOST` by default.                                                       |
+| `UMBRACO_PUBLIC_HOST`                     | `https://localhost:18443`              | Public host passed to Umbraco.                                                                                                                                                   |
+| `UMBRACO_PUBLIC_URL`                      | `https://localhost:18443/`             | Public URL passed to Umbraco and smoke scripts.                                                                                                                                  |
+| `UMBRACO_RUNTIME_MODE`                    | `BackofficeDevelopment`                | Umbraco runtime mode (`BackofficeDevelopment` or `Production`).                                                                                                                  |
+| `UMBRACO_USER_NAME`                       | `Jane Doe`                             | Unattended install user name.                                                                                                                                                    |
+| `UMBRACO_USER_EMAIL`                      | `admin@localhost`                      | Unattended install user email.                                                                                                                                                   |
+| `UMBRACO_USER_PASSWORD`                   | `@rticulate`                           | Unattended install user password.                                                                                                                                                |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` | *(required for smoke)*                 | Secret for the dev automation API client.                                                                                                                                        |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`     | `articulate-dev-automation`            | Client ID for the dev automation API user.                                                                                                                                       |
+| `ARTICULATE_OPENID_CLIENT_ID`             | `umbraco-articulate`                   | OpenIddict client ID for the Markdown editor.                                                                                                                                    |
+| `ARTICULATE_OPENID_DISPLAY_NAME`          | `Articulate Markdown Editor`           | Display name for the Markdown editor OpenIddict client.                                                                                                                          |
+| `ARTICULATE_REDIRECT_URI`                 | `https://localhost:18443/a-new/`       | Sign-in callback for the Markdown editor.                                                                                                                                        |
+| `ARTICULATE_LOGOUT_REDIRECT_URI`          | `https://localhost:18443/`             | Post-sign-out destination for the Markdown editor.                                                                                                                               |
+
+### LAN or custom-host exposure
+
+To test `/a-new/` from another machine on the LAN:
+
+1. Bind Caddy to all interfaces (`CADDY_BIND_IP=0.0.0.0`).
+2. Use the LAN IP or hostname for every browser-facing URL.
+3. Pass `--reset` so OpenIddict registers redirect URIs for that origin.
+
+```powershell
+$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET="articulate-dev-local-secret"
+$env:CADDY_BIND_IP="0.0.0.0"
+$env:CADDY_HTTPS_HOST="192.168.1.9:17017"
+$env:UMBRACO_PUBLIC_HOST="https://192.168.1.9:17017"
+$env:UMBRACO_PUBLIC_URL="https://192.168.1.9:17017/"
+$env:ARTICULATE_REDIRECT_URI="https://192.168.1.9:17017/a-new/"
+$env:ARTICULATE_LOGOUT_REDIRECT_URI="https://192.168.1.9:17017/"
+dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
+```
+
+> [!WARNING]
+> Exposing the dev harness to the LAN makes the site and its default administrative credentials (`admin@localhost` / `@rticulate`) accessible to anyone on your network. Never run this configuration on a public or untrusted network.
 
 ## NuGet lock files
 

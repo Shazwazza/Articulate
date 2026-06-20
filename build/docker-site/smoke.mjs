@@ -44,8 +44,17 @@ function sleep(ms) {
 
 // --- HTTP transport ---------------------------------------------------------
 
-function isLocalhost(host) {
-  return ['localhost', '127.0.0.1', '::1', '[::1]'].includes(host);
+// The dev harness always serves Caddy's self-signed `tls internal` cert, which
+// Node does not trust. Loopback and private-network hosts (incl. the LAN IP the
+// operator may browse via UMBRACO_PUBLIC_URL) are all dev-harness targets, so
+// disable cert validation for them. Public hosts keep strict validation.
+function isDevHost(host) {
+  if (['localhost', '127.0.0.1', '::1', '[::1]'].includes(host)) return true;
+  // Private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!m) return false;
+  const [a, b] = [Number(m[1]), Number(m[2])];
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
 }
 
 function request(url, opts = {}) {
@@ -58,7 +67,7 @@ function request(url, opts = {}) {
       path: u.pathname + u.search,
       method: opts.method || 'GET',
       headers: opts.headers || {},
-      rejectUnauthorized: isLocalhost(u.hostname) ? false : true,
+      rejectUnauthorized: isDevHost(u.hostname) ? false : true,
       timeout: opts.timeout || 30_000,
     }, res => {
       const chunks = [];

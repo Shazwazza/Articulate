@@ -226,6 +226,20 @@ namespace Articulate.Services
                           3. Customize CSS in `wwwroot/.../assets/css/`
                           4. Copied themes do not include a production build pipeline for assets, either set up your own build process, or ensure production builds link to src assets.
 
+                          ## Modernising the layout (recommended)
+
+                          Copied built-in themes keep the legacy `Master.cshtml` convention, where every
+                          page view sets `Layout = "Master.cshtml"`. For new theme work, prefer the standard
+                          ASP.NET Core Razor layout pattern instead:
+
+                          1. Rename `Views/Master.cshtml` to `Views/_Layout.cshtml`.
+                          2. Add `Views/_ViewStart.cshtml` and set its Layout to `_Layout.cshtml`.
+                          3. Remove the `Layout = "Master.cshtml";` line from each page view
+                             (`List.cshtml`, `Post.cshtml`, `Author.cshtml`, `Tags.cshtml`, `Authors.cshtml`).
+
+                          Razor then applies `_Layout.cshtml` automatically. The bundled `Sample` RCL theme
+                          in the Articulate repository demonstrates this setup.
+
                           ## Activate Theme
 
                           To use this theme in production, you need to configure it in your Articulate settings:

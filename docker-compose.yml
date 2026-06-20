@@ -71,6 +71,7 @@ services:
     environment:
       ARTICULATE_HOST: articulate
       HTTPS_HOST: ${CADDY_HTTPS_HOST:-localhost:18443}
+      CADDY_TLS_HOST: ${CADDY_TLS_HOST:-localhost}
     command: caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
     volumes:
       - caddy-data:/data

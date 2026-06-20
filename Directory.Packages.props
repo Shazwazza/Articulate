@@ -16,7 +16,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageVersion Include="Argotic.Core" Version="3001.0.0" />
-		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2" />
+		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
 		<PackageVersion Include="FileSignatures" Version="7.2.1" />
 		<PackageVersion Include="Markdig" Version="$(MarkdigPackageVersion)" />
 		<PackageVersion Include="MessagePack" Version="3.1.7" />
@@ -36,7 +36,7 @@
 		<PackageVersion Include="WilderMinds.MetaWeblog" Version="5.1.3" />
 	</ItemGroup>
 	<ItemGroup>
-		<GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.9.50" Condition="!Exists('packages.config')" PrivateAssets="All" />
+		<GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.85" Condition="!Exists('packages.config')" PrivateAssets="All" />
 		<GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
 		<GlobalPackageReference Include="Umbraco.Code" Version="$(UmbracoCodePackageVersion)" PrivateAssets="All" />
 		<GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="All" />
