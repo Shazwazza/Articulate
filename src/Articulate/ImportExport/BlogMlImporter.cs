@@ -40,8 +40,14 @@ namespace Articulate.ImportExport
         IJsonSerializer jsonSerializer,
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
-        IHtmlSanitizer htmlSanitizer
+        IHtmlSanitizer htmlSanitizer,
+        IOptions<ArticulateOptions> articulateOptions
 #if UMBRACO_18_OR_GREATER
+        ,
+        IIdKeyMap idKeyMap
+#endif
+    )
+
     {
         private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
 
@@ -487,32 +493,6 @@ namespace Articulate.ImportExport
             }
         }
 
-        /* private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
-        //    string publicKey, string privateKey, string accessToken)
-        // {
-        //    var importer = new DisqusImporter(publicKey);
-        //    foreach (var comment in post.Comments)
-        //    {
-        //        var result = await importer.Import(
-        //            postNode.Id.ToString(CultureInfo.InvariantCulture),
-        //            comment.Content.Content,
-        //            comment.UserName,
-        //            comment.UserEmailAddress,
-        //            comment.UserUrl is not null ? comment.UserUrl.ToString() : string.Empty,
-        //            comment.CreatedOn);
-        //        if (!result)
-        //        {
-        //            HasErrors = true;
-        //        }
-        //        else
-        //        {
-        //            postNode.SetInvariantOrDefaultLanguageValue("disqusCommentsImported", 1);
-        //            //just save it, we don't need to publish it (if publish = true then its already published), we just need
-        //            // this for reference.
-        //            _applicationContext.Services.ContentService.Save(postNode, userId);
-        //        }
-        //    }
-        // } */
 
         private Task ImportCategoriesAsync(
             IContent postNode,
@@ -532,6 +512,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -569,6 +552,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -605,7 +591,7 @@ namespace Articulate.ImportExport
 
         private IContent[] GetExistingPosts(IContent archiveNode)
         {
-            IEnumerable<IContent> allPostNodes = contentService.GetPagedChildrenCompat(
+            IEnumerable<IContent> allPostNodes = contentService.EnumeratePagedChildren(
                 archiveNode.Id,
                 0,
                 int.MaxValue,
