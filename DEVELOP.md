@@ -317,6 +317,7 @@ are applied by `docker-test` for v17/v18.
 | `IMAGE_TAG`                               | `articulate-local:chiseled`            | Docker image tag.                                               |
 | `COMPOSE_PROJECT_NAME`                    | `articulate`                           | Docker Compose project name.                                    |
 | `COMPOSE_VOLUME_PREFIX`                   | `articulate`                           | Prefix for named Umbraco data/media volumes.                    |
+| `CADDY_BIND_IP`                           | `127.0.0.1`                            | Host interface Caddy binds. Loopback by default so the auto-provisioned OAuth client + known admin password aren't exposed on the LAN. Set to `0.0.0.0` to expose intentionally. |
 | `CADDY_HTTP_PORT`                         | `8080`                                 | Host port Caddy listens on for HTTP.                            |
 | `CADDY_HTTPS_PORT`                        | `18443`                                | Host port Caddy listens on for HTTPS.                           |
 | `CADDY_HTTPS_HOST`                        | `localhost:18443`                      | Host name Caddy presents for HTTPS.                             |

@@ -9,6 +9,36 @@
 - The release base version is defined in `build/v18-version.txt`; development
   builds append matching NBGV commit metadata.
 
+### Changes in this release
+
+- Hardened the image-import service against SSRF (per-redirect revalidation,
+  pinned connections, IANA special-use IP coverage, HTTPS-downgrade rejection).
+- Replaced the PowerShell/Bash build scripts with a single `build/build.cs`
+  .NET tool and added lane-aware NuGet package locking
+  (`packages.v17.lock.json` / `packages.v18.lock.json`, `RestoreLockedMode`).
+- Tightened the dev Docker harness: Caddy ports bind to loopback by default
+  (override with `CADDY_BIND_IP`); Caddy image pinned to `2.11.4-alpine`.
+- Restored the markdown editor's `monacoMarkdownEditorAction` extension point
+  (the toolbar action slot was querying a type that could never match; package-
+  contributed actions can now load).
+- Removed a dead namespace literal in `ArticulateOperationIdHandler`.
+- Added tests for the OpenAPI operation-id handler, the tag-repository SQL
+  builders, the route-cache lifecycle, and the date-formatted URL provider.
+
+### Breaking changes
+
+> [!WARNING]
+> **Dev harness only — does not affect production installs.**
+>
+> - The Docker dev harness now binds Caddy to `127.0.0.1` by default instead
+>   of `0.0.0.0`. If you relied on reaching the dev site from another machine
+>   on your LAN, set `CADDY_BIND_IP=0.0.0.0` in your environment.
+> - The markdown editor's monaco action extension point is renamed to
+>   `monacoMarkdownEditorAction` (matching Umbraco). Any manifest registered
+>   under the previous `articulateMonacoMarkdownEditorAction` /
+>   `articulateMarkdownEditorAction` names must be updated — though those names
+>   never matched each other, so such a manifest could not have loaded anyway.
+
 ## Version 6.1.0
 
 - Targets Umbraco 17.4 and later on .NET 10.
