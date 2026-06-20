@@ -128,6 +128,10 @@ namespace Articulate.Services
                     taggedContent.AddRange(dbTags);
                 }
 
+                // Hoist constant URL prefix out of the loop: Url() + EnsureEndsWith + baseUrlName
+                // are invariant for the duration of the foreach, so computing once avoids N URL
+                // provider lookups and N potential string allocations.
+                string tagUrlPrefix = masterModel.RootBlogNode.Url().EnsureEndsWith('/') + baseUrlName + "/";
                 var result = new List<PostsByTagModel>();
                 foreach (IGrouping<int, TagDto> groupedTags in taggedContent.GroupBy(x => x.TagId))
                 {
@@ -144,8 +148,7 @@ namespace Articulate.Services
                         publishedContent.Select(c => new PostModel(c, publishedValueFallback))
                             .OrderByDescending(c => c.PublishedDate),
                         tagName,
-                        masterModel.RootBlogNode.Url().EnsureEndsWith('/') + baseUrlName + "/" +
-                        tagName.ToLowerInvariant());
+                        tagUrlPrefix + tagName.ToLowerInvariant());
 
                     result.Add(model);
                 }
