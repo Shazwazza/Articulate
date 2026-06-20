@@ -1,17 +1,8 @@
 #!/usr/bin/env node
-//
-// smoke-package.mjs — verify Articulate .nupkg / .snupkg contents
-//
-// Run in CI after `dotnet pack` to catch regressions before artifact upload.
-// Checks file presence, .nuspec structure, umbraco-package.json structure,
-// embedded resources in the shipped DLLs, and absence of known-bad content
-// (e.g. lock files leaking into the package).
-//
-// Usage:
+// Verify Articulate .nupkg / .snupkg contents. CI runs this after `dotnet pack`
+// and skips the artifact upload on any failure.
 //   node build/smoke-package.mjs build/Release/v17 [build/Release/v18 ...]
 //   node build/smoke-package.mjs path/to/Articulate.6.1.0-rc1.nupkg
-//
-// Exits 0 if all checks pass, 1 otherwise.
 
 import { spawnSync } from "node:child_process";
 import {
@@ -30,12 +21,7 @@ if (args.length === 0) {
 	process.exit(2);
 }
 
-// ---------------------------------------------------------------------------
-// unzip helpers
-// ---------------------------------------------------------------------------
-
 function unzipList(file) {
-	// Returns [{ name, size, ... }] from `unzip -l`.
 	const result = spawnSync("unzip", ["-l", file], { encoding: "utf8" });
 	if (result.status !== 0)
 		throw new Error(`unzip -l ${file} failed: ${result.stderr}`);
@@ -43,7 +29,6 @@ function unzipList(file) {
 }
 
 function unzipExtract(file, entries, dest) {
-	// entries: array of paths inside the archive to extract
 	const args = ["-o", "-q", file, ...entries, "-d", dest];
 	const result = spawnSync("unzip", args, { encoding: "utf8" });
 	if (result.status !== 0)
@@ -51,7 +36,6 @@ function unzipExtract(file, entries, dest) {
 }
 
 function parseUnzipList(stdout) {
-	// Parses `unzip -l` output. Returns array of { name, size }.
 	const lines = stdout.split("\n");
 	const entries = [];
 	let inTable = false;
@@ -61,7 +45,6 @@ function parseUnzipList(stdout) {
 			continue;
 		}
 		if (!inTable) continue;
-		// Format: "  Length      Date    Time    Name"
 		const match = line.match(/^\s+(\d+)\s+\S+\s+\S+\s+(.+?)\s*$/);
 		if (match) entries.push({ size: Number(match[1]), name: match[2] });
 	}
@@ -75,10 +58,6 @@ function namesMatching(entries, regex) {
 function hasAny(entries, predicate) {
 	return entries.some(predicate);
 }
-
-// ---------------------------------------------------------------------------
-// checks
-// ---------------------------------------------------------------------------
 
 let checks = 0;
 let failures = 0;
@@ -102,8 +81,6 @@ function checkGroup(name, fn) {
 	console.log(`\n${currentPackage} :: ${name}`);
 	fn();
 }
-
-// -- per-package dispatch ---------------------------------------------------
 
 let currentPackage = "";
 
@@ -130,8 +107,6 @@ function checkPackage(file) {
 		rmSync(work, { recursive: true, force: true });
 	}
 }
-
-// -- Articulate.{ver}.nupkg -----------------------------------------------
 
 function checkMainPackage(file, entries, names, work) {
 	checkGroup("root files", () => {
@@ -169,7 +144,18 @@ function checkMainPackage(file, entries, names, work) {
 			"depends on Umbraco.Cms.Api.Management",
 			/<dependency id="Umbraco\.Cms\.Api\.Management"/.test(nuspec),
 		);
-		expect("declares contentFiles", /<contentFiles>/.test(nuspec));
+		// Modern .NET 8+ static web assets emit `<contentFiles>` only when the
+		// package ships legacy contentFiles/any/{tfm}/... files. The newer
+		// staticwebassets/ root layout doesn't declare contentFiles, so accept
+		// either as a valid sign that the static web assets pipeline ran.
+		const hasContentFiles = /<contentFiles>/.test(nuspec);
+		const hasStaticWebAssets = names.some((n) =>
+			n.startsWith("staticwebassets/"),
+		);
+		expect(
+			"declares contentFiles or ships staticwebassets/",
+			hasContentFiles || hasStaticWebAssets,
+		);
 	});
 
 	checkGroup("lib/net10.0", () => {
@@ -209,8 +195,7 @@ function checkMainPackage(file, entries, names, work) {
 	});
 
 	checkGroup("umbraco-package.json", () => {
-		// May be at staticwebassets/... (modern SDK) or contentFiles/any/{tfm}/...
-		// (legacy). Accept either.
+		// May live at staticwebassets/... (modern SDK) or contentFiles/any/{tfm}/...
 		const manifest = names.find((n) => n.endsWith("/umbraco-package.json"));
 		expect("manifest present", !!manifest);
 		if (!manifest) return;
@@ -330,8 +315,6 @@ function checkMainPackage(file, entries, names, work) {
 		}
 		unzipExtract(file, [dllPath], work);
 		const dll = readFileSync(join(work, dllPath));
-		// Manifest resource names start with "Articulate.Packaging." (default
-		// EmbeddedResource namespace from project root).
 		const expected = [
 			"Articulate.Packaging.author.jpg",
 			"Articulate.Packaging.banner.jpg",
@@ -358,13 +341,11 @@ function checkMainPackage(file, entries, names, work) {
 		unzipExtract(file, [dllPath], work);
 		const dll = readFileSync(join(work, dllPath));
 		const text = dll.toString("latin1");
-		// LogicalName prefix used by ArticulateThemeRepository.GetManifestResourceStream
 		expect(
 			"Articulate.Theme:// prefix present (theme copy reads it)",
 			text.includes("Articulate.Theme://"),
 		);
-		// Generated razor view class names: App_Plugins_Articulate_Themes_*.
-		// We expect at least 50 distinct compiled views across the four themes.
+		// Expect at least 50 compiled view classes across the four themes.
 		const razorMatches = text.match(/App_Plugins_Articulate_Themes/g) ?? [];
 		expect(
 			"razor-compiled theme views present (>=50 occurrences)",
@@ -373,8 +354,6 @@ function checkMainPackage(file, entries, names, work) {
 		);
 	});
 }
-
-// -- Articulate.Theme.Sample.{ver}.nupkg -----------------------------------
 
 function checkSamplePackage(file, entries, names, work) {
 	checkGroup("root files", () => {
@@ -429,8 +408,6 @@ function checkSamplePackage(file, entries, names, work) {
 	});
 }
 
-// -- Articulate.{ver}.snupkg -----------------------------------------------
-
 function checkSymbols(_file, entries, names, _work) {
 	checkGroup("symbols package", () => {
 		expect(
@@ -450,15 +427,11 @@ function checkSymbols(_file, entries, names, _work) {
 	});
 }
 
-// ---------------------------------------------------------------------------
-// main
-// ---------------------------------------------------------------------------
-
 const files = [];
 for (const arg of args) {
 	const stat = statSync(arg);
 	if (stat.isDirectory()) {
-		// Pick up .nupkg + .snupkg; sort so .nupkg comes before .snupkg per id.
+		// .nupkg + .snupkg, .nupkg first per id.
 		const found = readdirSync(arg)
 			.filter((n) => /\.(nu|snu)pkg$/.test(n))
 			.sort()

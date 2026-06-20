@@ -7,7 +7,7 @@
 - Ships separately from Articulate 6 because the Umbraco 17 and 18 extension
   points are not binary-compatible.
 - The release base version is defined in `build/v18-version.txt`; development
-  builds append matching NBGV commit metadata.
+  builds append commit metadata.
 
 ### Changes in this release
 
@@ -17,13 +17,22 @@
   .NET tool and added lane-aware NuGet package locking
   (`packages.v17.lock.json` / `packages.v18.lock.json`, `RestoreLockedMode`).
 - Tightened the dev Docker harness: Caddy ports bind to loopback by default
-  (override with `CADDY_BIND_IP`); Caddy image pinned to `2.11.4-alpine`.
+  (override with `CADDY_BIND_IP`); Caddy image pinned to `2.11.4-alpine`;
+  per-lane Backoffice auth-cookie isolation via `AuthCookieName` +
+  `BackOfficeTokenCookie:SiteName` so v17 and v18 can run side-by-side without
+  trampling each other's sessions.
 - Restored the markdown editor's `monacoMarkdownEditorAction` extension point
   (the toolbar action slot was querying a type that could never match; package-
   contributed actions can now load).
 - Removed a dead namespace literal in `ArticulateOperationIdHandler`.
 - Added tests for the OpenAPI operation-id handler, the tag-repository SQL
   builders, the route-cache lifecycle, and the date-formatted URL provider.
+- **NuGet packaging:** BackOffice Vite output now ships as `staticwebassets/`
+  only (no duplicate `content/` + `contentFiles/any/{tfm}/` paths, ~140 KB
+  per package).
+- **Smoke test:** `build/smoke-package.mjs` now asserts the
+  `staticwebassets/`-only layout. CI runs it after both lanes pack and skips
+  the artifact upload on failure.
 
 ### Breaking changes
 

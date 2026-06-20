@@ -268,13 +268,17 @@ static class BuildApp
         var packageVersion = Env("ARTICULATE_PACKAGE_VERSION");
         if (lane == "v18" && string.IsNullOrWhiteSpace(packageVersion))
         {
+            // Local fallback. CI sets ARTICULATE_PACKAGE_VERSION from
+            // NBGV_SemVer2, so this branch only runs for un-set local builds.
             var baseVersion = (await File.ReadAllTextAsync(Path.Combine(BuildDir, "v18-version.txt"))).Trim();
-            if (!Regex.IsMatch(baseVersion, @"^7\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$"))
-                throw new InvalidOperationException($"Invalid v18 base version '{baseVersion}'.");
+            if (string.IsNullOrWhiteSpace(baseVersion))
+                throw new InvalidOperationException("build/v18-version.txt is empty.");
             var v17 = (await CaptureAsync("nbgv", ["get-version", "-v", "SemVer2"], Repo)).Trim();
-            var match = Regex.Match(v17, @"^6\.1\.\d+(?:-(.+))?$");
-            if (!match.Success) throw new InvalidOperationException($"Expected NBGV 6.1.x, got '{v17}'.");
-            packageVersion = baseVersion + (match.Groups[1].Success ? $".{match.Groups[1].Value}" : "");
+            var commitMatch = Regex.Match(v17, @"\.g[a-f0-9]+$");
+            if (!commitMatch.Success)
+                throw new InvalidOperationException(
+                    $"NBGV SemVer2 '{v17}' has no '.g<hash>' suffix; cannot derive v18 commit.");
+            packageVersion = baseVersion + commitMatch.Value;
         }
 
         foreach (var file in Directory.EnumerateFiles(releaseDir))
@@ -292,7 +296,6 @@ static class BuildApp
 
         var clean = options.Flag("clean");
         Console.WriteLine($"Build: {lane}, {configuration}, package {packageVersion ?? "NBGV"}{(clean ? " (Clean Build)" : "")}");
-        // MSBuild invokes pnpm without an interactive terminal; prevent package-manager prompts.
         Environment.SetEnvironmentVariable("CI", "true");
         
         if (clean)
@@ -483,31 +486,24 @@ static class BuildApp
     static void ConfigureLane(string lane)
     {
         var is18 = lane == "v18";
-        // Defaults match the Umbraco major: 44317 for v17, 44318 for v18.
-        // Override by setting CADDY_HTTPS_PORT / CADDY_HTTP_PORT in the environment
-        // before invoking the build script.
+        // HTTPS 44317/44318 match the Umbraco major; HTTP 44380/44381 avoid
+        // common dev-tool port-snatch ranges. Override with CADDY_HTTPS_PORT /
+        // CADDY_HTTP_PORT before invoking the build script.
         var https = is18 ? "44318" : "44317";
-        var http = is18 ? "18080" : "17080";
+        var http = is18 ? "44381" : "44380";
         Environment.SetEnvironmentVariable("ARTICULATE_PACKAGE_LANE", lane);
         Environment.SetEnvironmentVariable("COMPOSE_PROJECT_NAME", $"art_{lane}");
         Environment.SetEnvironmentVariable("COMPOSE_VOLUME_PREFIX", $"art_{lane}");
         Environment.SetEnvironmentVariable("IMAGE_TAG", $"articulate-local:{lane}");
         Environment.SetEnvironmentVariable("PACKAGE_SOURCE", $"build/Release/{lane}");
         Environment.SetEnvironmentVariable("UMBRACO_CMS_VERSION", is18 ? "[18.0.0-*,19.0.0)" : "[17.4.0,18.0.0)");
-        // Per-instance back-office cookie name so logging into one lane
-        // doesn't overwrite the other's auth cookie (they share domain +
-        // path on localhost; SecuritySettings:AuthCookieName controls the
-        // legacy UMB_UCONTEXT cookie name in v17 / v18.0.0-rc3).
+        // Per-lane auth cookies: cookies are domain-scoped, so the default
+        // back-office cookie would clobber itself across lanes on localhost.
         Environment.SetEnvironmentVariable("Umbraco__CMS__Security__AuthCookieName", $"UMB_UCONTEXT-{lane}");
-        // New OAuth cookies (umbAccessToken / umbRefreshToken / umbPkceCode)
-        // — Umbraco 17.3+ appends BackOfficeTokenCookie:SiteName verbatim as
-        // a suffix (PR umbraco/Umbraco-CMS#22057). Becomes the default scheme
-        // once Umbraco 18 drops the legacy UMB_UCONTEXT cookie.
+        // Umbraco 17.3+ OAuth cookies (PR #22057): SiteName is appended verbatim.
         Environment.SetEnvironmentVariable("Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName", $"-{lane}");
         SetHostValue("CADDY_HTTPS_PORT", https);
         SetHostValue("CADDY_HTTP_PORT", http);
-        // Preserve caller overrides while recomputing defaults when docker-test
-        // switches lanes in the same process.
         SetHostValue("CADDY_HTTPS_HOST", $"localhost:{https}");
         SetHostValue("UMBRACO_PUBLIC_HOST", $"https://localhost:{https}");
         SetHostValue("UMBRACO_PUBLIC_URL", $"https://localhost:{https}/");
@@ -613,8 +609,9 @@ static class BuildApp
     }
     static void RequireSecret()
     {
-        if (string.IsNullOrWhiteSpace(Env("ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET")))
-            throw new InvalidOperationException("ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET must be set.");
+        // Default matches the docker-compose.yml fallback so local dev works
+        // without exporting anything. Override explicitly in CI.
+        SetDefault("ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET", "articulate-dev-local-secret");
         SetDefault("ARTICULATE_DEV_AUTOMATION_CLIENT_ID", "articulate-dev-automation");
     }
     static void Require(string command)

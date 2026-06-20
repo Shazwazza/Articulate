@@ -25,9 +25,8 @@
    dotnet run --file build/build.cs -- build --configuration Debug --client true
    ```
 
-   This restores NuGet and npm packages, builds the Back Office client, builds the
-   theme and Markdown editor dist bundles, builds the .NET solution, and produces
-   NuGet packages.
+   This restores, builds (including the Back Office client and theme/Markdown
+   editor dist bundles), and produces NuGet packages.
 
    ### Local-only overrides
 
@@ -132,16 +131,15 @@ dotnet run --file build/build.cs -- build --lane v18 --clean --client true --tes
 | `v17` | Articulate 6.1.x | Umbraco 17.4+   | `net10.0`        | `build/Release/v17` |
 | `v18` | Articulate 7.0.x | Umbraco 18      | `net10.0`        | `build/Release/v18` |
 
-The lanes produce separate NuGet packages because the compiled Umbraco 17 and
-Umbraco 18 extension points are not binary-compatible. Do not install an
-Articulate 6 package into Umbraco 18, or an Articulate 7 package into Umbraco 17.
+The lanes produce separate NuGet packages because Umbraco 17 and 18 extension
+points are not binary-compatible. Do not cross-install (Articulate 6 ↔ Umbraco 18,
+or Articulate 7 ↔ Umbraco 17).
 
 `version.json` defines the Articulate 6.1 version through NBGV.
 `build/v18-version.txt` defines the Articulate 7 base version. Build scripts
-append NBGV development metadata when present: a v18 base of `7.0.0-rc1`
-produces `7.0.0-rc1.gabcdef` once development metadata is present. Change the
-text file to advance the v18 release candidate; callers do not normally pass a
-version.
+append NBGV commit metadata when present: a v18 base of `7.0.0-rc1` produces
+`7.0.0-rc1.gabcdef`. Change the text file to advance the v18 release
+candidate; callers do not normally pass a version.
 
 ## Client development
 
@@ -198,15 +196,13 @@ containers cannot complete the backoffice authorize flow in Production mode.
 
 The compose stack supports two runtime modes through `UMBRACO_RUNTIME_MODE`:
 
-- `BackofficeDevelopment` (default) enables the dev-only automation bootstrap so
-  the API user and client credentials are provisioned automatically after
-  install and migrations.
-- `Production` disables automation bootstrap and verifies that published
-  content survives a restart without any dev-only helpers.
+- `BackofficeDevelopment` (default) auto-provisions the dev API user and client
+  credentials after install and migrations.
+- `Production` disables that bootstrap and verifies that published content
+  survives a restart.
 
-The typical validation flow is: start in `BackofficeDevelopment` with empty
-volumes, let the dev script publish and confirm content, then run the production
-smoke test against the same volumes.
+Typical flow: start in `BackofficeDevelopment` with empty volumes, publish
+and confirm content, then re-run in `Production` against the same volumes.
 
 ### Build a Docker image
 
@@ -280,14 +276,21 @@ reuses that lane's volumes and published content.
 Run comprehensive validation for one or both lanes:
 
 ```powershell
-$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
 dotnet run --file build/build.cs -- docker-test --lane all --keep
 ```
 
+`ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` defaults to
+`articulate-dev-local-secret` (matching `docker-compose.yml`) and only needs
+to be exported when overriding the dev secret.
+
 Containers stay running at `https://localhost:44317/` (v17) and
-`https://localhost:44318/` (v18). Use `--lane v17` or `--lane v18` for a single
-lane. Remove `--keep` to clean up containers after testing. Use `--skip-smoke`
-to skip API publish/confirm tests (faster build validation).
+`https://localhost:44318/` (v18), with Caddy's HTTP listener on
+`http://localhost:44380/` (v17) and `http://localhost:44381/` (v18). The
+defaults sit out of common dev-port collision ranges; override with
+`CADDY_HTTPS_PORT` / `CADDY_HTTP_PORT` if they clash on your host. Use
+`--lane v17` or `--lane v18` for a single lane. Remove `--keep` to clean
+up containers after testing. Use `--skip-smoke` to skip API publish/confirm
+tests (faster build validation).
 
 Inspect a running lane and confirm its packaged Backoffice files are present:
 
@@ -355,14 +358,13 @@ You stay logged into both lanes simultaneously without browser juggling.
 
 To test `/a-new/` from another machine on the LAN:
 
-1. Bind Caddy to all interfaces (`CADDY_BIND_IP=0.0.0.0`).
-2. Use the LAN IP or hostname for every browser-facing URL.
+1. `CADDY_BIND_IP=0.0.0.0` so Caddy binds to all interfaces.
+2. Use the LAN IP (or hostname) in every browser-facing URL.
 3. Pass `--reset` so OpenIddict registers redirect URIs for that origin.
 
 ```powershell
-# Replace <lan-ip> with the IPv4 address other machines on your network
-# can reach this dev box on (e.g. `192.168.1.42`, `10.0.0.17`, a mDNS
-# hostname like `devbox.local`, or whatever your router assigns).
+# <lan-ip>: IPv4 address (or mDNS hostname like devbox.local) other machines
+# on your network can reach this dev box on.
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET="articulate-dev-local-secret"
 $env:CADDY_BIND_IP="0.0.0.0"
 $env:CADDY_HTTPS_HOST="<lan-ip>:44317"
@@ -378,18 +380,15 @@ dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
 
 ## NuGet lock files
 
-Only the two shipped packages use lock files:
+The two shipped packages use lock files (opt-in via `RestorePackagesWithLockFile=true`):
 
-- `src/Articulate.Web/packages.v17.lock.json`
-- `src/Articulate.Web/packages.v18.lock.json`
-- `src/Articulate.Theme.Sample/packages.v17.lock.json`
-- `src/Articulate.Theme.Sample/packages.v18.lock.json`
+- `src/Articulate.Web/packages.v17.lock.json`, `…packages.v18.lock.json`
+- `src/Articulate.Theme.Sample/packages.v17.lock.json`, `…packages.v18.lock.json`
 
-They are opt-in via `RestorePackagesWithLockFile=true` in each packable
-`.csproj`. CI and the build script use `--locked-mode`, so these files must be
-checked in and kept current.
+CI and the build script use `--locked-mode`, so these files must be checked in
+and kept current.
 
-After changing any centralized package version in `Directory.Packages.props`,
+After changing any centralized version in `Directory.Packages.props`,
 regenerate the lock files for both lanes:
 
 ```powershell
@@ -401,25 +400,30 @@ Test projects and the test website float; they do not need lock files.
 
 The lock files are restore-time inputs for `<RestoreLockedMode>` and never ship
 in the published package — both packable `.csproj` files exclude
-`packages.*.lock.json` via `<Content Remove>`. The package smoke test
-([Package smoke test](#package-smoke-test)) also fails the build if a lock file
-reappears in any `*.nupkg`.
+`packages.*.lock.json` via `<Content Remove>`. The [package smoke test](#package-smoke-test)
+fails the build if a lock file reappears in any `*.nupkg`.
 
 ## Package smoke test
 
-`build/smoke-package.mjs` is an offline smoke test that opens each
-`build/Release/<lane>/*.nupkg` and `*.snupkg`, extracts key files, and verifies
-the package is well-formed before it ships. CI runs it after both lanes pack
-and before artifact upload.
+`build/smoke-package.mjs` opens each `build/Release/<lane>/*.nupkg` and
+`*.snupkg`, extracts key files, and verifies the package is well-formed. CI runs
+it after both lanes pack and before artifact upload; a failed check skips the
+workflow upload so leaks never reach GitHub Actions artifacts.
+
+Run it locally after a build:
+
+```bash
+node build/smoke-package.mjs build/Release/v17 build/Release/v18
+```
 
 What it checks for `Articulate.<ver>.nupkg`:
 
 - Root files: `LICENSE`, `README.md`, `icon.png`.
 - `.nuspec` parses; `id=Articulate`; has the `net10.0` dependency group with
-  `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`; declares
-  `<contentFiles>`.
-- `lib/net10.0/`: `Articulate.Web.dll` + `.xml`, `Articulate.dll` + `.xml` (the
-  latter shipped via `IncludeProjectReferenceDlls`).
+  `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`.
+- Ships only `staticwebassets/` for client assets (no legacy `content/` or
+  `contentFiles/any/{tfm}/` paths).
+- `lib/net10.0/`: `Articulate.Web.dll` + `.xml`, `Articulate.dll` + `.xml`.
 - `build/`: `Articulate.targets`, `Articulate.props`, and the
   `Microsoft.AspNetCore.StaticWebAssets*.props` files.
 - `umbraco-package.json` parses and declares a back-office entry.
@@ -447,17 +451,6 @@ What it checks for `Articulate.Theme.Sample.<ver>.nupkg`:
 What it checks for `Articulate.<ver>.snupkg`:
 
 - `lib/net10.0/Articulate.Web.pdb` present and non-trivial (> 50 KB).
-
-Run it locally after a build:
-
-```bash
-node build/smoke-package.mjs build/Release/v17 build/Release/v18
-```
-
-The script exits non-zero on any failed check. CI runs the same command after
-both lanes pack; the workflow upload step is skipped if the smoke test fails,
-so leaks (lock files, missing manifest, missing themes, broken embedded
-resources) never reach the GitHub Actions artifacts.
 
 ## Back Office client builds
 
