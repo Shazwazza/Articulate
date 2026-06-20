@@ -1,6 +1,6 @@
 # Articulate Release Notes
 
-## Version 7.0.0-rc.1
+## Version 7.0.0-rc1
 
 - Adds the Articulate 7 release-candidate line for Umbraco 18 on .NET 10.
 - Uses the Umbraco 18 Backoffice client and native OpenAPI endpoints.
@@ -39,7 +39,7 @@
 >   `articulateMarkdownEditorAction` names must be updated — though those names
 >   never matched each other, so such a manifest could not have loaded anyway.
 
-## Version 6.1.0
+## Version 6.1.0-rc1
 
 - Targets Umbraco 17.4 and later on .NET 10.
 - Continues the Articulate 6 package line for supported Umbraco 17 sites.

@@ -9,7 +9,7 @@
 //
 // Usage:
 //   node build/smoke-package.mjs build/Release/v17 [build/Release/v18 ...]
-//   node build/smoke-package.mjs path/to/Articulate.6.1.0.nupkg
+//   node build/smoke-package.mjs path/to/Articulate.6.1.0-rc1.nupkg
 //
 // Exits 0 if all checks pass, 1 otherwise.
 
