@@ -8,7 +8,9 @@
     <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">0.0.0-local</ArticulatePackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" />
+    <!-- Versions resolved from properties so this minimal scaffold builds
+         without the repo's Directory.Packages.props / Central Package Management. -->
+    <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Articulate" VersionOverride="$(ArticulatePackageVersion)" />
     <PackageReference Include="Articulate.Theme.Sample" VersionOverride="$(ArticulatePackageVersion)" />
   </ItemGroup>
