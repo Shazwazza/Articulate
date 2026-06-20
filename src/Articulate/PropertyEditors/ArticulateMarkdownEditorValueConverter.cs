@@ -9,9 +9,11 @@ using UmbracoMarkdownConverter = Umbraco.Cms.Core.Strings.IMarkdownToHtmlConvert
 
 namespace Articulate.PropertyEditors
 {
-    // Full clone of src/Umbraco.Web.UI.Client/src/packages/markdown-editor
-    // Prevent conflicts if both Markdown Editors on content type
-    // Keep this clone while supported Umbraco versions still expose the legacy Markdown editor shape.
+    // Full clone of src/Umbraco.Web.UI.Client/src/packages/markdown-editor.
+    // The clone registers a distinct editor alias so Articulate's
+    // standalone `/a-new/` post creator can coexist on the same content type
+    // as Umbraco's stock markdown editor, using Markdig Advanced Extensions pipeline,
+    // and optional sanitisation of the resulting HTML.
     /// <summary>
     ///     Value converter for the Articulate Markdown editor.
     /// </summary>
