@@ -488,33 +488,6 @@ namespace Articulate.ImportExport
             }
         }
 
-        /* private async Task ImportComments(int userId, IContent postNode, BlogMLPost post,
-        //    string publicKey, string privateKey, string accessToken)
-        // {
-        //    var importer = new DisqusImporter(publicKey);
-        //    foreach (var comment in post.Comments)
-        //    {
-        //        var result = await importer.Import(
-        //            postNode.Id.ToString(CultureInfo.InvariantCulture),
-        //            comment.Content.Content,
-        //            comment.UserName,
-        //            comment.UserEmailAddress,
-        //            comment.UserUrl is not null ? comment.UserUrl.ToString() : string.Empty,
-        //            comment.CreatedOn);
-        //        if (!result)
-        //        {
-        //            HasErrors = true;
-        //        }
-        //        else
-        //        {
-        //            postNode.SetInvariantOrDefaultLanguageValue("disqusCommentsImported", 1);
-        //            //just save it, we don't need to publish it (if publish = true then its already published), we just need
-        //            // this for reference.
-        //            _applicationContext.Services.ContentService.Save(postNode, userId);
-        //        }
-        //    }
-        // } */
-
         private Task ImportCategoriesAsync(
             IContent postNode,
             BlogMLPost post,

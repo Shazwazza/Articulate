@@ -19,10 +19,8 @@ import type { ProblemDetails } from '../api/types.gen.js';
  * @returns A cleaned, human-readable field name.
  */
 function cleanFieldName(fieldName: string): string {
-  // Remove leading '$.' if present
   const cleanedName = fieldName.startsWith('$.') ? fieldName.substring(2) : fieldName;
 
-  // Add spaces before uppercase letters and capitalize the first letter.
   return cleanedName.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/^./, (str) => str.toUpperCase());
 }
 
@@ -36,7 +34,6 @@ function cleanFieldName(fieldName: string): string {
 export function formatApiError(error: unknown, defaultMessage: string): { title: string; details: string[] } {
   console.warn('[formatApiError] Received error:', error);
 
-  // Check if it's a ProblemDetails-like object from the API
   if (
     error !== null &&
     typeof error === 'object' &&
@@ -49,11 +46,9 @@ export function formatApiError(error: unknown, defaultMessage: string): { title:
       const formattedErrors = Object.entries(problem.errors).flatMap(([key, messages]) => {
         const fieldName = cleanFieldName(key);
 
-        // Map over all messages for the current key, filtering out any null/empty ones first
         return messages
           .filter((msg) => !!msg)
           .map((msg) => {
-            // Clean up the message, but fall back to the original if the split fails
             const cleanedMsg = msg.split(' Path: $.')[0] || msg;
             return `${fieldName}: ${cleanedMsg}`;
           });
@@ -85,7 +80,6 @@ export function formatApiError(error: unknown, defaultMessage: string): { title:
   }
 
   if (error instanceof Error) {
-    // Use the error's name for the title if it's descriptive, otherwise use the default.
     const title = error.name !== 'Error' ? error.name : defaultMessage;
     const details = error.message ? [error.message] : [];
 
