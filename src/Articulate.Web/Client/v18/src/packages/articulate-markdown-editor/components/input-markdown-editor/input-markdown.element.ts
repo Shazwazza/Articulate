@@ -102,7 +102,7 @@ export class ArticulateInputMarkdownElement extends UmbFormControlMixin<string, 
       this.#editor?.monacoEditor?.updateOptions({ readOnly: this.#readonly });
 
       // TODO: make all action into extensions
-      this.observe(umbExtensionsRegistry.byType('articulateMonacoMarkdownEditorAction'), (manifests) => {
+      this.observe(umbExtensionsRegistry.byType('monacoMarkdownEditorAction'), (manifests) => {
         manifests.forEach(async (manifest) => {
           const api = await createExtensionApi(this, manifest, [this]);
 
