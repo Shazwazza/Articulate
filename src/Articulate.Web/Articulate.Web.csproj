@@ -53,6 +53,12 @@
     <Content Include="build\Articulate.targets" Pack="true" PackagePath="build\" />
   </ItemGroup>
 
+  <!-- Lock files are restore-time inputs for <RestoreLockedMode>; never ship them. -->
+  <ItemGroup>
+    <Content Remove="packages.*.lock.json" />
+    <None Remove="packages.*.lock.json" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Embed theme VIEWS from App_Plugins -->
     <EmbeddedResource Include="App_Plugins\Articulate\Themes\**\Views\**">

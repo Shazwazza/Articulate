@@ -26,4 +26,10 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <!-- Lock files are restore-time inputs for <RestoreLockedMode>; never ship them. -->
+  <ItemGroup>
+    <Content Remove="packages.*.lock.json" />
+    <None Remove="packages.*.lock.json" />
+  </ItemGroup>
+
 </Project>
