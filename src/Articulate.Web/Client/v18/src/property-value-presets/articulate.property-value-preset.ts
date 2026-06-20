@@ -13,7 +13,7 @@ export class ArticulateBlogPresetApi implements UmbPropertyValuePreset {
 
     switch (callArgs.alias) {
       case 'theme':
-        return 'VAPOR';
+        return 'Material';
       case 'pageSize':
         return 10;
       case 'categoriesUrlName':
