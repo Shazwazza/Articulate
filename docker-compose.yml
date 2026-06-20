@@ -20,6 +20,8 @@ services:
       # HTTPS configuration (Caddy terminates TLS)
       Umbraco__CMS__Global__UseHttps: "true"
       Umbraco__CMS__Security__BackOfficeHost: ${UMBRACO_PUBLIC_HOST:-https://localhost:18443}
+      Umbraco__CMS__Security__AuthCookieName: ${Umbraco__CMS__Security__AuthCookieName:-UMB_UCONTEXT}
+      Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName: ${Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName:-}
       Umbraco__CMS__WebRouting__UmbracoApplicationUrl: ${UMBRACO_PUBLIC_URL:-https://localhost:18443/}
       # Unattended install
       Umbraco__CMS__Unattended__InstallUnattended: "true"

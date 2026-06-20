@@ -284,8 +284,8 @@ $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
 dotnet run --file build/build.cs -- docker-test --lane all --keep
 ```
 
-Containers stay running at `https://localhost:17017/` (v17) and
-`https://localhost:18018/` (v18). Use `--lane v17` or `--lane v18` for a single
+Containers stay running at `https://localhost:44317/` (v17) and
+`https://localhost:44318/` (v18). Use `--lane v17` or `--lane v18` for a single
 lane. Remove `--keep` to clean up containers after testing. Use `--skip-smoke`
 to skip API publish/confirm tests (faster build validation).
 
@@ -332,6 +332,25 @@ are applied by `docker-test` for v17/v18.
 | `ARTICULATE_REDIRECT_URI`                 | `https://localhost:18443/a-new/`       | Sign-in callback for the Markdown editor.                                                                                                                                        |
 | `ARTICULATE_LOGOUT_REDIRECT_URI`          | `https://localhost:18443/`             | Post-sign-out destination for the Markdown editor.                                                                                                                               |
 
+### Cookie isolation between lanes
+
+Both v17 and v18 run on the same `localhost` domain but different ports. Browser
+cookies are domain-scoped (port is ignored), so the default Umbraco back-office
+cookie (`UMB_UCONTEXT` in v17.4 / v18.0.0-rc3, plus the new OAuth cookies
+`umbAccessToken` / `umbRefreshToken` / `umbPkceCode` in v17.3+) would normally
+clash and log you out of one lane when signing into the other.
+
+`build/build.cs` `ConfigureLane` sets two per-lane config values to fix this:
+
+- `Umbraco__CMS__Security__AuthCookieName=UMB_UCONTEXT-{lane}` — renames the
+  legacy `UMB_UCONTEXT` cookie. (`Security:AuthCookieName` is the supported
+  config key; the docker harness just plumbs it through.)
+- `Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName=-{lane}` — appends
+  a suffix to the new OAuth cookie names per Umbraco PR #22057 (shipped in
+  Umbraco 17.3+).
+
+You stay logged into both lanes simultaneously without browser juggling.
+
 ### LAN or custom-host exposure
 
 To test `/a-new/` from another machine on the LAN:
@@ -341,13 +360,16 @@ To test `/a-new/` from another machine on the LAN:
 3. Pass `--reset` so OpenIddict registers redirect URIs for that origin.
 
 ```powershell
+# Replace <lan-ip> with the IPv4 address other machines on your network
+# can reach this dev box on (e.g. `192.168.1.42`, `10.0.0.17`, a mDNS
+# hostname like `devbox.local`, or whatever your router assigns).
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET="articulate-dev-local-secret"
 $env:CADDY_BIND_IP="0.0.0.0"
-$env:CADDY_HTTPS_HOST="192.168.1.9:17017"
-$env:UMBRACO_PUBLIC_HOST="https://192.168.1.9:17017"
-$env:UMBRACO_PUBLIC_URL="https://192.168.1.9:17017/"
-$env:ARTICULATE_REDIRECT_URI="https://192.168.1.9:17017/a-new/"
-$env:ARTICULATE_LOGOUT_REDIRECT_URI="https://192.168.1.9:17017/"
+$env:CADDY_HTTPS_HOST="<lan-ip>:44317"
+$env:UMBRACO_PUBLIC_HOST="https://<lan-ip>:44317"
+$env:UMBRACO_PUBLIC_URL="https://<lan-ip>:44317/"
+$env:ARTICULATE_REDIRECT_URI="https://<lan-ip>:44317/a-new/"
+$env:ARTICULATE_LOGOUT_REDIRECT_URI="https://<lan-ip>:44317/"
 dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
 ```
 

@@ -16,6 +16,8 @@ static class BuildApp
     static readonly string DockerDir = Path.Combine(BuildDir, "docker-site");
     static readonly Dictionary<string, string?> HostOverrides = new[]
     {
+        "CADDY_HTTPS_PORT",
+        "CADDY_HTTP_PORT",
         "CADDY_HTTPS_HOST",
         "CADDY_TLS_HOST",
         "UMBRACO_PUBLIC_HOST",
@@ -481,7 +483,10 @@ static class BuildApp
     static void ConfigureLane(string lane)
     {
         var is18 = lane == "v18";
-        var https = is18 ? "18018" : "17017";
+        // Defaults match the Umbraco major: 44317 for v17, 44318 for v18.
+        // Override by setting CADDY_HTTPS_PORT / CADDY_HTTP_PORT in the environment
+        // before invoking the build script.
+        var https = is18 ? "44318" : "44317";
         var http = is18 ? "18080" : "17080";
         Environment.SetEnvironmentVariable("ARTICULATE_PACKAGE_LANE", lane);
         Environment.SetEnvironmentVariable("COMPOSE_PROJECT_NAME", $"art_{lane}");
@@ -489,8 +494,18 @@ static class BuildApp
         Environment.SetEnvironmentVariable("IMAGE_TAG", $"articulate-local:{lane}");
         Environment.SetEnvironmentVariable("PACKAGE_SOURCE", $"build/Release/{lane}");
         Environment.SetEnvironmentVariable("UMBRACO_CMS_VERSION", is18 ? "[18.0.0-*,19.0.0)" : "[17.4.0,18.0.0)");
-        Environment.SetEnvironmentVariable("CADDY_HTTPS_PORT", https);
-        Environment.SetEnvironmentVariable("CADDY_HTTP_PORT", http);
+        // Per-instance back-office cookie name so logging into one lane
+        // doesn't overwrite the other's auth cookie (they share domain +
+        // path on localhost; SecuritySettings:AuthCookieName controls the
+        // legacy UMB_UCONTEXT cookie name in v17 / v18.0.0-rc3).
+        Environment.SetEnvironmentVariable("Umbraco__CMS__Security__AuthCookieName", $"UMB_UCONTEXT-{lane}");
+        // New OAuth cookies (umbAccessToken / umbRefreshToken / umbPkceCode)
+        // — Umbraco 17.3+ appends BackOfficeTokenCookie:SiteName verbatim as
+        // a suffix (PR umbraco/Umbraco-CMS#22057). Becomes the default scheme
+        // once Umbraco 18 drops the legacy UMB_UCONTEXT cookie.
+        Environment.SetEnvironmentVariable("Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName", $"-{lane}");
+        SetHostValue("CADDY_HTTPS_PORT", https);
+        SetHostValue("CADDY_HTTP_PORT", http);
         // Preserve caller overrides while recomputing defaults when docker-test
         // switches lanes in the same process.
         SetHostValue("CADDY_HTTPS_HOST", $"localhost:{https}");
