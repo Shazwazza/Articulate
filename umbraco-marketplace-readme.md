@@ -43,13 +43,10 @@ dotnet add package Articulate --prerelease
 
 ## Upgrading
 
-Back up your site, database, and media before upgrading.
-
-See the [installation and upgrade guide](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md) for version matching, rich-text editor migration, and BlogML guidance.
+Back up your site, database, and media before upgrading. See the [installation and upgrade guide](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md) for version matching, rich-text editor migration, and BlogML guidance.
 
 ## Learn more
 
-- [Installation and upgrading](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md)
 - [Configuration](https://github.com/Shazwazza/Articulate/blob/develop/docs/configuration.md)
 - [Themes](https://github.com/Shazwazza/Articulate/blob/develop/docs/themes.md)
 - [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
