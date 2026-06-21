@@ -80,19 +80,16 @@ jobs:
           case "$V18_VERSION" in
             7.*) ;;
             *)
-              echo "Invalid v18 base in build/v18-version.txt: '$V18_VERSION'" >&2
+              echo "Invalid v18 base: '$V18_VERSION'" >&2
               exit 1
               ;;
           esac
 
-          V17_PATCH_AND_SUFFIX="${V17_VERSION#6.1.}"
-          V17_SUFFIX=""
-          if [[ "$V17_PATCH_AND_SUFFIX" == *-* ]]; then
-            V17_SUFFIX="${V17_PATCH_AND_SUFFIX#*-}"
-          fi
-
-          if [[ -n "$V17_SUFFIX" ]]; then
-            V18_VERSION="${V18_VERSION}.${V17_SUFFIX}"
+          # Extract the ".g<short-hash>" suffix from v17's SemVer2. v17 and
+          # v18 share a commit, so the suffix alone is what we want —
+          # v18-version.txt already carries the prerelease tag (e.g. "rc1").
+          if [[ "$V17_VERSION" =~ \.g[a-f0-9]+$ ]]; then
+            V18_VERSION="${V18_VERSION}${BASH_REMATCH[0]}"
           fi
           echo "V17_VERSION=$V17_VERSION" >> "$GITHUB_ENV"
           echo "V18_VERSION=$V18_VERSION" >> "$GITHUB_ENV"

@@ -141,6 +141,8 @@ append NBGV commit metadata when present: a v18 base of `7.0.0-rc1` produces
 `7.0.0-rc1.gabcdef`. Change the text file to advance the v18 release
 candidate; callers do not normally pass a version.
 
+Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`, so `BuildAsync` wipes it before each build to keep per-lane Vite output from leaking. Follow-up: add the resolved app version to `@(ClientBuildInput)` in `BuildBackofficeClient` so Vite's incremental check invalidates on lane/version change and the wipe becomes unnecessary.
+
 ## Client development
 
 The Back Office client is a pnpm workspace at `src/Articulate.Web/Client` with
