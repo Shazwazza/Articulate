@@ -118,16 +118,19 @@
     <WriteLinesToFile File="$(ClientBuildStamp)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
   </Target>
 
-  <!-- BackOffice is a Vite build output (gitignored, missing from @(Content)
-       at evaluation time). Re-add it here so the SDK's static-web-asset scan
-       promotes it to staticwebassets/ before pack. The Include MUST be a
-       project-relative path: the SDK's Identity filter is "starts with
-       wwwroot/" and absolute paths like "G:\...\wwwroot\..." fail it. -->
+  <!-- @(Content) is evaluated at project load, before any target runs, so
+       the default wwwroot/ glob misses anything Vite emits. Re-add the
+       Vite outputs explicitly after Vite runs so the SDK's static-web-asset
+       discovery can find them. Paths must be project-relative - absolute
+       paths fail the SDK's "starts with wwwroot/" Identity filter. -->
   <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveProjectStaticWebAssets" Condition="'$(EnableClientBuild)'=='true'">
     <Message Text="Refreshing BackOffice assets..." Importance="Low" />
     <ItemGroup>
       <Content Remove="$(BackofficeOutputDir)\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\BackOffice\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\dist\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\MarkdownEditor\assets\dist\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\umbraco-package.json" />
     </ItemGroup>
   </Target>
 
