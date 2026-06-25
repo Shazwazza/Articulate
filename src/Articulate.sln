@@ -7,14 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articulate", "Articulate\Ar
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1-0587-41C4-BDD9-63FF3F8C73D7}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\build.ps1 = ..\build\build.ps1
-		..\build\build.sh = ..\build\build.sh
+		..\build\build.cs = ..\build\build.cs
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
 		..\Directory.Build.props = ..\Directory.Build.props
 		..\global.json = ..\global.json
 		..\nuget.config = ..\nuget.config
 		..\umbraco-marketplace-readme.md = ..\umbraco-marketplace-readme.md
 		..\umbraco-marketplace.json = ..\umbraco-marketplace.json
+		..\build\v18-version.txt = ..\build\v18-version.txt
 		..\version.json = ..\version.json
 	EndProjectSection
 EndProject

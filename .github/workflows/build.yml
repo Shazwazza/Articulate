@@ -8,21 +8,37 @@ on:
 permissions:
   contents: read
 
+# Cancel in-flight PR runs when a new push lands; never cancel main.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
+      # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
+      VSTEST_CONNECTION_TIMEOUT: 60
+      DOTNET_SYSTEM_NET_DISABLEIPV6: 1
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: dotnet/nbgv@v0.5.2
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: "**/packages.*.lock.json"
+
+      - uses: dotnet/nbgv@v0.5
         with:
           setAllVars: true
 
@@ -34,43 +50,95 @@ jobs:
           echo "Date: ${NBGV_GitCommitDate}"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6
         with:
           package_json_file: src/Articulate.Web/Client/package.json
           run_install: false
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v6
         with:
           node-version-file: "src/Articulate.Web/Client/.node-version"
           cache: "pnpm"
           cache-dependency-path: "src/Articulate.Web/Client/pnpm-lock.yaml"
 
-      - name: Resolve pnpm store path
-        id: pnpm-cache
+      - name: Resolve package versions
+        shell: bash
         run: |
-          echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
 
-      - name: Cache pnpm store
-        uses: actions/cache@v5.0.5
-        with:
-          path: ${{ steps.pnpm-cache.outputs.path }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('src/Articulate.Web/Client/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          V17_VERSION="${NBGV_SemVer2}"
+          case "$V17_VERSION" in
+            6.1.*) ;;
+            *)
+              echo "Expected NBGV 6.1.x, got '$V17_VERSION'." >&2
+              exit 1
+              ;;
+          esac
 
-      - name: Setup .NET SDKs
-        uses: actions/setup-dotnet@v5.3.0
-        with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          V18_VERSION="$(tr -d '[:space:]' < build/v18-version.txt)"
+          case "$V18_VERSION" in
+            7.*) ;;
+            *)
+              echo "Invalid v18 base: '$V18_VERSION'" >&2
+              exit 1
+              ;;
+          esac
+
+          # Extract the ".g<short-hash>" suffix from v17's SemVer2. v17 and
+          # v18 share a commit, so the suffix alone is what we want —
+          # v18-version.txt already carries the prerelease tag (e.g. "rc1").
+          if [[ "$V17_VERSION" =~ \.g[a-f0-9]+$ ]]; then
+            V18_VERSION="${V18_VERSION}${BASH_REMATCH[0]}"
+          fi
+          echo "V17_VERSION=$V17_VERSION" >> "$GITHUB_ENV"
+          echo "V18_VERSION=$V18_VERSION" >> "$GITHUB_ENV"
+          echo "Articulate v17 lane: $V17_VERSION"
+          echo "Articulate v18 lane: $V18_VERSION"
 
       - name: Run build pipeline script
-        run: bash ./build/build.sh
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Upload packages
-        uses: actions/upload-artifact@v7.0.1
+          # --clean wipes src/**/bin|obj, build/ClientAssets, BackOffice
+          # static web assets. Without it, the v17 hashed JS asset (e.g.
+          # client.gen-XXXX.js) is referenced by Articulate's
+          # static web assets after v18 lane overwrites it (MSB4018).
+          ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
+          dotnet run --file build/build.cs -- build --lane v17 --sample --clean
+
+          ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
+          dotnet run --file build/build.cs -- build --lane v18 --sample --clean
+
+      - name: Smoke-test package contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Verify each lane's .nupkg / .snupkg has the expected shape
+          # (manifest, backoffice bundles, themes, embedded resources,
+          # razor-compiled views, no lock files) before we publish them.
+          node build/smoke-package.mjs \
+            build/Release/v17 \
+            build/Release/v18
+
+      - name: Upload v17 packages
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
         with:
-          name: Articulate.${{ env.NBGV_SemVer2 }}
-          path: ${{ env.RELEASE_FOLDER }}/Articulate.*
+          name: Articulate-${{ env.V17_VERSION }}
+          # Articulate.Theme.Sample is built for the local Docker pipeline
+          # (see build/docker-site/ArticulateDockerSite.csproj) but never
+          # published, so don't upload it as a CI artifact.
+          path: |
+            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
+
+      - name: Upload v18 packages
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: Articulate-${{ env.V18_VERSION }}
+          path: |
+            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.nupkg
+            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.snupkg
