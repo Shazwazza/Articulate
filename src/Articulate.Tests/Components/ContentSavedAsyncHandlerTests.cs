@@ -97,7 +97,6 @@ namespace Articulate.Tests.Components
 
         private static void SetupGetPagedChildren(Mock<IContentService> contentService, IEnumerable<IContent> children)
         {
-#if NET10_0_OR_GREATER
             contentService
                 .Setup(x => x.GetPagedChildren(
                     It.IsAny<int>(),
@@ -108,30 +107,20 @@ namespace Articulate.Tests.Components
                     null,
                     null,
                     true))
-                .Returns((int _, long _, int _, out long total, string[]? _, IQuery<IContent>? _, Ordering? _, bool _) =>
+                .Returns((
+                    int _,
+                    long _,
+                    int _,
+                    out long total,
+                    string[]? _,
+                    IQuery<IContent>? _,
+                    Ordering? _,
+                    bool _) =>
                 {
                     var items = children.ToList();
                     total = items.Count;
                     return items;
                 });
-#else
-#pragma warning disable CS0618
-            contentService
-                .Setup(x => x.GetPagedChildren(
-                    It.IsAny<int>(),
-                    It.IsAny<long>(),
-                    It.IsAny<int>(),
-                    out It.Ref<long>.IsAny,
-                    null,
-                    null))
-                .Returns((int _, long _, int _, out long total, IQuery<IContent>? _, Ordering? _) =>
-                {
-                    var items = children.ToList();
-                    total = items.Count;
-                    return items;
-                });
-#pragma warning restore CS0618
-#endif
         }
 
         private static IContentType CreateContentType(int id, string alias, bool variesByCulture = false)
