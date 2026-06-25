@@ -10,24 +10,7 @@
 		<NuGetAuditMode>direct</NuGetAuditMode>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
-	<!-- Umbraco CMS version range per target + NuGet audit mode -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-		<!-- Support Umbraco 15.x-16.x on .NET 9 -->
-		<UmbracoCmsPackageVersion>[16.5.1,17.0.0)</UmbracoCmsPackageVersion>
-		<MicrosoftOpenApiPackageVersion>[1.6.22,2.0.0)</MicrosoftOpenApiPackageVersion>
-		<MicrosoftCodeAnalysisPackageVersion>[4.13.0,5.3.0)</MicrosoftCodeAnalysisPackageVersion>
-		<SystemServiceModelSyndicationPackageVersion>[9.0.14,10.0.3)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[9.0.15,10.0.0)</SystemSecurityCryptographyXmlPackageVersion>
-		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-		<!-- Support Umbraco 17.x (including pre-release) on .NET 10 -->
-		<UmbracoCmsPackageVersion>[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
-		<MicrosoftOpenApiPackageVersion>[2.3.0,3.0.0)</MicrosoftOpenApiPackageVersion>
-		<MicrosoftCodeAnalysisPackageVersion>[5.3.0,6.0.0)</MicrosoftCodeAnalysisPackageVersion>
-		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[10.0.6,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
-		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<!-- TODO: Enable when 6.0 version is shipped -->
