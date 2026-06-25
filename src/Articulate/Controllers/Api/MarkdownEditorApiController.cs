@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Actions;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Membership;
@@ -43,7 +44,11 @@ namespace Articulate.Controllers.Api
         IDataTypeService dataTypeService,
         ILogger<MarkdownEditorApiController> logger,
         IAbsoluteUrlBuilder absoluteUrlBuilder,
-        IArticulateImportMediaService service)
+        IArticulateImportMediaService service
+#if UMBRACO_18_OR_GREATER
+        , IIdKeyMap idKeyMap
+#endif
+    )
         : ManagementApiControllerBase
     {
         /// <summary>
@@ -423,6 +428,9 @@ namespace Articulate.Controllers.Api
                     dataTypeService,
                     propertyEditors,
                     jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                    idKeyMap,
+#endif
                     logger);
             }
 
@@ -438,13 +446,16 @@ namespace Articulate.Controllers.Api
                     dataTypeService,
                     propertyEditors,
                     jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                    idKeyMap,
+#endif
                     logger);
             }
 
             if (!model.Slug.IsNullOrWhiteSpace())
             {
                 await content.SetInvariantOrDefaultCultureValueAsync(
-                    Umbraco.Cms.Core.Constants.Conventions.Content.UrlName,
+                    Constants.Conventions.Content.UrlName,
                     model.Slug,
                     contentType,
                     languageService,
