@@ -11,7 +11,7 @@
 // Env:
 //   UMBRACO_PUBLIC_URL          default: https://localhost:18443
 //   ARTICULATE_DEV_AUTOMATION_CLIENT_ID    default: articulate-dev-automation
-//   ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET  required
+//   ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET  default: articulate-dev-local-secret (matches docker-compose)
 //   TIMEOUT_SECONDS             default: 300
 //
 // Examples:
@@ -34,12 +34,6 @@ function env(name, fallback) {
   return process.env[name] ?? fallback;
 }
 
-function requiredEnv(name) {
-  const v = process.env[name];
-  if (!v) die(`${name} must be set.`);
-  return v;
-}
-
 function now() {
   return Math.floor(Date.now() / 1000);
 }
@@ -50,8 +44,17 @@ function sleep(ms) {
 
 // --- HTTP transport ---------------------------------------------------------
 
-function isLocalhost(host) {
-  return ['localhost', '127.0.0.1', '::1', '[::1]'].includes(host);
+// The dev harness always serves Caddy's self-signed `tls internal` cert, which
+// Node does not trust. Loopback and private-network hosts (incl. the LAN IP the
+// operator may browse via UMBRACO_PUBLIC_URL) are all dev-harness targets, so
+// disable cert validation for them. Public hosts keep strict validation.
+function isDevHost(host) {
+  if (['localhost', '127.0.0.1', '::1', '[::1]'].includes(host)) return true;
+  // Private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!m) return false;
+  const [a, b] = [Number(m[1]), Number(m[2])];
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
 }
 
 function request(url, opts = {}) {
@@ -64,7 +67,7 @@ function request(url, opts = {}) {
       path: u.pathname + u.search,
       method: opts.method || 'GET',
       headers: opts.headers || {},
-      rejectUnauthorized: isLocalhost(u.hostname) ? false : true,
+      rejectUnauthorized: isDevHost(u.hostname) ? false : true,
       timeout: opts.timeout || 30_000,
     }, res => {
       const chunks = [];
@@ -248,7 +251,7 @@ function getThemeCssMarker(themeName) {
 }
 
 function getAltTheme(currentTheme) {
-  const themes = ['Vapor', 'Material', 'Phantom', 'Mini'];
+  const themes = ['VAPOR', 'Material', 'Phantom', 'Mini'];
   const current = (currentTheme || 'Material').toLowerCase();
   return themes.find(t => t.toLowerCase() !== current) || 'Material';
 }
@@ -292,7 +295,7 @@ async function main() {
 
   // --- confirm / publish / theme: shared setup (token + root) ---------------
   const clientId = env('ARTICULATE_DEV_AUTOMATION_CLIENT_ID', 'articulate-dev-automation');
-  const clientSecret = requiredEnv('ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET');
+  const clientSecret = env('ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET', 'articulate-dev-local-secret');
 
   console.log('Requesting access token');
   const token = await requestToken(base, clientId, clientSecret, timeoutSec);

@@ -1,0 +1,6 @@
+# Local act (GitHub Actions local runner) overrides.
+# Copy this file to .actrc and edit as needed. .actrc is gitignored.
+
+# Mark the workflow as running under act so steps can skip artifact uploads.
+--env ACT=true
+
