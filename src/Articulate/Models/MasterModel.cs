@@ -13,9 +13,14 @@ namespace Articulate.Models
         /// <summary>
         /// The basic model for all articulate objects
         /// </summary>
-        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(
-            content,
-            publishedValueFallback) => PublishedValueFallback = publishedValueFallback;
+#if UMBRACO_18_OR_GREATER
+        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(content)
+            => PublishedValueFallback = publishedValueFallback;
+#else
+        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+            : base(content, publishedValueFallback)
+            => PublishedValueFallback = publishedValueFallback;
+#endif
 
         /// <summary>
         /// Returns the current theme
@@ -82,7 +87,7 @@ namespace Articulate.Models
                 }
 
                 IEnumerable<IPublishedContent> authorNodes = RootBlogNode
-                    .Children().Where(x=> x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateAuthors);
+                    .Children().Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateAuthors);
                 IPublishedContent authors = authorNodes.FirstOrDefault();
                 field = authors ??
                         throw new InvalidOperationException(
@@ -115,6 +120,7 @@ namespace Articulate.Models
                     return false;
                 }
             }
+
             return true;
         }
 
