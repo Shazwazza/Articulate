@@ -21,6 +21,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
+      ENABLE_CLIENT_BUILD: false         # <-- future PR pr/v18-client removes it
       # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
       VSTEST_CONNECTION_TIMEOUT: 60
       DOTNET_SYSTEM_NET_DISABLEIPV6: 1
