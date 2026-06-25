@@ -5,8 +5,10 @@
     <PackageId>Articulate.Theme.Sample</PackageId>
     <Title>Articulate Theme Sample</Title>
     <AssemblyName>Articulate.Theme.Sample</AssemblyName>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
     <RootNamespace>Articulate.Theme.Sample</RootNamespace>
-    <Description>A modern sample Articulate theme for Umbraco 16 and 17.</Description>
+    <Description>A modern sample Articulate theme for Umbraco 17+.</Description>
     <Nullable>enable</Nullable>
     <UseArticulateUsings>false</UseArticulateUsings>
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
@@ -22,6 +24,12 @@
   <ItemGroup>
     <None Remove="$(MSBuildProjectDirectory)\..\..\README.md" />
     <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Lock files are restore-time inputs for <RestoreLockedMode>; never ship them. -->
+  <ItemGroup>
+    <Content Remove="packages.*.lock.json" />
+    <None Remove="packages.*.lock.json" />
   </ItemGroup>
 
 </Project>

@@ -5,29 +5,34 @@
     <PackageId>Articulate</PackageId>
     <Title>Articulate</Title>
     <AssemblyName>Articulate.Web</AssemblyName>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
     <nullable>enable</nullable>
     <UseArticulateUsings>true</UseArticulateUsings>
     <!-- ENABLE Modern Web Assets (Replaces the need for targets files) -->
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
     <!-- Allow Hybrid Mode (Serve as StaticContent, Embed as Resource) -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <TargetsForTfmSpecificBuildOutput>
+      $(TargetsForTfmSpecificBuildOutput);IncludeProjectReferenceDlls
+    </TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Articulate\Articulate.csproj" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Include referenced project DLLs in the package using BuildOutputInPackage -->
-  <Target Name="IncludeProjectReferenceDlls" AfterTargets="Build">
+  <!-- Ship Articulate.dll alongside Articulate.Web.dll via BuildOutputInPackage. -->
+  <Target Name="IncludeProjectReferenceDlls">
     <ItemGroup>
       <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.dll" />
       <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml" Condition="Exists('..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml')" />
     </ItemGroup>
   </Target>
   <!--
-    External PackageReferences that Articulate.Core needs (since ProjectRefs are PrivateAssets).
-    Keep this list in sync with src/Articulate/Articulate.csproj for any runtime dependency that must
-    flow into the packed Articulate nuspec used by source-built installs and the local Docker site.
+    Articulate.Core's runtime deps (ProjectReference is PrivateAssets, so
+    they have to be redeclared here for the packed Articulate nuspec).
+    Keep this in sync with src/Articulate/Articulate.csproj.
   -->
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Website" />
@@ -46,6 +51,11 @@
     <Content Include="build\Articulate.targets" Pack="true" PackagePath="build\" />
   </ItemGroup>
 
+  <!-- Lock files are restore-time inputs for <RestoreLockedMode>; never ship them. -->
+  <ItemGroup>
+    <Content Remove="packages.*.lock.json" />
+    <None Remove="packages.*.lock.json" />
+  </ItemGroup>
   <ItemGroup>
     <!-- Embed theme VIEWS from App_Plugins -->
     <EmbeddedResource Include="App_Plugins\Articulate\Themes\**\Views\**">
@@ -58,39 +68,42 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <!-- ============================================================
-       BACKOFFICE CLIENT BUILD (moved from Articulate.BackOffice.UI)
-       ============================================================ -->
+  <!-- Client sources are build inputs; only compiled BackOffice assets belong in the package. -->
+  <ItemGroup>
+    <Content Remove="Client\**" />
+  </ItemGroup>
   <PropertyGroup>
-    <!-- Client/ folder is now inside this project -->
     <ClientProjectDirectory>$(MSBuildProjectDirectory)/Client</ClientProjectDirectory>
+    <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">17</UmbracoClientVersion>
+    <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
+    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
+    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
     <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
     <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
-    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient.stamp</ClientBuildStamp>
-    <ClientBuildTargetFramework>net9.0</ClientBuildTargetFramework>
+    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion).stamp</ClientBuildStamp>
+    <ClientBuildTargetFramework>net10.0</ClientBuildTargetFramework>
   </PropertyGroup>
 
-  <!-- Define Inputs for Incremental Builds -->
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-lock.yaml" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/package.json" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/tsconfig*.json" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/vite.config.ts" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/src/**/*" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-workspace.yaml" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/package.json" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/tsconfig*.json" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/vite.config.ts" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/src/**/*" />
   </ItemGroup>
 
   <!--
-    Prevent VS race condition/locking with dynamically generated BackOffice assets.
-    NOTE: This excludes assets when building IN VS (so 'VS Pack' will miss them),
-    but allows 'dotnet pack' (CLI) to include them correctly for release.
+    VS holds an exclusive lock on the BackOffice dir during build, so when
+    building inside VS we treat the assets as <None> (won't be packed); CLI
+    builds skip this and pick them up as Content.
   -->
   <ItemGroup Condition="'$(EnableClientBuild)'=='true' and '$(BuildingInsideVisualStudio)'=='true'">
     <Content Remove="$(BackofficeOutputDir)\**" />
     <None Include="$(BackofficeOutputDir)\**" />
   </ItemGroup>
 
-  <!-- TARGET: BuildBackofficeClient -->
-  <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'=='$(ClientBuildTargetFramework)'" BeforeTargets="ResolveStaticWebAssetsInputs" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
+  <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'=='$(ClientBuildTargetFramework)'" BeforeTargets="ResolveProjectStaticWebAssets" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
     <Message Text="Building Articulate BackOffice Client (Incremental)..." Importance="High" />
     <MakeDir Directories="$(ClientAssetsCacheDir)" />
     <PropertyGroup>
@@ -100,38 +113,39 @@
       <_ResolvedArticulateAppVersion Condition="'$(_ResolvedArticulateAppVersion)'=='' and '$(Version)'!=''">$(Version)</_ResolvedArticulateAppVersion>
     </PropertyGroup>
 
-    <!-- CI Safety: Frozen Lockfile Check -->
     <Exec Command="pnpm install --frozen-lockfile --prefer-offline" WorkingDirectory="$(ClientProjectDirectory)" IgnoreExitCode="true" Condition="'$(CI)' == 'true'">
       <Output TaskParameter="ExitCode" PropertyName="PnpmFrozenExitCode" />
     </Exec>
     <Error Text="pnpm-lock.yaml is out of sync. Run 'pnpm install' locally." Condition="'$(PnpmFrozenExitCode)' != '0' and '$(PnpmFrozenExitCode)' != ''" />
 
-    <!-- Local Dev: Standard Install -->
     <Exec Command="pnpm install" WorkingDirectory="$(ClientProjectDirectory)" Condition="'$(CI)' != 'true'" />
 
-    <!-- The Actual Build -->
-    <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientProjectDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
+    <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientWorkspaceDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
 
-    <!-- Touch Stamp File -->
     <WriteLinesToFile File="$(ClientBuildStamp)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
   </Target>
 
-  <!-- TARGET: RefreshBackofficeStaticWebAssetItems -->
-  <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveStaticWebAssetsInputs" Condition="'$(EnableClientBuild)'=='true'">
+  <!-- @(Content) is evaluated at project load, before any target runs, so
+       the default wwwroot/ glob misses anything Vite emits. Re-add the
+       Vite outputs explicitly after Vite runs so the SDK's static-web-asset
+       discovery can find them. Paths must be project-relative - absolute
+       paths fail the SDK's "starts with wwwroot/" Identity filter. -->
+  <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveProjectStaticWebAssets" Condition="'$(EnableClientBuild)'=='true'">
     <Message Text="Refreshing BackOffice assets..." Importance="Low" />
     <ItemGroup>
       <Content Remove="$(BackofficeOutputDir)\**" />
-      <Content Include="$(BackofficeOutputDir)\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\BackOffice\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\dist\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\MarkdownEditor\assets\dist\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\umbraco-package.json" />
     </ItemGroup>
   </Target>
 
-  <!-- TARGET: EnsureClientAssets (safety net for other TFMs) -->
-  <Target Name="EnsureClientAssets" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'!='$(ClientBuildTargetFramework)' and !Exists('$(ClientBuildStamp)')" BeforeTargets="ResolveStaticWebAssetsInputs">
+  <Target Name="EnsureClientAssets" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'!='$(ClientBuildTargetFramework)' and !Exists('$(ClientBuildStamp)')" BeforeTargets="ResolveProjectStaticWebAssets">
     <Message Text="Client assets missing for $(TargetFramework); triggering BuildBackofficeClient..." Importance="High" />
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration);UmbracoClientVersion=$(UmbracoClientVersion)" />
   </Target>
 
-  <!-- TARGET: CleanClientAssets -->
   <Target Name="CleanClientAssets" AfterTargets="Clean" Condition="'$(EnableClientBuild)'=='true'">
     <Delete Condition="Exists('$(ClientBuildStamp)')" Files="$(ClientBuildStamp)" />
     <RemoveDir Directories="$(BackofficeOutputDir)" />

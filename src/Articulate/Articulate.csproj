@@ -30,6 +30,15 @@
     <InternalsVisibleTo Include="Articulate.Tests" />
   </ItemGroup>
 
+  <!-- Swagger/OpenAPI configuration is lane-specific: V17 uses Swashbuckle, V18 uses Microsoft.AspNetCore.OpenApi.
+       The shared generator/regexes live at Swagger/ (no Vxx subfolder) and are included in both lanes. -->
+  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
+    <Compile Remove="Swagger/V17/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v17'">
+    <Compile Remove="Swagger/V18/**/*.cs" />
+  </ItemGroup>
+
   <!-- RESOURCES: Only embed things specific to Core (The Starter Kit Installer data) -->
   <ItemGroup>
     <EmbeddedResource Include="Packaging\author.jpg" />

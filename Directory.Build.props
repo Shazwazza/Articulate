@@ -10,7 +10,17 @@
 		<NuGetAuditMode>direct</NuGetAuditMode>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
+	<!-- Allow local developer overrides (e.g. ArticulatePackageLane) -->
+	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+
+	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<PropertyGroup>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' != 'v18'">packages.v17.lock.json</NuGetLockFilePath>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(ArticulatePackageLane)' == 'v18' or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.'))">
+		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
 		<CompressionEnabled>false</CompressionEnabled>
@@ -25,6 +35,7 @@
 		<EnforceCodeStyleInBuild Condition="'$(EnforceCodeStyleInBuild)' == ''">true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(IsPackable)' != 'false'">
+		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
@@ -46,7 +57,16 @@
 	</ItemGroup>
 	<PropertyGroup>
 		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+		<ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)'=='' and '$(ARTICULATE_PACKAGE_VERSION)'!=''">$(ARTICULATE_PACKAGE_VERSION)</ArticulatePackageVersion>
 	</PropertyGroup>
+	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;EnsureClientAssets;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
+		<PropertyGroup>
+			<Version>$(ArticulatePackageVersion)</Version>
+			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
+			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
+		</PropertyGroup>
+	</Target>
 	<ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false" />
 	</ItemGroup>
