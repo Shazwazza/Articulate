@@ -605,7 +605,7 @@ namespace Articulate.ImportExport
 
         private IContent[] GetExistingPosts(IContent archiveNode)
         {
-            IEnumerable<IContent> allPostNodes = contentService.GetPagedChildrenCompat(
+            IEnumerable<IContent> allPostNodes = contentService.EnumeratePagedChildren(
                 archiveNode.Id,
                 0,
                 int.MaxValue,
