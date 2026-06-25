@@ -1,0 +1,61 @@
+{
+  "name": "articulate-backoffice-v17",
+  "private": true,
+  "version": "0.0.0-dev",
+  "type": "module",
+  "description": "Articulate BackOffice extension",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.4.0",
+  "keywords": [
+    "blog",
+    "umbraco",
+    "backoffice",
+    "lit",
+    "web components"
+  ],
+  "author": "Articulate",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "tsc && vite build",
+    "build:dev": "tsc && vite build --mode development",
+    "check": "tsc --noEmit && node ../tools/check-shared.mjs",
+    "check:shared": "node ../tools/check-shared.mjs",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "clean": "node -e \"const fs = require('fs'); ['node_modules', 'pnpm-lock.yaml'].forEach(f => fs.rmSync(f, { recursive: true, force: true }))\"",
+    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ./scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ./src/api --excludeTags 'Markdown Editor'"
+  },
+  "dependenciesComments": {
+    "lit-html": "Direct dependency for the keyed directive used by the BlogML importer."
+  },
+  "dependencies": {
+    "lit-html": "^3.3.2"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^2.0.3",
+    "@hey-api/openapi-ts": "0.85.2",
+    "@typescript-eslint/eslint-plugin": "^8.60.1",
+    "@typescript-eslint/parser": "^8.60.1",
+    "@umbraco-cms/backoffice": "17.4.0",
+    "chalk": "^5.6.2",
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-lit": "^2.2.1",
+    "eslint-plugin-lit-a11y": "^5.1.1",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-wc": "^3.1.0",
+    "globals": "^17.5.0",
+    "lightningcss": "^1.32.0",
+    "node-fetch": "^3.3.2",
+    "prettier": "^3.8.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.16"
+  }
+}

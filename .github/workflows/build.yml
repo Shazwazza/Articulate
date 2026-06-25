@@ -16,12 +16,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
-      ENABLE_CLIENT_BUILD: false # <-- future PR pr/v18-client removes it
       # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
       VSTEST_CONNECTION_TIMEOUT: 60
       DOTNET_SYSTEM_NET_DISABLEIPV6: 1
@@ -109,11 +108,7 @@ jobs:
           ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
           dotnet run --file build/build.cs -- build --lane v17 --sample --clean
 
-      # v18 lane is gated on the v18 client workspace existing. That
-      # workspace lands in the v18-client PR of the v18 stack; until
-      # then, running v18 here references non-existent files.
       - name: Run v18 lane build
-        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
         shell: bash
         run: |
           set -euo pipefail
@@ -121,8 +116,7 @@ jobs:
           dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
       - name: Smoke-test package contents
-        # Smoke covers both v17 + v18; skip until v18 client workspace lands
-        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
+        # Smoke covers both v17 + v18
         shell: bash
         run: |
           set -euo pipefail
@@ -146,7 +140,7 @@ jobs:
             ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
 
       - name: Upload v18 packages
-        if: ${{ !env.ACT && hashFiles('src/Articulate.Web/Client/v18/package.json') != '' }}
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Articulate-${{ env.V18_VERSION }}
