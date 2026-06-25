@@ -1,10 +1,10 @@
+#nullable enable
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 
-#nullable enable
 namespace Articulate
 {
     internal static class ContentExtensions
@@ -116,6 +116,9 @@ namespace Articulate
             IDataTypeService dataTypeService,
             PropertyEditorCollection dataEditors,
             IJsonSerializer jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+            IIdKeyMap idKeyMap,
+#endif
             ILogger? logger = null,
             bool merge = false)
         {
@@ -139,6 +142,17 @@ namespace Articulate
                 }
             }
 
+#if UMBRACO_18_OR_GREATER
+            content.AssignTags(
+                dataEditors,
+                dataTypeService,
+                idKeyMap,
+                jsonSerializer,
+                propertyTypeAlias,
+                tags,
+                merge,
+                culture);
+#else
             content.AssignTags(
                 dataEditors,
                 dataTypeService,
@@ -147,6 +161,7 @@ namespace Articulate
                 tags,
                 merge,
                 culture);
+#endif
         }
 
         internal static void SetAllPropertyCultureValues(
