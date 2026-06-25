@@ -1,4 +1,5 @@
 # Articulate
+
 [![Articulate Build](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml/badge.svg)](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml)
 
 ![Articulate](https://raw.githubusercontent.com/Shazwazza/Articulate/develop/assets/Logo.png?raw=true)
@@ -10,7 +11,7 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform
+Supporting all the features you'd want in a blogging platform:
 
 - Categories & Tags
 - Themes
@@ -25,45 +26,37 @@ Supporting all the features you'd want in a blogging platform
 - Customizable URLs
 - Author profiles
 
-## Minimum requirements
+## Compatibility
 
-- Umbraco 16.5.1+ (NET 9) and 17.4.0+ (NET 10) - Articulate version 6.x
-- Umbraco 13 LTS (maintenance) - Articulate 5.x.
+| Umbraco                | Articulate | Status            |
+|------------------------|------------|-------------------|
+| Umbraco 18             | 7.x        | Current           |
+| Umbraco 17.4+          | 6.1.x      | Current           |
+| Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release  |
+| Umbraco 13 LTS         | 5.x        | Maintenance       |
 
-## Upgrade note for rich text editor compatibility
+Install from NuGet:
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
+```shell
+dotnet add package Articulate    # Umbraco 17 / Articulate 6.1, or Umbraco 18 / Articulate 7.0
+```
 
-- You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
-- This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
+## Upgrading
 
-## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
+Back up your site, database, and media before upgrading. See the [installation and upgrade guide](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md) for version matching, rich-text editor migration, and BlogML guidance.
 
-Docs on installation, creating posts, customizing/creating themes, etc...
+## Learn more
 
-## [Discussions](https://forum.umbraco.com/tag/packages)
+- [Configuration](https://github.com/Shazwazza/Articulate/blob/develop/docs/configuration.md)
+- [Themes](https://github.com/Shazwazza/Articulate/blob/develop/docs/themes.md)
+- [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
+- [Releases](https://github.com/Shazwazza/Articulate/releases)
+- [Report an issue](https://github.com/Shazwazza/Articulate/issues)
+- [Community discussions](https://forum.umbraco.com/tag/packages)
 
-Please post to this Umbraco discussions forum to discuss Articulate, it's features and functionality. Do not post issues here, [post them here](https://github.com/Shazwazza/Articulate/issues) on GitHub
+## Copyright and license
 
-## [Issues](https://github.com/Shazwazza/Articulate/issues)
+&copy; 2026 Shannon Deminick
 
-If you have any issues, please post them here on GitHub
-
-## [Releases](https://github.com/Shazwazza/Articulate/releases)
-
-See here for the list of releases and their release notes
-
-## Development
-
-For local setup and contributor notes, see [DEVELOP.md](https://github.com/Shazwazza/Articulate/blob/develop/DEVELOP.md).
-
-### Changing Umbraco Articulate schema/data elements
-
-If you need to make changes to the underlying Umbraco schema (doc types, data types, etc...) or the installed package's content/media, then you will need
-to re-create the Articulate package in the back office with all required dependencies and then re-save the package.zip file and commit it to the repository.
-
-## Copyright & License
-
-&copy; 2026 by Shannon Deminick
-
-This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
+Articulate is free software licensed under the
+[MIT License](https://opensource.org/licenses/MIT).

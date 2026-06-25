@@ -43,10 +43,10 @@ Options:
 
 Full smoke tests require `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`.
 
-| Lane  | Image                  | HTTPS backoffice URL                | HTTP listener        |
-|-------|------------------------|-------------------------------------|----------------------|
-| `v17` | `articulate-local:v17` | `https://localhost:44317/umbraco/`  | `http://localhost:44380/` |
-| `v18` | `articulate-local:v18` | `https://localhost:44318/umbraco/`  | `http://localhost:44381/` |
+| Lane  | Image                  | HTTPS backoffice URL               | HTTP listener             |
+|-------|------------------------|------------------------------------|---------------------------|
+| `v17` | `articulate-local:v17` | `https://localhost:44317/umbraco/` | `http://localhost:44380/` |
+| `v18` | `articulate-local:v18` | `https://localhost:44318/umbraco/` | `http://localhost:44381/` |
 
 HTTPS ports (44317 / 44318) match the Umbraco major. HTTP ports (44380 / 44381)
 sit out of common dev-tool port-snatch ranges — Windows reserves 17000-18099
@@ -168,15 +168,15 @@ The auto-provisioned API user takes its defaults from `docker-compose.yml` and
 the `ArticulateDevAutomationBootstrapper` service. Override per-run with
 environment variables:
 
-| Variable                                       | Default                                | Purpose                                                                  |
-|------------------------------------------------|----------------------------------------|--------------------------------------------------------------------------|
-| `ARTICULATE_DEV_AUTOMATION_ENABLED`            | `true`                                 | Toggle the bootstrap service entirely.                                   |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`          | `articulate-dev-automation`            | OAuth client ID used by `smoke.mjs` and MCP clients.                     |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`      | `articulate-dev-local-secret`          | OAuth client secret. Required by `smoke.mjs`; export before invoking it. |
-| `ARTICULATE_DEV_AUTOMATION_USER_NAME`          | `articulate-dev-automation`            | Backoffice user name to provision.                                       |
-| `ARTICULATE_DEV_AUTOMATION_USER_EMAIL`         | `articulate-dev-automation@localhost`  | Backoffice user email.                                                   |
-| `ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME`  | `Articulate Dev Automation`            | Backoffice display name.                                                 |
-| `ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS`   | `admin`                                | User-group alias granting management access.                             |
+| Variable                                      | Default                               | Purpose                                                                  |
+|-----------------------------------------------|---------------------------------------|--------------------------------------------------------------------------|
+| `ARTICULATE_DEV_AUTOMATION_ENABLED`           | `true`                                | Toggle the bootstrap service entirely.                                   |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`         | `articulate-dev-automation`           | OAuth client ID used by `smoke.mjs` and MCP clients.                     |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`     | `articulate-dev-local-secret`         | OAuth client secret. Required by `smoke.mjs`; export before invoking it. |
+| `ARTICULATE_DEV_AUTOMATION_USER_NAME`         | `articulate-dev-automation`           | Backoffice user name to provision.                                       |
+| `ARTICULATE_DEV_AUTOMATION_USER_EMAIL`        | `articulate-dev-automation@localhost` | Backoffice user email.                                                   |
+| `ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME` | `Articulate Dev Automation`           | Backoffice display name.                                                 |
+| `ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS`  | `admin`                               | User-group alias granting management access.                             |
 
 The unattended backoffice administrator (the human sign-in) is configured
 separately via `UMBRACO_USER_NAME` / `UMBRACO_USER_EMAIL` /
