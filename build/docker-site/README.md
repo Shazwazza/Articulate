@@ -1,101 +1,232 @@
-# Local HTTPS (Windows)
+# Local Docker Site
 
-This repo uses Caddy to terminate TLS for the local Umbraco container.
+`docker-compose.yml` defines the containers. Cross-platform orchestration lives in the .NET 10
+file-based app at `build/build.cs`; `smoke.mjs` contains the Management API assertions.
+Run `dotnet run --file build/build.cs -- help <command>` for canonical option
+defaults and requirements.
 
-The default `Caddyfile` uses `tls internal`, which generates a local CA and a server certificate. Browsers on Windows will show a TLS error until the local CA is trusted.
+## Commands
 
-## Windows (PowerShell)
+```text
+dotnet run --file build/build.cs -- docker-build --lane v17
+dotnet run --file build/build.cs -- docker-dev --lane v17
+dotnet run --file build/build.cs -- docker-prod --lane v17
+dotnet run --file build/build.cs -- docker-status --lane v17
+dotnet run --file build/build.cs -- docker-test --lane all
+```
 
-From the repo root:
+- `docker-build [--tag image:tag]` — build the standalone chiseled Docker image.
+  Defaults the tag to `articulate-local:<lane>`.
+- `docker-dev` — boot the compose stack in `BackofficeDevelopment` mode, wait
+  for Umbraco, then publish and confirm Articulate content via the Management
+  API.
+- `docker-prod` — restart the existing lane stack in `Production` mode and
+  re-verify that already-published content serves without the dev automation
+  bootstrap. Run after `docker-dev` against the same volumes.
+- `docker-test --lane v17|v18|all` — full validation: rebuild the image,
+  install, migrate, run `smoke.mjs`, and exercise the Backoffice and theme
+  routes. Use `--keep` to leave successful stacks running; `--skip-smoke` for
+  faster build validation only.
+- `docker-status` — show the lane's running containers and the packaged
+  Backoffice files copied into the site image.
 
-1. Start containers:
-   - `docker compose up -d`
+Options:
 
-2. Trust Caddy's local root CA (Current User by default):
-   - `powershell -ExecutionPolicy Bypass -File .\build\docker-site\Trust-CaddyRootCA.ps1`
+- `docker-dev --lane v17|v18`: ensure packages, build, boot, publish, and confirm.
+- `docker-dev --skip-smoke`: boot and readiness only.
+- `docker-dev --reset`: remove volumes first.
+- `docker-status --lane v17|v18`: show lane containers and verify packaged
+  Backoffice files inside the running site.
+- `docker-test --lane v17|v18|all`: choose lanes.
+- `docker-test --keep`: leave successful stacks running.
+- `docker-test --skip-smoke`: build, install, migrate, and check `/umbraco/`.
 
-If you need machine-wide trust (admin required):
+Full smoke tests require `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`.
 
-- `powershell -ExecutionPolicy Bypass -File .\build\docker-site\Trust-CaddyRootCA.ps1 -Scope LocalMachine`
+| Lane  | Image                  | HTTPS backoffice URL                | HTTP listener        |
+|-------|------------------------|-------------------------------------|----------------------|
+| `v17` | `articulate-local:v17` | `https://localhost:44317/umbraco/`  | `http://localhost:44380/` |
+| `v18` | `articulate-local:v18` | `https://localhost:44318/umbraco/`  | `http://localhost:44381/` |
 
-Restart your browser and open `https://localhost:18443`.
+HTTPS ports (44317 / 44318) match the Umbraco major. HTTP ports (44380 / 44381)
+sit out of common dev-tool port-snatch ranges — Windows reserves 17000-18099
+for the updater orchestrator and several dev tools grab ports in that span.
+Override either with `CADDY_HTTPS_PORT` / `CADDY_HTTP_PORT`. Bare
+`docker compose up` without `build.cs` falls back to compose's own defaults
+(18443 HTTPS / 8080 HTTP); the per-lane script overrides those.
 
-- The script runs on the host and uses `docker cp` to export Caddy's internal root CA from the running `caddy` container.
-- No bind mounts are required for certificate export.
+The unattended install creates this default local Docker backoffice
+administrator:
 
-## Debian/Ubuntu/WSL
+- Email: `admin@localhost`
+- Password: `@rticulate`
+- Display name: `Jane Doe`
 
-From the repo root:
+Use this account to sign in to either backoffice URL above. These are public,
+local-development defaults. Do not reuse them in a deployed site. Override the
+unattended user with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and
+`UMBRACO_USER_PASSWORD`.
 
-1. Start containers:
-   - `docker compose up -d`
+## Trust Caddy's local CA once per machine
 
-2. Trust Caddy's local root CA (system store; requires sudo):
-   - `./build/docker-site/trust-caddy-root-ca.sh`
+Caddy terminates TLS with a locally generated certificate. Trust Caddy's root
+CA once per machine before opening the backoffice:
 
-3. Run the repeatable dev/prod smoke helpers:
+- Windows: `powershell -ExecutionPolicy Bypass -File build/docker-site/Trust-CaddyRootCA.ps1`
+- Linux/WSL: `sudo build/docker-site/trust-caddy-root-ca.sh`
 
-   | Shell | Dev stack (publish/verify) | Prod smoke test |
-   |---|---|---|
-   | Bash / WSL | `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET=... ./build/docker-site/run-dev.sh` | `UMBRACO_RUNTIME_MODE=Production ./build/docker-site/run-prod-smoke.sh` |
-   | PowerShell | `$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='...'; .\build\docker-site\run-dev.ps1` | `$env:UMBRACO_RUNTIME_MODE='Production'; .\build\docker-site\run-prod-smoke.ps1` |
+Those helpers remain platform-specific because certificate stores are platform-specific.
 
-   - `run-dev` flags:
-     - Bash: `RESET_DOCKER_VOLUMES=true ./build/docker-site/run-dev.sh`
-     - PowerShell: `.\build\docker-site\run-dev.ps1 -ResetDockerVolumes`
-   - `run-dev` skips publish:
-     - Bash: `SKIP_PUBLISH=true ./build/docker-site/run-dev.sh`
-     - PowerShell: `.\build\docker-site\run-dev.ps1 -SkipPublish`
+## Smoke commands
 
-   Note: `run-prod-smoke` will set sensible defaults for `UMBRACO_PUBLIC_HOST` and `UMBRACO_PUBLIC_URL` if they are not provided. If running on a non-Linux host or using `host.docker.internal`, set `UMBRACO_PUBLIC_HOST`/`UMBRACO_PUBLIC_URL` explicitly before running the smoke script.
-   The intended order is dev first, production second: dev mode bootstraps automation credentials and publishes/verifies content, then the production smoke recreates the container in `Production` and verifies that already-published content serves without automation bootstrap.
-   The smoke helpers bypass TLS validation only for loopback HTTPS URLs (`localhost`, `127.0.0.1`, `::1`) used by Caddy's local certificate. Non-loopback URLs use normal certificate validation.
+Against an already healthy stack, `smoke.mjs` supports `publish`, `confirm`,
+`smoke`, and `theme`:
 
-4. Run the smoke helper directly when you already have a healthy dev container:
-   - `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET=... node build/docker-site/smoke.mjs publish`
-   - `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET=... node build/docker-site/smoke.mjs confirm` (read-only, verifies content is published)
-   - `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET=... node build/docker-site/smoke.mjs publish --no-descendants` (root only)
-   - The helper publishes the Articulate root first, waits for the public root while the published-content cache catches up, then publishes descendants.
+```powershell
+node build/docker-site/smoke.mjs publish
+node build/docker-site/smoke.mjs confirm
+node build/docker-site/smoke.mjs publish --no-descendants
+```
 
-## Notes
+`confirm` is read-only. Publication processes the Articulate root first, waits
+for the public route and published-content cache, then publishes descendants.
+Set `NODE_BIN` if `node` is not on `PATH`. On Windows, invoke the script from
+PowerShell or cmd rather than passing `node.exe` through WSL or Git Bash.
 
-- This is unrelated to NTLM/SMB hardening; it is normal browser PKI behavior.
-- If your team policy disallows installing a local root CA, you will need a publicly trusted certificate/domain for local development.
-- Default unattended backoffice credentials for the Docker site are:
-  - Name: `Jane Doe`
-  - Email: `admin@localhost`
-  - Password: `@rticulate`
-- Override those defaults with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` before starting the stack if needed.
-- The smoke wrapper scripts require Docker and Node.js. They resolve Node from `PATH`, then `mise which node`; if Node is installed somewhere else, set `NODE_BIN` to the executable path. On Windows, run `node build/docker-site/smoke.mjs ...` directly from PowerShell/cmd rather than pointing WSL/Git Bash at `node.exe`; that path does not reliably preserve environment variables.
-- The Docker stack also bootstraps a dev-only automation API user and client credentials on startup.
-  - Client id: `articulate-dev-automation`
-  - Secret: defaults to `articulate-dev-local-secret` in `docker-compose.yml`; override with `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`.
-  - Defaults: `ARTICULATE_DEV_AUTOMATION_ENABLED=true`, `ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS=admin`
-  - Override with `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`, `ARTICULATE_DEV_AUTOMATION_USER_NAME`, `ARTICULATE_DEV_AUTOMATION_USER_EMAIL`, and `ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME` if needed
-- Select the .NET line with compose env vars:
-  - `TARGET_FRAMEWORK=net10.0` for Umbraco 17 (Umbraco version range is centralized in `Directory.Build.props`)
-  - Keep `DOTNET_SDK_VERSION=10.0` unless `global.json` changes; set `DOTNET_ASPNET_VERSION` to match the runtime line (e.g. `10.0`).
-- Select the runtime mode with `UMBRACO_RUNTIME_MODE`:
-  - `BackofficeDevelopment` for the dev benchmark path so automation credentials can be bootstrapped before publish/verify scripts run
-  - `Production` for the production-style smoke test so no dev-only bootstrap runs
-- The script entry points are:
-  - `build/docker-site/run-dev.sh` / `run-dev.ps1` (dev stack + publish + confirm)
-  - `build/docker-site/run-prod-smoke.sh` / `run-prod-smoke.ps1` (prod stack + smoke + theme switch check)
-  - `build/docker-site/smoke.mjs` (cross-platform Management API publish/confirm/smoke, no shell duals)
-- Standard smoke evidence is HTTP/DOM/log based. Screenshots are ad hoc evidence for manual review, not part of the normal test path.
-- The Docker image builds from packaged NuGet artifacts in `build/Release`, not directly from project output.
-- Regenerate the package inputs after client/static asset or packaged dependency changes:
-  - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
-  - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
-- Alternatively, run the repo build script with `PACK_SAMPLE_THEME=true` to produce both packages for Docker validation.
-- The Dockerfile ignores `.snupkg` files and theme packages when selecting the Articulate package version.
-- Rebuilding the image is not enough on its own. A running Compose service can stay on an older container/image. Prefer:
-  - `docker compose up -d --build --force-recreate articulate`
-- Or run the two steps explicitly:
-  - `docker compose build articulate`
-  - `docker compose up -d --force-recreate --no-deps articulate`
-- `articulate-local:chiseled` is the default image tag. The running container name is generated by Compose, for example `articulate-pr-articulate-1`.
-- If the Docker back office still serves older JavaScript, check the running container rather than only the image:
-  - `docker compose ps`
-  - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
-  - `Invoke-WebRequest https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js -SkipCertificateCheck`
+The smoke client bypasses certificate validation for loopback and RFC1918
+private IPv4 hosts used by the development harness. Public hosts retain normal
+certificate validation.
+
+## LAN access
+
+The harness remains loopback-only by default. To test the standalone editor
+from another machine, set the LAN origin consistently and reset the database so
+OpenIddict registers redirect URIs for that origin:
+
+```powershell
+$env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
+$env:CADDY_BIND_IP='0.0.0.0'
+$env:CADDY_HTTPS_HOST='192.168.1.9:44317'
+$env:UMBRACO_PUBLIC_HOST='https://192.168.1.9:44317'
+$env:UMBRACO_PUBLIC_URL='https://192.168.1.9:44317/'
+$env:ARTICULATE_REDIRECT_URI='https://192.168.1.9:44317/a-new/'
+$env:ARTICULATE_LOGOUT_REDIRECT_URI='https://192.168.1.9:44317/'
+dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
+```
+
+Use port `44318` and `--lane v18` for the v18 lane. Browsers must accept
+Caddy's development certificate.
+
+> [!WARNING]
+> LAN exposure makes the site and its fixed development credentials available
+> to the local network. Never use this configuration on a public or untrusted
+> network.
+
+During first installation, Umbraco may log two warnings that an empty culture
+was not found in configured localization sources. The starter package contains
+valid invariant content and no language payload; these warnings are harmless
+package-install noise and require no Articulate change.
+
+## Runtime modes
+
+The compose stack switches between two modes through `UMBRACO_RUNTIME_MODE`:
+
+- `BackofficeDevelopment` (default) — auto-provisions the dev automation API
+  user + client credentials after install and migrations, then publishes and
+  confirms content via `smoke.mjs`.
+- `Production` — disables that bootstrap so the only content served is what
+  was already published in the data volume. Use `docker-prod` to flip the
+  existing stack into this mode and re-verify.
+
+Typical flow: start with empty volumes in `BackofficeDevelopment`, publish
+and confirm content, then re-run `docker-prod` against the same volumes to
+confirm that published content survives a `Production`-mode restart. See the
+release notes for the loopback-binding change.
+
+## Cookie isolation between lanes
+
+Both v17 and v18 run on the same `localhost` authority but different ports.
+Browser cookies are domain-scoped (port is ignored), so the default Umbraco
+back-office cookie (`UMB_UCONTEXT` in v17.4 / v18.0.0-rc3, plus the new OAuth
+cookies `umbAccessToken` / `umbRefreshToken` / `umbPkceCode` in v17.3+) would
+normally clash and log you out of one lane when signing into the other.
+
+`build/build.cs` `ConfigureLane` sets two per-lane config values to fix this:
+
+- `Umbraco__CMS__Security__AuthCookieName=UMB_UCONTEXT-{lane}` — renames the
+  legacy `UMB_UCONTEXT` cookie. (`Security:AuthCookieName` is the supported
+  config key; the docker harness just plumbs it through.)
+- `Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName=-{lane}` — appends
+  a suffix to the new OAuth cookie names per Umbraco PR #22057 (shipped in
+  Umbraco 17.3+).
+
+You stay logged into both lanes simultaneously without browser juggling.
+
+## Dev automation user overrides
+
+The auto-provisioned API user takes its defaults from `docker-compose.yml` and
+the `ArticulateDevAutomationBootstrapper` service. Override per-run with
+environment variables:
+
+| Variable                                       | Default                                | Purpose                                                                  |
+|------------------------------------------------|----------------------------------------|--------------------------------------------------------------------------|
+| `ARTICULATE_DEV_AUTOMATION_ENABLED`            | `true`                                 | Toggle the bootstrap service entirely.                                   |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`          | `articulate-dev-automation`            | OAuth client ID used by `smoke.mjs` and MCP clients.                     |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`      | `articulate-dev-local-secret`          | OAuth client secret. Required by `smoke.mjs`; export before invoking it. |
+| `ARTICULATE_DEV_AUTOMATION_USER_NAME`          | `articulate-dev-automation`            | Backoffice user name to provision.                                       |
+| `ARTICULATE_DEV_AUTOMATION_USER_EMAIL`         | `articulate-dev-automation@localhost`  | Backoffice user email.                                                   |
+| `ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME`  | `Articulate Dev Automation`            | Backoffice display name.                                                 |
+| `ARTICULATE_DEV_AUTOMATION_USER_GROUP_ALIAS`   | `admin`                                | User-group alias granting management access.                             |
+
+The unattended backoffice administrator (the human sign-in) is configured
+separately via `UMBRACO_USER_NAME` / `UMBRACO_USER_EMAIL` /
+`UMBRACO_USER_PASSWORD`.
+
+## Package and container diagnostics
+
+Package inputs come from `build/Release/<lane>` and must include Articulate and
+the sample theme. Docker installs those `.nupkg` files; it does not consume
+project output directly. Regenerate packages after changing packaged
+dependencies, client assets, or static assets.
+
+Rebuilding an image does not replace an already running container. The build
+utility uses `--force-recreate` where required. If a site still serves stale
+assets, inspect the running stack and its packaged Backoffice files:
+
+```powershell
+dotnet run --file build/build.cs -- docker-status --lane v17
+```
+
+Use `--lane v18` for the v18 lane.
+
+Standard smoke evidence is HTTP, DOM, state, and container-log based.
+Screenshots are optional manual-review evidence.
+
+## Umbraco MCP Dev
+
+`@umbraco-cms/mcp-dev` is Umbraco's official Model Context Protocol server.
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/) is an open
+standard that lets AI clients (Claude Desktop, Codex, Cursor, etc.) call
+external tools through a uniform interface. The Umbraco package authenticates
+as an API user (OAuth client credentials) and exposes the Management API as
+MCP tools — documents, media, data types, document types, and the rest of
+the backoffice become callable through natural conversation.
+
+The docker harness auto-provisions exactly the API user this server expects.
+Configure your MCP client with:
+
+- `UMBRACO_CLIENT_ID` = `ARTICULATE_DEV_AUTOMATION_CLIENT_ID` (= `articulate-dev-automation`)
+- `UMBRACO_CLIENT_SECRET` = `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`
+- `UMBRACO_BASE_URL` = the lane's public URL (e.g. `https://localhost:44317`)
+
+Install with the lane-matched tag (`@umbraco-cms/mcp-dev@17` for the v17 lane,
+`@18` for v18). See the [Umbraco MCP documentation](https://docs.umbraco.com/umbraco-developer-mcp)
+for the full tool list, permissions model, and Claude Desktop config snippet.
+
+MCP complements `smoke.mjs`; it does not replace the deterministic publish,
+state, front-end, and theme assertions used by the Docker test command.
+
+> The `umbraco-articulate` OpenID client is **not** the right credential here.
+> It is the Markdown Editor's browser-side OAuth client (see
+> [Markdown editor authentication](../docs/configuration.md#markdown-editor-authentication)),
+> not an API user client-credentials identity.

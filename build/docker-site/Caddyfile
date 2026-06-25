@@ -1,13 +1,16 @@
 {
-   local_certs
-   auto_https disable_redirects
+	local_certs
+	auto_https disable_redirects
+	default_sni {$CADDY_TLS_HOST:-localhost}
 }
 
-http://localhost:8080 {
-    redir https://{$HTTPS_HOST:-localhost:18443}{uri} permanent
+# HTTP accepts any Host header. HTTPS needs a concrete host so Caddy can mint
+# a certificate; default_sni selects that certificate when an IP client omits SNI.
+http://:8080 {
+	redir https://{$HTTPS_HOST:-localhost:18443}{uri} permanent
 }
 
-https://localhost:18443 {
-  tls internal
-  reverse_proxy http://{$ARTICULATE_HOST:-articulate}:8080
+https://{$CADDY_TLS_HOST:-localhost}:18443 {
+	tls internal
+	reverse_proxy http://{$ARTICULATE_HOST:-articulate}:8080
 }
