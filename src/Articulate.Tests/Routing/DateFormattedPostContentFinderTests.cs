@@ -1,8 +1,14 @@
 #nullable enable
 using Articulate.Routing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
 
 namespace Articulate.Tests.Routing
 {
@@ -124,15 +130,29 @@ namespace Articulate.Tests.Routing
 
         // ─── Integration: segment count guard ───────────────────────────────
 
-        [TestCase(1, Description = "Root only: /")]
-        [TestCase(2, Description = "One segment: /blog/")]
-        [TestCase(3, Description = "Two segments: /blog/post/")]
-        [TestCase(4, Description = "Three segments: /blog/2024/post/")]
-        public void TryFindContent_requires_more_than_4_segments(int segmentCount) =>
-            // The TryFindContent method checks segmentLength <= 4 as an early exit.
-            // We verify this guard is effective by confirming TryParseDateFromSegments
-            // would index out of bounds for short arrays (the guard prevents this).
-            Assert.That(segmentCount, Is.LessThanOrEqualTo(4), "Guard should reject segment counts <= 4");
+        [TestCase("https://example.com/", Description = "Root only: /")]
+        [TestCase("https://example.com/blog/", Description = "One segment: /blog/")]
+        [TestCase("https://example.com/blog/post/", Description = "Two segments: /blog/post/")]
+        [TestCase("https://example.com/blog/2024/post/", Description = "Three segments: /blog/2024/post/")]
+        public async Task TryFindContent_requires_more_than_4_segments(string requestUri)
+        {
+            var finder = new DateFormattedPostContentFinder(
+#if UMBRACO_18_OR_GREATER
+                Mock.Of<ILogger<ContentFinderByUrl>>(),
+#else
+                Mock.Of<ILogger<ContentFinderByUrlNew>>(),
+#endif
+                Mock.Of<IUmbracoContextAccessor>(),
+                Mock.Of<IDocumentUrlService>(),
+                Mock.Of<IPublishedContentCache>(),
+                Mock.Of<IOptionsMonitor<WebRoutingSettings>>());
+            Mock<IPublishedRequestBuilder> requestBuilder = new();
+            requestBuilder.SetupGet(x => x.Uri).Returns(new Uri(requestUri));
+
+            var result = await finder.TryFindContent(requestBuilder.Object);
+
+            Assert.That(result, Is.False);
+        }
 
         // ─── Perf characteristic: no exception thrown on invalid dates ──────
 
