@@ -13,12 +13,6 @@
 	</PropertyGroup>
 	</PropertyGroup>
 	<PropertyGroup>
-		<!-- TODO: Enable when 6.0 version is shipped -->
-		<EnablePackageValidation>false</EnablePackageValidation>
-		<PackageValidationBaselineVersion>6.0.0</PackageValidationBaselineVersion>
-		<EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
-		<EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
-		<GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
 		<CompressionEnabled>false</CompressionEnabled>
 		<!-- Central client-build defaults; consumed by Articulate.Web to build the backoffice client -->
 		<EnableClientBuild Condition="'$(EnableClientBuild)'=='' and '$(ENABLE_CLIENT_BUILD)'!=''">$(ENABLE_CLIENT_BUILD)</EnableClientBuild>
@@ -30,17 +24,9 @@
 		<AddRazorSupportForMvc Condition="'$(AddRazorSupportForMvc)' == ''">true</AddRazorSupportForMvc>
 		<EnforceCodeStyleInBuild Condition="'$(EnforceCodeStyleInBuild)' == ''">true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')" Version="3.9.50" PrivateAssets="All" />
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
-		<GlobalPackageReference Include="Umbraco.Code" Version="2.4.0" PrivateAssets="All" />
-		<GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="All" />
-	</ItemGroup>
 	<ItemGroup Condition="'$(IsPackable)' != 'false'">
-		<PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2" PrivateAssets="all">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis" Version="$(MicrosoftCodeAnalysisPackageVersion)" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(UseArticulateUsings)' == 'true'">
 		<Using Include="Umbraco.Cms.Core.DependencyInjection" />
@@ -95,9 +81,4 @@
 		</ItemGroup>
 	</Target>
 
-	<!-- Force minimum versions for vulnerable transitive dependencies -->
-	<ItemGroup>
-        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.8.43" PrivateAssets="All" />
-		<PackageReference Include="MailKit" Version="$(MailKitPackageVersion)" PrivateAssets="All" />
-	</ItemGroup>
 </Project>

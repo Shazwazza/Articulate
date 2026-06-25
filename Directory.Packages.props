@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+	</PropertyGroup>
+	<PropertyGroup>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.0.0,19.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">2.4.0</UmbracoCodePackageVersion>
+		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">3.0.0-beta</UmbracoCodePackageVersion>
+		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
+		<SystemSecurityCryptographyXmlPackageVersion>[10.0.7,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
+		<MarkdigPackageVersion>[1.1.3,2.0.0)</MarkdigPackageVersion>
+		<MicrosoftNetTestSdkPackageVersion>[18.5.1,19.0.0)</MicrosoftNetTestSdkPackageVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageVersion Include="Argotic.Core" Version="3001.0.0" />
+		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
+		<PackageVersion Include="FileSignatures" Version="7.2.1" />
+		<PackageVersion Include="Markdig" Version="$(MarkdigPackageVersion)" />
+		<PackageVersion Include="MessagePack" Version="3.1.7" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.3.0" Condition="'$(ArticulatePackageLane)' == 'v18'" />
+		<PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
+		<PackageVersion Include="Moq" Version="4.20.72" />
+		<PackageVersion Include="NUnit" Version="3.14.0" />
+		<PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+		<PackageVersion Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" />
+		<PackageVersion Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
+		<PackageVersion Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
+		<PackageVersion Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
+		<PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="$(UmbracoCmsPackageVersion)" />
+		<PackageVersion Include="Umbraco.Cms.Tests.Integration" Version="$(UmbracoCmsPackageVersion)" />
+		<PackageVersion Include="Umbraco.Cms.Web.Website" Version="$(UmbracoCmsPackageVersion)" />
+		<PackageVersion Include="WilderMinds.MetaWeblog" Version="5.1.3" />
+	</ItemGroup>
+	<ItemGroup>
+		<GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.85" Condition="!Exists('packages.config')" PrivateAssets="All" />
+		<GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
+		<GlobalPackageReference Include="Umbraco.Code" Version="$(UmbracoCodePackageVersion)" PrivateAssets="All" />
+		<GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="All" />
+	</ItemGroup>
+</Project>

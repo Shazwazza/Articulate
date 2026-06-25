@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="Articulate" Version="$(ArticulatePackageVersion)" />
-    <PackageReference Include="Articulate.Theme.Sample" Version="$(ArticulatePackageVersion)" />
+    <PackageReference Include="Articulate" VersionOverride="$(ArticulatePackageVersion)" />
+    <PackageReference Include="Articulate.Theme.Sample" VersionOverride="$(ArticulatePackageVersion)" />
   </ItemGroup>
 </Project>
