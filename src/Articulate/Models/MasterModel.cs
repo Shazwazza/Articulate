@@ -10,9 +10,6 @@ namespace Articulate.Models
     public class MasterModel : PublishedContentWrapped, IMasterModel
     {
         private int? _pageSize;
-        internal const string CommentsProviderDisqus = "Disqus";
-        internal const string CommentsProviderGiscus = "Giscus";
-        internal const string CommentsProviderNone = "None";
 
         /// <summary>
         /// The basic model for all articulate objects
@@ -129,14 +126,11 @@ namespace Articulate.Models
                                        && IsValidDisqusShortName(DisqusShortName);
 
         /// <inheritdoc/>
-        public string CommentsProvider
-        {
-            get => field ??= ResolveProvider(IsDisqusEnabled, IsGiscusEnabled);
-            protected set;
-        }
+        public ArticulateConstants.Comments.Provider CommentsProvider
+            => ResolveProvider(IsDisqusEnabled, IsGiscusEnabled);
 
         /// <inheritdoc/>
-        public bool IsCommentsEnabled => CommentsProvider != CommentsProviderNone;
+        public bool IsCommentsEnabled => CommentsProvider != ArticulateConstants.Comments.Provider.None;
 
         /// <inheritdoc/>
         public string GiscusScriptSrc
@@ -205,14 +199,14 @@ namespace Articulate.Models
             !string.IsNullOrWhiteSpace(GiscusCategory) &&
             !string.IsNullOrWhiteSpace(GiscusCategoryId);
 
-        internal static string ResolveProvider(bool disqusShortNameSet, bool giscusConfigured)
+        internal static ArticulateConstants.Comments.Provider ResolveProvider(bool disqusShortNameSet, bool giscusConfigured)
         {
             if (disqusShortNameSet)
             {
-                return CommentsProviderDisqus;
+                return ArticulateConstants.Comments.Provider.Disqus;
             }
 
-            return giscusConfigured ? CommentsProviderGiscus : CommentsProviderNone;
+            return giscusConfigured ? ArticulateConstants.Comments.Provider.Giscus : ArticulateConstants.Comments.Provider.None;
         }
 
         /// <summary>

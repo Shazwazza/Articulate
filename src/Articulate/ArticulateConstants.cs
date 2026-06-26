@@ -23,6 +23,24 @@ namespace Articulate
         }
 
         /// <summary>
+        /// Comment provider and configuration identifiers.
+        /// </summary>
+        public static class Comments
+        {
+            /// <summary>
+            /// The comment provider resolved for a post. <see cref="Provider.None"/> means
+            /// no provider is configured for the current blog (no Disqus shortname and no
+            /// fully-populated Giscus config), in which case the comments partial renders nothing.
+            /// </summary>
+            public enum Provider
+            {
+                None = 0,
+                Disqus = 1,
+                Giscus = 2,
+            }
+        }
+
+        /// <summary>
         /// Naming conventions and document aliases.
         /// </summary>
         public static class Convention

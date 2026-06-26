@@ -1,5 +1,7 @@
 #nullable enable
+using Articulate;
 using NUnit.Framework;
+using Provider = Articulate.ArticulateConstants.Comments.Provider;
 
 namespace Articulate.Tests.Models
 {
@@ -9,33 +11,33 @@ namespace Articulate.Tests.Models
         [Test]
         public void ResolveProvider_ReturnsNone_WhenNoProviderIsConfigured()
         {
-            var result = MasterModel.ResolveProvider(disqusShortNameSet: false, giscusConfigured: false);
+            Provider result = MasterModel.ResolveProvider(disqusShortNameSet: false, giscusConfigured: false);
 
-            Assert.That(result, Is.EqualTo("None"));
+            Assert.That(result, Is.EqualTo(Provider.None));
         }
 
         [Test]
         public void ResolveProvider_ReturnsGiscus_WhenOnlyGiscusIsConfigured()
         {
-            var result = MasterModel.ResolveProvider(disqusShortNameSet: false, giscusConfigured: true);
+            Provider result = MasterModel.ResolveProvider(disqusShortNameSet: false, giscusConfigured: true);
 
-            Assert.That(result, Is.EqualTo("Giscus"));
+            Assert.That(result, Is.EqualTo(Provider.Giscus));
         }
 
         [Test]
         public void ResolveProvider_ReturnsDisqus_WhenOnlyDisqusIsConfigured()
         {
-            var result = MasterModel.ResolveProvider(disqusShortNameSet: true, giscusConfigured: false);
+            Provider result = MasterModel.ResolveProvider(disqusShortNameSet: true, giscusConfigured: false);
 
-            Assert.That(result, Is.EqualTo("Disqus"));
+            Assert.That(result, Is.EqualTo(Provider.Disqus));
         }
 
         [Test]
         public void ResolveProvider_ReturnsDisqus_WhenBothProvidersAreConfigured()
         {
-            var result = MasterModel.ResolveProvider(disqusShortNameSet: true, giscusConfigured: true);
+            Provider result = MasterModel.ResolveProvider(disqusShortNameSet: true, giscusConfigured: true);
 
-            Assert.That(result, Is.EqualTo("Disqus"));
+            Assert.That(result, Is.EqualTo(Provider.Disqus));
         }
 
         [TestCase(null, "fallback", "fallback")]

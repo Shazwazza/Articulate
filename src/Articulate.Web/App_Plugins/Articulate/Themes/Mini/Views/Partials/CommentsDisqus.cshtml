@@ -4,7 +4,7 @@
 {
     switch (Model.CommentsProvider)
     {
-        case "Disqus":
+        case ArticulateConstants.Comments.Provider.Disqus:
             <div class="post-comment">
                 <div id="disqus_thread">
                     <script type="text/javascript">
@@ -29,7 +29,7 @@
                 </div>
             </div>
             break;
-        case "Giscus":
+        case ArticulateConstants.Comments.Provider.Giscus:
             <div class="post-comment" id="comments">
                 <script src="@Model.GiscusScriptSrc"
                         data-repo="@Model.GiscusRepo"

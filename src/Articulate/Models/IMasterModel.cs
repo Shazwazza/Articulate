@@ -81,7 +81,7 @@ namespace Articulate.Models
         /// <summary>
         /// Gets the resolved comment provider.
         /// </summary>
-        public string CommentsProvider { get; }
+        public ArticulateConstants.Comments.Provider CommentsProvider { get; }
 
         /// <summary>
         /// Gets whether any comment provider is configured.
