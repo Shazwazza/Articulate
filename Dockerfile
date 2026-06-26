@@ -68,7 +68,6 @@ RUN set -eux; \
         *) echo "Unsupported arch: $ARCH"; exit 1 ;; \
     esac; \
     mkdir -p /staging; \
-    cp "${ICU_PATH}"/libicudata* /staging/; \
     cp "${ICU_PATH}"/libicu* /staging/
 
 # Chiseled runtime (used by docker-compose.yml)
