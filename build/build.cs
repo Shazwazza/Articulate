@@ -318,6 +318,13 @@ static class BuildApp
         // subsequent v17 pack. See DEVELOP.md "Package lanes" for the
         // TODO follow-up.
         DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
+        // BuildBackofficeClient is incremental (Inputs=source, Outputs=stamp),
+        // so it SKIPS when the stamp is newer than its inputs. We just deleted
+        // its output dir, so the stamp is now stale — invalidate it or Vite
+        // skips and the package ships with an empty BackOffice. This fixes
+        // non-clean rebuilds (the --clean path already wipes ClientAssets).
+        var stamp = Path.Combine(BuildDir, "ClientAssets", $"BackofficeClient_v{clientVersion}.stamp");
+        if (File.Exists(stamp)) File.Delete(stamp);
 
         if (clientBuild)
         {
