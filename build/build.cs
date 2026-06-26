@@ -26,6 +26,12 @@ static class BuildApp
         "ARTICULATE_LOGOUT_REDIRECT_URI",
     }.ToDictionary(name => name, Env);
 
+    // Snapshot CI status at process start so BuildAsync's inCi check does
+    // not bleed when DockerTestAsync iterates lanes and SetEnvironmentVariable
+    // writes CI=true for child dotnet processes.
+    static readonly string? CallerCi = Env("CI");
+    static readonly string? CallerGithubActions = Env("GITHUB_ACTIONS");
+
     public static async Task<int> RunAsync(string[] args)
     {
         try
@@ -256,7 +262,7 @@ static class BuildApp
         var started = Stopwatch.StartNew();
         var lane = Lane(options);
         var configuration = options.Value("configuration") ?? Env("BUILD_CONFIGURATION") ?? "Release";
-        var inCi = IsTrue(Env("CI")) || IsTrue(Env("GITHUB_ACTIONS"));
+        var inCi = IsTrue(CallerCi) || IsTrue(CallerGithubActions);
         var runTests = options.Flag("tests") || BoolOption(options, "tests", "RUN_TESTS", inCi);
         var clientBuild = BoolOption(options, "client", "ENABLE_CLIENT_BUILD", inCi || configuration == "Release");
         var sample = options.Flag("sample") || BoolOption(options, "sample", "PACK_SAMPLE_THEME", !inCi);
