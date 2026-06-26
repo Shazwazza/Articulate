@@ -52,7 +52,7 @@ namespace Articulate.Tests.Models
         [Test]
         public void ResolveGiscusRequired_UsesAppsettings_WhenAllDocValuesAreEmpty()
         {
-            var result = MasterModel.ResolveGiscusRequired("", "", "", "", Appsettings);
+            (string Repo, string RepoId, string Category, string CategoryId) result = MasterModel.ResolveGiscusRequired(string.Empty, string.Empty, string.Empty, string.Empty, Appsettings);
 
             Assert.That(result, Is.EqualTo(("app/repo", "R_app", "app/cat", "DIC_app")));
         }
@@ -60,7 +60,7 @@ namespace Articulate.Tests.Models
         [Test]
         public void ResolveGiscusRequired_UsesDocValues_WhenAllFourArePopulated()
         {
-            var result = MasterModel.ResolveGiscusRequired(
+            (string Repo, string RepoId, string Category, string CategoryId) result = MasterModel.ResolveGiscusRequired(
                 "blog/repo", "R_blog", "blog/cat", "DIC_blog", Appsettings);
 
             Assert.That(result, Is.EqualTo(("blog/repo", "R_blog", "blog/cat", "DIC_blog")));
@@ -74,7 +74,7 @@ namespace Articulate.Tests.Models
         public void ResolveGiscusRequired_DiscardsPartialOverride_AndUsesAppsettings(
             string docRepo, string docRepoId, string docCategory, string docCategoryId)
         {
-            var result = MasterModel.ResolveGiscusRequired(
+            (string Repo, string RepoId, string Category, string CategoryId) result = MasterModel.ResolveGiscusRequired(
                 docRepo, docRepoId, docCategory, docCategoryId, Appsettings);
 
             Assert.That(result, Is.EqualTo(("app/repo", "R_app", "app/cat", "DIC_app")));
