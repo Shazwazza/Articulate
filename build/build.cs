@@ -283,7 +283,9 @@ static class BuildApp
             // Release-tagged commits produce clean NBGV semver (e.g. "7.0.0")
             // with no commit-hash suffix. In that case, baseVersion alone is
             // the final v18 version.
-            var commitMatch = Regex.Match(v17, @"\.g[a-f0-9]+$");
+            // Match either the CLI dev form (6.1.0-g<hash>, dash before g) or
+            // the MSBuild preview form (6.1.0--preview.N.g<hash>, dot before g).
+            var commitMatch = Regex.Match(v17, @"[-.]g[a-f0-9]+$");
             packageVersion = baseVersion + commitMatch.Value;
         }
 

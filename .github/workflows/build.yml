@@ -85,10 +85,11 @@ jobs:
               ;;
           esac
 
-          # Extract the ".g<short-hash>" suffix from v17's SemVer2. v17 and
-          # v18 share a commit, so the suffix alone is what we want.
-          # v18-version.txt is the v18 base (no commit metadata).
-          if [[ "$V17_VERSION" =~ \.g[a-f0-9]+$ ]]; then
+          # Extract the commit-hash suffix from v17's SemVer2. v17 and v18
+          # share a commit, so the suffix alone is what we want.
+          # v18-version.txt is the v18 base (no commit metadata). Match either
+          # the MSBuild preview form (.g<hash>) or CLI dev form (-g<hash>).
+          if [[ "$V17_VERSION" =~ [-.]g[a-f0-9]+$ ]]; then
             V18_VERSION="${V18_VERSION}${BASH_REMATCH[0]}"
           fi
           echo "V17_VERSION=$V17_VERSION" >> "$GITHUB_ENV"
