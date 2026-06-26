@@ -58,6 +58,15 @@
 For the full build command, parameter, lane, lock file, and smoke test
 reference, see [BUILD.md](BUILD.md).
 
+### Switching Umbraco lanes locally
+
+The local dev database is lane-specific: Umbraco does not down-grade schema
+across major versions. If you started the test website with
+`ArticulatePackageLane=v18` and then switch to `v17` (e.g. via
+`Directory.Build.props.user` or the IDE's launch profile), point v17 at a
+**fresh** database and let it migrate. Do not reuse the v18 DB or schema
+checks will fail. Back up any local content first.
+
 ## Client development
 
 The Back Office client is a pnpm workspace at `src/Articulate.Web/Client` with
