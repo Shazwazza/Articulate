@@ -11,7 +11,10 @@ namespace Articulate.Migrations.Upgrade.V_6_0_0;
 /// <summary>
 /// Adds four Giscus per-blog text properties (<c>giscusRepo</c>, <c>giscusRepoId</c>,
 /// <c>giscusCategory</c>, <c>giscusCategoryId</c>) to the existing <c>blog</c> tab of the
-/// Articulate doc type, right after <c>disqusShortname</c>. Existing blogs get empty values,
+/// Articulate doc type, after the existing fields (SortOrder 6–9, next free block after
+/// <c>googleAnalyticsName</c> at SortOrder 5). The SortOrder values are kept in lockstep with
+/// <c>src/Articulate/Packaging/package.zip</c> so fresh installs and migrated installs
+/// converge on the same property identifiers and tab order. Existing blogs get empty values,
 /// so behavior is unchanged until an operator fills the fields or sets the matching appsettings.
 /// Idempotent: properties whose alias already exists in the tab are skipped.
 /// </summary>
@@ -31,10 +34,13 @@ public class AddGiscusPerBlogProperties(
     /// </summary>
     internal static readonly (string Alias, string Name, int SortOrder, Guid Key)[] GiscusProperties =
     {
-        ("giscusRepo",       "Giscus Repo",        4, new Guid("e7bf75bc-9e1d-52d9-a36b-5e43dfcfbd42")),
-        ("giscusRepoId",     "Giscus Repo Id",     5, new Guid("04404ee8-30a2-50a2-967d-042b6000d5c4")),
-        ("giscusCategory",   "Giscus Category",    6, new Guid("851a03e2-9ac3-5c8a-9222-d2919beb0fb5")),
-        ("giscusCategoryId", "Giscus Category Id", 7, new Guid("a1b66f3e-248e-5c83-a6e7-870e91d44fc9")),
+        // SortOrders are kept in lockstep with package.xml so fresh installs and migrated
+        // installs produce identical tab order. Slots 0–5 are taken by blogDescription,
+        // customRssFeedUrl, blogTitle, disqusShortname, googleAnalyticsId, googleAnalyticsName.
+        ("giscusRepo",       "Giscus Repo",        6, new Guid("e7bf75bc-9e1d-52d9-a36b-5e43dfcfbd42")),
+        ("giscusRepoId",     "Giscus Repo Id",     7, new Guid("04404ee8-30a2-50a2-967d-042b6000d5c4")),
+        ("giscusCategory",   "Giscus Category",    8, new Guid("851a03e2-9ac3-5c8a-9222-d2919beb0fb5")),
+        ("giscusCategoryId", "Giscus Category Id", 9, new Guid("a1b66f3e-248e-5c83-a6e7-870e91d44fc9")),
     };
 
     /// <inheritdoc/>
