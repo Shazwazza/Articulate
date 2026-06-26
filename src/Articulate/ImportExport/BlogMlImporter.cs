@@ -177,7 +177,7 @@ namespace Articulate.ImportExport
             return returnModel;
         }
 
-        private static bool IsGiscusFullyConfigured(ArticulateCommentsOptions options)
+        internal static bool IsGiscusFullyConfigured(ArticulateCommentsOptions options)
         {
             GiscusCommentsOptions? g = options.Giscus;
             return g is not null

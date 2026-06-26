@@ -323,5 +323,6 @@ namespace Articulate.Models
         protected IPublishedValueFallback PublishedValueFallback { get; }
 
         public ArticulateCommentsOptions CommentsOptions { get; }
+
     }
 }
