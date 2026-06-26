@@ -81,6 +81,105 @@ that list. Use exact absolute HTTPS URLs.
 The editor keeps its access token in memory, so refreshing the page requires a
 new sign-in.
 
+## Comment providers
+
+Articulate can render Disqus or Giscus comments from the existing
+`CommentsDisqus.cshtml` theme partial. Post-level `enableComments` still controls
+whether a post shows comments at all.
+
+### Disqus
+
+Disqus is configured on the Articulate blog root with the existing
+`disqusShortname` property (per blog).
+
+### Giscus
+
+Giscus has two configuration surfaces:
+
+1. **App-wide defaults** via `appsettings.json` — covers all optional + required fields.
+2. **Per-blog overrides** on the Articulate doc type — only the four required fields
+   (`giscusRepo`, `giscusRepoId`, `giscusCategory`, `giscusCategoryId`), live in the
+   existing `blog` tab alongside `disqusShortname`. Added by the
+   `AddGiscusPerBlogProperties` migration that runs on first boot.
+
+#### appsettings.json shape
+
+```json
+{
+  "Articulate": {
+    "Comments": {
+      "Giscus": {
+        "ScriptSrc": "https://giscus.app/client.js",
+        "DataRepo": "owner/repository",
+        "DataRepoId": "R_kgDOExample",
+        "DataCategory": "Announcements",
+        "DataCategoryId": "DIC_kwDOExample",
+        "DataMapping": "pathname",
+        "DataStrict": "0",
+        "DataReactionsEnabled": "1",
+        "DataEmitMetadata": "0",
+        "DataInputPosition": "bottom",
+        "DataTheme": "preferred_color_scheme",
+        "DataLang": "en",
+        "DataLoading": ""
+      }
+    }
+  }
+}
+```
+
+#### Required appsettings (or per-blog doc-type) fields
+
+| Field | Purpose |
+|-------|---------|
+| `DataRepo` | GitHub repo (`owner/repository`) |
+| `DataRepoId` | Repo ID from giscus.app (`R_...`) |
+| `DataCategory` | Discussion category name |
+| `DataCategoryId` | Category ID from giscus.app (`DIC_...`) |
+
+#### Optional appsettings-only fields
+
+The 8 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
+
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `ScriptSrc` | `https://giscus.app/client.js` | Override for self-hosted giscus. Point at your own hosted client (see giscus SELF-HOSTING.md). |
+| `DataMapping` | `pathname` | Discussion ↔ page mapping: `pathname`, `url`, `title`, `og:title`, `specific`, or a specific term. |
+| `DataStrict` | `0` | `1` enables strict title matching to avoid fuzzy-search collisions. |
+| `DataReactionsEnabled` | `1` | `0` hides reactions on the main post. |
+| `DataEmitMetadata` | `0` | `1` posts discussion metadata to the parent window (for `message` listeners). |
+| `DataInputPosition` | `bottom` | `top` puts the comment box above the comments. |
+| `DataTheme` | `preferred_color_scheme` | Named theme or URL to a CSS file (see giscus docs). |
+| `DataLang` | `en` | IETF language tag for the giscus widget UI. |
+| `DataLoading` | `""` | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container. |
+
+### Provider resolution
+
+The renderer picks one of three outcomes per post: `Disqus`, `Giscus`, or `none`.
+
+1. If the blog has a valid `disqusShortname`, **Disqus wins** (regardless of any Giscus config).
+2. Otherwise, the per-blog doc-type fields are checked: if all four (`giscusRepo`,
+   `giscusRepoId`, `giscusCategory`, `giscusCategoryId`) are populated on the
+   Articulate blog root, those override appsettings for that blog only.
+   **All-or-nothing**: if any of the four is empty on the blog, the override is
+   discarded and the blog uses pure appsettings.
+3. Otherwise, the appsettings `Articulate:Comments:Giscus:*` block is used; if all
+   four required fields are populated, **Giscus** is active.
+4. Otherwise, comments are off (`none`).
+
+### Caveats
+
+- **Switching from Disqus to Giscus orphans historical Disqus thread identifiers**.
+  Giscus has no import path for Disqus thread IDs. BlogML imports set
+  `disqusShortname` per post; once you switch a blog to Giscus, those identifiers
+  are no longer visible to anyone. Manual migration via Disqus → Discourse →
+  GitHub Discussions is possible but not automated by Articulate.
+- **Giscus comments live in GitHub Discussions**, not the Articulate DB. There is
+  no Giscus-side XML exporter; `DisqusXmlExporter` continues to operate for
+  operators who maintain a Disqus side-channel.
+- **Self-hosted giscus** is supported via the `ScriptSrc` appsettings override.
+  See <https://github.com/giscus/giscus/blob/main/SELF-HOSTING.md> for setup.
+
 ### Advanced OpenIddict options
 
 Most installations only need the settings above. The following optional keys

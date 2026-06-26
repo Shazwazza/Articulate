@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -19,9 +21,10 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         IPublishedUrlProvider publishedUrlProvider,
         IPublishedValueFallback publishedValueFallback,
-        UmbracoHelper umbracoHelper)
+        UmbracoHelper umbracoHelper,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
-            publishedValueFallback)
+            publishedValueFallback, commentsOptions)
     {
         /// <summary>
         /// Override and declare a NonAction so that we get routed to the Index action with the optional page route
@@ -42,7 +45,7 @@ namespace Articulate.Controllers
             }
 
             // create a master model
-            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback);
+            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, CommentsOptions);
             IEnumerable<IPublishedContent> archiveNodes = masterModel.RootBlogNode.Children()
                     .Where(x => x.ContentType.Alias == ArticulateConstants.ContentType.ArticulateArchive);
             IPublishedContent[] listNodes = archiveNodes.ToArray();
@@ -80,7 +83,8 @@ namespace Articulate.Controllers
                 pager,
                 totalPosts,
                 posts.FirstOrDefault()?.Value<DateTime>("publishedDate"),
-                PublishedValueFallback);
+                PublishedValueFallback,
+                CommentsOptions);
 
             return View("Author", author);
         }

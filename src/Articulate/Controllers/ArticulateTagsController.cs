@@ -1,11 +1,13 @@
 #nullable enable
 using Articulate.Attributes;
+using Articulate.Options;
 using Articulate.Routing;
 using Articulate.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Routing;
@@ -30,9 +32,10 @@ namespace Articulate.Controllers
         IPublishedValueFallback publishedValueFallback,
         UmbracoHelper umbracoHelper,
         ArticulateTagService articulateTagService,
-        ITagQuery tagQuery)
+        ITagQuery tagQuery,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
-            publishedValueFallback)
+            publishedValueFallback, commentsOptions)
     {
         /// <summary>
         /// Used to render the category listing (virtual node)
@@ -93,7 +96,7 @@ namespace Articulate.Controllers
             }
 
             // create a blog model of the main page
-            var rootPageModel = new MasterModel(CurrentPage, PublishedValueFallback);
+            var rootPageModel = new MasterModel(CurrentPage, PublishedValueFallback, CommentsOptions);
 
             IEnumerable<PostsByTagModel> contentByTags = articulateTagService.GetContentByTags(
                 umbracoHelper,
@@ -121,7 +124,7 @@ namespace Articulate.Controllers
             }
 
             // create a master model
-            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback);
+            var masterModel = new MasterModel(CurrentPage, PublishedValueFallback, CommentsOptions);
 
             PostsByTagModel contentByTag = articulateTagService.GetContentByTag(
                 umbracoHelper,

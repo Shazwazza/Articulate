@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -18,7 +20,8 @@ namespace Articulate.Controllers
         ICompositeViewEngine compositeViewEngine,
         IUmbracoContextAccessor umbracoContextAccessor,
         IPublishedUrlProvider publishedUrlProvider,
-        IPublishedValueFallback publishedValueFallback)
+        IPublishedValueFallback publishedValueFallback,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         protected IUmbracoContextAccessor UmbracoContextAccessor { get; } = umbracoContextAccessor;
@@ -26,6 +29,8 @@ namespace Articulate.Controllers
         protected IPublishedUrlProvider PublishedUrlProvider { get; } = publishedUrlProvider;
 
         protected IPublishedValueFallback PublishedValueFallback { get; } = publishedValueFallback;
+
+        protected ArticulateCommentsOptions CommentsOptions { get; } = commentsOptions.Value;
 
         protected PagerModel CreateRequestedPager(IMasterModel masterModel, int? p)
             => new(
@@ -54,7 +59,7 @@ namespace Articulate.Controllers
                     UmbracoContextAccessor);
             }
 
-            var listModel = new ListModel(pageNode, pager, listItems, PublishedValueFallback);
+            var listModel = new ListModel(pageNode, pager, listItems, PublishedValueFallback, CommentsOptions);
 
             return View("List", listModel);
         }

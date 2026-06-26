@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
@@ -19,9 +21,10 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         IPublishedUrlProvider publishedUrlProvider,
         IPublishedValueFallback publishedValueFallback,
-        UmbracoHelper umbracoHelper)
+        UmbracoHelper umbracoHelper,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
-            publishedValueFallback)
+            publishedValueFallback, commentsOptions)
     {
         /// <summary>
         /// Declare new Index action with optional page number
@@ -58,7 +61,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            var master = new MasterModel(model.Content, PublishedValueFallback);
+            var master = new MasterModel(model.Content, PublishedValueFallback, CommentsOptions);
 
             PagerModel pager = CreateRequestedPager(master, p);
 

@@ -1,4 +1,5 @@
 #nullable enable
+using Articulate.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Articulate.Models
@@ -6,8 +7,11 @@ namespace Articulate.Models
     /// <summary>
     /// Model for the authors directory page.
     /// </summary>
-    public class AuthorDirectoryModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
-        : MasterModel(content, publishedValueFallback)
+    public class AuthorDirectoryModel(
+        IPublishedContent content,
+        IPublishedValueFallback publishedValueFallback,
+        ArticulateCommentsOptions? commentsOptions = null)
+        : MasterModel(content, publishedValueFallback, commentsOptions)
     {
         /// <summary>
         /// Gets or sets the author items shown in the directory.

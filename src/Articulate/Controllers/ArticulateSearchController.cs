@@ -1,8 +1,10 @@
 #nullable enable
 using Articulate.Attributes;
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
@@ -19,9 +21,10 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         IPublishedUrlProvider publishedUrlProvider,
         IPublishedValueFallback publishedValueFallback,
-        IArticulateSearcher articulateSearcher)
+        IArticulateSearcher articulateSearcher,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
-            publishedValueFallback)
+            publishedValueFallback, commentsOptions)
     {
         /// <summary>
         /// Used to render the search result listing (virtual node)
@@ -45,7 +48,7 @@ namespace Articulate.Controllers
             }
 
             IPublishedContent currentPage = CurrentPage;
-            var masterModel = new MasterModel(currentPage, PublishedValueFallback);
+            var masterModel = new MasterModel(currentPage, PublishedValueFallback, CommentsOptions);
 
             if (term is null)
             {
@@ -99,7 +102,8 @@ namespace Articulate.Controllers
                 currentPage,
                 new PagerModel(masterModel.PageSize, 0, 0),
                 [],
-                PublishedValueFallback);
+                PublishedValueFallback,
+                CommentsOptions);
 
         private string BuildSearchUrl(IPublishedContent currentPage, string term, string? indexName)
         {

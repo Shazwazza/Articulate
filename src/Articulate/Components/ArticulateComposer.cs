@@ -67,6 +67,8 @@ namespace Articulate.Components
 
             _ = services.AddOptions<ArticulateOptions>()
                 .BindConfiguration("Articulate");
+            _ = services.AddOptions<ArticulateCommentsOptions>()
+                .BindConfiguration("Articulate:Comments");
 
             _ = builder.AddNotificationHandler<ContentSavingNotification, ContentSavingHandler>();
             _ = builder.AddNotificationHandler<ContentPublishingNotification, ContentPublishingHandler>();

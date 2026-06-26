@@ -1,26 +1,54 @@
 @model PostModel
 
-@if (Model.IsDisqusEnabled)
+@if (Model.IsCommentsEnabled)
 {
-    <div id="disqus_thread">
-        <script type="text/javascript">
-            var disqus_config = function () {
-                this.page.url = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Url(mode: UrlMode.Absolute)));
-                this.page.identifier = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Key));
-            };
-            (function() {
-                var d = document, s = d.createElement('script');
-                const disqusShortName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DisqusShortName));
-                s.src = 'https://' + disqusShortName + '.disqus.com/embed.js';
-                s.setAttribute('data-timestamp', +new Date());
-                (d.head || d.body).appendChild(s);
-            })();
-        </script>
-        <noscript>
-            Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" title="Disqus comments">comments powered by Disqus.</a>
-        </noscript>
-        <a href="https://disqus.com" class="dsq-brlink" title="Disqus website">
-            comments powered by <span class="logo-disqus">Disqus</span>
-        </a>
-    </div>
+    switch (Model.CommentsProvider)
+    {
+        case "Disqus":
+            <div id="disqus_thread">
+                <script type="text/javascript">
+                    var disqus_config = function () {
+                        this.page.url = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Url(mode: UrlMode.Absolute)));
+                        this.page.identifier = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Key));
+                    };
+                    (function() {
+                        var d = document, s = d.createElement('script');
+                        const disqusShortName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DisqusShortName));
+                        s.src = 'https://' + disqusShortName + '.disqus.com/embed.js';
+                        s.setAttribute('data-timestamp', +new Date());
+                        (d.head || d.body).appendChild(s);
+                    })();
+                </script>
+                <noscript>
+                    Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" title="Disqus comments">comments powered by Disqus.</a>
+                </noscript>
+                <a href="https://disqus.com" class="dsq-brlink" title="Disqus website">
+                    comments powered by <span class="logo-disqus">Disqus</span>
+                </a>
+            </div>
+            break;
+        case "Giscus":
+            <div id="comments">
+                <script src="@Model.GiscusScriptSrc"
+                        data-repo="@Model.GiscusRepo"
+                        data-repo-id="@Model.GiscusRepoId"
+                        data-category="@Model.GiscusCategory"
+                        data-category-id="@Model.GiscusCategoryId"
+                        data-mapping="@Model.GiscusMapping"
+                        data-strict="@Model.GiscusStrict"
+                        data-reactions-enabled="@Model.GiscusReactionsEnabled"
+                        data-emit-metadata="@Model.GiscusEmitMetadata"
+                        data-input-position="@Model.GiscusInputPosition"
+                        data-theme="@Model.GiscusTheme"
+                        data-lang="@Model.GiscusLang"
+                        data-loading="@Model.GiscusLoading"
+                        crossorigin="anonymous"
+                        async>
+                </script>
+                <noscript>
+                    Please enable JavaScript to view the <a href="https://github.com/@Model.GiscusRepo/discussions" title="Giscus comments">comments powered by Giscus.</a>
+                </noscript>
+            </div>
+            break;
+    }
 }

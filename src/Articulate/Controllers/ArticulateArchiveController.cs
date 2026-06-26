@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
@@ -19,9 +21,10 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         IPublishedUrlProvider publishedUrlProvider,
         IPublishedValueFallback publishedValueFallback,
-        UmbracoHelper umbraco)
+        UmbracoHelper umbraco,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
-            publishedValueFallback)
+            publishedValueFallback, commentsOptions)
     {
         private UmbracoHelper Umbraco { get; } = umbraco;
 
@@ -50,7 +53,7 @@ namespace Articulate.Controllers
 
         private IActionResult RenderView(ContentModel model, int? p = null)
         {
-            var archive = new MasterModel(model.Content, PublishedValueFallback);
+            var archive = new MasterModel(model.Content, PublishedValueFallback, CommentsOptions);
 
             // redirect to root node when "redirectArchive" is configured
             if (archive.RootBlogNode.Value<bool>("redirectArchive"))

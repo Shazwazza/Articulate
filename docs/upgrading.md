@@ -29,6 +29,8 @@ You can upgrade in place or transfer posts through BlogML.
 - Configuration moves to `appsettings.json`.
 - The standalone Markdown editor requires OpenIddict client configuration.
 - Custom themes may require new paths and helper APIs.
+- Custom themes that override `CommentsDisqus.cshtml` keep the filename; add a
+  Giscus branch only if they need custom Giscus markup.
 - Media in `media/articulate` is not moved by BlogML.
 - `postImage` can often be mapped from an attachment or embedded image.
 - Other inline media may need to be copied and its URLs updated separately.

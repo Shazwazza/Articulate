@@ -52,11 +52,19 @@ are reserved, and duplicate package keys are ignored.
 See [`Articulate.Theme.Sample`](../src/Articulate.Theme.Sample) for a working
 RCL theme, or the [creating a theme guide](https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme).
 
-## Disqus
+## Comments
 
-Built-in themes render Disqus only when comments are enabled and the blog root
-has a valid `disqusShortname`. Leave the value empty to disable Disqus without
-rendering a placeholder panel or loading its script.
+Built-in themes render comments only when post comments are enabled and either
+Disqus or Giscus is configured. The existing `CommentsDisqus.cshtml` partial name
+is kept for compatibility, but it now handles both providers:
+
+- Disqus uses the blog root `disqusShortname` and keeps the `disqus_thread`
+  markup needed by Disqus comment counts.
+- Giscus uses the app-wide `Articulate:Comments:Giscus` settings from
+  `appsettings.json`.
+
+Custom themes that override `CommentsDisqus.cshtml` can keep the same filename
+and branch on `Model.CommentsProvider`.
 
 ## Upgrading custom themes
 
@@ -66,6 +74,7 @@ Older themes may need:
 - old `Html` and `Url` helpers replaced with model extension methods
 - async partial rendering through `Html.PartialAsync`
 - URL-bearing CSS values passed through current safe CSS helpers
+- `CommentsDisqus.cshtml` updated if the theme should customize Giscus markup
 - an `Authors.cshtml` view if an authors directory should be displayed
 
 ## More detail

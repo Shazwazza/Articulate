@@ -1,4 +1,5 @@
 #nullable enable
+using Articulate.Options;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
@@ -13,13 +14,14 @@ namespace Articulate.Models
         private readonly Lazy<DateTime?> _lastPostDate;
 
         public AuthorModel(
-            IPublishedContent? content,
+            IPublishedContent content,
             IEnumerable<IPublishedContent>? listItems,
             PagerModel? pager,
             int postCount,
             DateTime? lastPostDate,
-            IPublishedValueFallback publishedValueFallback)
-            : base(content, pager, listItems, publishedValueFallback)
+            IPublishedValueFallback publishedValueFallback,
+            ArticulateCommentsOptions? commentsOptions = null)
+            : base(content, pager, listItems, publishedValueFallback, commentsOptions)
         {
             PostCount = postCount;
             _image = new Lazy<MediaWithCrops?>(() => Unwrap().Value<MediaWithCrops>("authorImage"), true);
@@ -31,7 +33,7 @@ namespace Articulate.Models
         }
 
         public AuthorModel(
-            IPublishedContent? content,
+            IPublishedContent content,
             IEnumerable<IPublishedContent>? listItems,
             PagerModel? pager,
             int postCount,

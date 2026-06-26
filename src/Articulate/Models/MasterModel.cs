@@ -1,5 +1,6 @@
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Articulate.Options;
 
 namespace Articulate.Models
 {
@@ -9,17 +10,33 @@ namespace Articulate.Models
     public class MasterModel : PublishedContentWrapped, IMasterModel
     {
         private int? _pageSize;
+        internal const string CommentsProviderDisqus = "Disqus";
+        internal const string CommentsProviderGiscus = "Giscus";
+        internal const string CommentsProviderNone = "None";
 
         /// <summary>
         /// The basic model for all articulate objects
         /// </summary>
 #if UMBRACO_18_OR_GREATER
-        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback) : base(content)
-            => PublishedValueFallback = publishedValueFallback;
+        public MasterModel(
+            IPublishedContent content,
+            IPublishedValueFallback publishedValueFallback,
+            ArticulateCommentsOptions commentsOptions = null)
+            : base(content)
+        {
+            PublishedValueFallback = publishedValueFallback;
+            CommentsOptions = commentsOptions ?? new ArticulateCommentsOptions();
+        }
 #else
-        public MasterModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+        public MasterModel(
+            IPublishedContent content,
+            IPublishedValueFallback publishedValueFallback,
+            ArticulateCommentsOptions commentsOptions = null)
             : base(content, publishedValueFallback)
-            => PublishedValueFallback = publishedValueFallback;
+        {
+            PublishedValueFallback = publishedValueFallback;
+            CommentsOptions = commentsOptions ?? new ArticulateCommentsOptions();
+        }
 #endif
 
         /// <summary>
@@ -110,6 +127,104 @@ namespace Articulate.Models
         /// </summary>
         public bool IsDisqusEnabled => !string.IsNullOrWhiteSpace(DisqusShortName)
                                        && IsValidDisqusShortName(DisqusShortName);
+
+        /// <inheritdoc/>
+        public string CommentsProvider
+        {
+            get => field ??= ResolveProvider(IsDisqusEnabled, IsGiscusEnabled);
+            protected set;
+        }
+
+        /// <inheritdoc/>
+        public bool IsCommentsEnabled => CommentsProvider != CommentsProviderNone;
+
+        /// <inheritdoc/>
+        public string GiscusScriptSrc
+            => field ??= CommentsOptions.Giscus.ScriptSrc;
+
+        /// <inheritdoc/>
+        public string GiscusRepo
+            => field ??= ResolveGiscusValue(
+                Unwrap().Value<string>("giscusRepo", fallback: Fallback.ToAncestors),
+                CommentsOptions.Giscus.DataRepo);
+
+        /// <inheritdoc/>
+        public string GiscusRepoId
+            => field ??= ResolveGiscusValue(
+                Unwrap().Value<string>("giscusRepoId", fallback: Fallback.ToAncestors),
+                CommentsOptions.Giscus.DataRepoId);
+
+        /// <inheritdoc/>
+        public string GiscusCategory
+            => field ??= ResolveGiscusValue(
+                Unwrap().Value<string>("giscusCategory", fallback: Fallback.ToAncestors),
+                CommentsOptions.Giscus.DataCategory);
+
+        /// <inheritdoc/>
+        public string GiscusCategoryId
+            => field ??= ResolveGiscusValue(
+                Unwrap().Value<string>("giscusCategoryId", fallback: Fallback.ToAncestors),
+                CommentsOptions.Giscus.DataCategoryId);
+
+        /// <inheritdoc/>
+        public string GiscusMapping
+            => field ??= CommentsOptions.Giscus.DataMapping;
+
+        /// <inheritdoc/>
+        public string GiscusStrict
+            => field ??= CommentsOptions.Giscus.DataStrict;
+
+        /// <inheritdoc/>
+        public string GiscusReactionsEnabled
+            => field ??= CommentsOptions.Giscus.DataReactionsEnabled;
+
+        /// <inheritdoc/>
+        public string GiscusEmitMetadata
+            => field ??= CommentsOptions.Giscus.DataEmitMetadata;
+
+        /// <inheritdoc/>
+        public string GiscusInputPosition
+            => field ??= CommentsOptions.Giscus.DataInputPosition;
+
+        /// <inheritdoc/>
+        public string GiscusTheme
+            => field ??= CommentsOptions.Giscus.DataTheme;
+
+        /// <inheritdoc/>
+        public string GiscusLang
+            => field ??= CommentsOptions.Giscus.DataLang;
+
+        /// <inheritdoc/>
+        public string GiscusLoading
+            => field ??= CommentsOptions.Giscus.DataLoading;
+
+        /// <inheritdoc/>
+        public bool IsGiscusEnabled =>
+            !string.IsNullOrWhiteSpace(GiscusRepo) &&
+            !string.IsNullOrWhiteSpace(GiscusRepoId) &&
+            !string.IsNullOrWhiteSpace(GiscusCategory) &&
+            !string.IsNullOrWhiteSpace(GiscusCategoryId);
+
+        internal static string ResolveProvider(bool disqusShortNameSet, bool giscusConfigured)
+        {
+            if (disqusShortNameSet)
+            {
+                return CommentsProviderDisqus;
+            }
+
+            return giscusConfigured ? CommentsProviderGiscus : CommentsProviderNone;
+        }
+
+        /// <summary>
+        /// Returns the doc-type property value when populated, otherwise the appsettings
+        /// fallback. Used by the per-blog Giscus property getters so a single blog can
+        /// override appsettings without the operator needing to touch configuration files.
+        /// Pure function, internal static so it's testable without an Umbraco instance.
+        /// </summary>
+        internal static string ResolveGiscusValue(string docTypeValue, string appsettingsFallback)
+        {
+            return string.IsNullOrWhiteSpace(docTypeValue) ? appsettingsFallback : docTypeValue;
+        }
 
         private static bool IsValidDisqusShortName(ReadOnlySpan<char> shortName)
         {
@@ -212,5 +327,7 @@ namespace Articulate.Models
         public string PageTags { get; protected set; }
 
         protected IPublishedValueFallback PublishedValueFallback { get; }
+
+        public ArticulateCommentsOptions CommentsOptions { get; }
     }
 }

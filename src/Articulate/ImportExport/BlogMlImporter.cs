@@ -41,7 +41,8 @@ namespace Articulate.ImportExport
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
         IHtmlSanitizer htmlSanitizer,
-        IOptions<ArticulateOptions> articulateOptions
+        IOptions<ArticulateOptions> articulateOptions,
+        IOptions<ArticulateCommentsOptions> articulateCommentsOptions
 #if UMBRACO_18_OR_GREATER
         ,
         IIdKeyMap idKeyMap
@@ -49,6 +50,7 @@ namespace Articulate.ImportExport
     )
     {
         private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
+        private readonly ArticulateCommentsOptions _commentsOptions = articulateCommentsOptions.Value;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 
@@ -123,6 +125,21 @@ namespace Articulate.ImportExport
             BlogMLDocument document = GetDocument(fileName);
             XDocument xDoc = LoadBlogMlXDocument(fileName);
 
+            // Warn when BlogML has comments but Giscus is configured and Disqus export isn't requested.
+            // Giscus has no import endpoint, so comments would be silently discarded otherwise.
+            if (!exportDisqusXml && IsGiscusFullyConfigured(_commentsOptions))
+            {
+                int postsWithComments = document.Posts.Count(p => p.Comments.Count > 0);
+                int totalComments = document.Posts.Sum(p => p.Comments.Count);
+                if (totalComments > 0)
+                {
+                    logger.LogWarning(
+                        "BlogML import contains {CommentCount} comment(s) across {PostCount} post(s), but Giscus is configured and no Disqus XML export was requested. Giscus has no import endpoint; these comments will not be migrated. See docs/configuration.md#caveats for migration options.",
+                        totalComments,
+                        postsWithComments);
+                }
+            }
+
             Dictionary<string, string> authorIdsToName =
                 await ImportAuthorsAsync(userId, root, document.Authors);
             returnModel.AuthorCount = authorIdsToName.Count;
@@ -158,6 +175,16 @@ namespace Articulate.ImportExport
             _ = scope.Complete();
             returnModel.Completed = true;
             return returnModel;
+        }
+
+        private static bool IsGiscusFullyConfigured(ArticulateCommentsOptions options)
+        {
+            GiscusCommentsOptions? g = options.Giscus;
+            return g is not null
+                && !string.IsNullOrWhiteSpace(g.DataRepo)
+                && !string.IsNullOrWhiteSpace(g.DataRepoId)
+                && !string.IsNullOrWhiteSpace(g.DataCategory)
+                && !string.IsNullOrWhiteSpace(g.DataCategoryId);
         }
 
         private BlogMLDocument GetDocument(string fileName)

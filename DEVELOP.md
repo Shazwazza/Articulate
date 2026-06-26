@@ -151,6 +151,9 @@ src/Articulate.Web/
 For most sites, start with a built-in theme and copy it. See
 [`docs/themes.md`](docs/themes.md) for the full authoring guide — folder
 layout, descriptor registration, helper APIs, and the Razor model.
+To add a new comment provider, update the provider switch in
+`CommentsDisqus.cshtml` and document its configuration in
+[`docs/configuration.md`](docs/configuration.md).
 
 ### Custom controllers and API endpoints
 

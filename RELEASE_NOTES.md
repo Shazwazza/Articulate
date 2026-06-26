@@ -4,6 +4,24 @@
 
 - Adds the Articulate 7 line for Umbraco 18 on .NET 10.
 - Uses the Umbraco 18 Backoffice client and native OpenAPI endpoints.
+- Adds Giscus as a comment provider alongside Disqus. Required settings
+  (`DataRepo`, `DataRepoId`, `DataCategory`, `DataCategoryId`) are configurable
+  globally via `Articulate:Comments:Giscus` in `appsettings.json`. If a blog has
+  all four fields populated on the Articulate doc type (in the **blog** tab,
+  after `disqusShortname`), those values override appsettings for that blog only.
+  Partial overrides are ignored — the blog falls through entirely to appsettings.
+  If both a Disqus shortname and Giscus options are configured on the same blog,
+  Disqus wins; clear the shortname to enable Giscus.
+- Optional Giscus settings exposed: `DataMapping`, `DataStrict`, `DataReactionsEnabled`,
+  `DataEmitMetadata`, `DataInputPosition`, `DataTheme`, `DataLang`, `DataLoading`
+  (set to `"lazy"` to defer the iframe until scroll-near). All optional settings
+  are appsettings-only — there is no per-blog override.
+- A new migration (`AddGiscusPerBlogProperties`) adds the four per-blog Giscus
+  properties to the existing `blog` tab of the Articulate doc type for existing
+  installs. Existing blogs get empty values, so behavior is unchanged until the
+  fields or matching appsettings are populated.
+- The rendered Giscus script tag now includes `crossorigin="anonymous"` and
+  `async` (matching the canonical giscus snippet from giscus.app).
 - Ships separately from Articulate 6 because the Umbraco 17 and 18 extension
   points are not binary-compatible.
 - Hardened external-image imports against SSRF, malicious redirects, and

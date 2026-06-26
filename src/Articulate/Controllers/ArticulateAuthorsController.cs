@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
@@ -24,7 +26,8 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         UmbracoHelper umbracoHelper,
         AppCaches appCaches,
-        IPublishedValueFallback publishedValueFallback)
+        IPublishedValueFallback publishedValueFallback,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         private AppCaches AppCaches { get; } = appCaches;
@@ -38,7 +41,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            var root = new MasterModel(CurrentPage, publishedValueFallback);
+            var root = new MasterModel(CurrentPage, publishedValueFallback, commentsOptions.Value);
 
             // Check if theme has custom Authors.cshtml view before building the listing model.
             if (!EnsurePhysicalViewExists("Authors"))
@@ -83,7 +86,7 @@ namespace Articulate.Controllers
                 })
                 .ToList();
 
-            var model = new AuthorDirectoryModel(CurrentPage, publishedValueFallback)
+            var model = new AuthorDirectoryModel(CurrentPage, publishedValueFallback, commentsOptions.Value)
             {
                 Authors = authors
             };

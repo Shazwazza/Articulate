@@ -103,7 +103,7 @@ namespace Articulate
 
             IPublishedContent[] listItems = helper.GetPagedPostsSortedByPublishedDate(pager, null, listNodeIds).Posts;
 
-            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback);
+            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, masterModel.CommentsOptions);
             return rootPageModel.Posts;
         }
 
@@ -133,7 +133,7 @@ namespace Articulate
 
             IPublishedContent[] listItems = helper.GetPagedPostsSortedByPublishedDate(pager, null, listNodeIds).Posts;
 
-            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback);
+            var rootPageModel = new ListModel(listNodes[0], pager, listItems, publishedValueFallback, masterModel.CommentsOptions);
             return rootPageModel.Posts;
         }
 
@@ -160,7 +160,7 @@ namespace Articulate
 
             IPublishedContent[] listItems = helper.GetPagedPostsSortedByPublishedDate(pager, null, masterModel.Id).Posts;
 
-            var rootPageModel = new ListModel(masterModel, pager, listItems, publishedValueFallback);
+            var rootPageModel = new ListModel(masterModel, pager, listItems, publishedValueFallback, masterModel.CommentsOptions);
             return rootPageModel.Posts;
         }
 

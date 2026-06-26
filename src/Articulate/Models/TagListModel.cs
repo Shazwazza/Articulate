@@ -14,7 +14,7 @@ namespace Articulate.Models
             int pageSize,
             PostTagCollection tags,
             IPublishedValueFallback publishedValueFallback)
-            : base(masterModel.RootBlogNode, publishedValueFallback)
+            : base(masterModel.RootBlogNode, publishedValueFallback, masterModel.CommentsOptions)
         {
             ArgumentNullException.ThrowIfNull(masterModel);
             ArgumentNullException.ThrowIfNull(name);
@@ -31,7 +31,6 @@ namespace Articulate.Models
             Tags = tags;
             BlogBanner = masterModel.BlogBanner;
             BlogLogo = masterModel.BlogLogo;
-            DisqusShortName = masterModel.DisqusShortName;
             CustomRssFeed = masterModel.CustomRssFeed;
             PageTitle = $"{name} - {BlogTitle}";
         }

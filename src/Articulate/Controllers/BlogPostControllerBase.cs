@@ -1,7 +1,9 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -13,7 +15,8 @@ namespace Articulate.Controllers
         ILogger<BlogPostControllerBase> logger,
         ICompositeViewEngine compositeViewEngine,
         IUmbracoContextAccessor umbracoContextAccessor,
-        IPublishedValueFallback publishedValueFallback)
+        IPublishedValueFallback publishedValueFallback,
+        IOptions<ArticulateCommentsOptions> commentsOptions)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         /// <inheritdoc/>
@@ -25,7 +28,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            var post = new PostModel(CurrentPage, publishedValueFallback);
+            var post = new PostModel(CurrentPage, publishedValueFallback, commentsOptions.Value);
             return View("Post", post);
         }
     }
