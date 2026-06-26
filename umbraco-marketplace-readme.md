@@ -28,12 +28,12 @@ Supporting all the features you'd want in a blogging platform:
 
 ## Compatibility
 
-| Umbraco                | Articulate | Status            |
-|------------------------|------------|-------------------|
-| Umbraco 18             | 7.x        | Current           |
-| Umbraco 17.4+          | 6.1.x      | Current           |
-| Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release  |
-| Umbraco 13 LTS         | 5.x        | Maintenance       |
+| Umbraco                | Articulate | Status           |
+|------------------------|------------|------------------|
+| Umbraco 18             | 7.x        | Current          |
+| Umbraco 17.4+          | 6.1.x      | Current          |
+| Umbraco 16.5+ or 17.4+ | 6.0.x      | Previous release |
+| Umbraco 13 LTS         | 5.x        | Maintenance      |
 
 Install from NuGet:
 

@@ -315,7 +315,7 @@ static class BuildApp
 
         // v17 and v18 share the same Vite output dir but have per-lane
         // stamps, so without this a v18 build leaks its bundle into a
-        // subsequent v17 pack. See DEVELOP.md "Package lanes" for the
+        // subsequent v17 pack. See BUILD.md "Package lanes" for the
         // TODO follow-up.
         DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
         // BuildBackofficeClient is incremental (Inputs=source, Outputs=stamp),

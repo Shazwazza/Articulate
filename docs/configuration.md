@@ -4,13 +4,13 @@ Articulate 6 and 7 use the `Articulate` section in `appsettings.json`.
 
 ## Core settings
 
-| Setting                                           | Default    | Purpose                                                          |
-|---------------------------------------------------|------------|------------------------------------------------------------------|
-| `AutoGenerateExcerpt`                             | `true`     | Generate an excerpt when a post excerpt is empty                 |
-| `MaxImportImageBytes`                             | `10485760` | Maximum size of each imported or uploaded image                  |
-| `AllowedMediaHosts`                               | empty      | Hosts Articulate may use for external image downloads            |
-| `AllowUnsafeLocalExternalImageHostsInDevelopment` | `false`    | Permit explicitly allowed local/private hosts outside Production |
-| `BlogMlImportMaxXmlCharacters`                     | `10000000` | Maximum characters allowed in a BlogML XML document during import (maps to `XmlReaderSettings.MaxCharactersInDocument`) |
+| Setting                                           | Default    | Purpose                                                                                                                 |
+|---------------------------------------------------|------------|-------------------------------------------------------------------------------------------------------------------------|
+| `AutoGenerateExcerpt`                             | `true`     | Generate an excerpt when a post excerpt is empty                                                                        |
+| `MaxImportImageBytes`                             | `10485760` | Maximum size of each imported or uploaded image                                                                         |
+| `AllowedMediaHosts`                               | empty      | Hosts Articulate may use for external image downloads                                                                   |
+| `AllowUnsafeLocalExternalImageHostsInDevelopment` | `false`    | Permit explicitly allowed local/private hosts outside Production                                                        |
+| `BlogMlImportMaxXmlCharacters`                    | `10000000` | Maximum characters allowed in a BlogML XML document during import (maps to `XmlReaderSettings.MaxCharactersInDocument`) |
 
 If `AllowedMediaHosts` is empty, posts still import but external images are not
 downloaded. Redirect destinations must also be allowlisted. Articulate rejects
@@ -39,6 +39,13 @@ ignored when `Umbraco:CMS:Runtime:Mode` is `Production`.
 In the BlogML importer, choose **Verify file** before import to see which external image hosts are allowed or blocked. Posts still import when a host is blocked — only the external image download is skipped.
 
 Full safety rules (allowlist redirects, no HTTPS→HTTP downgrade, IP pinning, loopback/private blocks, no ambient proxy/auth headers, Umbraco upload rules) live in the [Importing guide](https://github.com/Shazwazza/Articulate/wiki/Importing#external-image-import-and-trusted-hosts).
+
+## BlogML export
+
+The BlogML exporter (Articulate dashboard) only includes **published** posts.
+Drafts and unpublished content are skipped — `BlogMlExporter.AddBlogPosts`
+filters on `child.Published` with no toggle. There is no "export all" option
+today; a flag to include unpublished content is a possible future enhancement.
 
 ## Markdown editor authentication
 
@@ -130,28 +137,28 @@ Giscus has two configuration surfaces:
 
 #### Required appsettings (or per-blog doc-type) fields
 
-| Field | Purpose |
-|-------|---------|
-| `DataRepo` | GitHub repo (`owner/repository`) |
-| `DataRepoId` | Repo ID from giscus.app (`R_...`) |
-| `DataCategory` | Discussion category name |
+| Field            | Purpose                                 |
+|------------------|-----------------------------------------|
+| `DataRepo`       | GitHub repo (`owner/repository`)        |
+| `DataRepoId`     | Repo ID from giscus.app (`R_...`)       |
+| `DataCategory`   | Discussion category name                |
 | `DataCategoryId` | Category ID from giscus.app (`DIC_...`) |
 
 #### Optional appsettings-only fields
 
 The 9 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
 
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| `ScriptSrc` | `https://giscus.app/client.js` | Override for self-hosted giscus. Point at your own hosted client (see giscus SELF-HOSTING.md). |
-| `DataMapping` | `pathname` | Discussion ↔ page mapping: `pathname`, `url`, `title`, `og:title`, `specific`, or a specific term. |
-| `DataStrict` | `0` | `1` enables strict title matching to avoid fuzzy-search collisions. |
-| `DataReactionsEnabled` | `1` | `0` hides reactions on the main post. |
-| `DataEmitMetadata` | `0` | `1` posts discussion metadata to the parent window (for `message` listeners). |
-| `DataInputPosition` | `bottom` | `top` puts the comment box above the comments. |
-| `DataTheme` | `preferred_color_scheme` | Named theme or URL to a CSS file (see giscus docs). |
-| `DataLang` | `en` | IETF language tag for the giscus widget UI. |
-| `DataLoading` | `""` | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container. |
+| Setting                | Default                        | Purpose                                                                                            |
+|------------------------|--------------------------------|----------------------------------------------------------------------------------------------------|
+| `ScriptSrc`            | `https://giscus.app/client.js` | Override for self-hosted giscus. Point at your own hosted client (see giscus SELF-HOSTING.md).     |
+| `DataMapping`          | `pathname`                     | Discussion ↔ page mapping: `pathname`, `url`, `title`, `og:title`, `specific`, or a specific term. |
+| `DataStrict`           | `0`                            | `1` enables strict title matching to avoid fuzzy-search collisions.                                |
+| `DataReactionsEnabled` | `1`                            | `0` hides reactions on the main post.                                                              |
+| `DataEmitMetadata`     | `0`                            | `1` posts discussion metadata to the parent window (for `message` listeners).                      |
+| `DataInputPosition`    | `bottom`                       | `top` puts the comment box above the comments.                                                     |
+| `DataTheme`            | `preferred_color_scheme`       | Named theme or URL to a CSS file (see giscus docs).                                                |
+| `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                        |
+| `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.           |
 
 ### Provider resolution
 

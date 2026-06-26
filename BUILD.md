@@ -23,7 +23,7 @@ local overrides.
 | `--tests`                    | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                                                                                                                             |
 | `--client`                   | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                                                                                                                               |
 | `--sample`                   | `true` locally, `false` in CI          | Also pack `Articulate.Theme.Sample`. The sample .nupkg is consumed locally by the Docker pipeline (see `build/docker-site/ArticulateDockerSite.csproj`); it is **not** published and is excluded from CI artifact uploads. |
-| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and the generated `BackOffice` static web assets.                                                                                                                       |
+| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and client `node_modules`. `BuildAsync` always invalidates the per-lane `BackOffice` assets and Vite stamp before each build (see [Package lanes](#package-lanes)).     |
 | `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `build/v18-version.txt` plus NBGV metadata.                                                                                                            |
 
 The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj`
@@ -80,10 +80,12 @@ append NBGV commit metadata when present: a v18 base of `7.0.0` produces
 not normally pass a version.
 
 Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`, so `BuildAsync`
-wipes it before each build to keep per-lane Vite output from leaking. Follow-up:
-add the resolved app version to `@(ClientBuildInput)` in `BuildBackofficeClient`
-so Vite's incremental check invalidates on lane/version change and the wipe
-becomes unnecessary.
+wipes it — and deletes the per-lane Vite stamp — before each build to keep
+per-lane output from leaking and force the incremental `BuildBackofficeClient`
+target to run (otherwise a surviving stamp makes Vite skip and the package ships
+without BackOffice bundles). Follow-up: add the resolved app version to
+`@(ClientBuildInput)` in `BuildBackofficeClient` so Vite's incremental check
+invalidates on lane/version change and the wipe becomes unnecessary.
 
 ## NuGet lock files
 
