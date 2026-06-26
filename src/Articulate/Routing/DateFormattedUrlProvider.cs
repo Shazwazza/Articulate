@@ -23,7 +23,7 @@ namespace Articulate.Routing
 #if UMBRACO_18_OR_GREATER
         private readonly IDocumentUrlService _documentUrlService;
         /// <summary>
-        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for NET10 (Umbraco 17+).
+        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for Umbraco 18+.
         /// </summary>
         public DateFormattedUrlProvider(
             IOptionsMonitor<RequestHandlerSettings> requestSettings,
