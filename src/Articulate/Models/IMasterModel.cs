@@ -67,10 +67,10 @@ namespace Articulate.Models
         public string DisqusShortName { get; }
 
         /// <summary>
- /// Gets the comment options (appsettings defaults) resolved for this model.
- /// Per-blog overrides still come from the document via <c>Fallback.ToAncestors</c>;
- /// this carries only the global appsettings fallback values.
- /// </summary>
+        /// Gets the comment options (appsettings defaults) resolved for this model.
+        /// Per-blog overrides still come from the document via <c>Fallback.ToAncestors</c>;
+        /// this carries only the global appsettings fallback values.
+        /// </summary>
         public ArticulateCommentsOptions CommentsOptions { get; }
 
         /// <summary>

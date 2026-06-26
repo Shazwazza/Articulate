@@ -14,7 +14,9 @@ namespace Articulate.Options
     }
 
     /// <summary>
-    /// Giscus client-side embed settings.
+    /// Giscus client-side embed settings. Each property maps to the matching
+    /// <c>data-*</c> attribute on the giscus script tag; see <see href="https://giscus.app"/>
+    /// for field meanings.
     /// </summary>
     public class GiscusCommentsOptions
     {

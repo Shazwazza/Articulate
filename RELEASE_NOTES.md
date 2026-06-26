@@ -12,10 +12,10 @@
   Partial overrides are ignored — the blog falls through entirely to appsettings.
   If both a Disqus shortname and Giscus options are configured on the same blog,
   Disqus wins; clear the shortname to enable Giscus.
-- Optional Giscus settings exposed: `DataMapping`, `DataStrict`, `DataReactionsEnabled`,
-  `DataEmitMetadata`, `DataInputPosition`, `DataTheme`, `DataLang`, `DataLoading`
-  (set to `"lazy"` to defer the iframe until scroll-near). All optional settings
-  are appsettings-only — there is no per-blog override.
+- Optional Giscus settings exposed: `ScriptSrc`, `DataMapping`, `DataStrict`,
+  `DataReactionsEnabled`, `DataEmitMetadata`, `DataInputPosition`, `DataTheme`,
+  `DataLang`, `DataLoading` (set to `"lazy"` to defer the iframe until scroll-near).
+  All optional settings are appsettings-only — there is no per-blog override.
 - A new migration (`AddGiscusPerBlogProperties`) adds the four per-blog Giscus
   properties to the existing `blog` tab of the Articulate doc type for existing
   installs. Existing blogs get empty values, so behavior is unchanged until the

@@ -136,29 +136,36 @@ namespace Articulate.Models
         public string GiscusScriptSrc
             => field ??= CommentsOptions.Giscus.ScriptSrc;
 
+        private (string Repo, string RepoId, string Category, string CategoryId)? _giscusRequired;
+
+        private (string Repo, string RepoId, string Category, string CategoryId) ResolvedGiscusRequired
+        {
+            get
+            {
+                return _giscusRequired ??= ResolveGiscusRequired(
+                    Unwrap().Value<string>("giscusRepo", fallback: Fallback.ToAncestors),
+                    Unwrap().Value<string>("giscusRepoId", fallback: Fallback.ToAncestors),
+                    Unwrap().Value<string>("giscusCategory", fallback: Fallback.ToAncestors),
+                    Unwrap().Value<string>("giscusCategoryId", fallback: Fallback.ToAncestors),
+                    CommentsOptions.Giscus);
+            }
+        }
+
         /// <inheritdoc/>
         public string GiscusRepo
-            => field ??= ResolveGiscusValue(
-                Unwrap().Value<string>("giscusRepo", fallback: Fallback.ToAncestors),
-                CommentsOptions.Giscus.DataRepo);
+            => field ??= ResolvedGiscusRequired.Repo;
 
         /// <inheritdoc/>
         public string GiscusRepoId
-            => field ??= ResolveGiscusValue(
-                Unwrap().Value<string>("giscusRepoId", fallback: Fallback.ToAncestors),
-                CommentsOptions.Giscus.DataRepoId);
+            => field ??= ResolvedGiscusRequired.RepoId;
 
         /// <inheritdoc/>
         public string GiscusCategory
-            => field ??= ResolveGiscusValue(
-                Unwrap().Value<string>("giscusCategory", fallback: Fallback.ToAncestors),
-                CommentsOptions.Giscus.DataCategory);
+            => field ??= ResolvedGiscusRequired.Category;
 
         /// <inheritdoc/>
         public string GiscusCategoryId
-            => field ??= ResolveGiscusValue(
-                Unwrap().Value<string>("giscusCategoryId", fallback: Fallback.ToAncestors),
-                CommentsOptions.Giscus.DataCategoryId);
+            => field ??= ResolvedGiscusRequired.CategoryId;
 
         /// <inheritdoc/>
         public string GiscusMapping
@@ -210,14 +217,27 @@ namespace Articulate.Models
         }
 
         /// <summary>
-        /// Returns the doc-type property value when populated, otherwise the appsettings
-        /// fallback. Used by the per-blog Giscus property getters so a single blog can
-        /// override appsettings without the operator needing to touch configuration files.
+        /// Resolves the four required Giscus fields (repo, repo id, category, category id)
+        /// as an all-or-nothing override: if all four doc-type values are populated they win,
+        /// otherwise the appsettings values are used for all four. A partial override is
+        /// discarded to avoid mixing doc-type and appsettings values into a configuration
+        /// that giscus.app silently rejects.
         /// Pure function, internal static so it's testable without an Umbraco instance.
         /// </summary>
-        internal static string ResolveGiscusValue(string docTypeValue, string appsettingsFallback)
+        internal static (string Repo, string RepoId, string Category, string CategoryId) ResolveGiscusRequired(
+            string docRepo,
+            string docRepoId,
+            string docCategory,
+            string docCategoryId,
+            GiscusCommentsOptions appsettings)
         {
-            return string.IsNullOrWhiteSpace(docTypeValue) ? appsettingsFallback : docTypeValue;
+            bool allSet = !string.IsNullOrWhiteSpace(docRepo)
+                       && !string.IsNullOrWhiteSpace(docRepoId)
+                       && !string.IsNullOrWhiteSpace(docCategory)
+                       && !string.IsNullOrWhiteSpace(docCategoryId);
+            return allSet
+                ? (docRepo, docRepoId, docCategory, docCategoryId)
+                : (appsettings.DataRepo, appsettings.DataRepoId, appsettings.DataCategory, appsettings.DataCategoryId);
         }
 
         private static bool IsValidDisqusShortName(ReadOnlySpan<char> shortName)

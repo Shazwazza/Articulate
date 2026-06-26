@@ -139,7 +139,7 @@ Giscus has two configuration surfaces:
 
 #### Optional appsettings-only fields
 
-The 8 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
+The 9 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
 
 | Setting | Default | Purpose |
 |---------|---------|---------|
