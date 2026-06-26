@@ -684,7 +684,6 @@ sealed class Options
 
         RequireValue("lane");
         RequireValue("configuration");
-        RequireValue("client");
         RequireValue("tag");
         RequireBoolean("tests");
         RequireBoolean("client");
