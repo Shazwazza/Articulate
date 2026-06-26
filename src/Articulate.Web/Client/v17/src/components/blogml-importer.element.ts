@@ -308,6 +308,7 @@ export default class BlogMlImporterElement extends UmbLitElement implements IFor
   };
 
   #handleImportFileChange = async () => {
+    this._analysisRequestId++;
     this._formError = null;
     this._formState = undefined;
     this._postCount = undefined;
