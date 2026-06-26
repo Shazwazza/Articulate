@@ -601,8 +601,8 @@ body .demo-blog {
     background-image: var(--author-image, none);
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 50%;
-    border-radius: 22px;
+    background-size: cover;
+    border-radius: 50%;
     background-color: #F5F5F5;
 }
 
