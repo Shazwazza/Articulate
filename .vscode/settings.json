@@ -2,5 +2,8 @@
     "github.copilot.enable": {
         "markdown": true
     },
-    "files.eol": "\n"
+    "files.eol": "\n",
+    "files.associations": {
+        ".actrc": "plaintext"
+    }
 }
