@@ -38,7 +38,10 @@
                         data-input-position="@Model.GiscusInputPosition"
                         data-theme="@Model.GiscusTheme"
                         data-lang="@Model.GiscusLang"
-                        data-loading="@Model.GiscusLoading"
+                        @if (!string.IsNullOrEmpty(Model.GiscusLoading))
+                        {
+                            <text>data-loading="@Model.GiscusLoading"</text>
+                        }
                         crossorigin="anonymous"
                         async>
                 </script>
