@@ -70,9 +70,9 @@ jobs:
 
           V17_VERSION="${NBGV_SemVer2}"
           case "$V17_VERSION" in
-            6.1.*) ;;
+            6.*) ;;
             *)
-              echo "Expected NBGV 6.1.x, got '$V17_VERSION'." >&2
+              echo "Expected NBGV 6.x, got '$V17_VERSION'." >&2
               exit 1
               ;;
           esac
@@ -121,7 +121,7 @@ jobs:
           dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
       - name: Smoke-test package contents
-        # Smoke covers both v17 + v8; skip until v18 client workspace lands
+        # Smoke covers both v17 + v18; skip until v18 client workspace lands
         if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
         shell: bash
         run: |
