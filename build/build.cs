@@ -274,10 +274,10 @@ static class BuildApp
             if (string.IsNullOrWhiteSpace(baseVersion))
                 throw new InvalidOperationException("build/v18-version.txt is empty.");
             var v17 = (await CaptureAsync("nbgv", ["get-version", "-v", "SemVer2"], Repo)).Trim();
+            // Release-tagged commits produce clean NBGV semver (e.g. "7.0.0")
+            // with no commit-hash suffix. In that case, baseVersion alone is
+            // the final v18 version.
             var commitMatch = Regex.Match(v17, @"\.g[a-f0-9]+$");
-            if (!commitMatch.Success)
-                throw new InvalidOperationException(
-                    $"NBGV SemVer2 '{v17}' has no '.g<hash>' suffix; cannot derive v18 commit.");
             packageVersion = baseVersion + commitMatch.Value;
         }
 
