@@ -51,7 +51,6 @@ repair bundled demo-media references.
 
 ## More detail
 
-- [Migration from v5 to v6](https://github.com/Shazwazza/Articulate/wiki/Migration-from-v5-to-v6)
 - [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation)
 - [Configuration](configuration.md)
 - [Themes](themes.md)

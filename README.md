@@ -70,8 +70,8 @@ guidance.
 ## Getting help
 
 - [Documentation](https://github.com/Shazwazza/Articulate/wiki)
-- [Settings reference](https://github.com/Shazwazza/Articulate/wiki/Settings-Reference)
-- [Markdown editor authentication](https://github.com/Shazwazza/Articulate/wiki/Markdown-Editor-Authentication)
+- [Settings reference](docs/configuration.md#core-settings)
+- [Markdown editor authentication](docs/configuration.md#markdown-editor-authentication)
 - [Releases](https://github.com/Shazwazza/Articulate/releases)
 - [Report a bug](https://github.com/Shazwazza/Articulate/issues)
 - [Community discussions](https://forum.umbraco.com/tag/packages)

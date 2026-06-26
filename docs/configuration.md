@@ -94,6 +94,8 @@ Articulate can render Disqus or Giscus comments from the existing
 `CommentsDisqus.cshtml` theme partial. Post-level `enableComments` still controls
 whether a post shows comments at all.
 
+For an end-user overview, see the [Comments wiki page](https://github.com/Shazwazza/Articulate/wiki/Comments).
+
 ### Disqus
 
 Disqus is configured on the Articulate blog root with the existing
@@ -264,6 +266,5 @@ are bytes. IIS-hosted deployments may also need the corresponding
 ## More detail
 
 - [Wiki configuration guide](https://github.com/Shazwazza/Articulate/wiki/Configuration)
-- [Settings reference](https://github.com/Shazwazza/Articulate/wiki/Settings-Reference)
-- [Markdown editor authentication](https://github.com/Shazwazza/Articulate/wiki/Markdown-Editor-Authentication)
 - [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
+- [Comments](https://github.com/Shazwazza/Articulate/wiki/Comments)
