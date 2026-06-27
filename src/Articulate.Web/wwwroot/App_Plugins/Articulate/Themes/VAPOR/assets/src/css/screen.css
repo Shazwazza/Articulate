@@ -999,3 +999,30 @@ section.share .fa-brands {
   line-height: 1;
   vertical-align: middle;
 }
+
+/* === Giscus comments container ===
+ * Covers the wrapper partial (.giscus, #comments) and the iframe giscus creates
+ * (.giscus-frame). color-scheme enables data-theme="preferred_color_scheme".
+ * Per-theme custom giscus theming goes below in a `.giscus { ... }` override.
+ */
+.giscus,
+.giscus-frame,
+#comments {
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+  display: block;
+  color-scheme: light dark;
+}
+
+#comments {
+  margin: 2rem 0 0;
+}
+
+#comments noscript {
+  display: block;
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  opacity: 0.7;
+}
