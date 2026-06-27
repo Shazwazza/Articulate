@@ -162,6 +162,33 @@ The 9 below are appsettings-only — no per-blog doc-type override exists. Chang
 | `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                        |
 | `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.           |
 
+#### Matching comments to your theme (opt-in)
+
+Each shipped theme includes a Giscus custom-theme stylesheet at
+`assets/giscus.css` that recolours the comment box to match the theme's palette
+(Material pink, Mini monochrome, Phantom blue, VAPOR blue, Sample near-black).
+These are **opt-in** — by default Giscus uses its own `preferred_color_scheme`.
+
+To use a shipped theme's colours, set `DataTheme` to the **absolute URL** of the
+file:
+
+```json
+"DataTheme": "https://your-blog.example/App_Plugins/Articulate/Themes/Material/assets/giscus.css"
+```
+
+The URL **must be absolute** (`https://host/...`). Giscus renders comments inside
+a cross-origin iframe hosted on `giscus.app`, so a root-relative path (`~/...` or
+`/App_Plugins/...`) resolves against `giscus.app`, not your site, and silently
+loads nothing. Any other `DataTheme` value (`light`, `dark`, `preferred_color_scheme`,
+or a URL to your own CSS) is passed straight through to Giscus unchanged.
+
+The shipped files only override the structural colour variables (surfaces, text,
+borders, accent, buttons); Giscus's built-in code-highlight palette is inherited.
+To match a **custom theme**, drop your own `giscus.css` next to the theme's assets
+and point `DataTheme` at it. See the Giscus
+[`custom_example.css`](https://github.com/giscus/giscus/blob/main/styles/themes/custom_example.css)
+for the full variable list.
+
 ### Provider resolution
 
 The renderer picks one of three outcomes per post: `Disqus`, `Giscus`, or `none`.
