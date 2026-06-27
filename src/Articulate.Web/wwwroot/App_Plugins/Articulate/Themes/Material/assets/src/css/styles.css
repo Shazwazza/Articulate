@@ -760,6 +760,7 @@ body .demo-blog {
 
 #comments {
     margin: 2rem 0 0;
+    min-height: 300px;
 }
 
 #comments noscript {
