@@ -101,6 +101,25 @@ For an end-user overview, see the [Comments wiki page](https://github.com/Shazwa
 Disqus is configured on the Articulate blog root with the existing
 `disqusShortname` property (per blog).
 
+Disqus's iframe is locked — custom CSS cannot be injected, so there is no
+`disqus.css` equivalent of the giscus per-theme stylesheet. Theming happens
+by inheritance from the host page:
+
+- **Link color** — Disqus picks up your site's `<a>` color for the Load More
+  Comments button, the upvote/downvote buttons when clicked, and comment links.
+  Themes that already style their link color (Material's `mdl-color--accent`,
+  Phantom's `#448aff`, VAPOR's `#3498db`, etc.) get matching Disqus links for
+  free.
+- **Light vs dark scheme** — Disqus auto-picks from the inherited text color:
+  text between `#000` and `#787878` → light, anything else → dark. Themes that
+  set a body text color in that range render with Disqus's light scheme;
+  themes with a darker body get Disqus's dark scheme.
+
+Branding removal, social share toggle, custom fonts, and custom vote UI are
+all Disqus-side config on a Pro+ plan and aren't surfaced through Articulate
+options. See [Disqus's appearance docs](https://help.disqus.com/en/articles/1717201-disqus-appearance-customizations)
+for what's available.
+
 ### Giscus
 
 Giscus has two configuration surfaces:
@@ -128,7 +147,7 @@ Giscus has two configuration surfaces:
         "DataReactionsEnabled": "1",
         "DataEmitMetadata": "0",
         "DataInputPosition": "bottom",
-        "DataTheme": "preferred_color_scheme",
+        "DataTheme": "",
         "DataLang": "en",
         "DataLoading": ""
       }
@@ -150,44 +169,59 @@ Giscus has two configuration surfaces:
 
 The 9 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
 
-| Setting                | Default                        | Purpose                                                                                            |
-|------------------------|--------------------------------|----------------------------------------------------------------------------------------------------|
-| `ScriptSrc`            | `https://giscus.app/client.js` | Override for self-hosted giscus. Point at your own hosted client (see giscus SELF-HOSTING.md).     |
-| `DataMapping`          | `pathname`                     | Discussion ↔ page mapping: `pathname`, `url`, `title`, `og:title`, `specific`, or a specific term. |
-| `DataStrict`           | `0`                            | `1` enables strict title matching to avoid fuzzy-search collisions.                                |
-| `DataReactionsEnabled` | `1`                            | `0` hides reactions on the main post.                                                              |
-| `DataEmitMetadata`     | `0`                            | `1` posts discussion metadata to the parent window (for `message` listeners).                      |
-| `DataInputPosition`    | `bottom`                       | `top` puts the comment box above the comments.                                                     |
-| `DataTheme`            | `preferred_color_scheme`       | Named theme or URL to a CSS file (see giscus docs).                                                |
-| `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                        |
-| `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.           |
+| Setting                | Default                        | Purpose                                                                                                                                                                                     |
+|------------------------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ScriptSrc`            | `https://giscus.app/client.js` | Override for self-hosted giscus. Point at your own hosted client (see giscus SELF-HOSTING.md).                                                                                              |
+| `DataMapping`          | `pathname`                     | Discussion ↔ page mapping: `pathname`, `url`, `title`, `og:title`, `specific`, or a specific term.                                                                                          |
+| `DataStrict`           | `0`                            | `1` enables strict title matching to avoid fuzzy-search collisions.                                                                                                                         |
+| `DataReactionsEnabled` | `1`                            | `0` hides reactions on the main post.                                                                                                                                                       |
+| `DataEmitMetadata`     | `0`                            | `1` posts discussion metadata to the parent window (for `message` listeners).                                                                                                               |
+| `DataInputPosition`    | `bottom`                       | `top` puts the comment box above the comments.                                                                                                                                              |
+| `DataTheme`            | `""` (empty)                   | Giscus `data-theme`. Empty (default) auto-derives from the active theme's `giscus.css` (see below); a keyword (`light`, `dark`, `preferred_color_scheme`) or absolute CSS URL overrides it. |
+| `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                                                                                                                 |
+| `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.                                                                                                    |
 
-#### Matching comments to your theme (opt-in)
+#### Matching comments to your theme
 
 Each shipped theme includes a Giscus custom-theme stylesheet at
 `assets/giscus.css` that recolours the comment box to match the theme's palette
 (Material pink, Mini monochrome, Phantom blue, VAPOR blue, Sample near-black).
-These are **opt-in** — by default Giscus uses its own `preferred_color_scheme`.
 
-To use a shipped theme's colours, set `DataTheme` to the **absolute URL** of the
-file:
+**This is automatic.** When `DataTheme` is empty (the default), Articulate serves
+the active theme's `giscus.css` at its request-absolute URL via the
+`/articulate/giscus-theme/{theme}` endpoint — no configuration needed. The active
+theme is read from the Articulate root node, so switching themes in the backoffice
+re-points the comments palette on the next request.
 
-```json
-"DataTheme": "https://your-blog.example/App_Plugins/Articulate/Themes/Material/assets/giscus.css"
-```
+To **override** the auto-derivation, set `DataTheme` explicitly:
 
-The URL **must be absolute** (`https://host/...`). Giscus renders comments inside
-a cross-origin iframe hosted on `giscus.app`, so a root-relative path (`~/...` or
-`/App_Plugins/...`) resolves against `giscus.app`, not your site, and silently
-loads nothing. Any other `DataTheme` value (`light`, `dark`, `preferred_color_scheme`,
-or a URL to your own CSS) is passed straight through to Giscus unchanged.
+- A **keyword** (`light`, `dark`, `preferred_color_scheme`, …) uses giscus's own
+  built-in palette and ignores the shipped stylesheet.
+- An **absolute URL** (`https://host/.../something.css`) loads that stylesheet
+  instead. The URL must be absolute — giscus renders comments inside a
+  cross-origin iframe on `giscus.app`, so a root-relative path (`~/...` or
+  `/App_Plugins/...`) resolves against `giscus.app`, not your site, and silently
+  loads nothing.
 
 The shipped files only override the structural colour variables (surfaces, text,
 borders, accent, buttons); Giscus's built-in code-highlight palette is inherited.
-To match a **custom theme**, drop your own `giscus.css` next to the theme's assets
-and point `DataTheme` at it. See the Giscus
+See the Giscus
 [`custom_example.css`](https://github.com/giscus/giscus/blob/main/styles/themes/custom_example.css)
 for the full variable list.
+
+> **Note:** giscus fetches its theme CSS via `<link rel="stylesheet" crossorigin="anonymous">`
+> — a CORS request that requires `Access-Control-Allow-Origin: *` on the
+> response, otherwise the stylesheet is rejected and the widget hangs at
+> "Loading comments…". The built-in `/articulate/giscus-theme/{theme}` endpoint
+> sets this header automatically. If you point `DataTheme` at a stylesheet you
+> host yourself (CDN, separate origin, etc.), your origin must send
+> `Access-Control-Allow-Origin: *` (or specifically allow `giscus.app`).
+>
+> On localhost, giscus's iframe is also blocked by Chrome's Private Network
+> Access (self-signed cert + loopback) regardless of CORS. The widget still
+> renders with the built-in palette, but to exercise the real flow locally
+> route through a public tunnel, e.g.
+> `cloudflared tunnel --url https://localhost:44366 --no-tls-verify`.
 
 ### Provider resolution
 

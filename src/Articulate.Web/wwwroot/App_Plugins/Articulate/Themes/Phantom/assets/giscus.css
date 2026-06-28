@@ -1,12 +1,13 @@
 /*!
  * Articulate "Phantom" theme — Giscus custom theme.
  *
- * Opt-in: in appsettings set Articulate:Comments:Giscus:DataTheme to the
- * ABSOLUTE URL of this file, e.g.
- *   https://your-blog.example/App_Plugins/Articulate/Themes/Phantom/assets/giscus.css
- * Giscus loads the cross-origin comment iframe from giscus.app, so a root-relative
- * ("~/...") URL resolves against the wrong host — it must be absolute.
+ * Served automatically: when Giscus:DataTheme is empty (the default), Articulate
+ * points giscus at this file's request-absolute URL so the comment box matches
+ * the active theme. Switching themes in the backoffice re-points on the next
+ * request. The URL must be absolute because giscus renders comments in a
+ * cross-origin iframe on giscus.app; Articulate resolves that for you.
  *
+ * Palette lifted from Phantom's blue accent (#448aff).. *
  * Accent is Phantom's link-hover blue (#448aff); muted text adapted from the
  * theme's #9eabb3 meta colour and darkened for comment readability.
  * Only the structural --color-* variables are overridden; code-highlight

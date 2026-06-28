@@ -1,4 +1,5 @@
 #nullable enable
+using Articulate.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Articulate.Models
@@ -6,7 +7,7 @@ namespace Articulate.Models
     /// <summary>
     /// Represents the master model for Articulate pages.
     /// </summary>
-    public interface IMasterModel : IPublishedContent, ICommentsContext
+    public interface IMasterModel : IPublishedContent
     {
         /// <summary>
         /// Gets the current theme.
@@ -78,5 +79,11 @@ namespace Articulate.Models
         /// Gets the current page tags.
         /// </summary>
         public string PageTags { get; }
+
+        /// <summary>
+        /// Gets the comment-provider options resolved for this model (appsettings defaults).
+        /// Per-blog overrides come from the document via <c>Fallback.ToAncestors</c>.
+        /// </summary>
+        public ArticulateCommentsOptions CommentsOptions { get; }
     }
 }

@@ -66,6 +66,27 @@ is kept for compatibility, but it now handles both providers:
 Custom themes that override `CommentsDisqus.cshtml` can keep the same filename
 and branch on `Model.CommentsProvider`.
 
+### Giscus palette per theme
+
+Each shipped theme includes a `giscus.css` in its `assets/` folder that
+recolours the comment box to match its palette. Articulate's
+`/articulate/giscus-theme/{theme}` endpoint proxies the file with the CORS
+header giscus's cross-origin iframe needs.
+
+**One path, every source.** The controller self-fetches
+`/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css`. Umbraco's
+static-web-assets middleware serves that URL uniformly for:
+
+1. Built-in themes (Articulate.Web).
+2. Copied or forked themes (`wwwroot/App_Plugins/Articulate/Themes/{theme}/assets/`).
+3. Package (RCL) themes (the package's `wwwroot/` served via the
+   static-web-assets manifest).
+
+Themes without a `giscus.css` get a no-op CSS body so giscus initializes with
+its built-in palette instead of hanging on a load failure.
+
+No `DataTheme` configuration needed for any of the above — leave it empty.
+
 ## Upgrading custom themes
 
 Older themes may need:

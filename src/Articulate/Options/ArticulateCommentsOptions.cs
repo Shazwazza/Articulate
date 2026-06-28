@@ -1,5 +1,7 @@
 #nullable enable
 
+using Articulate.Services;
+
 namespace Articulate.Options
 {
     /// <summary>
@@ -40,7 +42,13 @@ namespace Articulate.Options
 
         public string DataInputPosition { get; set; } = "bottom";
 
-        public string DataTheme { get; set; } = "preferred_color_scheme";
+        /// <summary>
+        /// Giscus <c>data-theme</c>. Empty (default) = derive from the active Articulate theme's
+        /// <c>giscus.css</c> when available, else fall back to giscus's built-in palette. Any
+        /// non-empty value (keyword e.g. <c>light</c>/<c>dark</c>/<c>preferred_color_scheme</c>, or
+        /// an absolute CSS URL) is treated as explicit operator intent and used verbatim.
+        /// </summary>
+        public string DataTheme { get; set; } = string.Empty;
 
         public string DataLang { get; set; } = "en";
 
@@ -50,5 +58,19 @@ namespace Articulate.Options
         /// near the comments container. Default empty (eager load).
         /// </summary>
         public string DataLoading { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Resolves the giscus <c>data-theme</c> with operator-first precedence:
+        /// <list type="number">
+        /// <item>An explicit, non-empty <paramref name="explicitTheme"/> (keyword or URL) always wins.</item>
+        /// <item>Otherwise the active theme's <paramref name="themeAssetUrl"/> is used when non-null,
+        /// so giscus injects the per-theme stylesheet into its iframe.</item>
+        /// <item>Otherwise giscus's built-in palette applies.</item>
+        /// </list>
+        /// Pure static; the caller resolves <paramref name="themeAssetUrl"/> from the live request
+        /// (LB-correct) via <see cref="IArticulateThemeRepository.GetThemeAssetUrl"/>.
+        /// </summary>
+        public static string ResolveGiscusTheme(string explicitTheme, string? themeAssetUrl)
+            => !string.IsNullOrEmpty(explicitTheme) ? explicitTheme : (themeAssetUrl ?? "preferred_color_scheme");
     }
 }

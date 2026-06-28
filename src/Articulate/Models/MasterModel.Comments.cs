@@ -5,13 +5,10 @@ namespace Articulate.Models
 {
     /// <summary>
     /// Comment-provider concern of <see cref="MasterModel"/>: Disqus + Giscus
-    /// configuration, resolution, and enablement predicates. Partial of
-    /// <see cref="MasterModel"/>; split out to keep the core model focused on
-    /// blog identity / theme / RSS.
+    /// configuration, resolution, and enablement predicates.
     /// </summary>
     public partial class MasterModel
     {
-        /// <inheritdoc/>
         public string DisqusShortName
         {
             get => field ??= Unwrap().Value<string>("disqusShortname", fallback: Fallback.ToAncestors);
@@ -36,7 +33,6 @@ namespace Articulate.Models
 
         private ArticulateConstants.Comments.Provider? _commentsProvider;
 
-        /// <inheritdoc/>
         public ArticulateConstants.Comments.Provider CommentsProvider
         {
             get
@@ -46,10 +42,8 @@ namespace Articulate.Models
             }
         }
 
-        /// <inheritdoc/>
         public bool IsCommentsEnabled => CommentsProvider != ArticulateConstants.Comments.Provider.None;
 
-        /// <inheritdoc/>
         public string GiscusScriptSrc
             => field ??= CommentsOptions.Giscus.ScriptSrc;
 
@@ -68,55 +62,34 @@ namespace Articulate.Models
             }
         }
 
-        /// <inheritdoc/>
         public string GiscusRepo
             => field ??= ResolvedGiscusRequired.Repo;
 
-        /// <inheritdoc/>
         public string GiscusRepoId
             => field ??= ResolvedGiscusRequired.RepoId;
 
-        /// <inheritdoc/>
         public string GiscusCategory
             => field ??= ResolvedGiscusRequired.Category;
 
-        /// <inheritdoc/>
         public string GiscusCategoryId
             => field ??= ResolvedGiscusRequired.CategoryId;
 
-        /// <inheritdoc/>
-        public string GiscusMapping
-            => field ??= CommentsOptions.Giscus.DataMapping;
+        public string GiscusMapping => CommentsOptions.Giscus.DataMapping;
 
-        /// <inheritdoc/>
-        public string GiscusStrict
-            => field ??= CommentsOptions.Giscus.DataStrict;
+        public string GiscusStrict => CommentsOptions.Giscus.DataStrict;
 
-        /// <inheritdoc/>
-        public string GiscusReactionsEnabled
-            => field ??= CommentsOptions.Giscus.DataReactionsEnabled;
+        public string GiscusReactionsEnabled => CommentsOptions.Giscus.DataReactionsEnabled;
 
-        /// <inheritdoc/>
-        public string GiscusEmitMetadata
-            => field ??= CommentsOptions.Giscus.DataEmitMetadata;
+        public string GiscusEmitMetadata => CommentsOptions.Giscus.DataEmitMetadata;
 
-        /// <inheritdoc/>
-        public string GiscusInputPosition
-            => field ??= CommentsOptions.Giscus.DataInputPosition;
+        public string GiscusInputPosition => CommentsOptions.Giscus.DataInputPosition;
 
-        /// <inheritdoc/>
-        public string GiscusTheme
-            => field ??= CommentsOptions.Giscus.DataTheme;
+        public string GiscusTheme => CommentsOptions.Giscus.DataTheme;
 
-        /// <inheritdoc/>
-        public string GiscusLang
-            => field ??= CommentsOptions.Giscus.DataLang;
+        public string GiscusLang => CommentsOptions.Giscus.DataLang;
 
-        /// <inheritdoc/>
-        public string GiscusLoading
-            => field ??= CommentsOptions.Giscus.DataLoading;
+        public string GiscusLoading => CommentsOptions.Giscus.DataLoading;
 
-        /// <inheritdoc/>
         public bool IsGiscusEnabled =>
             !string.IsNullOrWhiteSpace(GiscusRepo) &&
             !string.IsNullOrWhiteSpace(GiscusRepoId) &&
@@ -170,7 +143,6 @@ namespace Articulate.Models
             return true;
         }
 
-        /// <inheritdoc/>
         public ArticulateCommentsOptions CommentsOptions { get; }
 
     }

@@ -16,6 +16,13 @@
   `DataReactionsEnabled`, `DataEmitMetadata`, `DataInputPosition`, `DataTheme`,
   `DataLang`, `DataLoading` (set to `"lazy"` to defer the iframe until scroll-near).
   All optional settings are appsettings-only — there is no per-blog override.
+- `DataTheme` defaults to empty, which **auto-derives** from the active theme's
+  `giscus.css` via the `/articulate/giscus-theme/{theme}` endpoint — a CORS-enabled
+  proxy of `/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css` that
+  works for built-in, copied/forked, and RCL themes uniformly. Set `DataTheme`
+  to a giscus keyword (`light`, `dark`, `preferred_color_scheme`) or absolute CSS
+  URL to override. See [`docs/configuration.md`](docs/configuration.md#matching-comments-to-your-theme)
+  for the giscus iframe CORS/localhost story.
 - A new migration (`AddGiscusPerBlogProperties`) adds the four per-blog Giscus
   properties to the existing `blog` tab of the Articulate doc type for existing
   installs. Existing blogs get empty values, so behavior is unchanged until the

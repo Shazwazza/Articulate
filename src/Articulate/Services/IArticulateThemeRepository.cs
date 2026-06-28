@@ -1,4 +1,6 @@
 #nullable enable
+using Microsoft.AspNetCore.Http;
+
 namespace Articulate.Services
 {
     /// <summary>
@@ -17,6 +19,19 @@ namespace Articulate.Services
         /// </summary>
         /// <returns>A collection of theme names, or null if none found.</returns>
         public Task<IEnumerable<string>?> GetAllThemesAsync();
+
+        /// <summary>
+        /// Resolves the request-absolute URL of a per-theme asset (e.g. <c>giscus.css</c>).
+        /// </summary>
+        /// <remarks>
+        /// Returns the Articulate <c>GiscusThemeController</c> endpoint, which proxies
+        /// the static-web-assets path with the CORS header giscus's cross-origin iframe needs.
+        /// </remarks>
+        /// <param name="themeName">Theme key (e.g. <c>"Material"</c>).</param>
+        /// <param name="assetRelativePath">Path under <c>assets/</c> (currently always <c>giscus.css</c>).</param>
+        /// <param name="request">The live request (LB-correct base URL is resolved from its scheme/host/path base).</param>
+        /// <returns>The absolute asset URL, or <c>null</c> when <paramref name="themeName"/> is empty/whitespace.</returns>
+        public string? GetThemeAssetUrl(string themeName, string assetRelativePath, HttpRequest request);
 
         /// <summary>
         /// Copies an existing embedded theme to the user themes directory.

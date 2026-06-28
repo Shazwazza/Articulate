@@ -504,8 +504,8 @@ ul.tag-cloud { list-style: none; padding: 0; margin: 0; }
 
 /* === Giscus comments container ===
  * Covers the wrapper partial (.giscus, #comments) and the iframe giscus creates
- * (.giscus-frame). color-scheme enables data-theme="preferred_color_scheme".
- * Per-theme custom giscus theming goes below in a `.giscus { ... }` override.
+ * (.giscus-frame). color-scheme supports giscus's preferred_color_scheme fallback.
+ * Per-theme giscus.css (auto-served when DataTheme is empty) recolours the iframe.
  */
 .giscus,
 .giscus-frame,

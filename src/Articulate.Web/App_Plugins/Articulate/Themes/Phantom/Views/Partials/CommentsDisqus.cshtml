@@ -1,4 +1,5 @@
 @model PostModel
+@inject IArticulateThemeRepository ThemeRepository
 
 @if (Model.IsCommentsEnabled)
 {
@@ -39,7 +40,7 @@
                         data-reactions-enabled="@Model.GiscusReactionsEnabled"
                         data-emit-metadata="@Model.GiscusEmitMetadata"
                         data-input-position="@Model.GiscusInputPosition"
-                        data-theme="@Model.GiscusTheme"
+                        data-theme="@(GiscusCommentsOptions.ResolveGiscusTheme(Model.GiscusTheme, ThemeRepository.GetThemeAssetUrl(Model.Theme, "giscus.css", Context.Request)))"
                         data-lang="@Model.GiscusLang"
                         @if (!string.IsNullOrEmpty(Model.GiscusLoading))
                         {
