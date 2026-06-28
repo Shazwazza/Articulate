@@ -43,7 +43,7 @@
 *.fs text=auto
 *.fsx text=auto
 *.hs text=auto
-*.json text=lf
+*.json text eol=lf
 *.xml text=auto
 *.resx text=auto
 *.yml text eol=lf core.whitespace whitespace=tab-in-indent,trailing-space,tabwidth=2
