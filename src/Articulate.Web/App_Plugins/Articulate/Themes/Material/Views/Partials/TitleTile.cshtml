@@ -7,8 +7,6 @@
     @{
         var backOfficeLoggedIn = await BackOfficeAuthService.IsBackOfficeLoggedInAsync(Context, Constants.Security.BackOfficeAuthenticationType);
         var hasMenuItems = Model.HasCategoriesRoute() || Model.HasTagsRoute() || Model.HasSearchRoute();
-        var hasCustomBlogTitle = !string.IsNullOrWhiteSpace(Model.BlogTitle)
-                                 && !Model.BlogTitle.Equals("Articulate Blog", StringComparison.OrdinalIgnoreCase);
     }
 
     @if (backOfficeLoggedIn)
@@ -24,10 +22,10 @@
             <img src="@Model.BlogLogo" alt="Blog Logo" />
         </a>
     </div>
-    @if (hasCustomBlogTitle || hasMenuItems)
+    @if (!string.IsNullOrWhiteSpace(Model.BlogTitle) || hasMenuItems)
     {
         <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
-            @if (hasCustomBlogTitle)
+            @if (!string.IsNullOrWhiteSpace(Model.BlogTitle))
             {
                 <div>
                     <strong>@Model.BlogTitle</strong>
