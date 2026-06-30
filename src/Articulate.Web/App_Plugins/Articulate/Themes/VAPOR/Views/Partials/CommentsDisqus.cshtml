@@ -49,8 +49,18 @@
                         crossorigin="anonymous"
                         async>
                 </script>
+                <script>
+                    (function () {
+                        window.addEventListener('message', function (e) {
+                            if (e.origin !== 'https://giscus.app') return;
+                            var d = e.data; if (!d || !d.giscus || typeof d.giscus.resize === 'undefined') return;
+                            var f = document.querySelector('iframe.giscus-frame');
+                            if (f) f.style.height = d.giscus.resize + 'px';
+                        });
+                    })();
+                </script>
                 <noscript>
-                    Please enable JavaScript to view the <a href="https://github.com/@Model.GiscusRepo/discussions" title="Giscus comments">comments powered by Giscus.</a>
+                    Please enable JavaScript to view the <a href="https://github.com/@Uri.EscapeDataString(Model.GiscusRepo).Replace("%2F", "/")/discussions" title="Giscus comments">comments powered by Giscus.</a>
                 </noscript>
             </div>
             break;
