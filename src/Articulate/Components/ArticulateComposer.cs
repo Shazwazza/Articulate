@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Net.Security;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Routing;
@@ -47,6 +48,7 @@ namespace Articulate.Components
                 ServiceDescriptor.Singleton<MatcherPolicy, ArticulateDynamicRouteSelectorPolicy>());
             services.TryAddSingleton<IArticulateThemeRepository, ArticulateThemeRepository>();
             services.TryAddSingleton<IArticulateMarkdownConverter, ArticulateMarkdownService>();
+            services.TryAddSingleton<IArticulateRichTextRenderer, ArticulateRichTextRenderer>();
             _ = services.AddTransient<IArticulateThemeResolver, ArticulateThemeResolver>();
             _ = services.AddScoped<BackOfficeAuthService>();
 
@@ -69,6 +71,18 @@ namespace Articulate.Components
                 .BindConfiguration("Articulate");
             _ = services.AddOptions<ArticulateCommentsOptions>()
                 .BindConfiguration("Articulate:Comments");
+
+            // Named HttpClient for the giscus CSS self-loopback proxy
+            // (GiscusThemeController). Trusts the dev cert for loopback upstream URLs
+            // (the controller always calls itself) and validates normally otherwise.
+            // IHttpClientFactory rotates the handler every ~2 minutes by default, so we
+            // get connection pooling without per-request HttpClient allocation.
+            _ = services.AddHttpClient(ArticulateConstants.Comments.GiscusTheme.HttpClientName)
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = static (request, _, _, sslErrors) =>
+                        request.RequestUri?.IsLoopback == true || sslErrors == SslPolicyErrors.None,
+                });
 
             _ = builder.AddNotificationHandler<ContentSavingNotification, ContentSavingHandler>();
             _ = builder.AddNotificationHandler<ContentPublishingNotification, ContentPublishingHandler>();

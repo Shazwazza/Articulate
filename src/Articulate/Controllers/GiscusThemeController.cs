@@ -1,7 +1,8 @@
 #nullable enable
-using System.Net.Security;
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Articulate.Controllers
 {
@@ -29,20 +30,12 @@ namespace Articulate.Controllers
     [ApiController]
     [Route("articulate/giscus-theme")]
     public class GiscusThemeController(
-        ILogger<GiscusThemeController> logger) : Controller
+        ILogger<GiscusThemeController> logger,
+        IOptions<ArticulateCommentsOptions> commentsOptions,
+        IHttpClientFactory httpClientFactory) : Controller
     {
         private const string GiscusFileName = "giscus.css";
         private const string StaticAssetPathSegment = "/App_Plugins/Articulate/Themes/";
-
-        // Loopback self-call handler. Trusts the dev cert when the upstream URL
-        // is loopback (always the case for our self-call); validates normally
-        // for any other host. Static so the handler is reused across requests
-        // and not disposed by per-call HttpClient instances.
-        private static readonly HttpClientHandler LoopbackHandler = new()
-        {
-            ServerCertificateCustomValidationCallback = static (request, _, _, sslErrors) =>
-                request.RequestUri?.IsLoopback == true || sslErrors == SslPolicyErrors.None,
-        };
 
         [HttpGet("{theme}")]
         public async Task<IActionResult> Get(string theme)
@@ -54,10 +47,27 @@ namespace Articulate.Controllers
 
             string assetUrl = BuildAssetUrl(theme);
 
-            using HttpClient http = new(LoopbackHandler, disposeHandler: false);
+            // Factory-provided HttpClient wraps the rotated SocketsHttpHandler registered
+            // in ArticulateComposer. The handler is reused across requests (default 2-min
+            // rotation), so we don't allocate a new HttpClient on every request.
+            using HttpClient http = httpClientFactory.CreateClient(ArticulateConstants.Comments.GiscusTheme.HttpClientName);
             using HttpResponseMessage response = await http.GetAsync(assetUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
-            Response.Headers["Access-Control-Allow-Origin"] = "*";
+            // CORS: reflect the request Origin against the configured allowlist (default
+            // ["https://giscus.app"]). The response also carries Vary: Origin when the
+            // origin is reflected, so shared caches don't poison Allow-Origin between
+            // different callers. Falls back to "*" for same-origin / no-Origin callers.
+            CorsHeaderDecision cors = GiscusCommentsOptions.ResolveCorsHeaders(
+                Request.Headers["Origin"].FirstOrDefault(),
+                commentsOptions.Value.Giscus.AllowedCorsOrigins);
+            if (cors.AllowOrigin is not null)
+            {
+                Response.Headers["Access-Control-Allow-Origin"] = cors.AllowOrigin;
+            }
+            if (cors.Vary)
+            {
+                Response.Headers["Vary"] = "Origin";
+            }
             Response.Headers["Cache-Control"] = "public, max-age=3600";
 
             if (response.IsSuccessStatusCode)

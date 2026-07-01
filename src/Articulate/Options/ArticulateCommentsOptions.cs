@@ -60,6 +60,22 @@ namespace Articulate.Options
         public string DataLoading { get; set; } = string.Empty;
 
         /// <summary>
+        /// Origins permitted to fetch the proxied <c>giscus.css</c> cross-origin from
+        /// <c>/articulate/giscus-theme/{theme}</c>. The request's <c>Origin</c> header is
+        /// echoed back as <c>Access-Control-Allow-Origin</c> when it matches an entry
+        /// (case-insensitive, exact); otherwise the response omits the CORS header and
+        /// the browser rejects the stylesheet. <c>Vary: Origin</c> is set on reflected
+        /// responses so shared caches do not poison the allow-origin per origin.
+        /// <para>
+        /// Default <c>["https://giscus.app"]</c>. Override to add a self-hosted giscus
+        /// domain (e.g. <c>https://comments.example.com</c>) or to widen for development.
+        /// Set to an empty array to disable cross-origin serving entirely (same-origin and
+        /// server-to-server calls still get <c>*</c>, so e.g. <c>curl</c> continues to work).
+        /// </para>
+        /// </summary>
+        public string[] AllowedCorsOrigins { get; set; } = new[] { "https://giscus.app" };
+
+        /// <summary>
         /// Resolves the giscus <c>data-theme</c> with operator-first precedence:
         /// <list type="number">
         /// <item>An explicit, non-empty <paramref name="explicitTheme"/> (keyword or URL) always wins.</item>
@@ -72,5 +88,51 @@ namespace Articulate.Options
         /// </summary>
         public static string ResolveGiscusTheme(string explicitTheme, string? themeAssetUrl)
             => !string.IsNullOrEmpty(explicitTheme) ? explicitTheme : (themeAssetUrl ?? "preferred_color_scheme");
+
+        /// <summary>
+        /// Computes the <c>Access-Control-Allow-Origin</c> + <c>Vary</c> response headers
+        /// for the giscus CSS proxy. Pure static so it is trivially unit-testable.
+        /// </summary>
+        /// <param name="requestOrigin">
+        /// The <c>Origin</c> header from the incoming request. Null or empty means the
+        /// request is same-origin navigation or a server-to-server call (curl, tooling);
+        /// in that case a wildcard is safe because there is no cross-origin context to
+        /// gate.
+        /// </param>
+        /// <param name="allowedOrigins">
+        /// The configured allowlist from <see cref="AllowedCorsOrigins"/>. Matched
+        /// case-insensitive, exact-equality. A null or empty list means "deny everything
+        /// cross-origin" — same-origin / no-Origin callers still receive <c>*</c>.
+        /// </param>
+        public static CorsHeaderDecision ResolveCorsHeaders(string? requestOrigin, IReadOnlyList<string?>? allowedOrigins)
+        {
+            if (string.IsNullOrEmpty(requestOrigin))
+            {
+                return new CorsHeaderDecision(AllowOrigin: "*", Vary: false);
+            }
+
+            if (allowedOrigins is not null)
+            {
+                foreach (string? allowed in allowedOrigins)
+                {
+                    if (!string.IsNullOrEmpty(allowed) &&
+                        string.Equals(allowed, requestOrigin, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return new CorsHeaderDecision(AllowOrigin: requestOrigin, Vary: true);
+                    }
+                }
+            }
+
+            return new CorsHeaderDecision(AllowOrigin: null, Vary: false);
+        }
     }
+
+    /// <summary>
+    /// Outcome of <see cref="GiscusCommentsOptions.ResolveCorsHeaders"/>. <c>AllowOrigin</c>
+    /// null means "do not emit an <c>Access-Control-Allow-Origin</c> header" (the browser
+    /// will block the response). <c>Vary</c> is true only when <c>AllowOrigin</c> was
+    /// reflected from the request, so shared caches cannot serve one origin's allow-list
+    /// to another origin's request.
+    /// </summary>
+    public sealed record CorsHeaderDecision(string? AllowOrigin, bool Vary);
 }

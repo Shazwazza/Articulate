@@ -155,6 +155,7 @@ The 9 below are appsettings-only — no per-blog doc-type override exists. Chang
 | `DataTheme`            | `""` (empty)                   | Giscus `data-theme`. Empty (default) auto-derives from the active theme's `giscus.css` (see below); a keyword (`light`, `dark`, `preferred_color_scheme`) or absolute CSS URL overrides it. |
 | `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                                                                                                                 |
 | `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.                                                                                                    |
+| `AllowedCorsOrigins`   | `["https://giscus.app"]`       | Origins permitted to fetch the proxied `giscus.css` cross-origin. Add a self-hosted giscus origin (`https://comments.example.com`) here. The request's `Origin` header is echoed in `Access-Control-Allow-Origin` only when it matches; otherwise the response omits the CORS header and the browser blocks the stylesheet. `Vary: Origin` is set on reflected responses. Empty array = no cross-origin CSS (same-origin callers still get `*`). |
 
 `DataTheme` defaults to empty. In that mode Articulate uses the active theme's
 `assets/giscus.css` through `/articulate/giscus-theme/{theme}` when available;
@@ -239,3 +240,4 @@ are bytes. IIS-hosted deployments may also need the corresponding
 - [Wiki configuration guide](https://github.com/Shazwazza/Articulate/wiki/Configuration)
 - [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
 - [Comments](https://github.com/Shazwazza/Articulate/wiki/Comments)
+- [Migration from v5 to v6](https://github.com/Shazwazza/Articulate/wiki/Migration-from-v5-to-v6)
