@@ -38,21 +38,6 @@ namespace Articulate
                 Disqus = 1,
                 Giscus = 2,
             }
-
-            /// <summary>
-            /// Identifiers for the <c>Articulate.Controllers.GiscusThemeController</c>
-            /// self-loopback proxy.
-            /// </summary>
-            public static class GiscusTheme
-            {
-                /// <summary>
-                /// Name registered with <c>IHttpClientFactory</c> for the giscus CSS proxy's
-                /// self-loopback fetch. Handled by the factory (default 2-minute handler
-                /// rotation), so the controller no longer allocates an
-                /// <see cref="System.Net.Http.HttpClient"/> per request.
-                /// </summary>
-                public const string HttpClientName = "Articulate.GiscusTheme";
-            }
         }
 
         /// <summary>

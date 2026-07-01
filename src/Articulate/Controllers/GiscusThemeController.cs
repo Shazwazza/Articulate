@@ -1,5 +1,6 @@
 #nullable enable
 using Articulate.Options;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Articulate.Controllers
 {
     /// <summary>
-    /// Proxies the per-theme <c>giscus.css</c> with the CORS headers giscus.app's
+    /// Serves the per-theme <c>giscus.css</c> with the CORS headers giscus.app's
     /// iframe needs. giscus hard-codes <c>crossorigin="anonymous"</c> on the
     /// <c>&lt;link rel="stylesheet"&gt;</c> it injects; without
     /// <c>Access-Control-Allow-Origin</c> on the response, the stylesheet is
@@ -15,14 +16,13 @@ namespace Articulate.Controllers
     /// event that never fires.
     /// </summary>
     /// <remarks>
-    /// Single code path: the controller fetches
-    /// <c>/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css</c> from the
-    /// host via <c>HttpClient</c>. Umbraco's static-web-assets middleware serves that
-    /// URL for every theme source — built-in (Articulate.Web), copied/forked
-    /// (filesystem at <c>wwwroot/App_Plugins/.../</c>), and package/RCL themes
-    /// (package install dir). One path, every source.
+    /// Reads <c>App_Plugins/Articulate/Themes/{theme}/assets/giscus.css</c> directly
+    /// off disk via <see cref="IWebHostEnvironment.WebRootPath"/>. The same path
+    /// is also served by Umbraco's static-web-assets middleware at
+    /// <c>/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css</c>; this
+    /// controller is the cross-origin version for the giscus iframe.
     /// <para>
-    /// If the upstream returns 404 (theme has no <c>giscus.css</c>), the controller
+    /// If the file is missing (custom theme that ships none), the controller
     /// returns a no-op CSS body so giscus initializes with its built-in palette
     /// instead of hanging on a load failure.
     /// </para>
@@ -32,10 +32,9 @@ namespace Articulate.Controllers
     public class GiscusThemeController(
         ILogger<GiscusThemeController> logger,
         IOptions<ArticulateCommentsOptions> commentsOptions,
-        IHttpClientFactory httpClientFactory) : Controller
+        IWebHostEnvironment webHostEnvironment) : Controller
     {
         private const string GiscusFileName = "giscus.css";
-        private const string StaticAssetPathSegment = "/App_Plugins/Articulate/Themes/";
 
         [HttpGet("{theme}")]
         public async Task<IActionResult> Get(string theme)
@@ -45,18 +44,37 @@ namespace Articulate.Controllers
                 return BadRequest();
             }
 
-            string assetUrl = BuildAssetUrl(theme);
+            var filePath = Path.Combine(
+                webHostEnvironment.WebRootPath,
+                "App_Plugins",
+                "Articulate",
+                "Themes",
+                Uri.EscapeDataString(theme),
+                "assets",
+                GiscusFileName);
 
-            // Factory-provided HttpClient wraps the rotated SocketsHttpHandler registered
-            // in ArticulateComposer. The handler is reused across requests (default 2-min
-            // rotation), so we don't allocate a new HttpClient on every request.
-            using HttpClient http = httpClientFactory.CreateClient(ArticulateConstants.Comments.GiscusTheme.HttpClientName);
-            using HttpResponseMessage response = await http.GetAsync(assetUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            ApplyCorsHeaders();
+            Response.Headers["Cache-Control"] = "public, max-age=3600";
 
-            // CORS: reflect the request Origin against the configured allowlist (default
-            // ["https://giscus.app"]). The response also carries Vary: Origin when the
-            // origin is reflected, so shared caches don't poison Allow-Origin between
-            // different callers. Falls back to "*" for same-origin / no-Origin callers.
+            if (!System.IO.File.Exists(filePath))
+            {
+                // Theme has no giscus.css (custom theme that ships none). Return 200 with a
+                // no-op body so giscus initializes with its built-in palette instead of
+                // hanging on a never-resolving <link>.
+                logger.LogDebug("No giscus.css at '{Path}'; returning empty body.", filePath);
+                return Content($"/* no giscus.css for theme '{theme}' */\n", "text/css; charset=utf-8");
+            }
+
+            byte[] bytes = await System.IO.File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
+            return File(bytes, "text/css; charset=utf-8");
+        }
+
+        // Reflect the request Origin against the configured allowlist (default
+        // ["https://giscus.app"]). Vary: Origin is set on reflection so shared
+        // caches don't poison Allow-Origin between different callers. Falls back
+        // to "*" for same-origin / no-Origin callers.
+        private void ApplyCorsHeaders()
+        {
             CorsHeaderDecision cors = GiscusCommentsOptions.ResolveCorsHeaders(
                 Request.Headers["Origin"].FirstOrDefault(),
                 commentsOptions.Value.Giscus.AllowedCorsOrigins);
@@ -68,28 +86,6 @@ namespace Articulate.Controllers
             {
                 Response.Headers["Vary"] = "Origin";
             }
-            Response.Headers["Cache-Control"] = "public, max-age=3600";
-
-            if (response.IsSuccessStatusCode)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                return File(bytes, "text/css; charset=utf-8");
-            }
-
-            // Theme has no giscus.css (custom theme that ships none). Return 200 with a
-            // no-op body so giscus initializes with its built-in palette instead of
-            // hanging on a never-resolving <link>.
-            logger.LogDebug("No giscus.css found at '{Url}'; returning empty body.", assetUrl);
-            return Content($"/* no giscus.css for theme '{theme}' */\n", "text/css; charset=utf-8");
-        }
-
-        /// <summary>
-        /// Builds the host-relative URL of the per-theme <c>giscus.css</c> under static-web-assets.
-        /// </summary>
-        private string BuildAssetUrl(string theme)
-        {
-            string baseUri = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            return baseUri.TrimEnd('/') + StaticAssetPathSegment + Uri.EscapeDataString(theme) + "/assets/giscus.css";
         }
 
         /// <summary>
