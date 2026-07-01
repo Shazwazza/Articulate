@@ -106,11 +106,11 @@ OpenIddict registers redirect URIs for that origin:
 ```powershell
 $env:ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET='articulate-dev-local-secret'
 $env:CADDY_BIND_IP='0.0.0.0'
-$env:CADDY_HTTPS_HOST='192.168.1.9:44317'
-$env:UMBRACO_PUBLIC_HOST='https://192.168.1.9:44317'
-$env:UMBRACO_PUBLIC_URL='https://192.168.1.9:44317/'
-$env:ARTICULATE_REDIRECT_URI='https://192.168.1.9:44317/a-new/'
-$env:ARTICULATE_LOGOUT_REDIRECT_URI='https://192.168.1.9:44317/'
+$env:CADDY_HTTPS_HOST='<LAN-IP>:44317'
+$env:UMBRACO_PUBLIC_HOST='https://<LAN-IP>:44317'
+$env:UMBRACO_PUBLIC_URL='https://<LAN-IP>:44317/'
+$env:ARTICULATE_REDIRECT_URI='https://<LAN-IP>:44317/a-new/'
+$env:ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:44317/'
 dotnet run --file build/build.cs -- docker-dev --lane v17 --reset
 ```
 

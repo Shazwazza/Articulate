@@ -94,33 +94,8 @@ Articulate can render Disqus or Giscus comments from the existing
 `CommentsDisqus.cshtml` theme partial. Post-level `enableComments` still controls
 whether a post shows comments at all.
 
-For an end-user overview, see the [Comments wiki page](https://github.com/Shazwazza/Articulate/wiki/Comments).
-
-### Disqus
-
-Disqus is configured on the Articulate blog root with the existing
-`disqusShortname` property (per blog).
-
-Disqus's iframe is locked — custom CSS cannot be injected, so there is no
-`disqus.css` equivalent of the giscus per-theme stylesheet. Theming happens
-by inheritance from the host page:
-
-- **Link color** — Disqus picks up your site's `<a>` color for the Load More
-  Comments button, the upvote/downvote buttons when clicked, and comment links.
-  Themes that already style their link color (Material's `mdl-color--accent`,
-  Phantom's `#448aff`, VAPOR's `#3498db`, etc.) get matching Disqus links for
-  free.
-- **Light vs dark scheme** — Disqus auto-picks from the inherited text color:
-  text between `#000` and `#787878` → light, anything else → dark. Themes that
-  set a body text color in that range render with Disqus's light scheme;
-  themes with a darker body get Disqus's dark scheme.
-
-Branding removal, social share toggle, custom fonts, and custom vote UI are
-all Disqus-side config on a Pro+ plan and aren't surfaced through Articulate
-options. See [Disqus's appearance docs](https://help.disqus.com/en/articles/1717201-disqus-appearance-customizations)
-for what's available.
-
-### Giscus
+For operator guidance, provider precedence, theming notes, and import caveats,
+see the [Comments wiki page](https://github.com/Shazwazza/Articulate/wiki/Comments).
 
 Giscus has two configuration surfaces:
 
@@ -130,7 +105,7 @@ Giscus has two configuration surfaces:
    existing `blog` tab alongside `disqusShortname`. Added by the
    `AddGiscusPerBlogProperties` migration that runs on first boot.
 
-#### appsettings.json shape
+### Giscus appsettings shape
 
 ```json
 {
@@ -156,7 +131,7 @@ Giscus has two configuration surfaces:
 }
 ```
 
-#### Required appsettings (or per-blog doc-type) fields
+### Required appsettings (or per-blog doc-type) fields
 
 | Field            | Purpose                                 |
 |------------------|-----------------------------------------|
@@ -165,7 +140,7 @@ Giscus has two configuration surfaces:
 | `DataCategory`   | Discussion category name                |
 | `DataCategoryId` | Category ID from giscus.app (`DIC_...`) |
 
-#### Optional appsettings-only fields
+### Optional appsettings-only fields
 
 The 9 below are appsettings-only — no per-blog doc-type override exists. Change requires an appsettings edit (no per-blog granularity).
 
@@ -181,74 +156,9 @@ The 9 below are appsettings-only — no per-blog doc-type override exists. Chang
 | `DataLang`             | `en`                           | IETF language tag for the giscus widget UI.                                                                                                                                                 |
 | `DataLoading`          | `""`                           | Set to `"lazy"` to defer iframe load until the user scrolls near the comments container.                                                                                                    |
 
-#### Matching comments to your theme
-
-Each shipped theme includes a Giscus custom-theme stylesheet at
-`assets/giscus.css` that recolours the comment box to match the theme's palette
-(Material pink, Mini monochrome, Phantom blue, VAPOR blue, Sample near-black).
-
-**This is automatic.** When `DataTheme` is empty (the default), Articulate serves
-the active theme's `giscus.css` at its request-absolute URL via the
-`/articulate/giscus-theme/{theme}` endpoint — no configuration needed. The active
-theme is read from the Articulate root node, so switching themes in the backoffice
-re-points the comments palette on the next request.
-
-To **override** the auto-derivation, set `DataTheme` explicitly:
-
-- A **keyword** (`light`, `dark`, `preferred_color_scheme`, …) uses giscus's own
-  built-in palette and ignores the shipped stylesheet.
-- An **absolute URL** (`https://host/.../something.css`) loads that stylesheet
-  instead. The URL must be absolute — giscus renders comments inside a
-  cross-origin iframe on `giscus.app`, so a root-relative path (`~/...` or
-  `/App_Plugins/...`) resolves against `giscus.app`, not your site, and silently
-  loads nothing.
-
-The shipped files only override the structural colour variables (surfaces, text,
-borders, accent, buttons); Giscus's built-in code-highlight palette is inherited.
-See the Giscus
-[`custom_example.css`](https://github.com/giscus/giscus/blob/main/styles/themes/custom_example.css)
-for the full variable list.
-
-> **Note:** giscus fetches its theme CSS via `<link rel="stylesheet" crossorigin="anonymous">`
-> — a CORS request that requires `Access-Control-Allow-Origin: *` on the
-> response, otherwise the stylesheet is rejected and the widget hangs at
-> "Loading comments…". The built-in `/articulate/giscus-theme/{theme}` endpoint
-> sets this header automatically. If you point `DataTheme` at a stylesheet you
-> host yourself (CDN, separate origin, etc.), your origin must send
-> `Access-Control-Allow-Origin: *` (or specifically allow `giscus.app`).
->
-> On localhost, giscus's iframe is also blocked by Chrome's Private Network
-> Access (self-signed cert + loopback) regardless of CORS. The widget still
-> renders with the built-in palette, but to exercise the real flow locally
-> route through a public tunnel, e.g.
-> `cloudflared tunnel --url https://localhost:44366 --no-tls-verify`.
-
-### Provider resolution
-
-The renderer picks one of three outcomes per post: `Disqus`, `Giscus`, or `none`.
-
-1. If the blog has a valid `disqusShortname`, **Disqus wins** (regardless of any Giscus config).
-2. Otherwise, the per-blog doc-type fields are checked: if all four (`giscusRepo`,
-   `giscusRepoId`, `giscusCategory`, `giscusCategoryId`) are populated on the
-   Articulate blog root, those override appsettings for that blog only.
-   **All-or-nothing**: if any of the four is empty on the blog, the override is
-   discarded and the blog uses pure appsettings.
-3. Otherwise, the appsettings `Articulate:Comments:Giscus:*` block is used; if all
-   four required fields are populated, **Giscus** is active.
-4. Otherwise, comments are off (`none`).
-
-### Caveats
-
-- **Switching from Disqus to Giscus orphans historical Disqus thread identifiers**.
-  Giscus has no import path for Disqus thread IDs. BlogML imports set
-  `disqusShortname` per post; once you switch a blog to Giscus, those identifiers
-  are no longer visible to anyone. Manual migration via Disqus → Discourse →
-  GitHub Discussions is possible but not automated by Articulate.
-- **Giscus comments live in GitHub Discussions**, not the Articulate DB. There is
-  no Giscus-side XML exporter; `DisqusXmlExporter` continues to operate for
-  operators who maintain a Disqus side-channel.
-- **Self-hosted giscus** is supported via the `ScriptSrc` appsettings override.
-  See <https://github.com/giscus/giscus/blob/main/SELF-HOSTING.md> for setup.
+`DataTheme` defaults to empty. In that mode Articulate uses the active theme's
+`assets/giscus.css` through `/articulate/giscus-theme/{theme}` when available;
+see [Comments](https://github.com/Shazwazza/Articulate/wiki/Comments#matching-giscus-to-your-theme).
 
 ### Advanced OpenIddict options
 

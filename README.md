@@ -58,20 +58,22 @@ Articulate includes ready-to-use themes and supports custom themes. You can
 copy an existing theme as a starting point or install a theme supplied by
 another package.
 
-See [Themes](docs/themes.md) for customization guidance.
+See the [Themes wiki](https://github.com/Shazwazza/Articulate/wiki/Themes) for
+site customization guidance, or [docs/themes.md](docs/themes.md) for repository
+developer notes.
 
 ## Configuration
 
 Articulate settings live in `appsettings.json` under the `Articulate` section.
-See [Configuration](docs/configuration.md) for the settings reference,
-external image allowlisting, Markdown editor authentication, and request-limit
-guidance.
+See the [Configuration wiki](https://github.com/Shazwazza/Articulate/wiki/Configuration)
+for operator guidance, or [docs/configuration.md](docs/configuration.md) for the
+exact appsettings reference.
 
 ## Getting help
 
 - [Documentation](https://github.com/Shazwazza/Articulate/wiki)
-- [Settings reference](docs/configuration.md#core-settings)
-- [Markdown editor authentication](docs/configuration.md#markdown-editor-authentication)
+- [Settings reference](https://github.com/Shazwazza/Articulate/wiki/Settings-Reference)
+- [Markdown editor authentication](https://github.com/Shazwazza/Articulate/wiki/Markdown-Editor-Authentication)
 - [Releases](https://github.com/Shazwazza/Articulate/releases)
 - [Report a bug](https://github.com/Shazwazza/Articulate/issues)
 - [Community discussions](https://forum.umbraco.com/tag/packages)

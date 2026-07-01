@@ -43,12 +43,12 @@ dotnet add package Articulate    # Umbraco 17 / Articulate 6.1, or Umbraco 18 / 
 
 ## Upgrading
 
-Back up your site, database, and media before upgrading. See the [installation and upgrade guide](https://github.com/Shazwazza/Articulate/blob/develop/docs/upgrading.md) for version matching, rich-text editor migration, and BlogML guidance.
+Back up your site, database, and media before upgrading. See the [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation) and [Migration from v5 to v6](https://github.com/Shazwazza/Articulate/wiki/Migration-from-v5-to-v6) guides for version matching, rich-text editor migration, and BlogML guidance.
 
 ## Learn more
 
-- [Configuration](https://github.com/Shazwazza/Articulate/blob/develop/docs/configuration.md)
-- [Themes](https://github.com/Shazwazza/Articulate/blob/develop/docs/themes.md)
+- [Configuration](https://github.com/Shazwazza/Articulate/wiki/Configuration)
+- [Themes](https://github.com/Shazwazza/Articulate/wiki/Themes)
 - [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
 - [Releases](https://github.com/Shazwazza/Articulate/releases)
 - [Report an issue](https://github.com/Shazwazza/Articulate/issues)

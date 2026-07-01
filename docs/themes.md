@@ -6,12 +6,10 @@ theme packages.
 For most sites, start with a built-in theme, copy it to a new name, and edit
 the copy. Do not customize package-owned built-in files directly.
 
-## Where built-in themes live
+## Built-in themes
 
-- Built-in Razor views: `src/Articulate.Web/App_Plugins/Articulate/Themes/{Theme}/Views/`
-- Built-in static assets: `src/Articulate.Web/wwwroot/App_Plugins/Articulate/Themes/{Theme}/assets/`
-
-Use these as the reference when copying or extending a built-in theme.
+Built-in themes are package-owned. Use them as a reference when copying or
+extending a theme, but do not edit the package-owned files in an installed site.
 
 ## Copied themes
 
@@ -49,43 +47,31 @@ theme folder name and the value stored by the theme picker.
 Keep the key stable and distinctive: existing blogs store it. Built-in names
 are reserved, and duplicate package keys are ignored.
 
-See [`Articulate.Theme.Sample`](../src/Articulate.Theme.Sample) for a working
-RCL theme, or the [creating a theme guide](https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme).
+See the sample theme project in this repository for a working RCL theme, or the
+[creating a theme guide](https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme).
 
 ## Comments
 
 Built-in themes render comments only when post comments are enabled and either
 Disqus or Giscus is configured. The existing `CommentsDisqus.cshtml` partial name
-is kept for compatibility, but it now handles both providers:
-
-- Disqus uses the blog root `disqusShortname` and keeps the `disqus_thread`
-  markup needed by Disqus comment counts.
-- Giscus uses the app-wide `Articulate:Comments:Giscus` settings from
-  `appsettings.json`.
+is kept for compatibility, but it now handles both providers.
 
 Custom themes that override `CommentsDisqus.cshtml` can keep the same filename
-and branch on `Model.CommentsProvider`.
+and branch on `Model.CommentsProvider`. For user-facing setup and provider
+precedence, see [Comments](https://github.com/Shazwazza/Articulate/wiki/Comments).
 
 ### Giscus palette per theme
 
-Each shipped theme includes a `giscus.css` in its `assets/` folder that
-recolours the comment box to match its palette. Articulate's
-`/articulate/giscus-theme/{theme}` endpoint proxies the file with the CORS
-header giscus's cross-origin iframe needs.
-
-**One path, every source.** The controller self-fetches
-`/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css`. Umbraco's
-static-web-assets middleware serves that URL uniformly for:
+Each shipped theme includes a `giscus.css` in its `assets/` folder. Leave
+`DataTheme` empty and Articulate uses the active theme's file through
+`/articulate/giscus-theme/{theme}`. The same convention works for:
 
 1. Built-in themes (Articulate.Web).
 2. Copied or forked themes (`wwwroot/App_Plugins/Articulate/Themes/{theme}/assets/`).
 3. Package (RCL) themes (the package's `wwwroot/` served via the
    static-web-assets manifest).
 
-Themes without a `giscus.css` get a no-op CSS body so giscus initializes with
-its built-in palette instead of hanging on a load failure.
-
-No `DataTheme` configuration needed for any of the above — leave it empty.
+Themes without a `giscus.css` fall back to the built-in Giscus palette.
 
 ## Upgrading custom themes
 
