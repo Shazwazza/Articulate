@@ -204,6 +204,9 @@ csharp_using_directive_placement = outside_namespace:warning
 csharp_prefer_static_local_function = true:warning
 csharp_prefer_simple_using_statement = true:suggestion
 
+[build/build.cs]
+dotnet_analyzer_diagnostic.severity = none
+
 ##########################################
 # .NET Formatting Conventions
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-code-style-settings-reference#formatting-conventions
