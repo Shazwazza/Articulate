@@ -185,10 +185,7 @@ async Task<int> DockerBuild(string lane, string tag)
         "build", "--file", "Dockerfile", "--target", "chiseled", "--tag", tag,
         "--build-arg", $"PACKAGE_SOURCE=build/Release/{lane}",
         "--build-arg", $"UMBRACO_CMS_VERSION={cms}",
-        "--build-arg", $"USE_TINYMCE_UMBRACO={Env.Get("USE_TINYMCE_UMBRACO", "false")}",
-        "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_VERSION={Env.Get("TINYMCE_UMBRACO_PACKAGE_VERSION", "17.1.0")}",
-        "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_SOURCE={Env.Get("TINYMCE_UMBRACO_PACKAGE_SOURCE", "build/LocalPackages/TinyMCE.Umbraco")}",
-        "--build-arg", $"USE_TINYMCE_UMBRACO_PACKAGE_SOURCE={Env.Get("USE_TINYMCE_UMBRACO_PACKAGE_SOURCE", "false")}",
+
         "."
     }, cwd: Env.Repo);
     return 0;
