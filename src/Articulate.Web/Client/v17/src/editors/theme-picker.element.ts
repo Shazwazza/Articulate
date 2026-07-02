@@ -79,7 +79,7 @@ export default class ThemePickerElement extends UmbElementMixin(UmbLitElement) i
 
     const result = await ThemePickerService.getEditorsThemePickerThemes();
 
-    if (!result.response.ok || !result.data) {
+    if (!result.response || !result.response.ok || !result.data) {
       this._error = formatApiError(result.error, 'Failed to load themes from the server.');
       return;
     }

@@ -3,7 +3,7 @@
 ## Requirements
 
 - .NET 10.0 SDK
-- Node.js 24+ with `corepack enable pnpm` (the workspace pins pnpm 11.4.0)
+- Node.js 24+ with `corepack enable pnpm` (the workspace pins pnpm 11.9.0)
 - Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for release builds
 - IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code
 - Shell: PowerShell 7+ preferred (`pwsh`), PowerShell 5+, or Bash (WSL/Linux)

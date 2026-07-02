@@ -7,7 +7,7 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.4.0",
+  "packageManager": "pnpm@11.9.0",
   "keywords": [
     "blog",
     "umbraco",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
-    "@hey-api/openapi-ts": "0.85.2",
+    "@hey-api/openapi-ts": "^0.97.0",
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",
     "@umbraco-cms/backoffice": "17.4.0",

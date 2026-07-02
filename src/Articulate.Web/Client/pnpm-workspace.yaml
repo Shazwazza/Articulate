@@ -16,6 +16,8 @@ overrides:
   marked@>=18.0.0 <=18.0.1: ^18.0.2
   "@umbraco-ui/uui": 2.0.0-rc.2
   uuid: 14.0.0
+  '@hey-api/openapi-ts@<0.97.3': ^0.97.3
+  js-yaml@>=4.0.0 <=4.1.1: ^4.1.2
 minimumReleaseAgeExclude:
   - diff@8.0.3
   - handlebars@4.7.9
@@ -49,3 +51,5 @@ minimumReleaseAgeExclude:
   - "@esbuild/win32-x64@0.28.1"
   - dompurify@3.4.11
   - "@umbraco-cms/backoffice@18.0.0-rc3"
+  - '@hey-api/openapi-ts@0.97.3'
+  - js-yaml@4.1.2

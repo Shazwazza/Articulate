@@ -4,7 +4,7 @@ import { type Client, formDataBodySerializer, type Options as Options2, type TDa
 import { client } from './client.gen';
 import type { DeleteBlogmlImportFileData, DeleteBlogmlImportFileErrors, DeleteBlogmlImportFileResponses, GetBlogmlExportDisqusData, GetBlogmlExportDisqusErrors, GetBlogmlExportDisqusResponses, GetEditorsThemePickerThemesData, GetEditorsThemePickerThemesErrors, GetEditorsThemePickerThemesResponses, GetThemeDefaultData, GetThemeDefaultErrors, GetThemeDefaultResponses, PostBlogmlExportData, PostBlogmlExportErrors, PostBlogmlExportResponses, PostBlogmlImportData, PostBlogmlImportErrors, PostBlogmlImportFileData, PostBlogmlImportFileErrors, PostBlogmlImportFileResponses, PostBlogmlImportResponses, PostEditorsMarkdownPostData, PostEditorsMarkdownPostErrors, PostEditorsMarkdownPostResponses, PostThemeCopyData, PostThemeCopyErrors, PostThemeCopyResponses } from './types.gen';
 
-export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
+export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
      * You can provide a client instance returned by `createClient()` instead of
      * individual options. This might be also useful if you want to implement a
@@ -24,12 +24,7 @@ export class BlogMlService {
      */
     public static postBlogmlExport<ThrowOnError extends boolean = false>(options?: Options<PostBlogmlExportData, ThrowOnError>) {
         return (options?.client ?? client).post<PostBlogmlExportResponses, PostBlogmlExportErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/export',
             ...options,
             headers: {
@@ -44,12 +39,7 @@ export class BlogMlService {
      */
     public static getBlogmlExportDisqus<ThrowOnError extends boolean = false>(options?: Options<GetBlogmlExportDisqusData, ThrowOnError>) {
         return (options?.client ?? client).get<GetBlogmlExportDisqusResponses, GetBlogmlExportDisqusErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/export/disqus',
             ...options
         });
@@ -60,12 +50,7 @@ export class BlogMlService {
      */
     public static postBlogmlImport<ThrowOnError extends boolean = false>(options?: Options<PostBlogmlImportData, ThrowOnError>) {
         return (options?.client ?? client).post<PostBlogmlImportResponses, PostBlogmlImportErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/import',
             ...options,
             headers: {
@@ -80,12 +65,7 @@ export class BlogMlService {
      */
     public static deleteBlogmlImportFile<ThrowOnError extends boolean = false>(options?: Options<DeleteBlogmlImportFileData, ThrowOnError>) {
         return (options?.client ?? client).delete<DeleteBlogmlImportFileResponses, DeleteBlogmlImportFileErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/import-file',
             ...options
         });
@@ -99,12 +79,7 @@ export class BlogMlService {
     public static postBlogmlImportFile<ThrowOnError extends boolean = false>(options?: Options<PostBlogmlImportFileData, ThrowOnError>) {
         return (options?.client ?? client).post<PostBlogmlImportFileResponses, PostBlogmlImportFileErrors, ThrowOnError>({
             ...formDataBodySerializer,
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/import-file',
             ...options,
             headers: {
@@ -122,12 +97,7 @@ export class MarkdownEditorService {
     public static postEditorsMarkdownPost<ThrowOnError extends boolean = false>(options?: Options<PostEditorsMarkdownPostData, ThrowOnError>) {
         return (options?.client ?? client).post<PostEditorsMarkdownPostResponses, PostEditorsMarkdownPostErrors, ThrowOnError>({
             ...formDataBodySerializer,
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/editors/markdown/post',
             ...options,
             headers: {
@@ -144,12 +114,7 @@ export class ThemeOptionsService {
      */
     public static postThemeCopy<ThrowOnError extends boolean = false>(options?: Options<PostThemeCopyData, ThrowOnError>) {
         return (options?.client ?? client).post<PostThemeCopyResponses, PostThemeCopyErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/theme/copy',
             ...options,
             headers: {
@@ -166,12 +131,7 @@ export class ThemeOptionsService {
      */
     public static getThemeDefault<ThrowOnError extends boolean = false>(options?: Options<GetThemeDefaultData, ThrowOnError>) {
         return (options?.client ?? client).get<GetThemeDefaultResponses, GetThemeDefaultErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/theme/default',
             ...options
         });
@@ -186,12 +146,7 @@ export class ThemePickerService {
      */
     public static getEditorsThemePickerThemes<ThrowOnError extends boolean = false>(options?: Options<GetEditorsThemePickerThemesData, ThrowOnError>) {
         return (options?.client ?? client).get<GetEditorsThemePickerThemesResponses, GetEditorsThemePickerThemesErrors, ThrowOnError>({
-            security: [
-                {
-                    scheme: 'bearer',
-                    type: 'http'
-                }
-            ],
+            security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/editors/theme-picker/themes',
             ...options
         });
