@@ -227,8 +227,8 @@ export default class ThemeOptionsElement extends UmbLitElement implements IFormC
     this.resetState(true);
   };
 
-  private get _submitButtonColor(): 'positive' | 'primary' {
-    return this._selectedTheme && this._themeName ? 'positive' : 'primary';
+  private get _submitButtonColor(): 'positive' | 'default' {
+    return this._selectedTheme && this._themeName ? 'positive' : 'default';
   }
 
   /**

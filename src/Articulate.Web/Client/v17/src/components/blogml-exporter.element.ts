@@ -277,8 +277,8 @@ export default class BlogMlExporterElement extends UmbLitElement implements IFor
     this.resetState(true);
   };
 
-  private get _submitButtonColor(): 'positive' | 'primary' {
-    return this._articulateBlogNode ? 'positive' : 'primary';
+  private get _submitButtonColor(): 'positive' | 'default' {
+    return this._articulateBlogNode ? 'positive' : 'default';
   }
 
   override render() {
