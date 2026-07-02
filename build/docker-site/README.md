@@ -13,6 +13,7 @@ dotnet run --file build/build.cs -- docker-dev --lane v17
 dotnet run --file build/build.cs -- docker-prod --lane v17
 dotnet run --file build/build.cs -- docker-status --lane v17
 dotnet run --file build/build.cs -- docker-test --lane all
+dotnet run --file build/build.cs -- docker-ca
 ```
 
 - `docker-build [--tag image:tag]` — build the standalone chiseled Docker image.
@@ -29,6 +30,8 @@ dotnet run --file build/build.cs -- docker-test --lane all
   faster build validation only.
 - `docker-status` — show the lane's running containers and the packaged
   Backoffice files copied into the site image.
+- `docker-ca` — export and trust the local Caddy root CA through the build
+  runner.
 
 Options:
 
@@ -70,9 +73,17 @@ unattended user with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and
 ## Trust Caddy's local CA once per machine
 
 Caddy terminates TLS with a locally generated certificate. Trust Caddy's root
-CA once per machine before opening the backoffice:
+CA once per machine before opening the backoffice. The build runner exposes the
+portable entrypoint:
 
-- Windows: `powershell -ExecutionPolicy Bypass -File build/docker-site/Trust-CaddyRootCA.ps1`
+```powershell
+dotnet run --file build/build.cs -- docker-ca
+```
+
+If you prefer to call the platform helper directly, use:
+
+- Windows / PowerShell 7+: `pwsh -ExecutionPolicy Bypass -File build/docker-site/Trust-CaddyRootCA.ps1`
+- Windows PowerShell 5: `powershell -ExecutionPolicy Bypass -File build/docker-site/Trust-CaddyRootCA.ps1`
 - Linux/WSL: `sudo build/docker-site/trust-caddy-root-ca.sh`
 
 Those helpers remain platform-specific because certificate stores are platform-specific.

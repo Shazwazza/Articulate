@@ -10,6 +10,12 @@ dotnet run --file build/build.cs -- help
 dotnet run --file build/build.cs -- help <command>
 ```
 
+It also exposes a CA helper:
+
+```text
+dotnet run --file build/build.cs -- docker-ca
+```
+
 The CLI help is the canonical command/option reference, including defaults and
 environment requirements. Environment variables remain supported for CI and
 local overrides.

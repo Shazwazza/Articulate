@@ -11,6 +11,10 @@ services:
         DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0}
         UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:-[17.4.0,18.0.0)}
         PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release/v17}
+        USE_TINYMCE_UMBRACO: ${USE_TINYMCE_UMBRACO:-false}
+        TINYMCE_UMBRACO_PACKAGE_VERSION: ${TINYMCE_UMBRACO_PACKAGE_VERSION:-17.1.0}
+        TINYMCE_UMBRACO_PACKAGE_SOURCE: ${TINYMCE_UMBRACO_PACKAGE_SOURCE:-build/LocalPackages/TinyMCE.Umbraco}
+        USE_TINYMCE_UMBRACO_PACKAGE_SOURCE: ${USE_TINYMCE_UMBRACO_PACKAGE_SOURCE:-false}
     image: ${IMAGE_TAG:-articulate-local:chiseled}
     user: "1654:1654"
     environment:

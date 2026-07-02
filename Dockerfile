@@ -19,6 +19,10 @@ ARG UMBRACO_CMS_VERSION="[17.4.0,18.0.0)"
 ARG BUILD_CONFIGURATION=Release
 ARG PACKAGE_SOURCE=build/Release/v17
 ARG PACKAGE_LANE=v17
+ARG USE_TINYMCE_UMBRACO=false
+ARG TINYMCE_UMBRACO_PACKAGE_VERSION=17.1.0
+ARG TINYMCE_UMBRACO_PACKAGE_SOURCE=build/LocalPackages/TinyMCE.Umbraco
+ARG USE_TINYMCE_UMBRACO_PACKAGE_SOURCE=false
 
 # Copy config files
 COPY global.json ./
@@ -31,6 +35,7 @@ COPY build/docker-site/nuget.config build/docker-site/
 COPY build/docker-site/Options/ build/docker-site/Options/
 COPY build/docker-site/Services/ build/docker-site/Services/
 COPY ${PACKAGE_SOURCE}/ build/Release/
+COPY ${TINYMCE_UMBRACO_PACKAGE_SOURCE}/ build/LocalPackages/TinyMCE.Umbraco/
 
 # Sanity check + restore + publish
 RUN set -eux; \
@@ -43,10 +48,17 @@ RUN set -eux; \
       ARTICULATE_PKG_VERSION=0.0.0; \
     fi; \
     echo "Building Articulate ${ARTICULATE_PKG_VERSION} for ${TARGET_FRAMEWORK} with Umbraco ${UMBRACO_CMS_VERSION}"; \
+    RESTORE_SOURCES_FLAG=""; \
+    if [ "${USE_TINYMCE_UMBRACO}" = "true" ] && [ "${USE_TINYMCE_UMBRACO_PACKAGE_SOURCE}" = "true" ]; then \
+      RESTORE_SOURCES_FLAG="/p:RestoreAdditionalProjectSources=build/LocalPackages/TinyMCE.Umbraco"; \
+    fi; \
     dotnet restore build/docker-site/ArticulateDockerSite.csproj \
     --configfile build/docker-site/nuget.config \
     /p:TargetFramework=${TARGET_FRAMEWORK} \
     /p:UmbracoCmsPackageVersion=\"${UMBRACO_CMS_VERSION}\" \
+    /p:UseTinyMceUmbraco=${USE_TINYMCE_UMBRACO} \
+    /p:TinyMceUmbracoPackageVersion=${TINYMCE_UMBRACO_PACKAGE_VERSION} \
+    ${RESTORE_SOURCES_FLAG} \
     /p:ArticulatePackageVersion=\"$ARTICULATE_PKG_VERSION\"; \
     dotnet publish build/docker-site/ArticulateDockerSite.csproj \
     --no-restore \
@@ -55,6 +67,9 @@ RUN set -eux; \
     -o /app/publish \
     /p:UseAppHost=false \
     /p:UmbracoCmsPackageVersion=\"${UMBRACO_CMS_VERSION}\" \
+    /p:UseTinyMceUmbraco=${USE_TINYMCE_UMBRACO} \
+    /p:TinyMceUmbracoPackageVersion=${TINYMCE_UMBRACO_PACKAGE_VERSION} \
+    ${RESTORE_SOURCES_FLAG} \
     /p:ArticulatePackageVersion=\"$ARTICULATE_PKG_VERSION\"; \
     mkdir -p /app/publish/umbraco/Data /app/publish/wwwroot/media
 

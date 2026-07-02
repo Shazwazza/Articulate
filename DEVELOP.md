@@ -6,7 +6,7 @@
 - Node.js 24+ with `corepack enable pnpm` (the workspace pins pnpm 11.4.0)
 - Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for release builds
 - IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code
-- Shell: PowerShell 5+, PowerShell 7+, or Bash (WSL/Linux)
+- Shell: PowerShell 7+ preferred (`pwsh`), PowerShell 5+, or Bash (WSL/Linux)
 
 ## First run
 
@@ -106,7 +106,7 @@ dotnet run --file build/build.cs -- site --lane v17
 Use `--reset` to delete the local `umbraco` data folder before starting.
 
 For Docker validation (commands, ports, credentials, runtime modes, smoke
-tests, the dev automation user, the Umbraco MCP integration), see
+tests, the dev automation user, CA trust, the Umbraco MCP integration), see
 [`build/docker-site/README.md`](build/docker-site/README.md).
 
 ## Back Office client builds
