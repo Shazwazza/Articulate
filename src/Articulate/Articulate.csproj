@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <!-- PackageId differentiates this from Articulate.Web's PackageId=Articulate during restore -->
     <PackageId>Articulate.Core</PackageId>
     <UseArticulateUsings>true</UseArticulateUsings>
@@ -9,25 +9,34 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" />
 
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" />
 
-    <PackageReference Include="Argotic.Core" Version="3001.0.0" />
-    <PackageReference Include="FileSignatures" Version="7.2.1" />
-    <PackageReference Include="Markdig" Version="0.45.0" />
-    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.3" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
+    <PackageReference Include="Argotic.Core" />
+    <PackageReference Include="FileSignatures" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="WilderMinds.MetaWeblog" />
+    <PackageReference Include="System.ServiceModel.Syndication" />
   </ItemGroup>
 
   <ItemGroup Label="Force minimum versions">
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
 
     <InternalsVisibleTo Include="Articulate.Web" />
     <InternalsVisibleTo Include="Articulate.Tests" />
+  </ItemGroup>
+
+  <!-- Swagger/OpenAPI configuration is lane-specific: V17 uses Swashbuckle, V18 uses Microsoft.AspNetCore.OpenApi.
+       The shared generator/regexes live at Swagger/ (no Vxx subfolder) and are included in both lanes. -->
+  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
+    <Compile Remove="Swagger/V17/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v17'">
+    <Compile Remove="Swagger/V18/**/*.cs" />
   </ItemGroup>
 
   <!-- RESOURCES: Only embed things specific to Core (The Starter Kit Installer data) -->

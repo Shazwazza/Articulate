@@ -10,32 +10,19 @@
 		<NuGetAuditMode>direct</NuGetAuditMode>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
-	<!-- Umbraco CMS version range per target + NuGet audit mode -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-		<!-- Support Umbraco 15.x-16.x on .NET 9 -->
-		<UmbracoCmsPackageVersion>[16.5.1,17.0.0)</UmbracoCmsPackageVersion>
-		<MicrosoftOpenApiPackageVersion>[1.6.22,2.0.0)</MicrosoftOpenApiPackageVersion>
-		<MicrosoftCodeAnalysisPackageVersion>[4.13.0,5.3.0)</MicrosoftCodeAnalysisPackageVersion>
-		<SystemServiceModelSyndicationPackageVersion>[9.0.14,10.0.3)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[9.0.15,10.0.0)</SystemSecurityCryptographyXmlPackageVersion>
-		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
+	<!-- Allow local developer overrides (e.g. ArticulatePackageLane) -->
+	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+
+	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<PropertyGroup>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' != 'v18'">packages.v17.lock.json</NuGetLockFilePath>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-		<!-- Support Umbraco 17.x (including pre-release) on .NET 10 -->
-		<UmbracoCmsPackageVersion>[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
-		<MicrosoftOpenApiPackageVersion>[2.3.0,3.0.0)</MicrosoftOpenApiPackageVersion>
-		<MicrosoftCodeAnalysisPackageVersion>[5.3.0,6.0.0)</MicrosoftCodeAnalysisPackageVersion>
-		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[10.0.6,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
-		<MailKitPackageVersion>[4.16.0,5.0.0)</MailKitPackageVersion>
+
+	<PropertyGroup Condition="'$(ArticulatePackageLane)' == 'v18' or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.'))">
+		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
-		<!-- TODO: Enable when 6.0 version is shipped -->
-		<EnablePackageValidation>false</EnablePackageValidation>
-		<PackageValidationBaselineVersion>6.0.0</PackageValidationBaselineVersion>
-		<EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
-		<EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
-		<GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
 		<CompressionEnabled>false</CompressionEnabled>
 		<!-- Central client-build defaults; consumed by Articulate.Web to build the backoffice client -->
 		<EnableClientBuild Condition="'$(EnableClientBuild)'=='' and '$(ENABLE_CLIENT_BUILD)'!=''">$(ENABLE_CLIENT_BUILD)</EnableClientBuild>
@@ -47,17 +34,10 @@
 		<AddRazorSupportForMvc Condition="'$(AddRazorSupportForMvc)' == ''">true</AddRazorSupportForMvc>
 		<EnforceCodeStyleInBuild Condition="'$(EnforceCodeStyleInBuild)' == ''">true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')" Version="3.9.50" PrivateAssets="All" />
-		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
-		<GlobalPackageReference Include="Umbraco.Code" Version="2.4.0" PrivateAssets="All" />
-		<GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="All" />
-	</ItemGroup>
 	<ItemGroup Condition="'$(IsPackable)' != 'false'">
-		<PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2" PrivateAssets="all">
+		<PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis" Version="$(MicrosoftCodeAnalysisPackageVersion)" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(UseArticulateUsings)' == 'true'">
 		<Using Include="Umbraco.Cms.Core.DependencyInjection" />
@@ -77,7 +57,16 @@
 	</ItemGroup>
 	<PropertyGroup>
 		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+		<ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)'=='' and '$(ARTICULATE_PACKAGE_VERSION)'!=''">$(ARTICULATE_PACKAGE_VERSION)</ArticulatePackageVersion>
 	</PropertyGroup>
+	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;EnsureClientAssets;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
+		<PropertyGroup>
+			<Version>$(ArticulatePackageVersion)</Version>
+			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
+			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
+		</PropertyGroup>
+	</Target>
 	<ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false" />
 	</ItemGroup>
@@ -112,9 +101,4 @@
 		</ItemGroup>
 	</Target>
 
-	<!-- Force minimum versions for vulnerable transitive dependencies -->
-	<ItemGroup>
-        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.8.43" PrivateAssets="All" />
-		<PackageReference Include="MailKit" Version="$(MailKitPackageVersion)" PrivateAssets="All" />
-	</ItemGroup>
 </Project>

@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AssemblyName>ArticulateDockerSite</AssemblyName>
-    <!-- Allow pre-release (rc) package resolution when stable 6.0.0 isn't available locally -->
-    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">6.0.0-*</ArticulatePackageVersion>
+    <!-- Direct-use fallback; lane orchestrators pass the exact package version. -->
+    <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">0.0.0-local</ArticulatePackageVersion>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Versions resolved from properties so this minimal scaffold builds
+         without the repo's Directory.Packages.props / Central Package Management. -->
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="Articulate" Version="$(ArticulatePackageVersion)" />
-    <PackageReference Include="Articulate.Theme.Sample" Version="$(ArticulatePackageVersion)" />
+    <PackageReference Include="Articulate" VersionOverride="$(ArticulatePackageVersion)" />
+    <PackageReference Include="Articulate.Theme.Sample" VersionOverride="$(ArticulatePackageVersion)" />
   </ItemGroup>
 </Project>
