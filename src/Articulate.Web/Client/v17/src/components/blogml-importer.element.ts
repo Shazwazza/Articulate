@@ -800,7 +800,7 @@ export default class BlogMlImporterElement extends UmbLitElement implements IFor
                     type="submit"
                     look="primary"
                     .state=${this._formState}
-                    color="primary"
+                    color="positive"
                     ?disabled=${!this._tempFileName || this._isPreflighting}
                     label="Submit">
                     Submit
