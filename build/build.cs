@@ -1,4 +1,5 @@
 #!/usr/bin/dotnet run
+#:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
 
 # nullable enable
 
@@ -11,25 +12,26 @@
 
 using System.Diagnostics;
 using System.Net;
+using System.Text.RegularExpressions;
 
-if (args.Length == 0 || args[0] is "-h" or "--help") { Help(null); return 0; }
-if (args[0] == "help") { Help(args.Length > 1 ? args[1] : null); return 0; }
-
-var command = args[0];
-var opts = Opts.Parse(args[1..]);
 try
 {
+    if (args.Length == 0 || args[0] is "-h" or "--help") { Help(null); return 0; }
+    if (args[0] == "help") { Help(args.Length > 1 ? args[1] : null); return 0; }
+
+    var command = args[0];
+    var opts = Opts.Parse(args[1..]);
     return command switch
     {
-        "build"         => await BuildAsync(opts),
-        "client"        => await ClientAsync(opts),
-        "site"          => await SiteAsync(opts),
-        "docker-build"  => await DockerAsync("build",  opts),
-        "docker-dev"    => await DockerAsync("dev",    opts),
-        "docker-prod"   => await DockerAsync("prod",   opts),
-        "docker-status" => await DockerAsync("status", opts),
-        "docker-test"   => await DockerTest(opts.String("lane", "all") ?? "all", opts.Flag("keep"), opts.Flag("skip-smoke")),
-        "docker-ca"     => await DockerCaAsync(),
+        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean")),
+        "client"        => await ClientAsync(opts.Validate(command, "lane")),
+        "site"          => await SiteAsync(opts.Validate(command, "lane", "configuration", "reset")),
+        "docker-build"  => await DockerAsync("build",  opts.Validate(command, "lane", "tag")),
+        "docker-dev"    => await DockerAsync("dev",    opts.Validate(command, "lane", "skip-smoke", "reset")),
+        "docker-prod"   => await DockerAsync("prod",   opts.Validate(command, "lane", "skip-smoke")),
+        "docker-status" => await DockerAsync("status", opts.Validate(command, "lane")),
+        "docker-test"   => await DockerTest(opts.Validate(command, "lane", "keep", "skip-smoke")),
+        "docker-ca"     => await DockerCaAsync(opts.Validate(command)),
         _ => throw new ArgumentException($"Unknown command '{command}'. Run with --help.")
     };
 }
@@ -45,7 +47,14 @@ void Help(string? topic)
     var marker = $"### {topic}";
     var i = text.IndexOf(marker, StringComparison.Ordinal);
     if (i < 0) throw new ArgumentException($"No help topic '{topic}'.");
-    Console.WriteLine(text[i..].TrimStart('\n'));
+    var searchFrom = i + marker.Length;
+    var nextH2 = text.IndexOf("\n## ", searchFrom, StringComparison.Ordinal);
+    var nextH3 = text.IndexOf("\n### ", searchFrom, StringComparison.Ordinal);
+    int end = text.Length;
+    if (nextH2 >= 0 && nextH3 >= 0) end = Math.Min(nextH2, nextH3);
+    else if (nextH2 >= 0) end = nextH2;
+    else if (nextH3 >= 0) end = nextH3;
+    Console.WriteLine(text[i..end].TrimStart('\n'));
 }
 
 // ---- Commands ----
@@ -55,10 +64,9 @@ async Task<int> BuildAsync(Opts o)
     var sw = Stopwatch.StartNew();
     var lane = o.Lane();
     var cfg = o.String("configuration", Env.Get("BUILD_CONFIGURATION", "Release"));
+    ValidateConfiguration(cfg);
     var inCi = Env.IsTrue(Env.CallerCi) || Env.IsTrue(Env.CallerGithubActions);
-    var tests = o.Flag("tests") || o.Bool("tests", inCi);
-    var client = o.Bool("client", inCi || cfg == "Release");
-    var sample = o.Flag("sample") || o.Bool("sample", !inCi);
+    var defaults = BuildDefaults.Resolve(o, inCi, cfg);
     var clean = o.Flag("clean");
     var releaseDir = Path.Combine(Env.Repo, "build", cfg ?? "Release", lane);
     Directory.CreateDirectory(releaseDir);
@@ -69,23 +77,39 @@ async Task<int> BuildAsync(Opts o)
         await Run("pnpm", new[] { "--workspace-concurrency=1", "-r", "run", "clean" }, cwd: clientRoot);
         DeleteDir(Path.Combine(clientRoot, "node_modules"));
     }
-    await Run("pnpm",
-        inCi ? new[] { "install", "--frozen-lockfile", "--prefer-offline" }
-             : new[] { "install", "--prefer-offline" },
-        cwd: clientRoot);
 
     var props = new List<string>
     {
-        "-p:EnableClientBuild=" + client.ToString().ToLowerInvariant(),
+        "-p:EnableClientBuild=" + defaults.Client.ToString().ToLowerInvariant(),
         "-p:ArticulatePackageLane=" + lane,
         "-p:UmbracoClientVersion=" + (lane == "v18" ? "18" : "17"),
     };
-    var packageVersion = Env.Get("ARTICULATE_PACKAGE_VERSION");
-    if (lane == "v18" && string.IsNullOrWhiteSpace(packageVersion))
-        packageVersion = File.ReadAllText(Path.Combine(Env.Repo, "build", "v18-version.txt")).Trim();
+    var packageVersion = await ResolvePackageVersion(lane);
     if (packageVersion is not null) props.Add("-p:ArticulatePackageVersion=" + packageVersion);
 
-    if (clean) DeleteBuildOutputs(Path.Combine(Env.Repo, "src"));
+    Console.WriteLine($"Build: {lane}, {cfg}, package {packageVersion ?? "NBGV"}{(clean ? " (Clean Build)" : "")}");
+    Environment.SetEnvironmentVariable("CI", "true");
+    DeleteExistingPackages(releaseDir, lane);
+
+    if (clean)
+    {
+        await Run("dotnet", new[] { "build-server", "shutdown" }, cwd: Env.Repo, allowFailure: true);
+        DeleteBuildOutputs(Path.Combine(Env.Repo, "src"));
+        DeleteDir(Path.Combine(Env.Repo, "build", "ClientAssets"));
+    }
+
+    DeleteDir(Path.Combine(Env.Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
+    var clientVersion = lane == "v18" ? "18" : "17";
+    var stamp = Path.Combine(Env.Repo, "build", "ClientAssets", $"BackofficeClient_v{clientVersion}.stamp");
+    if (File.Exists(stamp)) File.Delete(stamp);
+
+    if (defaults.Client)
+    {
+        await Run("pnpm",
+            inCi ? new[] { "install", "--frozen-lockfile", "--prefer-offline" }
+                 : new[] { "install", "--prefer-offline" },
+            cwd: clientRoot);
+    }
 
     var cfgName = cfg ?? "Release";
     var common = new[] { "-c", cfgName, "-m:1", "-p:BuildInParallel=false" };
@@ -97,13 +121,13 @@ async Task<int> BuildAsync(Opts o)
     await Run("dotnet", new[] { "build", Env.Solution, "--no-restore", "-v", "minimal",
         "-p:UseSharedCompilation=false" }
         .Concat(common).Concat(props).ToArray());
-    if (tests)
+    if (defaults.Tests)
         await Run("dotnet", new[] { "test", Env.Solution, "--no-restore", "--no-build",
             "-v", "minimal" }
             .Concat(common).Concat(props).ToArray());
 
     var projects = new List<string> { Path.Combine(Env.Repo, "src", "Articulate.Web", "Articulate.Web.csproj") };
-    if (sample) projects.Add(Path.Combine(Env.Repo, "src", "Articulate.Theme.Sample", "Articulate.Theme.Sample.csproj"));
+    if (defaults.Sample) projects.Add(Path.Combine(Env.Repo, "src", "Articulate.Theme.Sample", "Articulate.Theme.Sample.csproj"));
     foreach (var project in projects)
         await Run("dotnet", new[] { "pack", project, "--no-restore", "--no-build",
             "-o", releaseDir, "-v", "minimal" }
@@ -116,10 +140,11 @@ async Task<int> BuildAsync(Opts o)
 async Task<int> ClientAsync(Opts o)
 {
     var workspace = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
+    var laneDir = Path.Combine(workspace, o.Lane());
     await Run("pnpm", new[] { "install", "--frozen-lockfile" }, cwd: workspace);
-    await Run("pnpm", new[] { "run", "check" }, cwd: workspace);
-    await Run("pnpm", new[] { "run", "build" }, cwd: workspace);
-    await Run("pnpm", new[] { "run", "lint" }, cwd: workspace);
+    await Run("pnpm", new[] { "run", "check" }, cwd: laneDir);
+    await Run("pnpm", new[] { "run", "build" }, cwd: laneDir);
+    await Run("pnpm", new[] { "run", "lint" }, cwd: laneDir);
     Console.WriteLine($"Client {o.Lane()} OK.");
     return 0;
 }
@@ -128,6 +153,7 @@ async Task<int> SiteAsync(Opts o)
 {
     var lane = o.Lane();
     var cfg = o.String("configuration", "Debug");
+    ValidateConfiguration(cfg);
     var project = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "Articulate.Tests.Website.csproj");
     if (o.Flag("reset")) DeleteDir(Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco"));
     await Run("dotnet", new[] { "run", "-c", cfg ?? "Debug", "--project", project, $"-p:ArticulatePackageLane={lane}" }, cwd: Env.Repo);
@@ -138,16 +164,15 @@ async Task<int> DockerAsync(string sub, Opts o)
 {
     var lane = o.Lane();
     Env.Require("docker");
-    Env.RequireSecret();
     ConfigureLane(lane);
-    await EnsurePackages(lane);
+    if (sub is "build" or "dev" or "prod") await EnsurePackages(lane);
 
     return sub switch
     {
         "build"  => await DockerBuild(lane, o.String("tag", $"articulate-local:{lane}") ?? $"articulate-local:{lane}"),
         "dev"    => await DockerDev(lane, o.Flag("reset"), o.Flag("skip-smoke")),
-        "prod"   => await DockerProd(lane),
-        "status" => await DockerStatus(),
+        "prod"   => await DockerProd(lane, o.Flag("skip-smoke")),
+        "status" => await DockerStatus(o),
         _ => throw new ArgumentException($"Unknown docker subcommand '{sub}'.")
     };
 }
@@ -160,6 +185,10 @@ async Task<int> DockerBuild(string lane, string tag)
         "build", "--file", "Dockerfile", "--target", "chiseled", "--tag", tag,
         "--build-arg", $"PACKAGE_SOURCE=build/Release/{lane}",
         "--build-arg", $"UMBRACO_CMS_VERSION={cms}",
+        "--build-arg", $"USE_TINYMCE_UMBRACO={Env.Get("USE_TINYMCE_UMBRACO", "false")}",
+        "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_VERSION={Env.Get("TINYMCE_UMBRACO_PACKAGE_VERSION", "17.1.0")}",
+        "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_SOURCE={Env.Get("TINYMCE_UMBRACO_PACKAGE_SOURCE", "build/LocalPackages/TinyMCE.Umbraco")}",
+        "--build-arg", $"USE_TINYMCE_UMBRACO_PACKAGE_SOURCE={Env.Get("USE_TINYMCE_UMBRACO_PACKAGE_SOURCE", "false")}",
         "."
     }, cwd: Env.Repo);
     return 0;
@@ -182,7 +211,7 @@ async Task<int> DockerDev(string lane, bool reset, bool skipSmoke)
     return 0;
 }
 
-async Task<int> DockerProd(string lane)
+async Task<int> DockerProd(string lane, bool skipSmoke)
 {
     Env.RequireSecret();
     ConfigureLane(lane);
@@ -190,12 +219,15 @@ async Task<int> DockerProd(string lane)
     await Compose(new[] { "up", "-d", "--force-recreate" });
     var url = Env.Get("UMBRACO_PUBLIC_URL") ?? $"https://localhost:{Env.Get("CADDY_HTTPS_PORT", "44317")}/";
     await WaitFor(new Uri(new Uri(url), "umbraco/"));
-    await Smoke("smoke");
-    await Smoke("theme");
+    if (!skipSmoke)
+    {
+        await Smoke("smoke");
+        await Smoke("theme");
+    }
     return 0;
 }
 
-async Task<int> DockerStatus()
+async Task<int> DockerStatus(Opts o)
 {
     await Compose(new[] { "ps" });
     var id = (await Capture("docker", new[] { "compose", "ps", "-q", "articulate" }, Env.Repo)).Trim();
@@ -217,8 +249,11 @@ async Task<int> DockerStatus()
     return 0;
 }
 
-async Task<int> DockerTest(string lane, bool keep, bool skipSmoke)
+async Task<int> DockerTest(Opts o)
 {
+    var lane = o.String("lane", "all") ?? "all";
+    var keep = o.Flag("keep");
+    var skipSmoke = o.Flag("skip-smoke");
     if (lane is not ("v17" or "v18" or "all"))
         throw new ArgumentException("--lane must be v17, v18, or all.");
     var lanes = lane is "all" ? new[] { "v17", "v18" } : new[] { lane };
@@ -226,11 +261,17 @@ async Task<int> DockerTest(string lane, bool keep, bool skipSmoke)
     {
         ConfigureLane(l);
         await EnsurePackages(l);
-        await Compose(new[] { "build", "--no-cache", "--pull" });
-        await DockerDev(l, reset: false, skipSmoke);
-        if (!skipSmoke) await DockerProd(l);
-        Console.WriteLine($"PASSED: {l}");
-        if (!keep) await Compose(new[] { "down", "-v" }, allowFailure: true);
+        try
+        {
+            await Compose(new[] { "build", "--no-cache", "--pull" });
+            await DockerDev(l, reset: false, skipSmoke);
+            if (!skipSmoke) await DockerProd(l, skipSmoke: false);
+            Console.WriteLine($"PASSED: {l}");
+        }
+        finally
+        {
+            if (!keep) await Compose(new[] { "down", "-v" }, allowFailure: true);
+        }
     }
     return 0;
 }
@@ -242,24 +283,70 @@ void ConfigureLane(string lane)
     var https = lane == "v18" ? "44318" : "44317";
     var http = lane == "v18" ? "44381" : "44380";
     foreach (var (k, vf) in Env.LaneDefaults)
-        Env.SetDefault(k, vf(lane, https, http));
-    var host = Env.Get("CADDY_HTTPS_HOST", $"localhost:{https}") ?? $"localhost:{https}";
+        Env.Set(k, vf(lane, https, http));
+    var host = Env.HostOverride("CADDY_HTTPS_HOST") ?? $"localhost:{https}";
     var colon = host.LastIndexOf(':');
-    Env.SetDefault("CADDY_TLS_HOST", colon >= 0 ? host[..colon] : host);
+    Env.SetHostValue("CADDY_HTTPS_PORT", https);
+    Env.SetHostValue("CADDY_HTTP_PORT", http);
+    Env.SetHostValue("CADDY_HTTPS_HOST", $"localhost:{https}");
+    Env.SetHostValue("UMBRACO_PUBLIC_HOST", $"https://localhost:{https}");
+    Env.SetHostValue("UMBRACO_PUBLIC_URL", $"https://localhost:{https}/");
+    Env.SetHostValue("ARTICULATE_REDIRECT_URI", $"https://localhost:{https}/a-new/");
+    Env.SetHostValue("ARTICULATE_LOGOUT_REDIRECT_URI", $"https://localhost:{https}/");
+    Env.SetHostValue("CADDY_TLS_HOST", colon >= 0 ? host[..colon] : host);
 }
 
 async Task EnsurePackages(string lane)
 {
-    var major = lane == "v18" ? "7" : "6";
     var dir = Path.Combine(Env.Repo, "build", "Release", lane);
-    var ok = Directory.Exists(dir)
-        && Directory.EnumerateFiles(dir, $"Articulate.{major}.*.nupkg").Any()
-        && Directory.EnumerateFiles(dir, $"Articulate.Theme.Sample.{major}.*.nupkg").Any();
+    var ok = Directory.Exists(dir) && await HasCurrentPackages(dir, lane);
     if (!ok)
     {
-        Env.SetDefault("ARTICULATE_PACKAGE_LANE", lane);
+        Env.Set("ARTICULATE_PACKAGE_LANE", lane);
         await BuildAsync(Opts.Of(("lane", lane), ("sample", "true")));
     }
+}
+
+async Task<bool> HasCurrentPackages(string dir, string lane)
+{
+    var version = await ResolvePackageVersion(lane);
+    if (version is not null)
+        return HasPackage(dir, "Articulate", version) &&
+            HasPackage(dir, "Articulate.Theme.Sample", version);
+
+    var nbgv = (await Capture("nbgv", new[] { "get-version", "-v", "SemVer2" }, Env.Repo)).Trim();
+    var commitSuffix = Regex.Match(nbgv, @"g[a-f0-9]+$").Value;
+    if (string.IsNullOrWhiteSpace(commitSuffix))
+        return HasPackage(dir, "Articulate", nbgv) &&
+            HasPackage(dir, "Articulate.Theme.Sample", nbgv);
+
+    var major = lane == "v18" ? "7" : "6";
+    return Directory.EnumerateFiles(dir, $"Articulate.{major}.*{commitSuffix}.nupkg").Any() &&
+        Directory.EnumerateFiles(dir, $"Articulate.Theme.Sample.{major}.*{commitSuffix}.nupkg").Any();
+}
+
+bool HasPackage(string dir, string id, string version)
+    => Directory.EnumerateFiles(dir, $"{id}.{version}.nupkg").Any();
+
+async Task<string?> ResolvePackageVersion(string lane)
+{
+    var packageVersion = Env.Get("ARTICULATE_PACKAGE_VERSION");
+    if (!string.IsNullOrWhiteSpace(packageVersion)) return packageVersion;
+    if (lane != "v18") return null;
+
+    var baseVersion = File.ReadAllText(Path.Combine(Env.Repo, "build", "v18-version.txt")).Trim();
+    if (string.IsNullOrWhiteSpace(baseVersion))
+        throw new InvalidOperationException("build/v18-version.txt is empty.");
+
+    var v17 = (await Capture("nbgv", new[] { "get-version", "-v", "SemVer2" }, Env.Repo)).Trim();
+    var commitMatch = Regex.Match(v17, @"[-.]g[a-f0-9]+$");
+    return baseVersion + commitMatch.Value;
+}
+
+void ValidateConfiguration(string? configuration)
+{
+    if (configuration is not ("Debug" or "Release"))
+        throw new ArgumentException("--configuration must be Debug or Release.");
 }
 
 // ---- Shell helpers ----
@@ -325,9 +412,21 @@ void DeleteBuildOutputs(string root)
         DeleteDir(d);
 }
 
+void DeleteExistingPackages(string releaseDir, string lane)
+{
+    if (!Directory.Exists(releaseDir)) return;
+    var major = lane == "v18" ? "7" : "6";
+    foreach (var file in Directory.EnumerateFiles(releaseDir))
+    {
+        var name = Path.GetFileName(file);
+        if (Regex.IsMatch(name, $@"^Articulate(?:\.Theme\.Sample)?\.{major}\..*\.s?nupkg$"))
+            File.Delete(file);
+    }
+}
+
 // ---- CA trust ----
 
-async Task<int> DockerCaAsync()
+async Task<int> DockerCaAsync(Opts _)
 {
     var script = OperatingSystem.IsWindows() ? "Trust-CaddyRootCA.ps1" : "trust-caddy-root-ca.sh";
     var path = Path.Combine(Env.DockerDir, script);
@@ -360,6 +459,21 @@ static class Env
     {
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(name)))
             Environment.SetEnvironmentVariable(name, value);
+    }
+
+    public static void Set(string name, string value)
+        => Environment.SetEnvironmentVariable(name, value);
+
+    public static void SetHostValue(string name, string fallback)
+    {
+        var value = HostOverrides[name];
+        Environment.SetEnvironmentVariable(name, string.IsNullOrWhiteSpace(value) ? fallback : value);
+    }
+
+    public static string? HostOverride(string name)
+    {
+        var value = HostOverrides[name];
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
     public static void RequireSecret()
@@ -400,6 +514,18 @@ static class Env
         ("ARTICULATE_LOGOUT_REDIRECT_URI",                       (_, h, _) => $"https://localhost:{h}/"),
     };
 
+    public static readonly Dictionary<string, string?> HostOverrides = new[]
+    {
+        "CADDY_HTTPS_PORT",
+        "CADDY_HTTP_PORT",
+        "CADDY_HTTPS_HOST",
+        "CADDY_TLS_HOST",
+        "UMBRACO_PUBLIC_HOST",
+        "UMBRACO_PUBLIC_URL",
+        "ARTICULATE_REDIRECT_URI",
+        "ARTICULATE_LOGOUT_REDIRECT_URI",
+    }.ToDictionary(name => name, Environment.GetEnvironmentVariable);
+
     static string FindRepo()
     {
         for (var d = new DirectoryInfo(Directory.GetCurrentDirectory()); d is not null; d = d.Parent)
@@ -411,6 +537,16 @@ static class Env
 }
 
 // ---- Options: dict + 4 accessors ----
+
+// ---- Build defaults ----
+
+record BuildDefaults(bool Tests, bool Client, bool Sample)
+{
+    public static BuildDefaults Resolve(Opts o, bool inCi, string? cfg) => new(
+        Tests:  o.Flag("tests")  || o.Bool("tests",  "RUN_TESTS",         inCi),
+        Client: o.Bool("client", "ENABLE_CLIENT_BUILD",                  inCi || cfg == "Release"),
+        Sample: o.Flag("sample") || o.Bool("sample", "PACK_SAMPLE_THEME", !inCi));
+}
 
 sealed class Opts
 {
@@ -436,6 +572,32 @@ sealed class Opts
         return new Opts(d);
     }
 
+    public Opts Validate(string command, params string[] allowed)
+    {
+        var unknown = _v.Keys.Where(key => !allowed.Contains(key, StringComparer.OrdinalIgnoreCase)).ToArray();
+        if (unknown.Length > 0)
+            throw new ArgumentException(
+                $"Unknown option(s) for {command}: {string.Join(", ", unknown.Select(x => $"--{x}"))}. " +
+                $"Run 'dotnet run --file build/build.cs -- help {command}'.");
+
+        RequireValue("lane");
+        RequireValue("configuration");
+        RequireValue("tag");
+        RequireBoolean("tests");
+        RequireBoolean("client");
+        RequireBoolean("sample");
+        RequireFlag("clean");
+        RequireFlag("reset");
+        RequireFlag("skip-smoke");
+        RequireFlag("keep");
+
+        if (String("configuration") is { } configuration &&
+            configuration is not ("Debug" or "Release"))
+            throw new ArgumentException("--configuration must be Debug or Release.");
+
+        return this;
+    }
+
     public string Lane() => (String("lane") ?? Env.Get("ARTICULATE_PACKAGE_LANE", "v17") ?? "v17").ToLowerInvariant() switch
     {
         "v17" => "v17",
@@ -450,5 +612,28 @@ sealed class Opts
             ? bool.TryParse(v, out var b) ? b : Env.IsTrue(v)
             : fallback;
 
+    public bool Bool(string key, string env, bool fallback)
+        => _v.TryGetValue(key, out var v) && v is not null
+            ? bool.TryParse(v, out var b) ? b : Env.IsTrue(v)
+            : Env.Get(env) is { } envValue ? Env.IsTrue(envValue) : fallback;
+
     public bool Flag(string key) => _v.TryGetValue(key, out var v) && v is null;
+
+    void RequireValue(string key)
+    {
+        if (_v.ContainsKey(key) && string.IsNullOrWhiteSpace(_v[key]))
+            throw new ArgumentException($"--{key} requires a value.");
+    }
+
+    void RequireBoolean(string key)
+    {
+        if (String(key) is { } value && !bool.TryParse(value, out _))
+            throw new ArgumentException($"--{key} must be true or false.");
+    }
+
+    void RequireFlag(string key)
+    {
+        if (String(key) is not null)
+            throw new ArgumentException($"--{key} is a flag and does not accept a value.");
+    }
 }

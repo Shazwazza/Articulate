@@ -42,9 +42,9 @@ Options:
   Backoffice files inside the running site.
 - `docker-test --lane v17|v18|all`: choose lanes.
 - `docker-test --keep`: leave successful stacks running.
-- `docker-test --skip-smoke`: build, install, migrate, and check `/umbraco/`.
+- `docker-test --skip-smoke`: build the image, run the dev environment, and verify `/umbraco/` reaches 200. Skips `docker-prod` entirely.
 
-Full smoke tests require `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`.
+Full smoke tests use `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` (defaults are applied if unset via `Env.RequireSecret()`).
 
 | Lane  | Image                  | HTTPS backoffice URL               | HTTP listener             |
 |-------|------------------------|------------------------------------|---------------------------|
@@ -183,7 +183,7 @@ environment variables:
 |-----------------------------------------------|---------------------------------------|--------------------------------------------------------------------------|
 | `ARTICULATE_DEV_AUTOMATION_ENABLED`           | `true`                                | Toggle the bootstrap service entirely.                                   |
 | `ARTICULATE_DEV_AUTOMATION_CLIENT_ID`         | `articulate-dev-automation`           | OAuth client ID used by `smoke.mjs` and MCP clients.                     |
-| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`     | `articulate-dev-local-secret`         | OAuth client secret. Required by `smoke.mjs`; export before invoking it. |
+| `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`     | `articulate-dev-local-secret`         | OAuth client secret. Consumed by `smoke.mjs`; defaults are applied if unset via `Env.RequireSecret()`. |
 | `ARTICULATE_DEV_AUTOMATION_USER_NAME`         | `articulate-dev-automation`           | Backoffice user name to provision.                                       |
 | `ARTICULATE_DEV_AUTOMATION_USER_EMAIL`        | `articulate-dev-automation@localhost` | Backoffice user email.                                                   |
 | `ARTICULATE_DEV_AUTOMATION_USER_DISPLAY_NAME` | `Articulate Dev Automation`           | Backoffice display name.                                                 |

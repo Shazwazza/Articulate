@@ -12,7 +12,7 @@ dotnet run --file build/build.cs -- help [command]
 | `site`          | Run `Articulate.Tests.Website` for one lane.                         |
 | `docker-build`  | Build the standalone chiseled Docker image.                          |
 | `docker-dev`    | Build and start a development stack; publish sample content.         |
-| `docker-prod`   | Restart an existing lane in Production mode and smoke-test it.       |
+| `docker-prod`   | Restart an existing lane in Production mode; skip smoke with `--skip-smoke`. |
 | `docker-status` | Inspect a running lane and verify packaged Backoffice assets.        |
 | `docker-test`   | Run the complete Docker matrix for one or both lanes.                |
 | `docker-ca`     | Export and trust the local Caddy root CA.                            |
@@ -32,11 +32,10 @@ dotnet run --file build/build.cs -- build [options]
 |-----------------------|----------------------------------------|------------------------------------------------------------------------|
 | `--lane`              | `v17`                                  | `v17` (Articulate 6.x for Umbraco 17) or `v18` (Articulate 7.x for Umbraco 18). |
 | `--configuration`     | `BUILD_CONFIGURATION` or `Release`      | `Debug` or `Release`.                                                   |
-| `--tests true\|false` | `true` in CI, else `false`             | Run `dotnet test` after build.                                          |
-| `--client true\|false`| `true` in CI/Release, else `false`     | Build the Backoffice client (Vite + tsc).                              |
-| `--sample true\|false`| `true` locally, `false` in CI          | Pack `Articulate.Theme.Sample` (consumed by Docker, not published).    |
+| `--tests` (flag or `true\|false`) | `RUN_TESTS`, else `true` in CI         | Run `dotnet test` after build. Bare flag forces `true`.                |
+| `--client true\|false`            | `ENABLE_CLIENT_BUILD`, else CI/Release | Build the Backoffice client (Vite + tsc). Bare flag falls back to env. |
+| `--sample` (flag or `true\|false`) | `PACK_SAMPLE_THEME`, else local only   | Pack `Articulate.Theme.Sample`. Bare flag forces `true`.               |
 | `--clean`             | `false`                                | Wipe `src/**/bin`, `src/**/obj`, `build/ClientAssets`, `Client/node_modules` before building. |
-| `--configuration`     | `BUILD_CONFIGURATION` or `Release`      | Override build configuration.                                           |
 
 Packages land in `build/<Configuration>/<lane>/`.
 
@@ -46,7 +45,8 @@ Packages land in `build/<Configuration>/<lane>/`.
 dotnet run --file build/build.cs -- client [--lane v17|v18]
 ```
 
-Runs `pnpm install`, `pnpm run check`, `pnpm run build`, `pnpm run lint` for the Backoffice client workspace.
+Runs `pnpm install` at the client workspace root, then `pnpm run check`,
+`pnpm run build`, and `pnpm run lint` for the selected Backoffice client lane.
 
 ### site
 
@@ -87,17 +87,17 @@ dotnet run --file build/build.cs -- docker-dev [options]
 | `--reset`    | `false` | Run `docker compose down -v` first.                             |
 | `--skip-smoke`| `false`| Skip sample publish/confirm checks.                            |
 
-Without `--skip-smoke`, `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` is required.
+Without `--skip-smoke`, `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` is checked (defaults applied if unset).
 Missing packages are built automatically.
 
 ### docker-prod
 
 ```
-dotnet run --file build/build.cs -- docker-prod [--lane v17|v18]
+dotnet run --file build/build.cs -- docker-prod [--lane v17|v18] [--skip-smoke]
 ```
 
-Requires `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET`. Reuses the selected lane's
-volumes, then runs front-end and theme smoke checks.
+Checks `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` (defaults applied if unset). Reuses the selected lane's
+volumes, then runs front-end and theme smoke checks (skipped if `--skip-smoke` is set).
 
 ### docker-status
 
@@ -124,7 +124,7 @@ Each lane builds without Docker cache, starts in development mode, and, unless
 smoke is skipped, publishes/confirms content then restarts in Production mode
 for front-end and theme checks.
 
-Without `--skip-smoke`, `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` is required.
+Without `--skip-smoke`, `ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET` is checked (defaults applied if unset).
 
 ### docker-ca
 

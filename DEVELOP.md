@@ -113,8 +113,8 @@ tests, the dev automation user, CA trust, the Umbraco MCP integration), see
 
 `EnableClientBuild` defaults to `false` so Visual Studio background builds do
 not clash with Vite output. When you need to rebuild the client during packaging
-or local validation, set `--client true` on the build command or set
-`ENABLE_CLIENT_BUILD=true` inline.
+or local validation, pass `--client true` (or set `ENABLE_CLIENT_BUILD=true`
+inline). A bare `--client` flag falls back to the env/default.
 
 ```powershell
 dotnet run --file build/build.cs -- build --client true
