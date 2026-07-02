@@ -23,8 +23,8 @@
     @Model.RssFeed()
     @Model.RenderOpenSearch()
 
+    <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/normalize/normalize.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
     <environment include="Development">
-        <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/normalize/normalize.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
         <link href="~/App_Plugins/Articulate/Themes/@theme/assets/src/css/screen.css" rel="stylesheet" asp-append-version="true">
     </environment>
     <environment exclude="Development">

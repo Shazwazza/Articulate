@@ -110,7 +110,7 @@ const sideCarAssetsPlugin = (): Plugin => {
           buildPromises.push(
             buildBundle({
               name: `${themeName} CSS`,
-              inputs: [...collectFiles(vendorDir, ".css"), ...collectFiles(srcDir, ".css")],
+              inputs: collectFiles(srcDir, ".css"),
               output: path.join(outDir, "css", `${themeName.toLowerCase()}.min.css`),
               type: 'css', isProd
             })
@@ -119,7 +119,7 @@ const sideCarAssetsPlugin = (): Plugin => {
           buildPromises.push(
             buildBundle({
               name: `${themeName} JS`,
-              inputs: [...collectFiles(vendorDir, ".js"), ...collectFiles(srcDir, ".js")],
+              inputs: collectFiles(srcDir, ".js"),
               output: path.join(outDir, "js", `${themeName.toLowerCase()}.min.js`),
               type: 'js', isProd
             })
@@ -140,7 +140,7 @@ const sideCarAssetsPlugin = (): Plugin => {
         buildPromises.push(
           buildBundle({
             name: "MD Editor CSS",
-            inputs: collectFiles(assetsRoot, ".css"),
+            inputs: collectFiles(srcDir, ".css"),
             output: path.join(outDir, "css", "md-editor.min.css"),
             type: 'css', isProd
           })
