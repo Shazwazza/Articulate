@@ -41,6 +41,7 @@ namespace Articulate.MetaWeblog
         int articulateBlogRootNodeId,
         IArticulateImportMediaService service,
         IArticulateMarkdownConverter articulateMarkdownConverter,
+        IArticulateRichTextRenderer richTextRenderer,
         ArticulateTagService articulateTagService,
         BackOfficeAuthService backOfficeAuthService,
         IHtmlSanitizer htmlSanitizer
@@ -668,7 +669,7 @@ namespace Articulate.MetaWeblog
                 mt_keywords = string.Join(',', tags),
                 categories = categories,
                 description = post.ContentType.Alias == ArticulateConstants.ContentType.ArticulateRichText
-                    ? post.GetValue<string>("richText")
+                    ? richTextRenderer.GetRenderedMarkup(post)
                     : articulateMarkdownConverter.ToHtml(post.GetValue<string>("markdown") ?? string.Empty),
                 permalink = post.GetValue<string>(Constants.Conventions.Content.UrlName).IsNullOrWhiteSpace()
                     ? post.Name?.ToUrlSegment(shortStringHelper)

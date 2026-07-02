@@ -17,7 +17,8 @@ namespace Articulate.Components
         IContentTypeService contentTypeService,
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         IOptions<ArticulateOptions> articulateOptions,
-        IArticulateMarkdownConverter articulateMarkdownConverter)
+        IArticulateMarkdownConverter articulateMarkdownConverter,
+        IArticulateRichTextRenderer richTextRenderer)
         : INotificationHandler<ContentSavingNotification>
     {
         private readonly ArticulateOptions _articulateOptions = articulateOptions.Value;
@@ -131,9 +132,10 @@ namespace Articulate.Components
                 var val = content.GetValue<string>(
                     "richText",
                     richTextProperty.VariesByCulture() ? culture?.Culture : null);
-                return string.IsNullOrWhiteSpace(val)
+                var markup = richTextRenderer.GetMarkup(val);
+                return string.IsNullOrWhiteSpace(markup)
                     ? string.Empty
-                    : _articulateOptions.GenerateExcerpt(val);
+                    : _articulateOptions.GenerateExcerpt(markup);
             }
 
             if (content.HasProperty("markdown"))

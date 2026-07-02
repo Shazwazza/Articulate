@@ -33,7 +33,8 @@ namespace Articulate.ImportExport
         IPublishedUrlProvider urlProvider,
         ISqlContext sqlContext,
         ILogger<BlogMlExporter> logger,
-        IArticulateMarkdownConverter articulateMarkdownConverter)
+        IArticulateMarkdownConverter articulateMarkdownConverter,
+        IArticulateRichTextRenderer richTextRenderer)
     {
         /// <summary>
         /// Exports the blog content from a root node to a BlogML file.
@@ -249,9 +250,9 @@ namespace Articulate.ImportExport
         {
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateRichText))
             {
-                // Export the stored rich-text HTML as-is. Block/grid expansion is editor-specific
-                // and should be added only when BlogML can represent those structures explicitly.
-                return child.GetValue<string>("richText") ?? string.Empty;
+                // Prefer Umbraco's published value converter so configured RTE blocks render through
+                // the same pipeline as the front end. Fall back to stored markup when unpublished.
+                return richTextRenderer.GetRenderedMarkup(child);
             }
 
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateMarkdown))

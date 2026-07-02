@@ -177,6 +177,13 @@ implementation for BlogML import. The BlogML safety rules around image
 allowlisting and SSRF apply to any custom importer you add — keep the
 `AllowedMediaHosts` and `MaxImportImageBytes` configuration knobs in mind.
 
+### Rich text compatibility
+
+For the fuller rich-text upgrade and compatibility notes, see the wiki. The
+code keeps `Umbraco.RichText` as the stable schema, and the `EditorUiAlias`
+migration only runs when TinyMCE is not available. When `TinyMCE.Umbraco` is
+installed for a lane, Articulate leaves that editor path alone on first boot.
+
 ### Backoffice extensions
 
 `umbraco-package.json` is the backoffice manifest. To extend the backoffice,

@@ -12,15 +12,12 @@ package line to the target Umbraco version:
 
 ## Rich-text editor migration
 
-On Umbraco 16+, Articulate migrates the built-in `Umbraco.RichText` property
-editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the
-TinyMCE editor UI is not registered.
-
-To keep TinyMCE, install
-[TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco)
-before starting the upgraded site for the first time. Once Umbraco records
-the migration as complete, it is not run again. This setting affects upgrades
-only.
+See [Migration from v5 to v6](https://github.com/Shazwazza/Articulate/wiki/Migration-from-v5-to-v6)
+for the full rich-text upgrade behavior. In short: Articulate keeps
+`Umbraco.RichText` stable, migrates `EditorUiAlias` to Tiptap when TinyMCE is
+absent, and preserves TinyMCE when
+[TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) is
+present at first boot.
 
 ## Moving from Articulate 5
 
