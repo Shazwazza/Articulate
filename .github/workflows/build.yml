@@ -21,6 +21,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
+      ENABLE_CLIENT_BUILD: false # <-- future PR pr/v18-client removes it
       # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
       VSTEST_CONNECTION_TIMEOUT: 60
       DOTNET_SYSTEM_NET_DISABLEIPV6: 1
@@ -97,9 +98,6 @@ jobs:
           echo "Articulate v18 lane: $V18_VERSION"
 
       - name: Run build pipeline script
-        env:
-          # v17 lane: Client/ workspace exists; build the backoffice bundle
-          ENABLE_CLIENT_BUILD: true
         shell: bash
         run: |
           set -euo pipefail
@@ -116,9 +114,6 @@ jobs:
       # then, running v18 here references non-existent files.
       - name: Run v18 lane build
         if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
-        env:
-          # v18 lane: build the package now; Client/v18/ lands in #532
-          ENABLE_CLIENT_BUILD: false
         shell: bash
         run: |
           set -euo pipefail
