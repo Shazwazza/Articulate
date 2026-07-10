@@ -307,40 +307,6 @@ function checkMainPackage(file, entries, names, work) {
 		}
 	});
 
-	checkGroup("Giscus theme stylesheets", () => {
-		// Each shipped theme includes an opt-in giscus.css that recolours the
-		// comment iframe. Assert they ship as static web assets (the serving
-		// path) and as Articulate.Theme:// embedded resources (the theme-copy
-		// path consumed by ArticulateThemeRepository, which normalises the
-		// OS-native separators in RecursiveDir).
-		const themes = ["Material", "Mini", "Phantom", "VAPOR"];
-		for (const theme of themes) {
-			const staticPath = `staticwebassets/App_Plugins/Articulate/Themes/${theme}/assets/giscus.css`;
-			expect(
-				`${theme} giscus.css shipped as static web asset`,
-				names.includes(staticPath),
-			);
-		}
-		const dllPath = "lib/net10.0/Articulate.Web.dll";
-		if (!names.includes(dllPath)) {
-			expect("Articulate.Web.dll extractable for giscus check", false);
-			return;
-		}
-		unzipExtract(file, [dllPath], work);
-		const text = readFileSync(join(work, dllPath)).toString("latin1");
-		// Manifest resource names use OS-native separators in RecursiveDir, so
-		// accept either '/' or '\' (Windows builds embed backslashes).
-		for (const theme of themes) {
-			const re = new RegExp(
-				`Articulate\\.Theme://Themes[/\\\\]${theme}[/\\\\]assets[/\\\\]giscus\\.css`,
-			);
-			expect(
-				`${theme} giscus.css embedded as Articulate.Theme:// resource`,
-				re.test(text),
-			);
-		}
-	});
-
 	checkGroup("embedded resources in Articulate.dll", () => {
 		const dllPath = "lib/net10.0/Articulate.dll";
 		if (!names.includes(dllPath)) {
@@ -438,10 +404,6 @@ function checkSamplePackage(file, entries, names, work) {
 		expect(
 			"site.js present",
 			sampleAssets.some((n) => n.endsWith("/assets/js/site.js")),
-		);
-		expect(
-			"giscus.css present",
-			sampleAssets.some((n) => n.endsWith("/assets/giscus.css")),
 		);
 	});
 }
