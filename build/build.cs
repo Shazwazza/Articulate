@@ -283,9 +283,7 @@ static class BuildApp
             // Release-tagged commits produce clean NBGV semver (e.g. "7.0.0")
             // with no commit-hash suffix. In that case, baseVersion alone is
             // the final v18 version.
-            // Match either the CLI dev form (6.1.0-g<hash>, dash before g) or
-            // the MSBuild preview form (6.1.0--preview.N.g<hash>, dot before g).
-            var commitMatch = Regex.Match(v17, @"[-.]g[a-f0-9]+$");
+            var commitMatch = Regex.Match(v17, @"\.g[a-f0-9]+$");
             packageVersion = baseVersion + commitMatch.Value;
         }
 
@@ -315,16 +313,9 @@ static class BuildApp
 
         // v17 and v18 share the same Vite output dir but have per-lane
         // stamps, so without this a v18 build leaks its bundle into a
-        // subsequent v17 pack. See BUILD.md "Package lanes" for the
+        // subsequent v17 pack. See DEVELOP.md "Package lanes" for the
         // TODO follow-up.
         DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
-        // BuildBackofficeClient is incremental (Inputs=source, Outputs=stamp),
-        // so it SKIPS when the stamp is newer than its inputs. We just deleted
-        // its output dir, so the stamp is now stale — invalidate it or Vite
-        // skips and the package ships with an empty BackOffice. This fixes
-        // non-clean rebuilds (the --clean path already wipes ClientAssets).
-        var stamp = Path.Combine(BuildDir, "ClientAssets", $"BackofficeClient_v{clientVersion}.stamp");
-        if (File.Exists(stamp)) File.Delete(stamp);
 
         if (clientBuild)
         {
@@ -693,6 +684,7 @@ sealed class Options
 
         RequireValue("lane");
         RequireValue("configuration");
+        RequireValue("client");
         RequireValue("tag");
         RequireBoolean("tests");
         RequireBoolean("client");
