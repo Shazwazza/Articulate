@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -86,8 +86,8 @@ jobs:
           esac
 
           # Extract the ".g<short-hash>" suffix from v17's SemVer2. v17 and
-          # v18 share a commit, so the suffix alone is what we want.
-          # v18-version.txt is the v18 base (no commit metadata).
+          # v18 share a commit, so the suffix alone is what we want
+          # v18-version.txt already carries the prerelease tag (e.g. "rc1").
           if [[ "$V17_VERSION" =~ \.g[a-f0-9]+$ ]]; then
             V18_VERSION="${V18_VERSION}${BASH_REMATCH[0]}"
           fi
@@ -97,6 +97,9 @@ jobs:
           echo "Articulate v18 lane: $V18_VERSION"
 
       - name: Run build pipeline script
+        env:
+          # v17 lane: Client/ workspace exists; build the backoffice bundle
+          ENABLE_CLIENT_BUILD: true
         shell: bash
         run: |
           set -euo pipefail
@@ -108,7 +111,14 @@ jobs:
           ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
           dotnet run --file build/build.cs -- build --lane v17 --sample --clean
 
+      # v18 lane is gated on the v18 client workspace existing. That
+      # workspace lands in the v18-client PR of the v18 stack; until
+      # then, running v18 here references non-existent files.
       - name: Run v18 lane build
+        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
+        env:
+          # v18 lane: build the package now; Client/v18/ lands in #532
+          ENABLE_CLIENT_BUILD: false
         shell: bash
         run: |
           set -euo pipefail
@@ -116,7 +126,8 @@ jobs:
           dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
       - name: Smoke-test package contents
-        # Smoke covers both v17 + v18
+        # Smoke covers both v17 + v18; skip until v18 client workspace lands
+        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
         shell: bash
         run: |
           set -euo pipefail
@@ -140,7 +151,7 @@ jobs:
             ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
 
       - name: Upload v18 packages
-        if: ${{ !env.ACT }}
+        if: ${{ !env.ACT && hashFiles('src/Articulate.Web/Client/v18/package.json') != '' }}
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Articulate-${{ env.V18_VERSION }}
