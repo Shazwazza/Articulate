@@ -126,17 +126,17 @@ jobs:
           dotnet run --file build/build.cs -- build --lane v18 --sample --clean
 
       - name: Smoke-test package contents
-        # Smoke covers both v17 + v18; skip until v18 client workspace lands
+        # v18 lane is built but without client assets until #532 lands; only
+        # smoke the v17 package for backoffice bundles, themes and markdown.
         if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
         shell: bash
         run: |
           set -euo pipefail
-          # Verify each lane's .nupkg / .snupkg has the expected shape
+          # Verify the v17 .nupkg / .snupkg has the expected shape
           # (manifest, backoffice bundles, themes, embedded resources,
           # razor-compiled views, no lock files) before we publish them.
           node build/smoke-package.mjs \
-            build/Release/v17 \
-            build/Release/v18
+            build/Release/v17
 
       - name: Upload v17 packages
         if: ${{ !env.ACT }}
@@ -151,7 +151,7 @@ jobs:
             ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
 
       - name: Upload v18 packages
-        if: ${{ !env.ACT && hashFiles('src/Articulate.Web/Client/v18/package.json') != '' }}
+        if: ${{ !env.ACT && hashFiles('src/**/v18/package.json') != '' }}
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Articulate-${{ env.V18_VERSION }}
