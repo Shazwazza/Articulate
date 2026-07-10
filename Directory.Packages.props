@@ -5,8 +5,8 @@
 		<CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
 	</PropertyGroup>
 	<PropertyGroup>
-		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
-		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.0.0,19.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">[17.5.3,18.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.0.2,19.0.0)</UmbracoCmsPackageVersion>
 		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">2.4.0</UmbracoCodePackageVersion>
 		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">3.0.0-beta</UmbracoCodePackageVersion>
 		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
