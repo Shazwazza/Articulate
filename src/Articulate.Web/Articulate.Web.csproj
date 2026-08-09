@@ -76,7 +76,7 @@
     <ClientProjectDirectory>$(MSBuildProjectDirectory)/Client</ClientProjectDirectory>
     <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">17</UmbracoClientVersion>
     <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
-    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
+    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17' and Exists('$(ClientProjectDirectory)/v17/package.json')">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
     <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
     <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
