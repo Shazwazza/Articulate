@@ -13,24 +13,28 @@
 - MetaWeblog provider already uses [GeneratedRegex] source-generated regexes (good pattern)
 - ObjectPool<StringBuilder> available transitively via ASP.NET Core (Microsoft.Extensions.ObjectPool)
 - TemplateMatcher.TryMatch is thread-safe (only writes to caller-supplied RouteValueDictionary)
+- Big refactor merged PR #520 (2026-07-02): Umbraco 18 lane, CPM, locked packable deps, net10.0 TFM
+- RssFeedGenerator.GetFeedItem computes mediaRoot/rootUrlTrimmed per post — could be hoisted (virtual method makes it tricky)
 
 ## Optimisation Backlog
 | Priority | Area | Opportunity | Notes |
 |---|---|---|---|
 | MEDIUM | Data | `GetPagedPostsSortedByPublishedDate` loads ALL posts into memory before paging | Architectural (Umbraco IPublishedCache) |
 | LOW | Code | `ContentExtensions.VariesByCulture` linear scan of `CompositionPropertyTypes` | Not a hot path |
+| LOW | Code | `RssFeedGenerator.GetFeedItem` computes mediaRoot/rootUrlTrimmed per-post | `GetFeedItem` is protected virtual — harder to hoist without API change |
 
 ## Completed Work
-- 2026-05-25: PR #481 — static readonly SearchFields FrozenDictionary in DefaultArticulateSearcher (merged 2026-05-27)
-- 2026-05-29: PR #485 — cache publishedDate property type ID in GetContentByTag (merged 2026-06-01)
-- 2026-06-02: PR #486 — replace Regex.IsMatch with char-based check in IsDisqusEnabled (open, draft)
-- 2026-06-03: PR #489 — pool StringBuilder in DefaultArticulateSearcher.Search() (open, draft)
-- 2026-06-04: PR #491 — cache queryStrings.ToString() in PagingHelper.TryCreatePager (open, draft)
-- 2026-06-07: PR #493 — hoist TrimEnd/EnsureStartsWith in RssFeedGenerator.GetFeedItem (open, draft)
-- 2026-06-08: PR #495 — hoist EnsureEndsWith out of per-author loop and AdvertiseWeblogApi (open, draft)
-- 2026-06-09: PR #497 — replace ParseExact+catch with TryParseExact in DateFormattedPostContentFinder (open, draft)
-- 2026-06-12: PR #500 (est.) — cache TemplateMatcher in ArticulateRouteTemplate (open, draft; branch: efficiency/cache-template-matcher)
+- 2026-05-25: PR #481 — static readonly SearchFields FrozenDictionary in DefaultArticulateSearcher (merged)
+- 2026-05-29: PR #485 — cache publishedDate property type ID in GetContentByTag (merged)
+- 2026-06-02: PR #486 — replace Regex.IsMatch with char-based check in IsDisqusEnabled (closed)
+- 2026-06-03: PR #489 — pool StringBuilder in DefaultArticulateSearcher.Search() (closed)
+- 2026-06-04: PR #491 — cache queryStrings.ToString() in PagingHelper.TryCreatePager (closed)
+- 2026-06-07: PR #493 — hoist TrimEnd/EnsureStartsWith in RssFeedGenerator.GetFeedItem (closed)
+- 2026-06-08: PR #495 — hoist EnsureEndsWith out of per-author loop and AdvertiseWeblogApi (closed)
+- 2026-06-09: PR #497 — replace ParseExact+catch with TryParseExact in DateFormattedPostContentFinder (closed)
+- 2026-06-12: PR #500 — cache TemplateMatcher in ArticulateRouteTemplate (closed)
+- 2026-08-14: PR (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop in GetContentId
 
 ## Last Run
-- 2026-06-12: Tasks 3, 7
-- Monthly Activity: June issue #487 updated
+- 2026-08-14: Tasks 3, 7
+- Monthly Activity: Closed June issue #487, created August 2026 issue
