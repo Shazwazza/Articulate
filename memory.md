@@ -15,6 +15,7 @@
 - TemplateMatcher.TryMatch is thread-safe (only writes to caller-supplied RouteValueDictionary)
 - Big refactor merged PR #520 (2026-07-02): Umbraco 18 lane, CPM, locked packable deps, net10.0 TFM
 - RssFeedGenerator.GetFeedItem computes mediaRoot/rootUrlTrimmed per post — could be hoisted (virtual method makes it tricky)
+- AffectsArticulateRoutes is called per content-cache-refresh, iterates all Articulate root nodes
 
 ## Optimisation Backlog
 | Priority | Area | Opportunity | Notes |
@@ -33,8 +34,9 @@
 - 2026-06-08: PR #495 — hoist EnsureEndsWith out of per-author loop and AdvertiseWeblogApi (closed)
 - 2026-06-09: PR #497 — replace ParseExact+catch with TryParseExact in DateFormattedPostContentFinder (closed)
 - 2026-06-12: PR #500 — cache TemplateMatcher in ArticulateRouteTemplate (closed)
-- 2026-08-14: PR (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop in GetContentId
+- 2026-08-14: PR #566 (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop in GetContentId
+- 2026-08-15: PR (branch: efficiency/hoist-changedpath-concat) — hoist changedPath concat out of per-node loop in AffectsArticulateRoutes
 
 ## Last Run
-- 2026-08-14: Tasks 3, 7
-- Monthly Activity: Closed June issue #487, created August 2026 issue
+- 2026-08-15: Tasks 3, 7
+- Monthly Activity: Updated August 2026 issue #567
