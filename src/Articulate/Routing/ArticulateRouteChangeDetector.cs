@@ -22,9 +22,10 @@ namespace Articulate.Routing
                 return false;
             }
 
+            var changedPathPrefix = changedPath + ",";
             foreach (IPublishedContent articulateNode in articulateNodes)
             {
-                if (articulateNode.Path.InvariantStartsWith(changedPath + ","))
+                if (articulateNode.Path.InvariantStartsWith(changedPathPrefix))
                 {
                     return true;
                 }
