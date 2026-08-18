@@ -16,7 +16,8 @@
 - Big refactor merged PR #520 (2026-07-02): Umbraco 18 lane, CPM, locked packable deps, net10.0 TFM
 - RssFeedGenerator.GetFeedItem computes mediaRoot/rootUrlTrimmed per post — could be hoisted (virtual method makes it tricky)
 - AffectsArticulateRoutes is called per content-cache-refresh, iterates all Articulate root nodes
-- GetDefaultIsoCodeAsync called in notification handlers; hoisted with ??= pattern in PR (2026-08-17)
+- GetDefaultIsoCodeAsync called in notification handlers; hoisted with ??= pattern in PR #570 (2026-08-17)
+- StringExtensions._newlineRegex migrated to [GeneratedRegex] in PR #572 (2026-08-18)
 
 ## Optimisation Backlog
 | Priority | Area | Opportunity | Notes |
@@ -37,8 +38,9 @@
 - 2026-06-12: PR #500 — cache TemplateMatcher in ArticulateRouteTemplate (closed)
 - 2026-08-14: PR #566 (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop in GetContentId
 - 2026-08-15: PR #568 (branch: efficiency/hoist-changedpath-concat) — hoist changedPath concat out of per-node loop in AffectsArticulateRoutes
-- 2026-08-17: PR (branch: efficiency/hoist-getdefaultisocode) — hoist GetDefaultIsoCodeAsync out of per-entity loops in ContentSaved/Published handlers using ??= lazy pattern
+- 2026-08-17: PR #570 (branch: efficiency/hoist-getdefaultisocode) — hoist GetDefaultIsoCodeAsync out of per-entity loops in ContentSaved/Published handlers using ??= lazy pattern
+- 2026-08-18: PR #572 (branch: efficiency/generated-regex-newline) — migrate StringExtensions._newlineRegex to [GeneratedRegex]
 
 ## Last Run
-- 2026-08-17: Tasks 3, 7
+- 2026-08-18: Tasks 3, 7
 - Monthly Activity: Updated August 2026 issue #567
