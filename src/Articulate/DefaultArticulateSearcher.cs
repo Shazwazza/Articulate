@@ -79,8 +79,9 @@ namespace Articulate
             foreach (KeyValuePair<string, int> field in fields)
             {
                 // full exact match (which has a higher boost)
-                _ = fieldQuery.Append($"{field.Key}:\"{escapedTerm}\"^{field.Value * exactMatch}");
-                _ = fieldQuery.Append(' ');
+                // Chained Append calls avoid the intermediate heap-allocated string that
+                // interpolated strings ($"...") would produce inside this hot nested loop.
+                fieldQuery.Append(field.Key).Append(":\"").Append(escapedTerm).Append("\"^").Append(field.Value * exactMatch).Append(' ');
 
                 // NOTE: Phrase match wildcard isn't really supported unless you use the Lucene
                 // API like ComplexPhraseWildcardSomethingOrOther...
@@ -90,12 +91,10 @@ namespace Articulate
                     var escapedSplitTerm = QueryParserBase.Escape(s);
 
                     // match on each term, no wildcard, higher boost
-                    _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}^{field.Value * termMatch}");
-                    _ = fieldQuery.Append(' ');
+                    fieldQuery.Append(field.Key).Append(':').Append(escapedSplitTerm).Append('^').Append(field.Value * termMatch).Append(' ');
 
                     // match on each term, with wildcard
-                    _ = fieldQuery.Append($"{field.Key}:{escapedSplitTerm}*");
-                    _ = fieldQuery.Append(' ');
+                    fieldQuery.Append(field.Key).Append(':').Append(escapedSplitTerm).Append("* ");
                 }
             }
 
