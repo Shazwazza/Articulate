@@ -23,9 +23,9 @@ IUmbracoBuilder umbBuilder = builder.CreateUmbracoBuilder()
     .AddDeliveryApi()
     .AddComposers();
 
-_ = umbBuilder.Services.AddOptions<ArticulateDevAutomationOptions>()
-    .BindConfiguration(ArticulateDevAutomationOptions.SectionName);
-_ = umbBuilder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, ArticulateDevAutomationBootstrapper>();
+_ = umbBuilder.Services.AddOptions<ArticulateTestSiteOptions>()
+    .BindConfiguration(ArticulateTestSiteOptions.SectionName);
+_ = umbBuilder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, ArticulateTestSiteBootstrapper>();
 
 umbBuilder.Build();
 

@@ -6,6 +6,8 @@
     <AssemblyName>ArticulateDockerSite</AssemblyName>
     <!-- Direct-use fallback; lane orchestrators pass the exact package version. -->
     <ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)' == ''">0.0.0-local</ArticulatePackageVersion>
+    <UseTinyMceUmbraco Condition="'$(UseTinyMceUmbraco)' == ''">false</UseTinyMceUmbraco>
+    <!-- TinyMceUmbracoPackageVersion comes from Directory.Packages.props (CPM, per-lane floor). -->
   </PropertyGroup>
   <ItemGroup>
     <!-- Versions resolved from properties so this minimal scaffold builds
@@ -13,5 +15,8 @@
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Articulate" VersionOverride="$(ArticulatePackageVersion)" />
     <PackageReference Include="Articulate.Theme.Sample" VersionOverride="$(ArticulatePackageVersion)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseTinyMceUmbraco)' == 'true'">
+    <PackageReference Include="TinyMCE.Umbraco" VersionOverride="$(TinyMceUmbracoPackageVersion)" />
   </ItemGroup>
 </Project>

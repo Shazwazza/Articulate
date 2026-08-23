@@ -21,19 +21,19 @@ namespace ArticulateDockerSite.Services
     /// The unattended install user is a regular backoffice account and cannot be used with the
     /// client_credentials grant required by the Umbraco Management API token endpoint. We therefore
     /// provision a separate <see cref="UserKind.Api"/> user and bind it to a client id/secret pair
-    /// so smoke tests and dev automation can obtain a bearer token without manual backoffice setup.
+    /// so smoke tests and test-site bootstrap can obtain a bearer token without manual backoffice setup.
     /// </remarks>
-    internal sealed class ArticulateDevAutomationBootstrapper(
+    internal sealed class ArticulateTestSiteBootstrapper(
                 IServiceScopeFactory scopeFactory,
-                IOptions<ArticulateDevAutomationOptions> options,
+                IOptions<ArticulateTestSiteOptions> options,
                 IOptions<RuntimeSettings> runtimeSettings,
                 IRuntimeState runtimeState,
                 IBackOfficeApplicationManager backOfficeApplicationManager,
-                ILogger<ArticulateDevAutomationBootstrapper> logger) :
+                ILogger<ArticulateTestSiteBootstrapper> logger) :
                 INotificationAsyncHandler<UmbracoApplicationStartedNotification>
     {
         private const string ProductionSkipMessage =
-                "Skipping Articulate dev automation bootstrap: production mode does not allow dev-only client provisioning.";
+                "Skipping Articulate test-site bootstrap: production mode does not allow dev-only client provisioning.";
 
         /// <inheritdoc />
         public Task HandleAsync(
@@ -43,7 +43,7 @@ namespace ArticulateDockerSite.Services
 
         private async Task EnsureBootstrapAsync(CancellationToken cancellationToken)
         {
-            ArticulateDevAutomationOptions settings = options.Value;
+            ArticulateTestSiteOptions settings = options.Value;
 
             if (runtimeSettings.Value.Mode == RuntimeMode.Production)
             {
@@ -53,14 +53,14 @@ namespace ArticulateDockerSite.Services
 
             if (runtimeState.Level == RuntimeLevel.Install)
             {
-                logger.LogWarning("Skipping Articulate dev automation bootstrap: Umbraco installer is running.");
+                logger.LogWarning("Skipping Articulate test-site bootstrap: Umbraco installer is running.");
                 return;
             }
 
             if (runtimeState.Level < RuntimeLevel.Run)
             {
                 logger.LogWarning(
-                    "Skipping Articulate dev automation bootstrap: runtime level '{Level}' is below Run.",
+                    "Skipping Articulate test-site bootstrap: runtime level '{Level}' is below Run.",
                     runtimeState.Level);
                 return;
             }
@@ -78,9 +78,9 @@ namespace ArticulateDockerSite.Services
             IBackOfficeUserClientCredentialsManager credentialsManager = sp.GetRequiredService<IBackOfficeUserClientCredentialsManager>();
             IUserGroupService userGroupService = sp.GetRequiredService<IUserGroupService>();
 
-            IUser? clientBoundUser = await userService.FindByClientIdAsync(settings.ClientId);
+            IUser? clientBoundUser = await userService.FindByClientIdAsync(ArticulateTestSiteOptions.ClientId);
 
-            IReadOnlyList<IReadOnlyUserGroup> requiredGroups = await ResolveGroupsAsync(userGroupService, settings.UserGroupAliases, cancellationToken);
+            IReadOnlyList<IReadOnlyUserGroup> requiredGroups = await ResolveGroupsAsync(userGroupService, [ArticulateTestSiteOptions.UserGroupAlias], cancellationToken);
             if (requiredGroups.Count == 0)
             {
                 return;
@@ -99,10 +99,10 @@ namespace ArticulateDockerSite.Services
             if (ensured)
             {
                 logger.LogInformation(
-                    "Articulate dev automation bootstrap ensured API user '{Email}' with client '{ClientId}' and groups [{Groups}].",
-                    settings.Email,
-                    settings.ClientId,
-                    string.Join(", ", settings.UserGroupAliases));
+                    "Articulate test-site bootstrap ensured API user '{Email}' with client '{ClientId}' and groups [{Groups}].",
+                    ArticulateTestSiteOptions.Email,
+                    ArticulateTestSiteOptions.ClientId,
+                    string.Join(", ", [ArticulateTestSiteOptions.UserGroupAlias]));
             }
         }
 
@@ -112,7 +112,7 @@ namespace ArticulateDockerSite.Services
             ICoreBackOfficeUserManager coreUserManager,
             IBackOfficeUserClientCredentialsManager credentialsManager,
             IBackOfficeApplicationManager backOfficeAppManager,
-            ArticulateDevAutomationOptions settings,
+            ArticulateTestSiteOptions settings,
             IReadOnlyList<IReadOnlyUserGroup> requiredGroups,
             CancellationToken cancellationToken)
         {
@@ -139,28 +139,28 @@ namespace ArticulateDockerSite.Services
             IUser? clientBoundUser,
             IBackOfficeUserStore userStore,
             ICoreBackOfficeUserManager coreUserManager,
-            ArticulateDevAutomationOptions settings,
+            ArticulateTestSiteOptions settings,
             IReadOnlyList<IReadOnlyUserGroup> requiredGroups)
         {
-            IUser? user = clientBoundUser ?? await userStore.GetByEmailAsync(settings.Email);
+            IUser? user = clientBoundUser ?? await userStore.GetByEmailAsync(ArticulateTestSiteOptions.Email);
             if (user is null)
             {
-                IdentityCreationResult? createResult = await CreateApiUserAsync(coreUserManager, settings, requiredGroups);
+                IdentityCreationResult? createResult = await CreateApiUserAsync(coreUserManager, requiredGroups);
                 if (createResult is null || !createResult.Succeded)
                 {
                     logger.LogWarning(
-                        "Articulate dev automation API user '{Email}' could not be created: {ErrorMessage}",
-                        settings.Email,
+                        "Articulate test-site API user '{Email}' could not be created: {ErrorMessage}",
+                        ArticulateTestSiteOptions.Email,
                         createResult?.ErrorMessage ?? "unknown error");
                     return null;
                 }
 
-                user = await userStore.GetByEmailAsync(settings.Email);
+                user = await userStore.GetByEmailAsync(ArticulateTestSiteOptions.Email);
                 if (user is null)
                 {
                     logger.LogWarning(
-                        "Articulate dev automation API user '{Email}' was created but could not be reloaded.",
-                        settings.Email);
+                        "Articulate test-site API user '{Email}' was created but could not be reloaded.",
+                        ArticulateTestSiteOptions.Email);
                     return null;
                 }
             }
@@ -172,13 +172,13 @@ namespace ArticulateDockerSite.Services
             IUser user,
             IBackOfficeUserStore userStore,
             IReadOnlyList<IReadOnlyUserGroup> requiredGroups,
-            ArticulateDevAutomationOptions settings)
+            ArticulateTestSiteOptions settings)
         {
             if (user.Kind != UserKind.Api)
             {
                 logger.LogWarning(
-                    "Articulate dev automation bootstrap found an existing non-API user '{Email}'. Create an API user or change the bootstrap email.",
-                    settings.Email);
+                    "Articulate test-site bootstrap found an existing non-API user '{Email}'. Create an API user or change the bootstrap email.",
+                    ArticulateTestSiteOptions.Email);
                 return false;
             }
 
@@ -195,8 +195,8 @@ namespace ArticulateDockerSite.Services
                 if (saveStatus != UserOperationStatus.Success)
                 {
                     logger.LogWarning(
-                        "Articulate dev automation bootstrap could not persist user '{Email}' group membership. Status: {Status}",
-                        settings.Email,
+                        "Articulate test-site bootstrap could not persist user '{Email}' group membership. Status: {Status}",
+                        ArticulateTestSiteOptions.Email,
                         saveStatus);
                     return false;
                 }
@@ -210,67 +210,44 @@ namespace ArticulateDockerSite.Services
             IUser? clientBoundUser,
             IBackOfficeUserClientCredentialsManager credentialsManager,
             IBackOfficeApplicationManager backOfficeAppManager,
-            ArticulateDevAutomationOptions settings,
+            ArticulateTestSiteOptions settings,
             CancellationToken cancellationToken)
         {
             if (clientBoundUser is null)
             {
                 Attempt<BackOfficeUserClientCredentialsOperationStatus> credentialsResult =
-                    await credentialsManager.SaveAsync(user.Key, settings.ClientId, settings.ClientSecret!);
+                    await credentialsManager.SaveAsync(user.Key, ArticulateTestSiteOptions.ClientId, settings.ClientSecret!);
 
-                if (!credentialsResult.Success)
+                // DuplicateClientId means the credentials already exist from a previous boot — treat as success.
+                if (!credentialsResult.Success &&
+                    credentialsResult.Result != BackOfficeUserClientCredentialsOperationStatus.DuplicateClientId)
                 {
                     logger.LogWarning(
-                        "Articulate dev automation client credentials for '{ClientId}' could not be created. Status: {Status}",
-                        settings.ClientId,
+                        "Articulate test-site bootstrap client credentials for '{ClientId}' could not be created. Status: {Status}",
+                        ArticulateTestSiteOptions.ClientId,
                         credentialsResult.Result);
                     return false;
                 }
             }
 
             await backOfficeAppManager.EnsureBackOfficeClientCredentialsApplicationAsync(
-                settings.ClientId,
+                ArticulateTestSiteOptions.ClientId,
                 settings.ClientSecret!,
                 cancellationToken);
 
             return true;
         }
 
-        private bool ValidateOptions(ArticulateDevAutomationOptions settings)
+        private bool ValidateOptions(ArticulateTestSiteOptions settings)
         {
             if (!settings.Enabled)
             {
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(settings.ClientId))
-            {
-                logger.LogWarning("Skipping Articulate dev automation bootstrap: no client id was configured.");
-                return false;
-            }
-
             if (string.IsNullOrWhiteSpace(settings.ClientSecret))
             {
-                logger.LogWarning("Skipping Articulate dev automation bootstrap: no client secret was configured.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(settings.Email))
-            {
-                logger.LogWarning("Skipping Articulate dev automation bootstrap: no API user email was configured.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(settings.UserName))
-            {
-                logger.LogWarning("Skipping Articulate dev automation bootstrap: no API user username was configured.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(settings.Name))
-            {
-                logger.LogWarning(
-                    "Skipping Articulate dev automation bootstrap: no API user display name was configured.");
+                logger.LogWarning("Skipping Articulate test-site bootstrap: no client secret was configured.");
                 return false;
             }
 
@@ -279,14 +256,13 @@ namespace ArticulateDockerSite.Services
 
         private async Task<IdentityCreationResult?> CreateApiUserAsync(
                 ICoreBackOfficeUserManager coreUserManager,
-                ArticulateDevAutomationOptions settings,
                 IReadOnlyList<IReadOnlyUserGroup> requiredGroups)
         {
             var createModel = new UserCreateModel
             {
-                Email = settings.Email,
-                UserName = settings.UserName,
-                Name = settings.Name,
+                Email = ArticulateTestSiteOptions.Email,
+                UserName = ArticulateTestSiteOptions.UserName,
+                Name = ArticulateTestSiteOptions.DisplayName,
                 Kind = UserKind.Api,
                 UserGroupKeys = requiredGroups.Select(x => x.Key).ToHashSet()
             };
@@ -310,7 +286,7 @@ namespace ArticulateDockerSite.Services
                 if (group is null)
                 {
                     logger.LogWarning(
-                        "Skipping Articulate dev automation bootstrap: user group alias '{Alias}' could not be resolved.",
+                        "Skipping Articulate test-site bootstrap: user group alias '{Alias}' could not be resolved.",
                         alias);
                     return Array.Empty<IReadOnlyUserGroup>();
                 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// smoke.mjs — Umbraco dev automation smoke-test / publish / confirm / theme
+// smoke.mjs — Umbraco test-site bootstrap smoke-test / publish / confirm / theme
 //
 // Modes:
 //   publish   Full publish root + descendants via Management API (default; --no-descendants skips children)
@@ -10,15 +10,14 @@
 //
 // Env:
 //   UMBRACO_PUBLIC_URL          default: https://localhost:18443
-//   ARTICULATE_DEV_AUTOMATION_CLIENT_ID    default: articulate-dev-automation
-//   ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET  required
+//   ARTICULATE_TEST_SITE_CLIENT_SECRET  default: articulate-test-site-secret (matches docker-compose)
 //   TIMEOUT_SECONDS             default: 300
 //
 // Examples:
-//   node build/docker-site/smoke.mjs publish
-//   node build/docker-site/smoke.mjs confirm
-//   node build/docker-site/smoke.mjs smoke
-//   node build/docker-site/smoke.mjs theme
+//   node docker/smoke.mjs publish
+//   node docker/smoke.mjs confirm
+//   node docker/smoke.mjs smoke
+//   node docker/smoke.mjs theme
 
 import https from 'node:https';
 import http from 'node:http';
@@ -34,12 +33,6 @@ function env(name, fallback) {
   return process.env[name] ?? fallback;
 }
 
-function requiredEnv(name) {
-  const v = process.env[name];
-  if (!v) die(`${name} must be set.`);
-  return v;
-}
-
 function now() {
   return Math.floor(Date.now() / 1000);
 }
@@ -50,8 +43,17 @@ function sleep(ms) {
 
 // --- HTTP transport ---------------------------------------------------------
 
-function isLocalhost(host) {
-  return ['localhost', '127.0.0.1', '::1', '[::1]'].includes(host);
+// The dev harness always serves Caddy's self-signed `tls internal` cert, which
+// Node does not trust. Loopback and private-network hosts (incl. the LAN IP the
+// operator may browse via UMBRACO_PUBLIC_URL) are all dev-harness targets, so
+// disable cert validation for them. Public hosts keep strict validation.
+function isDevHost(host) {
+  if (['localhost', '127.0.0.1', '::1', '[::1]'].includes(host)) return true;
+  // Private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!m) return false;
+  const [a, b] = [Number(m[1]), Number(m[2])];
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
 }
 
 function request(url, opts = {}) {
@@ -64,7 +66,7 @@ function request(url, opts = {}) {
       path: u.pathname + u.search,
       method: opts.method || 'GET',
       headers: opts.headers || {},
-      rejectUnauthorized: isLocalhost(u.hostname) ? false : true,
+      rejectUnauthorized: isDevHost(u.hostname) ? false : true,
       timeout: opts.timeout || 30_000,
     }, res => {
       const chunks = [];
@@ -225,17 +227,24 @@ async function waitForRoot(base, timeoutSec) {
   }, now() + timeoutSec, `/ to return 200`);
 }
 
-async function confirmChildren(base, token, rootId) {
-  const data = await jsonGet(`${base}/umbraco/management/api/v1/tree/document/children?parentId=${rootId}&skip=0&take=100`, token);
-  const items = data?.items ?? [];
+async function confirmChildren(base, token, parentId, indent = '') {
   let unpublished = 0;
-  for (const item of items) {
-    const variant = item.variants?.[0] ?? {};
-    const state = variant.state ?? 'unknown';
-    const name = variant.name || item.name || item.id;
-    const tag = item.hasChildren ? ' (has children)' : '';
-    console.log(`Child '${name}' (${item.id}) state=${state}${tag}`);
-    if (state !== 'Published') unpublished++;
+  let skip = 0;
+  while (true) {
+    const data = await jsonGet(`${base}/umbraco/management/api/v1/tree/document/children?parentId=${parentId}&skip=${skip}&take=100`, token);
+    const items = data?.items ?? [];
+    for (const item of items) {
+      const variant = item.variants?.[0] ?? {};
+      const state = variant.state ?? 'unknown';
+      const name = variant.name || item.name || item.id;
+      const tag = item.hasChildren ? ' (has children)' : '';
+      console.log(`${indent}Child '${name}' (${item.id}) state=${state}${tag}`);
+      if (state !== 'Published') unpublished++;
+      if (item.hasChildren)
+        unpublished += await confirmChildren(base, token, item.id, `${indent}  `);
+    }
+    if (items.length < 100) break;
+    skip += items.length;
   }
   return unpublished;
 }
@@ -248,9 +257,9 @@ function getThemeCssMarker(themeName) {
 }
 
 function getAltTheme(currentTheme) {
-  const themes = ['Vapor', 'Material', 'Phantom', 'Mini'];
-  const current = (currentTheme || 'Material').toLowerCase();
-  return themes.find(t => t.toLowerCase() !== current) || 'Material';
+  const themes = ['VAPOR', 'Material', 'Phantom', 'Mini'];
+  const current = (currentTheme || 'VAPOR').toLowerCase();
+  return current === 'vapor' ? 'Material' : 'VAPOR';
 }
 
 async function verifyThemeInHtml(base, expectedTheme, timeoutSec) {
@@ -291,8 +300,8 @@ async function main() {
   }
 
   // --- confirm / publish / theme: shared setup (token + root) ---------------
-  const clientId = env('ARTICULATE_DEV_AUTOMATION_CLIENT_ID', 'articulate-dev-automation');
-  const clientSecret = requiredEnv('ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET');
+  const clientId = 'articulate-test-site';
+  const clientSecret = env('ARTICULATE_TEST_SITE_CLIENT_SECRET', 'articulate-test-site-secret');
 
   console.log('Requesting access token');
   const token = await requestToken(base, clientId, clientSecret, timeoutSec);
@@ -303,7 +312,7 @@ async function main() {
 
   // --- confirm mode ---------------------------------------------------------
   if (mode === 'confirm') {
-    console.log('Confirming published children');
+    console.log('Confirming published children and descendants');
     const missing = await confirmChildren(base, token, rootId);
     if (missing !== 0) die('One or more Articulate children are not published.');
 
@@ -311,7 +320,7 @@ async function main() {
     await waitForRoot(base, timeoutSec);
 
     console.log('Confirmation passed');
-    console.log('Dev automation confirmation passed: root and children are published and / returns 200.');
+    console.log('Test-site confirmation passed: root, children, and descendants are published and / returns 200.');
     return;
   }
 
@@ -319,7 +328,7 @@ async function main() {
   if (mode === 'theme') {
     console.log('Reading current document');
     const doc = await getDocument(base, token, rootId);
-    const currentTheme = doc.values?.find(v => v.alias === 'theme')?.value ?? 'Material';
+    const currentTheme = doc.values?.find(v => v.alias === 'theme')?.value ?? 'VAPOR';
     const variantName = doc.variants?.[0]?.name ?? 'Blog';
     console.log(`Current theme: ${currentTheme}`);
 
@@ -328,24 +337,31 @@ async function main() {
     console.log(`Confirmed: HTML contains ${getThemeCssMarker(currentTheme)}`);
 
     const newTheme = getAltTheme(currentTheme);
-    console.log(`Changing theme to: ${newTheme}`);
-    await updateDocument(base, token, rootId, [{ alias: 'theme', value: newTheme }], variantName);
+    let themeChanged = false;
+    try {
+      console.log(`Changing theme to: ${newTheme}`);
+      await updateDocument(base, token, rootId, [{ alias: 'theme', value: newTheme }], variantName);
+      themeChanged = true;
 
-    console.log('Publishing root');
-    await publishRoot(base, token, rootId);
-    await reloadCache(base, token);
+      console.log('Publishing root');
+      await publishRoot(base, token, rootId);
+      await reloadCache(base, token);
 
-    console.log('Verifying new theme renders');
-    await verifyThemeInHtml(base, newTheme, timeoutSec);
-    console.log(`Theme verification passed: HTML contains ${getThemeCssMarker(newTheme)}`);
-
-    // Restore original theme so iterative dev runs don't drift
-    console.log('Restoring original theme');
-    await updateDocument(base, token, rootId, [{ alias: 'theme', value: currentTheme }], variantName);
-    await publishRoot(base, token, rootId);
-    await reloadCache(base, token);
-    await verifyThemeInHtml(base, currentTheme, timeoutSec);
-    console.log('Original theme restored.');
+      console.log('Verifying new theme renders');
+      await verifyThemeInHtml(base, newTheme, timeoutSec);
+      console.log(`Theme verification passed: HTML contains ${getThemeCssMarker(newTheme)}`);
+    } finally {
+      // Restore original theme so iterative dev runs don't drift, even when
+      // alternate-theme publishing or verification fails.
+      if (themeChanged) {
+        console.log('Restoring original theme');
+        await updateDocument(base, token, rootId, [{ alias: 'theme', value: currentTheme }], variantName);
+        await publishRoot(base, token, rootId);
+        await reloadCache(base, token);
+        await verifyThemeInHtml(base, currentTheme, timeoutSec);
+        console.log('Original theme restored.');
+      }
+    }
     return;
   }
 
