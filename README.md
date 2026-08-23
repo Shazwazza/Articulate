@@ -19,26 +19,30 @@ Articulate 5.x remains available for Umbraco 13, which is in security maintenanc
 
 - After installing, open the Packages section (`umbraco/section/packages/view/installed`) and run any pending migrations.
 - Save the `Articulate Image Picker` data type once to fix bundled demo media (issue [#460](https://github.com/Shazwazza/Articulate/issues/460)). This step is only required on Umbraco 13.
-- For long-term projects consider upgrading to Umbraco 16+ where Articulate 6 receives active feature work.
+- For long-term projects consider upgrading to Umbraco 17+ where Articulate 7 and 8 receive active feature work.
 
 _Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Articulate) for extra tips, known issues and fixes.
 
-### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
+### Umbraco 17 & 18 (NET 10) (current track)
 
 - Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
-- When building from source, run the test site with `-f net9.0` for Umbraco 16 or `-f net10.0` for Umbraco 17, then sign into the Umbraco Back Office to finish setup.
-- Migrating from 5.x: in place upgrade or export BlogML from your Articulate 5 site and import it into Articulate 6; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
+- When building from source, run the test site with `-f net10.0` for Umbraco 17 or 18, then sign into the Umbraco Back Office to finish setup.
+- Migrating from 5.x: in-place upgrade or export BlogML from your Articulate 5 site and import it into the matching Articulate 7 or 8 package; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
 
 #### Rich Text Editor upgrade behavior
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
+On Umbraco 17/18, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered.
 
 - You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
 - This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
 
-### Theme Structure (Articulate 6)
+### Articulate 6.x (deprecated)
 
-Articulate 6 separates built-in theme views from static assets:
+Articulate 6.x supported Umbraco 16.5.1+ on .NET 9 and early Umbraco 17 releases (17.4.0+) on .NET 10. This line is deprecated and documented here for existing installations; current feature work and support are on Articulate 7.x and 8.x.
+
+### Theme Structure (Articulate 7/8)
+
+Articulate 7 and 8 separate built-in theme views from static assets:
 
 - Built-in Razor views live under `src/Articulate.Web/App_Plugins/Articulate/Themes/{Theme}/Views/`
 - Built-in static assets live under `src/Articulate.Web/wwwroot/App_Plugins/Articulate/Themes/{Theme}/assets/`
@@ -242,13 +246,15 @@ Built-in themes render Disqus comments only when both post comments are enabled 
 ## Minimum requirements
 
 - Articulate 5.x (maintenance): Umbraco 13 LTS (security support through Dec 2025, EOL Dec 2026)
-- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.4.0+ on .NET 10
+- Articulate 6.x (deprecated): Umbraco 16.5.1+ on .NET 9 and Umbraco 17.4.0+ on .NET 10
+- Articulate 7.x: Umbraco 17.6.2+ on .NET 10
+- Articulate 8.x: Umbraco 18.1.1+ on .NET 10
 
 ## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
 
 Docs on installation, creating posts, customizing/creating themes, etc...
 
-For Umbraco 16/17 upgrades, also see the rich text editor upgrade behavior notes above if you need to preserve TinyMCE compatibility.
+For Umbraco 17/18 upgrades, also see the rich text editor upgrade behavior notes above if you need to preserve TinyMCE compatibility.
 
 ## [Issues](https://github.com/Shazwazza/Articulate/issues)
 
@@ -272,4 +278,3 @@ Local development and contributor setup lives in [DEVELOP.md](DEVELOP.md).
 &copy; 2026 by Shannon Deminick
 
 This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
-

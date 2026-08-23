@@ -2,7 +2,6 @@
 
 ## Requirements
 
-- .NET 9.0 SDK
 - .NET 10.0 SDK
 - Node.js 24+ with `corepack enable pnpm`
 - Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for Release builds
@@ -17,38 +16,38 @@
 PowerShell:
 
 ```powershell
-$env:ENABLE_CLIENT_BUILD='true'; $env:BUILD_CONFIGURATION='Debug'; ./build/build.ps1
+dotnet run build/build.cs -- build --configuration Debug --client true --sample
 ```
 
 Bash:
 
 ```bash
-ENABLE_CLIENT_BUILD=true BUILD_CONFIGURATION=Debug ./build/build.sh
+dotnet run build/build.cs -- build --configuration Debug --client true --sample
 ```
 
 This restores NuGet and npm packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
 
-3. Open `src/Articulate.sln`.
-4. Set `Articulate.Tests.Website` as the startup project.
-5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
-6. The Articulate package migrations will run and install the required schema and content items.
-   - **Tip:** The test site's target framework selects the Umbraco version: `net9.0` runs Umbraco 16, and `net10.0` runs Umbraco 17. Use `net10.0` only when you specifically want the v17 path.
+1. Open `src/Articulate.sln`.
+2. Set `Articulate.Tests.Website` as the startup project.
+3. Start `Articulate.Tests.Website` and complete the Umbraco installer.
+4. The Articulate package migrations will run and install the required schema and content items.
+   - **Tip:** The `ArticulatePackageLane` property selects the Umbraco version: `v17` uses Umbraco 17 and `v18` uses Umbraco 18. The default lane is `v17`; set `ArticulatePackageLane=v18` when testing the v18 path.
 
 ## Docker Modes
 
 The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`. The default is `BackofficeDevelopment`; switch to `Production` for the production-style check.
 
-- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only automation bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
-- `Production` for the production-style check. This disables automation bootstrap and keeps the stack honest about what content was already published in the data volume.
+- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only test-site bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
+- `Production` for the production-style check. This disables test-site bootstrap and keeps the stack honest about what content was already published in the data volume.
 
 Recommended benchmark flow:
 
-1. Start with an empty Docker volume set in `BackofficeDevelopment` by running the dev script with `RESET_DOCKER_VOLUMES=true`.
-2. Unattended install and package migrations run, automation bootstrap provisions credentials, and `build/docker-site/smoke.mjs` publishes/verifies the Articulate content tree.
+1. Start with an empty Docker volume set in `BackofficeDevelopment` with `dotnet run docker/run.cs -- docker-dev --lane v17 --reset`.
+2. Unattended install and package migrations run, test-site bootstrap provisions credentials, and `docker/smoke.mjs` publishes/verifies the Articulate content tree.
 3. Verify `/` returns `200` and record the timing.
-4. Re-run the same volume set in `Production` to confirm the published content still serves without any dev-only automation.
+4. Re-run the same volume set in `Production` to confirm the published content still serves without any dev-only test-site bootstrap.
 
-- `RESET_DOCKER_VOLUMES=true` runs `docker compose down -v` before the dev script starts the stack. Use it for empty-DB QA, not for normal iterative runs.
+- `--reset` runs `docker compose down -v` before the dev command starts the stack. Use it for empty-DB QA, not for normal iterative runs.
 
 ## Client Development
 
@@ -68,14 +67,12 @@ pnpm run generate:api
 
 | Shell | Command |
 | --- | --- |
-| Windows PowerShell | `./build/build.ps1` |
-| Bash / WSL / Linux | `./build/build.sh` |
+| Any shell | `dotnet run build/build.cs -- build [options]` |
 
-- For WSL/Linux, make the script executable first with `chmod u+x ./build/build.sh`.
-- `BUILD_CONFIGURATION=Debug` is the default for local builds; Release is the default in packaging flows.
-- `ENABLE_CLIENT_BUILD=true` enables local TypeScript Back Office client builds.
-- `PACK_SAMPLE_THEME=true` forces packing `Articulate.Theme.Sample`; local builds pack it by default, but CI skips it unless explicitly enabled.
-- The scripts clean, restore, build, and pack the current Articulate projects for .NET 9 and .NET 10.
+- `--configuration Debug` is the default for local builds; Release is the default in packaging flows.
+- `--client true` enables local TypeScript Back Office client builds.
+- `--sample` packs `Articulate.Theme.Sample`.
+- `build/build.cs` cleans, restores, builds, tests, and packs the current Articulate projects.
 - The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)` by default.
 - If you change packaged runtime dependencies or client/static assets, regenerate the Docker inputs before validating source-built or Docker-based installs:
   - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
@@ -93,18 +90,18 @@ pnpm run generate:api
 
 ## Back Office Client Builds
 
-`EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, set `ENABLE_CLIENT_BUILD=true` inline with the build command:
+`EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, pass `--client true` to the build command:
 
 PowerShell:
 
 ```powershell
-$env:ENABLE_CLIENT_BUILD='true'; ./build/build.ps1
+dotnet run build/build.cs -- build --client true --sample
 ```
 
 Bash:
 
 ```bash
-ENABLE_CLIENT_BUILD=true ./build/build.sh
+dotnet run build/build.cs -- build --client true --sample
 ```
 
 ## Schema And Data
