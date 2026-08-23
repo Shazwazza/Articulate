@@ -177,17 +177,17 @@ namespace Articulate.Services
 
         private static async Task CreateThemeReadmeAsync(string themeRoot, string sourceTheme, string newTheme)
         {
-            var readme = $"""
-                          # Articulate Theme: {newTheme}
+            var readme = $$"""
+                          # Articulate Theme: {{newTheme}}
 
-                          Created by copying '{sourceTheme}' theme.
+                          Created by copying '{{sourceTheme}}' theme.
 
                           ## Folder Structure
 
-                          **Views:** `Views/ArticulateThemes/{newTheme}/Views/`
+                          **Views:** `Views/ArticulateThemes/{{newTheme}}/Views/`
                           Edit .cshtml files here to customize your theme layout.
 
-                          **Assets:** `wwwroot/App_Plugins/Articulate/Themes/{newTheme}/assets/`
+                          **Assets:** `wwwroot/App_Plugins/Articulate/Themes/{{newTheme}}/assets/`
                           CSS, JavaScript, images, and other static files.
 
                           ## Quick Start
@@ -196,6 +196,33 @@ namespace Articulate.Services
                           2. Edit `Views/Post.cshtml` - Individual blog post template
                           3. Customize CSS in `wwwroot/.../assets/css/`
                           4. Copied themes do not include a production build pipeline for assets, either set up your own build process, or ensure production builds link to src assets.
+
+                          ## Optional: modernize a v5 theme layout
+
+                          v5 themes used the `Master.cshtml` convention where every page view set
+                          `Layout = "Master.cshtml"`. Existing themes can keep using this convention.
+                          If you want to adopt the standard ASP.NET Core Razor layout pattern:
+
+                          1. Find every view in your theme that references the old layout:
+
+                             ```bash
+                             grep -rl 'Layout = "Master.cshtml"' path/to/your/theme/
+                             ```
+
+                          2. Rename `Views/Master.cshtml` to `Views/_Layout.cshtml`.
+                          3. Add `Views/_ViewStart.cshtml` with:
+
+                             ```cshtml
+                             @{
+                                 Layout = "_Layout.cshtml";
+                             }
+                             ```
+
+                          4. Remove the `Layout = "Master.cshtml";` line from each page view found in
+                             step 1.
+
+                          Views that don't set their own `Layout` inherit `_Layout.cshtml` via
+                          `_ViewStart.cshtml`.
 
                           ## Activate Theme
 

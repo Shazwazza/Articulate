@@ -16,7 +16,7 @@ namespace Articulate.Tests
             });
         }
 
-#if NET10_0
+        //TODO: Add a real Delivery API request against a seeded test application.
         [Test]
         public void DeliveryApiHostStartup_DoesNotThrow()
         {
@@ -42,7 +42,6 @@ namespace Articulate.Tests
                     "Development");
             });
         }
-#endif
 
         private static WebApplication BuildApplication(
             Action<IUmbracoBuilder>? configureUmbraco = null,

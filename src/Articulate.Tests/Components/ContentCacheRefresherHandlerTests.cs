@@ -21,8 +21,6 @@ namespace Articulate.Tests.Components
         [Test]
         public void AffectsArticulateRoutes_returns_true_for_articulate_root_change()
         {
-            ContentCacheRefresherHandler unused = CreateSut([], out _);
-
             bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes(
                 "-1,100",
                 1,
@@ -43,8 +41,6 @@ namespace Articulate.Tests.Components
                 sortOrder: 0,
                 alias: ArticulateConstants.ContentType.Articulate);
 
-            ContentCacheRefresherHandler unused = CreateSut([nestedRoot], out _);
-
             bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,100", 1, 0, "Home", [nestedRoot]);
 
             Assert.That(result, Is.True);
@@ -60,8 +56,6 @@ namespace Articulate.Tests.Components
                 sortOrder: 0,
                 alias: ArticulateConstants.ContentType.Articulate);
 
-            ContentCacheRefresherHandler unused = CreateSut([nestedRoot], out _);
-
             bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,999", 1, 0, "Elsewhere", [nestedRoot]);
 
             Assert.That(result, Is.False);
@@ -76,8 +70,6 @@ namespace Articulate.Tests.Components
                 level: 1,
                 sortOrder: 5,
                 alias: ArticulateConstants.ContentType.Articulate);
-
-            ContentCacheRefresherHandler unused = CreateSut([root], out _);
 
             bool result = ArticulateRouteChangeDetector.AffectsArticulateRoutes("-1,150", 1, 1, "Sibling", [root]);
 

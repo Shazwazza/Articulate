@@ -32,6 +32,12 @@ namespace Articulate.Controllers
         ArticulateTagService articulateTagService)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
+        private const int DefaultMaxItems = 25;
+        private const int MaximumMaxItems = 100;
+
+        internal static int NormalizeMaxItems(int? maxItems) =>
+            Math.Clamp(maxItems ?? DefaultMaxItems, 1, MaximumMaxItems);
+
         // NonAction so it is not routed since we want to use an overload below
         /// <inheritdoc/>
         [NonAction]
@@ -48,7 +54,7 @@ namespace Articulate.Controllers
                 return NotFound();
             }
 
-            maxItems ??= 25;
+            maxItems = NormalizeMaxItems(maxItems);
 
             IPublishedContent[] listNodes =
             [
@@ -95,7 +101,7 @@ namespace Articulate.Controllers
 
             ArgumentNullException.ThrowIfNull(author);
 
-            maxItems ??= 25;
+            maxItems = NormalizeMaxItems(maxItems);
 
             // create a master model
             var masterModel = new MasterModel(author, publishedValueFallback);
@@ -131,7 +137,7 @@ namespace Articulate.Controllers
         {
             ArgumentNullException.ThrowIfNull(tag);
 
-            maxItems ??= 25;
+            maxItems = NormalizeMaxItems(maxItems);
 
             return RenderTagsOrCategoriesRss(
                 ArticulateConstants.DataType.ArticulateCategories,
@@ -163,6 +169,8 @@ namespace Articulate.Controllers
         /// </summary>
         public IActionResult RenderTagsOrCategoriesRss(string tagGroup, string baseUrl, int maxItems, string tag)
         {
+            maxItems = NormalizeMaxItems(maxItems);
+
             if (CurrentPage is null)
             {
                 logger.LogWarning(
