@@ -1,262 +1,262 @@
 [x-cloak] {
-    display: none !important;
-}
-
-@font-face {
-    font-family: 'Lato';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/umbraco/backoffice/assets/fonts/lato/LatoLatin-Regular.woff2') format('woff2');
+  display: none !important;
 }
 
 :root {
-    --container-max: 900px;
-    --gutter: 8px;
-    --md-editor-header-height: 64px;
+  --container-max: 900px;
+  --gutter: 8px;
+  --md-editor-header-height: 64px;
 }
 
 @media (max-width: 520px) {
-    :root {
-        --gutter: 4px;
-        --md-editor-header-height: 56px;
-    }
+  :root {
+    --gutter: 4px;
+    --md-editor-header-height: 56px;
+  }
 }
 
 main {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 .md-editor__container {
-    max-width: var(--container-max);
-    width: 100%;
-    margin: 0 auto;
-    padding-left: var(--gutter);
-    padding-right: var(--gutter);
-    box-sizing: border-box;
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
 }
 
 .mdl-card.md-editor__card {
-    width: 100%;
-    max-width: var(--container-max);
-    margin: 0;
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .mdl-layout__content.md-editor__main {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - var(--md-editor-header-height));
-    overflow: hidden;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--md-editor-header-height));
+  overflow: hidden;
 }
 
 body.is-login-step .md-editor__main {
-    min-height: 100vh;
+  min-height: 100vh;
 }
 
 .md-editor__card .mdl-card__supporting-text {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    width: auto;
-    padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: auto;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .md-editor__body.mdl-textfield .mdl-textfield__label[for="editor"] {
-    top: 18px;
-    margin-left: 4px;
+  top: 18px;
+  margin-left: 4px;
 }
 
 .mdl-layout {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .mdl-layout__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .mdl-layout__header .mdl-navigation {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .page-content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding-bottom: 0;
-    gap: 24px;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0;
+  gap: 24px;
+}
+
+.page-content > .md-editor__card {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
 }
 
 .md-editor__login-button i {
-    width: 16px;
-    height: 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .md-editor__login-button i svg {
-    width: 16px;
-    height: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 body {
-    background-color: #f5f5f5;
-    margin: 0;
-    font-family: 'Lato', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    overflow: hidden;
+  background-color: #f5f5f5;
+  margin: 0;
+  font-family:
+    "Roboto", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow: hidden;
 }
 
 body.is-login-step {
-    background-color: #f5f7fb;
-    overflow: auto;
-    font-family: 'Lato', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f5f7fb;
+  overflow: auto;
+  font-family:
+    "Lato", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 body.is-login-step .mdl-layout {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 body.is-login-step .mdl-layout__header {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    box-shadow: none !important;
-    transition: opacity 0.2s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none !important;
+  transition: opacity 0.2s ease;
 }
 
 body.is-login-step .mdl-layout__header-row {
-    display: none !important;
+  display: none !important;
 }
 
 body.is-login-step .mdl-layout__content {
-    padding-top: 0 !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+  padding-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 body.is-login-step .md-editor__footer {
-    display: none;
+  display: none;
 }
 
 body.is-login-step .md-editor__main {
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
 }
 
 body.is-login-step .page-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
 body.is-login-step .md-editor__container {
-    max-width: 100%;
-    padding-left: 0;
-    padding-right: 0;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 body.is-login-step .md-editor__card {
-    margin: 0 auto;
+  margin: 0 auto;
 }
 
 .fill-height {
-    height: 100%;
+  height: 100%;
 }
 
 .hidden-insert-file {
-    display: none;
+  display: none;
 }
 
 .articulate-error-box {
-    position: fixed;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
-    max-width: min(540px, calc(100% - 32px));
-    background-color: #fde7e9;
-    color: #5c1a1c;
-    border: 1px solid rgba(220, 53, 69, 0.35);
-    border-radius: 12px;
-    padding: 14px 18px;
-    box-shadow: 0 6px 14px rgba(220, 53, 69, 0.12);
-    z-index: 12;
-    margin: 0;
-    box-sizing: border-box;
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: min(540px, calc(100% - 32px));
+  background-color: #fde7e9;
+  color: #5c1a1c;
+  border: 1px solid rgba(220, 53, 69, 0.35);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 6px 14px rgba(220, 53, 69, 0.12);
+  z-index: 12;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .articulate-error-box strong {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .articulate-error-list {
-    margin: 0;
-    padding-left: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .md-editor__card .mdl-textfield {
-    display: block;
-    width: 100%;
-    max-width: none;
-    padding-bottom: 4px;
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding-bottom: 4px;
 }
 
 .md-editor__field.mdl-textfield .mdl-textfield__label::after {
-    bottom: 4px !important;
+  bottom: 4px !important;
 }
 
 textarea {
@@ -301,112 +301,117 @@ textarea {
 }
 
 .md-editor__login-logo {
-    display: block;
-    width: clamp(140px, 20vw, 200px);
-    max-width: 100%;
-    height: auto;
-    max-height: 55px;
-    object-fit: contain;
+  display: block;
+  width: clamp(140px, 20vw, 200px);
+  max-width: 100%;
+  height: auto;
+  max-height: 55px;
+  object-fit: contain;
 }
 
 .md-editor__login-content-card {
-    width: 100%;
-    max-width: 420px;
-    margin: 40px auto 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-self: center;
-    justify-self: center;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+  width: 100%;
+  max-width: 420px;
+  margin: 40px auto 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  justify-self: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 .md-editor__login-content-card .mdl-card__supporting-text {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: none;
-    border: none;
-    padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: none;
+  border: none;
+  padding: 0;
 }
 
 .md-editor__login-greeting {
-    margin: 0;
-    padding: 0;
-    font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 64px;
-    line-height: 1.25;
-    font-weight: 400;
-    color: #283a97;
-    text-align: center;
+  margin: 0;
+  padding: 0;
+  font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 64px;
+  line-height: 1.25;
+  font-weight: 400;
+  color: #283a97;
+  text-align: center;
 }
 
 .md-editor__login-notice {
-    margin: 0;
-    font-size: 1.0625rem;
-    color: #404660;
-    text-align: center;
+  margin: 0;
+  font-size: 1.0625rem;
+  color: #404660;
+  text-align: center;
 }
 
 body.is-login-step .md-editor__card.md-editor__card--compact {
-    max-width: 440px;
-    width: 100%;
-    flex: 1 1 auto;
-    align-self: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    min-height: 0;
-    background: transparent;
-    box-shadow: none;
-    border: none;
-    padding: 0;
+  max-width: 440px;
+  width: 100%;
+  flex: 1 1 auto;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0;
 }
 
-body.is-login-step .md-editor__card.md-editor__card--compact .mdl-card__supporting-text {
-    min-height: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    justify-content: flex-start;
-    align-items: stretch;
-    width: 100%;
-    flex: 1 1 auto;
+body.is-login-step
+  .md-editor__card.md-editor__card--compact
+  .mdl-card__supporting-text {
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
 .mdl-button.md-editor__login-button,
 .mdl-button--accent.md-editor__login-button,
 .mdl-button--raised.md-editor__login-button,
 .mdl-button--accent.mdl-button--raised.md-editor__login-button {
-    --button-background: #283a97;
-    --button-background-hover: #1f2f7a;
-    --button-text-color: #ffffff;
-    --button-border-color: #1b2a6a;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 312px;
-    padding: 14px 28px;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.015em;
-    line-height: 1.3;
-    color: var(--button-text-color);
-    background-color: var(--button-background);
-    border: 0;
-    border-radius: 999px;
-    cursor: pointer;
-    text-transform: none;
-    box-shadow: 0 6px 16px rgba(47, 58, 140, 0.18);
-    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-    align-self: center;
+  --button-background: #283a97;
+  --button-background-hover: #1f2f7a;
+  --button-text-color: #ffffff;
+  --button-border-color: #1b2a6a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 312px;
+  padding: 14px 28px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.3;
+  color: var(--button-text-color);
+  background-color: var(--button-background);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  text-transform: none;
+  box-shadow: 0 6px 16px rgba(47, 58, 140, 0.18);
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+  align-self: center;
 }
 
 .mdl-button.md-editor__login-button:hover,
@@ -417,220 +422,230 @@ body.is-login-step .md-editor__card.md-editor__card--compact .mdl-card__supporti
 .mdl-button--accent.md-editor__login-button:focus,
 .mdl-button--raised.md-editor__login-button:focus,
 .mdl-button--accent.mdl-button--raised.md-editor__login-button:focus {
-    background-color: var(--button-background-hover);
-    color: var(--button-text-color);
-    outline: none;
-    box-shadow: 0 8px 18px rgba(40, 58, 151, 0.24);
+  background-color: var(--button-background-hover);
+  color: var(--button-text-color);
+  outline: none;
+  box-shadow: 0 8px 18px rgba(40, 58, 151, 0.24);
 }
 
 .mdl-button.md-editor__login-button:active,
 .mdl-button--accent.md-editor__login-button:active,
 .mdl-button--raised.md-editor__login-button:active,
 .mdl-button--accent.mdl-button--raised.md-editor__login-button:active {
-    transform: scale(0.99);
+  transform: scale(0.99);
 }
 
 .mdl-button.md-editor__login-button:disabled,
 .mdl-button--accent.md-editor__login-button:disabled,
 .mdl-button--raised.md-editor__login-button:disabled,
 .mdl-button--accent.mdl-button--raised.md-editor__login-button:disabled {
-    background-color: rgba(53, 68, 177, 0.6);
-    border-color: rgba(27, 38, 79, 0.4);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: not-allowed;
-    transform: none;
+  background-color: rgba(53, 68, 177, 0.6);
+  border-color: rgba(27, 38, 79, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: not-allowed;
+  transform: none;
 }
 
 .md-editor__login-button i {
-    width: 16px;
-    height: 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
-    .md-editor__login {
-        padding: 40px 32px;
-    }
+  .md-editor__login {
+    padding: 40px 32px;
+  }
 
-    .md-editor__login-greeting {
-        font-size: 2.75rem;
-    }
+  .md-editor__login-greeting {
+    font-size: 2.75rem;
+  }
 }
 
 @media (max-width: 520px) {
-    .md-editor__login {
-        padding: 32px 24px;
-        align-items: center;
-    }
+  .md-editor__login {
+    padding: 32px 24px;
+    align-items: center;
+  }
 
-    .md-editor__login-brand {
-        padding-bottom: 16px;
-    }
+  .md-editor__login-brand {
+    padding-bottom: 16px;
+  }
 
-    .md-editor__login-greeting {
-        font-size: 2.25rem;
-        text-align: center;
-    }
+  .md-editor__login-greeting {
+    font-size: 2.25rem;
+    text-align: center;
+  }
 
-    .md-editor__login-notice {
-        text-align: center;
-    }
+  .md-editor__login-notice {
+    text-align: center;
+  }
 }
 
 .md-editor__card--success {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .md-editor__success-body {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 32px 32px 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 32px 32px 0;
 }
 
 .md-editor__success-content {
-    max-width: 420px;
+  max-width: 420px;
 }
 
 .md-editor__success-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
 }
 
 .md-editor__card--compact .mdl-card__supporting-text {
-    gap: 16px;
+  gap: 16px;
 }
 
 .md-editor__title {
-    width: 100%;
+  width: 100%;
 }
 
 .md-editor__title .mdl-textfield__input {
-    font-size: 2.25rem;
-    font-weight: 600;
-    line-height: 1.2;
-    padding-bottom: 16px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.12);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .md-editor__title--editor .mdl-textfield__input {
-    padding-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .md-editor__title--editor.mdl-textfield {
-    padding-top: 4px;
-    padding-bottom: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .md-editor__title .mdl-textfield__input:focus {
-    border-bottom-color: #3f51b5;
-    box-shadow: 0 1px 0 0 rgba(63, 81, 181, 0.5);
+  border-bottom-color: #3f51b5;
+  box-shadow: 0 1px 0 0 rgba(63, 81, 181, 0.5);
 }
 
 .md-editor__title.is-touched.is-invalid .mdl-textfield__input {
-    border-bottom-color: #d50000;
+  border-bottom-color: #d50000;
 }
 
 .md-editor__title.is-touched.is-invalid .mdl-textfield__label {
-    color: #d50000;
+  color: #d50000;
 }
 
-.md-editor__title.mdl-textfield.is-invalid:not(.is-touched) .mdl-textfield__input {
-    border-bottom-color: rgba(0, 0, 0, 0.12);
-    box-shadow: none;
+.md-editor__title.mdl-textfield.is-invalid:not(.is-touched)
+  .mdl-textfield__input {
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+  box-shadow: none;
 }
 
-.md-editor__title.mdl-textfield.is-invalid:not(.is-touched) .mdl-textfield__label {
-    color: rgba(0, 0, 0, 0.26);
+.md-editor__title.mdl-textfield.is-invalid:not(.is-touched)
+  .mdl-textfield__label {
+  color: rgba(0, 0, 0, 0.26);
 }
 
 .md-editor__title.mdl-textfield .mdl-textfield__label::after {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .md-editor__title .mdl-textfield__label {
-    font-size: 1.5rem;
-    font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .md-editor__title:not(.mdl-textfield--floating-label) .mdl-textfield__label {
-    color: rgba(0, 0, 0, .26);
+  color: rgba(0, 0, 0, 0.26);
 }
 
-.md-editor__title.mdl-textfield--floating-label.is-focused .mdl-textfield__label,
+.md-editor__title.mdl-textfield--floating-label.is-focused
+  .mdl-textfield__label,
 .md-editor__title.mdl-textfield--floating-label.is-dirty .mdl-textfield__label,
-.md-editor__title.mdl-textfield--floating-label.has-placeholder .mdl-textfield__label {
-    font-size: 12px;
-    top: 4px;
+.md-editor__title.mdl-textfield--floating-label.has-placeholder
+  .mdl-textfield__label {
+  font-size: 12px;
+  top: 4px;
 }
 
 /* Once the title has content (valid/dirty), hide the floating label to reduce visual noise. */
-.md-editor__title.mdl-textfield--floating-label.is-dirty:not(.is-invalid) .mdl-textfield__label {
-    display: none;
+.md-editor__title.mdl-textfield--floating-label.is-dirty:not(.is-invalid)
+.mdl-textfield__label {
+  display: none;
 }
 
 .md-editor__body {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .md-editor__body.mdl-textfield {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .md-editor__body textarea {
-    flex: 1 1 auto;
-    min-height: 260px;
-    height: 100%;
-    max-height: none;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-    padding: 16px;
-    box-sizing: border-box;
-    line-height: 1.6;
-    font-size: 1rem;
-    resize: vertical;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  flex: 1 1 auto;
+  min-height: 260px;
+  height: 100%;
+  max-height: none;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 16px;
+  box-sizing: border-box;
+  line-height: 1.6;
+  font-size: 1rem;
+  resize: vertical;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-  .md-editor__body textarea,
-  .md-editor__body .tiny-mde,
-  .md-editor__body .tiny-mde textarea {
-    -ms-touch-action: pan-y;
-    touch-action: pan-y;
+.md-editor__body textarea,
+.md-editor__body .tiny-mde,
+.md-editor__body .tiny-mde textarea {
+  -ms-touch-action: pan-y;
+  touch-action: pan-y;
 }
 
 .md-editor__card .mdl-textfield__input:focus,
 .md-editor__card .mdl-textfield__input:focus-visible,
 .md-editor__card .mdl-textfield__input:focus:invalid,
 .md-editor__card .mdl-textfield__input:invalid {
-    outline: none;
-    box-shadow: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .md-editor__body .tiny-mde,
 .tiny-mde,
 .TinyMDE {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
-    border-bottom: 1px solid #c0c0c0;
-    scrollbar-gutter: stable;
-    padding: 0;
+  flex: 1 1 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-bottom: 1px solid #c0c0c0;
+  scrollbar-gutter: stable;
+  padding: 0;
 }
 
 .md-editor__body .tiny-mde .tiny-mde__editable,
@@ -639,108 +654,108 @@ body.is-login-step .md-editor__card.md-editor__card--compact .mdl-card__supporti
 .TinyMDE .tiny-mde__editable,
 .TinyMDE .CodeMirror,
 .TinyMDE .CodeMirror-scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 
 .md-editor__body textarea:focus {
-    outline: none;
-    border-color: #3f51b5;
-    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.12);
+  outline: none;
+  border-color: #3f51b5;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.12);
 }
 
 .md-editor__footer {
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-    z-index: 10;
-    width: 100%;
-    margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  width: 100%;
+  margin-top: auto;
 }
 
 .md-editor__footer-inner {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding-left: var(--gutter);
-    padding-right: var(--gutter);
-    padding-top: 12px;
-    padding-bottom: 12px;
-    box-sizing: border-box;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  padding-top: 12px;
+  padding-bottom: 12px;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .md-editor__footer-left,
 .md-editor__footer-right {
-    display: flex;
-    gap: 12px;
-    flex-wrap: nowrap;
-    flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
 }
 
 .md-editor__footer-left {
-    justify-content: flex-start;
+  justify-content: flex-start;
 }
 
 .md-editor__footer-right {
-    justify-content: flex-end;
-    margin-left: auto;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .md-editor__btn-prev {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .mdl-layout__header .mdl-layout__header-row.md-editor__container {
-    max-width: var(--container-max);
-    width: 100%;
-    margin: 0 auto;
-    padding-left: var(--gutter);
-    padding-right: var(--gutter);
-    box-sizing: border-box;
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
-    .md-editor__footer-inner {
-        padding: 16px 20px;
-    }
+  .md-editor__footer-inner {
+    padding: 16px 20px;
+  }
 }
 
 @media (max-width: 768px) {
-    .md-editor__card {
-        max-width: 100%;
-    }
+  .md-editor__card {
+    max-width: 100%;
+  }
 
-    .md-editor__footer-inner {
-        gap: 12px;
-    }
+  .md-editor__footer-inner {
+    gap: 12px;
+  }
 }
 
 @media (max-width: 600px) {
-    .md-editor__card {
-        margin: 0;
-    }
+  .md-editor__card {
+    margin: 0;
+  }
 
-    .md-editor__footer-inner {
-        padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-    }
+  .md-editor__footer-inner {
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 520px) {
-    .mdl-layout__header .mdl-layout__header-row.md-editor__container {
-        padding: 0 16px;
-    }
+  .mdl-layout__header .mdl-layout__header-row.md-editor__container {
+    padding: 0 16px;
+  }
 }
