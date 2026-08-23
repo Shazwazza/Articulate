@@ -24,6 +24,8 @@ namespace Articulate.Controllers.Api
     [ManagementApi(ArticulateConstants.ManagementApi.BlogMl)]
     [ApiVersion("1.0")]
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    // The Management API security filter documents 401/403. Repeating those response
+    // attributes causes duplicate OpenAPI response keys and prevents schema generation.
     [ManagementApiRoute("blogml")]
     [MapToApi(ArticulateConstants.ManagementApi.Name)]
     public class BlogMlApiController(
@@ -46,6 +48,7 @@ namespace Articulate.Controllers.Api
         /// <response code="500">Upload failed due to a server error.</response>
         [HttpPost("import-file")]
         [ProducesResponseType<ImportFileResponse>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status415UnsupportedMediaType)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
         [Consumes("multipart/form-data")]

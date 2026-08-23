@@ -41,7 +41,12 @@ namespace Articulate.ImportExport
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
         IHtmlSanitizer htmlSanitizer,
-        IOptions<ArticulateOptions> articulateOptions)
+        IOptions<ArticulateOptions> articulateOptions
+#if UMBRACO_18_OR_GREATER
+        ,
+        IIdKeyMap idKeyMap
+#endif
+    )
     {
         private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
 
@@ -197,7 +202,6 @@ namespace Articulate.ImportExport
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
                 MaxCharactersInDocument = _maxXmlCharacters,
-                MaxCharactersFromEntities = 1024,
             };
 
             return XmlReader.Create(stream, settings);
@@ -532,6 +536,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -569,6 +576,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -605,7 +615,7 @@ namespace Articulate.ImportExport
 
         private IContent[] GetExistingPosts(IContent archiveNode)
         {
-            IEnumerable<IContent> allPostNodes = contentService.GetPagedChildrenCompat(
+            IEnumerable<IContent> allPostNodes = contentService.EnumeratePagedChildren(
                 archiveNode.Id,
                 0,
                 int.MaxValue,
