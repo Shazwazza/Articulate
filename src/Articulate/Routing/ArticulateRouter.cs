@@ -136,7 +136,9 @@ namespace Articulate.Routing
 
                             // This is required to ensure that we create routes that are more specific first
                             // before creating routes that are less specific
-                            .OrderByDescending(x => x.Key.Split('/').Length);
+                            .OrderByDescending(x => x.Key.Count(c => c == '/'));
+
+                    var requestBaseUri = new Uri($"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}/");
 
                     foreach (IGrouping<string, IPublishedContent> nodeByPathGroup in articulateNodesGroupedByUriPath)
                     {
@@ -147,7 +149,7 @@ namespace Articulate.Routing
                             rootNodePath,
                             groupedNodes,
                             domains,
-                            new Uri($"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}/"));
+                            requestBaseUri);
 
                         if (groupedNodes.Count > 1)
                         {
