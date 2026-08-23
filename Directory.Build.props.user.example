@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Local MSBuild property overrides.
-  Copy this file to Directory.Build.props.user and edit as needed.
-  Directory.Build.props.user is gitignored and imported automatically by MSBuild.
+  Local MSBuild property overrides for Visual Studio.
+  Copy this file to `Directory.Build.props.user` and edit as needed.
+  This file is user-specific, gitignored, and imported automatically by MSBuild.
+  CI/build scripts (__build.cs__ or __build.yml__) take precedence because
+  they pass command-line properties (-p:...) to `dotnet` which override this file.
+  After changing this file run __Clean Solution__ so package changes are restored.
+  If you're working with the backoffice after a package lane change, run the client build
+  manually from `src/Articulate.Web/Client`: `pnpm run build:dev:v17` or
+  `pnpm run build:dev:v18`.
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!-- Default package lane for local builds: v17 (repo default) or v18 -->
+    <!-- Default package lane for local builds: choose v17 or v18 -->
     <ArticulatePackageLane>v17</ArticulatePackageLane>
 
-    <!-- 
-      Disable the TypeScript client build for faster local iteration in VS/Rider
-      Note: This is the default for local builds, but the client build will still run in CI/CD pipelines.
-      Setting this to true when building in the IDE may cause unexpected behavior (e.g. file locking)
-      due to Visual Studio "fast up-to-date check" (FUTDC) and build acceleration. 
-     -->
+    <!-- Disable the TypeScript client build for faster local iteration in the IDE.
+         CI/CD pipelines will still run the client build.
+         Enabling this in the IDE may cause IO lock issues due to Visual Studio's competing background compilation.
+    -->
     <EnableClientBuild>false</EnableClientBuild>
 
-    <!-- Build configuration override -->
-    <!--<BUILD_CONFIGURATION>Debug</BUILD_CONFIGURATION>-->
+    <!-- TinyMCE.Umbraco override -->
+    <UseTinyMceUmbraco>false</UseTinyMceUmbraco>
+
   </PropertyGroup>
 </Project>

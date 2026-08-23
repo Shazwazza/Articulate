@@ -1,718 +1,435 @@
-#!/usr/bin/env dotnet
-#:property RunAnalyzers=false
-#nullable enable
+#!/usr/bin/dotnet run
+#:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
+
+# nullable enable
+
+// Articulate build utility. CLI reference lives in build/help.md.
+//
+// Conventions:
+//   - Restore + build + test + pack, one lane at a time.
+//   - Shared src/*/bin and obj means lanes build sequentially with -m:1.
+//   - Use --clean when switching package lanes in the same checkout.
+//   - Packages land in build/<Configuration>/<lane>/.
 
 using System.Diagnostics;
-using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
-return await BuildApp.RunAsync(args);
-
-static class BuildApp
+try
 {
-    static readonly string Repo = FindRepo();
-    static readonly string BuildDir = Path.Combine(Repo, "build");
-    static readonly string Solution = Path.Combine(Repo, "src", "Articulate.sln");
-    static readonly string DockerDir = Path.Combine(BuildDir, "docker-site");
-    static readonly Dictionary<string, string?> HostOverrides = new[]
-    {
-        "CADDY_HTTPS_PORT",
-        "CADDY_HTTP_PORT",
-        "CADDY_HTTPS_HOST",
-        "CADDY_TLS_HOST",
-        "UMBRACO_PUBLIC_HOST",
-        "UMBRACO_PUBLIC_URL",
-        "ARTICULATE_REDIRECT_URI",
-        "ARTICULATE_LOGOUT_REDIRECT_URI",
-    }.ToDictionary(name => name, Env);
+    if (args.Length == 0 || args[0] is "-h" or "--help") { Help(null); return 0; }
+    if (args[0] == "help") { Help(args.Length > 1 ? args[1] : null); return 0; }
 
-    // Snapshot CI status at process start so BuildAsync's inCi check does
-    // not bleed when DockerTestAsync iterates lanes and SetEnvironmentVariable
-    // writes CI=true for child dotnet processes.
-    static readonly string? CallerCi = Env("CI");
-    static readonly string? CallerGithubActions = Env("GITHUB_ACTIONS");
-
-    public static async Task<int> RunAsync(string[] args)
+    var command = args[0];
+    var opts = Opts.Parse(args[1..]);
+    return command switch
     {
-        try
+        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean", "preserve-site")),
+        "client"        => await ClientAsync(opts.Validate(command, "lane")),
+        "site"          => await SiteAsync(opts.Validate(command, "lane", "configuration", "reset")),
+        _ => throw new ArgumentException($"Unknown command '{command}'. Run with --help.")
+    };
+}
+catch (Exception e) { Console.Error.WriteLine($"ERROR: {e.Message}"); return 1; }
+
+// ---- Help ----
+
+void Help(string? topic)
+{
+    var path = Path.Combine(Env.Repo, "build", "help.md");
+    var text = File.ReadAllText(path);
+    if (topic is null) { Console.WriteLine(text); return; }
+    var marker = $"### {topic}";
+    var i = text.IndexOf(marker, StringComparison.Ordinal);
+    while (i >= 0 &&
+           ((i > 0 && text[i - 1] != '\n') ||
+            (i + marker.Length < text.Length && text[i + marker.Length] is not ('\r' or '\n'))))
+        i = text.IndexOf(marker, i + marker.Length, StringComparison.Ordinal);
+    if (i < 0) throw new ArgumentException($"No help topic '{topic}'.");
+    var searchFrom = i + marker.Length;
+    var nextH2 = text.IndexOf("\n## ", searchFrom, StringComparison.Ordinal);
+    var nextH3 = text.IndexOf("\n### ", searchFrom, StringComparison.Ordinal);
+    int end = text.Length;
+    if (nextH2 >= 0 && nextH3 >= 0) end = Math.Min(nextH2, nextH3);
+    else if (nextH2 >= 0) end = nextH2;
+    else if (nextH3 >= 0) end = nextH3;
+    Console.WriteLine(text[i..end].TrimStart('\n'));
+}
+
+// ---- Commands ----
+
+async Task<int> BuildAsync(Opts o)
+{
+    var sw = Stopwatch.StartNew();
+    var lane = o.Lane();
+    var cfg = o.String("configuration", Env.Get("BUILD_CONFIGURATION", "Release"));
+    ValidateConfiguration(cfg);
+    var inCi = Env.IsTrue(Env.CallerCi) || Env.IsTrue(Env.CallerGithubActions) || Env.IsTrue(Env.CallerAct);
+    if (inCi) Environment.SetEnvironmentVariable("CI", "true");
+    var defaults = BuildDefaults.Resolve(o, inCi, cfg);
+    var clean = o.Flag("clean");
+    var preserveSite = o.Flag("preserve-site");
+    var releaseDir = Path.Combine(Env.Repo, "build", cfg ?? "Release", lane);
+    Directory.CreateDirectory(releaseDir);
+
+    var clientRoot = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
+    var backofficeDir = Path.Combine(Env.Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice");
+    var stamp = Path.Combine(Env.Repo, "build", "ClientAssets", $"BackofficeClient_v{lane[1..]}.stamp");
+    var activeLanePath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-lane.txt");
+    var activeVersionPath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-version.txt");
+    var testSiteData = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco");
+    if (clean && !inCi)
+    {
+        DeleteDir(Path.Combine(clientRoot, "node_modules"));
+        DeleteDir(Path.Combine(clientRoot, "v17", "node_modules"));
+        DeleteDir(Path.Combine(clientRoot, "v18", "node_modules"));
+        if (!preserveSite) DeleteDir(testSiteData);
+    }
+
+    var props = new List<string>
+    {
+        "-p:EnableClientBuild=" + defaults.Client.ToString().ToLowerInvariant(),
+        "-p:ArticulatePackageLane=" + lane,
+    };
+    var packageVersion = await ResolvePackageVersion(lane);
+    props.Add("-p:ArticulatePackageVersion=" + packageVersion);
+
+    Console.WriteLine($"Build: {lane}, {cfg}, package {packageVersion}{(clean ? " (Clean Build)" : "")}");
+    DeleteExistingPackages(releaseDir);
+
+    if (clean)
+    {
+        await Run("dotnet", new[] { "build-server", "shutdown" }, cwd: Env.Repo, allowFailure: true);
+        DeleteBuildOutputs(Path.Combine(Env.Repo, "src"));
+        DeleteDir(Path.Combine(Env.Repo, "build", "ClientAssets"));
+    }
+
+    if (defaults.Client)
+    {
+        var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
+        var activeVersion = File.Exists(activeVersionPath) ? File.ReadAllText(activeVersionPath).Trim() : null;
+        if (!clean && activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Client assets belong to {activeLane}; rerun with --clean before building {lane}.");
+        if (clean || activeLane is null || !string.Equals(activeVersion, packageVersion, StringComparison.Ordinal))
         {
-            if (args.Length == 0 || args[0] is "-h" or "--help")
-            {
-                Help(null);
-                return 0;
-            }
-
-            if (args[0] == "help")
-            {
-                Help(args.Length > 1 ? args[1] : null);
-                return 0;
-            }
-
-            var command = args[0];
-            var options = Options.Parse(args[1..]);
-            switch (command)
-            {
-                case "build":
-                    options.Validate(command, ["lane", "configuration", "tests", "client", "sample", "clean"]);
-                    await BuildAsync(options);
-                    break;
-                case "client":
-                    options.Validate(command, ["lane"]);
-                    await ClientAsync(options);
-                    break;
-                case "site":
-                    options.Validate(command, ["lane", "configuration", "reset"]);
-                    await SiteAsync(options);
-                    break;
-                case "docker-build":
-                    options.Validate(command, ["lane", "tag"]);
-                    await DockerBuildAsync(options);
-                    break;
-                case "docker-dev":
-                    options.Validate(command, ["lane", "skip-smoke", "reset"]);
-                    await DockerDevAsync(options);
-                    break;
-                case "docker-prod":
-                    options.Validate(command, ["lane"]);
-                    await DockerProdAsync(options);
-                    break;
-                case "docker-status":
-                    options.Validate(command, ["lane"]);
-                    await DockerStatusAsync(options);
-                    break;
-                case "docker-test":
-                    options.Validate(command, ["lane", "keep", "skip-smoke"]);
-                    await DockerTestAsync(options);
-                    break;
-                default:
-                throw new ArgumentException($"Unknown command '{command}'. Run 'dotnet run --file build/build.cs -- --help'.");
-            }
-
-            return 0;
+            DeleteDir(backofficeDir);
+            DeleteFile(stamp);
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"ERROR: {exception.Message}");
-            return 1;
-        }
+        DeleteFile(activeLanePath);
+        DeleteFile(activeVersionPath);
     }
-
-    static void Help(string? command)
+    else
     {
-        var text = command switch
-        {
-            null =>
-                """
-                Articulate build utility
-
-                Usage:
-                  dotnet run --file build/build.cs -- <command> [options]
-                  dotnet run --file build/build.cs -- help [command]
-
-                Commands:
-                  build          Restore, build, optionally test, and pack a package lane.
-                  client         Install, check, build, and lint one Backoffice client.
-                  site           Run the local Articulate.Tests.Website for one lane.
-                  docker-build   Build the standalone chiseled Docker image.
-                  docker-dev     Build and start a development stack; publish sample content.
-                  docker-prod    Restart an existing lane in Production mode and smoke-test it.
-                  docker-status  Inspect a running lane and verify packaged Backoffice assets.
-                  docker-test    Run the complete Docker matrix for one or both lanes.
-
-                Common defaults:
-                  --lane v17     Used by all commands except docker-test.
-                  docker-test    Defaults to --lane all.
-
-                Run 'dotnet run --file build/build.cs -- help <command>' for
-                command options, defaults, requirements, and behavior.
-                """,
-            "build" =>
-                """
-                build - restore, build, optionally test, and pack a package lane
-
-                Usage:
-                  dotnet run --file build/build.cs -- build [options]
-
-                Options:
-                  --lane v17|v18              Package lane. Default: v17.
-                  --configuration Debug|Release
-                                               Default: BUILD_CONFIGURATION or Release.
-                  --tests [true|false]         Run tests. Default: true in CI, otherwise false.
-                  --client true|false          Build client assets. Default: true in CI/Release.
-                  --sample [true|false]        Pack sample theme. Default: true locally.
-                  --clean                     Remove shared build/client outputs before building.
-
-                Output:
-                  build/<configuration>/<lane>/
-
-                Environment:
-                  ARTICULATE_PACKAGE_VERSION  Optional package-version override.
-                  RUN_TESTS, ENABLE_CLIENT_BUILD, PACK_SAMPLE_THEME
-                                               Boolean option fallbacks.
-                """,
-            "client" =>
-                """
-                client - install, typecheck, build, and lint a Backoffice client
-
-                Usage:
-                  dotnet run --file build/build.cs -- client [--lane v17|v18]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-
-                Runs pnpm install at the client workspace root, then check, build,
-                and lint in the selected lane.
-                """,
-            "site" =>
-                """
-                site - run Articulate.Tests.Website for one package lane
-
-                Usage:
-                  dotnet run --file build/build.cs -- site [options]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-                  --configuration Debug|Release
-                                               Default: Debug.
-                  --reset                     Delete the site's umbraco data first.
-
-                This command remains attached to the running site until stopped.
-                """,
-            "docker-build" =>
-                """
-                docker-build - build the standalone chiseled Docker image
-
-                Usage:
-                  dotnet run --file build/build.cs -- docker-build [options]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-                  --tag image:tag              Default: articulate-local:<lane>.
-
-                Missing Articulate and sample-theme packages are built first.
-                """,
-            "docker-dev" =>
-                """
-                docker-dev - build and start a development Docker stack
-
-                Usage:
-                  dotnet run --file build/build.cs -- docker-dev [options]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-                  --reset                     Run docker compose down -v first.
-                  --skip-smoke                Skip sample publish/confirm checks.
-
-                Without --skip-smoke, ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET
-                is required. Missing packages are built automatically.
-                """,
-            "docker-prod" =>
-                """
-                docker-prod - restart an existing lane in Production mode
-
-                Usage:
-                  dotnet run --file build/build.cs -- docker-prod [--lane v17|v18]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-
-                Requires ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET. Reuses the
-                selected lane's volumes, then runs front-end and theme smoke tests.
-                """,
-            "docker-status" =>
-                """
-                docker-status - inspect a running Docker lane
-
-                Usage:
-                  dotnet run --file build/build.cs -- docker-status [--lane v17|v18]
-
-                Options:
-                  --lane v17|v18              Default: v17.
-
-                Shows Compose status and verifies the packaged Backoffice bundle
-                and umbraco-package.json inside the running container.
-                """,
-            "docker-test" =>
-                """
-                docker-test - run the complete Docker validation matrix
-
-                Usage:
-                  dotnet run --file build/build.cs -- docker-test [options]
-
-                Options:
-                  --lane v17|v18|all          Default: all.
-                  --keep                      Leave successful stacks running.
-                  --skip-smoke                Skip API, front-end, and theme smoke tests.
-
-                Each lane builds without Docker cache, starts in development mode,
-                and, unless smoke is skipped, publishes/confirms content then
-                restarts in Production mode for front-end and theme checks.
-
-                Without --skip-smoke, ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET
-                is required.
-                """,
-            _ => throw new ArgumentException($"Unknown help topic '{command}'."),
-        };
-
-        Console.WriteLine(text);
+        DeleteDir(backofficeDir);
+        DeleteFile(stamp);
+        DeleteFile(activeLanePath);
+        DeleteFile(activeVersionPath);
     }
 
-    static async Task BuildAsync(Options options)
+    var cfgName = cfg ?? "Release";
+    var common = new[] { "-c", cfgName, "-m:1", "-p:BuildInParallel=false" };
+
+    var restoreArgs = new[] { "restore", Env.Solution, "-v", "minimal", "-p:RestoreUseStaticGraphEvaluation=true" }
+        .Concat(inCi ? new string[] { "--locked-mode" } : Array.Empty<string>())
+        .Concat(props).ToArray();
+    await Run("dotnet", restoreArgs);
+    await Run("dotnet", new[] { "build", Env.Solution, "--no-restore", "-v", "minimal",
+        "-p:UseSharedCompilation=false" }
+        .Concat(common).Concat(props).ToArray());
+    if (defaults.Tests)
+        await Run("dotnet", new[] { "test", Env.Solution, "--no-restore", "--no-build",
+            "-v", "minimal" }
+            .Concat(common).Concat(props).ToArray());
+
+    var projects = new List<string> { Path.Combine(Env.Repo, "src", "Articulate.Web", "Articulate.Web.csproj") };
+    if (defaults.Sample) projects.Add(Path.Combine(Env.Repo, "src", "Articulate.Theme.Sample", "Articulate.Theme.Sample.csproj"));
+    foreach (var project in projects)
+        await Run("dotnet", new[] { "pack", project, "--no-restore", "--no-build",
+            "-o", releaseDir, "-v", "minimal" }
+            .Concat(common).Concat(props).ToArray());
+
+    VerifyPackages(releaseDir, packageVersion, defaults.Sample);
+    if (defaults.Client)
     {
-        var started = Stopwatch.StartNew();
-        var lane = Lane(options);
-        var configuration = options.Value("configuration") ?? Env("BUILD_CONFIGURATION") ?? "Release";
-        var inCi = IsTrue(CallerCi) || IsTrue(CallerGithubActions);
-        var runTests = options.Flag("tests") || BoolOption(options, "tests", "RUN_TESTS", inCi);
-        var clientBuild = BoolOption(options, "client", "ENABLE_CLIENT_BUILD", inCi || configuration == "Release");
-        var sample = options.Flag("sample") || BoolOption(options, "sample", "PACK_SAMPLE_THEME", !inCi);
-        var clientVersion = lane == "v18" ? "18" : "17";
-        var major = lane == "v18" ? "7" : "6";
-        var releaseDir = Path.Combine(BuildDir, configuration, lane);
-        Directory.CreateDirectory(releaseDir);
-
-        var packageVersion = Env("ARTICULATE_PACKAGE_VERSION");
-        if (lane == "v18" && string.IsNullOrWhiteSpace(packageVersion))
-        {
-            // Local fallback. CI sets ARTICULATE_PACKAGE_VERSION from
-            // NBGV_SemVer2, so this branch only runs for un-set local builds.
-            var baseVersion = (await File.ReadAllTextAsync(Path.Combine(BuildDir, "v18-version.txt"))).Trim();
-            if (string.IsNullOrWhiteSpace(baseVersion))
-                throw new InvalidOperationException("build/v18-version.txt is empty.");
-            var v17 = (await CaptureAsync("nbgv", ["get-version", "-v", "SemVer2"], Repo)).Trim();
-            // Release-tagged commits produce clean NBGV semver (e.g. "7.0.0")
-            // with no commit-hash suffix. In that case, baseVersion alone is
-            // the final v18 version.
-            var commitMatch = Regex.Match(v17, @"\.g[a-f0-9]+$");
-            packageVersion = baseVersion + commitMatch.Value;
-        }
-
-        foreach (var file in Directory.EnumerateFiles(releaseDir))
-            if (Regex.IsMatch(Path.GetFileName(file), $@"^Articulate(?:\.Theme\.Sample)?\.{major}\..*\.s?nupkg$"))
-                File.Delete(file);
-
-        var props = new List<string>
-        {
-            $"-p:EnableClientBuild={clientBuild.ToString().ToLowerInvariant()}",
-            $"-p:ArticulatePackageLane={lane}",
-            $"-p:UmbracoClientVersion={clientVersion}",
-        };
-        if (!string.IsNullOrWhiteSpace(packageVersion))
-            props.Add($"-p:ArticulatePackageVersion={packageVersion}");
-
-        var clean = options.Flag("clean");
-        Console.WriteLine($"Build: {lane}, {configuration}, package {packageVersion ?? "NBGV"}{(clean ? " (Clean Build)" : "")}");
-        Environment.SetEnvironmentVariable("CI", "true");
-        
-        if (clean)
-        {
-            await RunAsync("dotnet", ["build-server", "shutdown"], Repo, allowFailure: true);
-            DeleteBuildOutputs(Path.Combine(Repo, "src"));
-            DeleteDirectory(Path.Combine(BuildDir, "ClientAssets"));
-        }
-
-        // v17 and v18 share the same Vite output dir but have per-lane
-        // stamps, so without this a v18 build leaks its bundle into a
-        // subsequent v17 pack. See DEVELOP.md "Package lanes" for the
-        // TODO follow-up.
-        DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice"));
-
-        if (clientBuild)
-        {
-            var clientRoot = Path.Combine(Repo, "src", "Articulate.Web", "Client");
-            if (clean)
-            {
-                await RunAsync("pnpm", ["--workspace-concurrency=1", "-r", "run", "clean"], clientRoot);
-                DeleteDirectory(Path.Combine(clientRoot, "node_modules"));
-            }
-            
-            var pnpmArgs = inCi
-                ? new[] { "install", "--frozen-lockfile", "--prefer-offline" }
-                : new[] { "install", "--prefer-offline" };
-            await RunAsync("pnpm", pnpmArgs, clientRoot);
-        }
-
-        var restoreArgs = new List<string> { "restore", Solution, "-v", "minimal", "-p:RestoreUseStaticGraphEvaluation=true" };
-        if (inCi)
-        {
-            restoreArgs.Add("--locked-mode");
-        }
-        restoreArgs.AddRange(props);
-        await RunAsync("dotnet", [.. restoreArgs], Repo);
-        await RunAsync("dotnet", ["build", Solution, "-c", configuration, "--no-restore", "-v", "minimal",
-            "-m:1", "-p:BuildInParallel=false", "-p:UseSharedCompilation=false", .. props], Repo);
-        if (runTests)
-            await RunAsync("dotnet", ["test", Solution, "-c", configuration, "--no-restore", "--no-build",
-                "-v", "minimal", "-m:1", "-p:BuildInParallel=false", .. props], Repo);
-
-        var projects = new List<string> { Path.Combine(Repo, "src", "Articulate.Web", "Articulate.Web.csproj") };
-        if (sample) projects.Add(Path.Combine(Repo, "src", "Articulate.Theme.Sample", "Articulate.Theme.Sample.csproj"));
-        foreach (var project in projects)
-            await RunAsync("dotnet", ["pack", project, "-c", configuration, "--no-restore", "--no-build",
-                "-o", releaseDir, "-v", "minimal", "-m:1", "-p:BuildInParallel=false", .. props], Repo);
-
-        Console.WriteLine($"Completed in {started.Elapsed.TotalSeconds:N1}s: {releaseDir}");
+        Directory.CreateDirectory(Path.GetDirectoryName(activeLanePath)!);
+        File.WriteAllText(activeLanePath, lane + Environment.NewLine);
+        File.WriteAllText(activeVersionPath, packageVersion + Environment.NewLine);
     }
 
-    static async Task ClientAsync(Options options)
+    Console.WriteLine($"Completed in {sw.Elapsed.TotalSeconds:N1}s: {releaseDir}");
+    return 0;
+}
+
+async Task<int> ClientAsync(Opts o)
+{
+    var workspace = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
+    var laneDir = Path.Combine(workspace, o.Lane());
+    DeleteDir(Path.Combine(Env.Repo, "build", "ClientAssets"));
+    var requiredNodeVersion = File.ReadAllText(Path.Combine(workspace, ".node-version")).Trim();
+    var requiredNodeMajor = requiredNodeVersion.Split('.')[0];
+    if (string.IsNullOrWhiteSpace(requiredNodeMajor))
+        throw new InvalidOperationException("Client .node-version is empty.");
+    var nodeVersion = (await Capture("node", new[] { "--version" }, workspace)).Trim();
+    var nodeMajor = nodeVersion.TrimStart('v').Split('.')[0];
+    if (!string.Equals(nodeMajor, requiredNodeMajor, StringComparison.Ordinal))
+        throw new InvalidOperationException($"Client build requires Node {requiredNodeVersion} (found {nodeVersion}). See .node-version or CI setup.");
+    using var packageJson = JsonDocument.Parse(File.ReadAllText(Path.Combine(workspace, "package.json")));
+    var packageManager = packageJson.RootElement.GetProperty("packageManager").GetString()
+        ?? throw new InvalidOperationException("Client package.json has no packageManager.");
+    const string pnpmPrefix = "pnpm@";
+    if (!packageManager.StartsWith(pnpmPrefix, StringComparison.Ordinal))
+        throw new InvalidOperationException($"Client packageManager must use pnpm (found {packageManager}).");
+    var requiredPnpmVersion = packageManager[pnpmPrefix.Length..];
+    var pnpmVersion = (await Capture("pnpm", new[] { "--version" }, workspace)).Trim();
+    if (pnpmVersion != requiredPnpmVersion)
+        throw new InvalidOperationException($"Client build requires pnpm {requiredPnpmVersion} (found {pnpmVersion}).");
+    await Run("pnpm", new[] { "install", "--frozen-lockfile" }, cwd: workspace);
+    await Run("pnpm", new[] { "run", "check" }, cwd: laneDir);
+    await Run("pnpm", new[] { "run", "build" }, cwd: laneDir);
+    await Run("pnpm", new[] { "run", "lint" }, cwd: laneDir);
+    Console.WriteLine($"Client {o.Lane()} OK.");
+    return 0;
+}
+
+async Task<int> SiteAsync(Opts o)
+{
+    var lane = o.Lane();
+    var cfg = o.String("configuration", "Debug");
+    ValidateConfiguration(cfg);
+    var project = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "Articulate.Tests.Website.csproj");
+    if (o.Flag("reset")) DeleteDir(Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco"));
+    await Run("dotnet", new[] { "run", "-c", cfg ?? "Debug", "--project", project, $"-p:ArticulatePackageLane={lane}" }, cwd: Env.Repo);
+    return 0;
+}
+
+async Task<string> ResolvePackageVersion(string lane)
+{
+    var packageVersion = Env.Get("ARTICULATE_PACKAGE_VERSION");
+    if (!string.IsNullOrWhiteSpace(packageVersion)) return packageVersion;
+
+    var inCi = Env.IsTrue(Env.CallerCi) || Env.IsTrue(Env.CallerGithubActions) || Env.IsTrue(Env.CallerAct);
+    var nbgv = inCi ? Env.Get("NBGV_SemVer2") : null;
+    if (string.IsNullOrWhiteSpace(nbgv))
+        nbgv = (await Capture("nbgv", new[] { "get-version", "-v", "SemVer2" }, Env.Repo)).Trim();
+    if (lane == "v17") return nbgv;
+
+    var baseVersionPath = Path.Combine(Env.Repo, $"version-{lane}.txt");
+    var baseVersion = File.ReadAllText(baseVersionPath).Trim();
+    if (string.IsNullOrWhiteSpace(baseVersion))
+        throw new InvalidOperationException($"{Path.GetFileName(baseVersionPath)} is empty.");
+
+    var commitMatch = Regex.Match(nbgv, @"[-.]g[a-f0-9]+$");
+    return baseVersion + commitMatch.Value;
+}
+
+void ValidateConfiguration(string? configuration)
+{
+    if (configuration is not ("Debug" or "Release"))
+        throw new ArgumentException("--configuration must be Debug or Release.");
+}
+
+// ---- Shell helpers ----
+
+async Task Run(string file, IEnumerable<string> args, string? cwd = null, bool allowFailure = false)
+{
+    Env.Require(file);
+    var psi = new ProcessStartInfo(file) { UseShellExecute = false };
+    if (cwd is not null) psi.WorkingDirectory = cwd;
+    foreach (var a in args) psi.ArgumentList.Add(a);
+    Console.WriteLine($"> {file} {string.Join(' ', args)}");
+    using var p = Process.Start(psi) ?? throw new InvalidOperationException($"Could not start {file}.");
+    await p.WaitForExitAsync();
+    if (p.ExitCode != 0 && !allowFailure)
+        throw new InvalidOperationException($"{file} exited {p.ExitCode}.");
+}
+
+async Task<string> Capture(string file, IEnumerable<string> args, string cwd)
+{
+    Env.Require(file);
+    var psi = new ProcessStartInfo(file)
     {
-        var lane = Lane(options);
-        var root = Path.Combine(Repo, "src", "Articulate.Web", "Client");
-        await RunAsync("pnpm", ["install"], root);
-        var dir = Path.Combine(root, lane);
-        await RunAsync("pnpm", ["run", "check"], dir);
-        await RunAsync("pnpm", ["run", "build"], dir);
-        await RunAsync("pnpm", ["run", "lint"], dir);
-    }
+        UseShellExecute = false,
+        WorkingDirectory = cwd,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+    };
+    foreach (var arg in args) psi.ArgumentList.Add(arg);
+    using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Could not start {file}.");
+    var output = await process.StandardOutput.ReadToEndAsync();
+    var error = await process.StandardError.ReadToEndAsync();
+    await process.WaitForExitAsync();
+    if (process.ExitCode != 0) throw new InvalidOperationException($"{file} exited {process.ExitCode}: {error.Trim()}");
+    return output;
+}
 
-    static async Task SiteAsync(Options options)
+void DeleteDir(string path) { if (Directory.Exists(path)) Directory.Delete(path, recursive: true); }
+void DeleteFile(string path) { if (File.Exists(path)) File.Delete(path); }
+
+void DeleteBuildOutputs(string root)
+{
+    foreach (var d in EnumerateSourceDirectories(root)
+        .Where(p => Path.GetFileName(p) is "bin" or "obj").OrderByDescending(p => p.Length))
+        DeleteDir(d);
+}
+
+IEnumerable<string> EnumerateSourceDirectories(string root)
+{
+    foreach (var directory in Directory.EnumerateDirectories(root))
     {
-        var lane = Lane(options);
-        var configuration = options.Value("configuration") ?? "Debug";
-        var project = Path.Combine(Repo, "src", "Articulate.Tests.Website", "Articulate.Tests.Website.csproj");
-        if (options.Flag("reset"))
-            DeleteDirectory(Path.Combine(Repo, "src", "Articulate.Tests.Website", "umbraco"));
-        await RunAsync("dotnet", ["run", "-c", configuration, "--project", project,
-            $"-p:ArticulatePackageLane={lane}"], Repo);
+        var name = Path.GetFileName(directory);
+        if (name.Equals("node_modules", StringComparison.OrdinalIgnoreCase)) continue;
+        yield return directory;
+        if (name is not ("bin" or "obj"))
+            foreach (var nested in EnumerateSourceDirectories(directory)) yield return nested;
     }
+}
 
-    static async Task DockerBuildAsync(Options options)
+void DeleteExistingPackages(string releaseDir)
+{
+    if (!Directory.Exists(releaseDir)) return;
+    foreach (var file in Directory.EnumerateFiles(releaseDir))
     {
-        var lane = Lane(options);
-        await EnsurePackagesAsync(lane);
-        var tag = options.Value("tag") ?? $"articulate-local:{lane}";
-        var version = lane == "v18" ? "[18.0.0-*,19.0.0)" : "[17.4.0,18.0.0)";
-        await RunAsync("docker", ["build", "--file", "Dockerfile", "--target", "chiseled", "--tag", tag,
-            "--build-arg", $"PACKAGE_SOURCE=build/Release/{lane}", "--build-arg", $"UMBRACO_CMS_VERSION={version}", "."], Repo);
+        var name = Path.GetFileName(file);
+        if (Regex.IsMatch(name, @"^Articulate(?:\.Theme\.Sample)?\..*\.s?nupkg$"))
+            File.Delete(file);
     }
+}
 
-    static async Task DockerDevAsync(Options options)
+void VerifyPackages(string releaseDir, string version, bool sample)
+{
+    var expected = new List<string>
     {
-        Require("docker");
-        var lane = Lane(options);
-        await EnsurePackagesAsync(lane);
-        ConfigureLane(lane);
-        var url = Env("UMBRACO_PUBLIC_URL")!;
-        Environment.SetEnvironmentVariable("UMBRACO_RUNTIME_MODE", "BackofficeDevelopment");
-        if (options.Flag("reset")) await ComposeAsync(["down", "-v"]);
-        await ComposeAsync(["up", "-d", "--build"]);
-        await WaitForAsync(new Uri(new Uri(url), "umbraco/"));
-        if (!options.Flag("skip-smoke"))
-        {
-            RequireSecret();
-            await SmokeAsync("publish");
-            await SmokeAsync("confirm");
-        }
-    }
+        $"Articulate.{version}.nupkg",
+        $"Articulate.{version}.snupkg",
+    };
+    if (sample) expected.Add($"Articulate.Theme.Sample.{version}.nupkg");
 
-    static async Task DockerProdAsync(Options options)
-    {
-        RequireSecret();
-        ConfigureLane(Lane(options));
-        Environment.SetEnvironmentVariable("UMBRACO_RUNTIME_MODE", "Production");
-        await ComposeAsync(["up", "-d", "--force-recreate"]);
-        await WaitForAsync(new Uri(new Uri(Env("UMBRACO_PUBLIC_URL")!), "umbraco/"));
-        await SmokeAsync("smoke");
-        await SmokeAsync("theme");
-    }
+    var missing = expected
+        .Where(file => !File.Exists(Path.Combine(releaseDir, file)))
+        .ToArray();
+    if (missing.Length > 0)
+        throw new InvalidOperationException($"Package output is incomplete in '{releaseDir}': missing {string.Join(", ", missing)}.");
+}
 
-    static async Task DockerStatusAsync(Options options)
-    {
-        Require("docker");
-        ConfigureLane(Lane(options));
-        await ComposeAsync(["ps"]);
-        var containerId = (await CaptureAsync(
-            "docker",
-            ["compose", "ps", "-q", "articulate"],
-            Repo)).Trim();
-        if (string.IsNullOrWhiteSpace(containerId))
-            throw new InvalidOperationException("The articulate container is not running.");
+// ---- Env: paths, env vars, defaults ----
 
-        var inspectionDir = Path.Combine(Path.GetTempPath(), $"articulate-docker-status-{Guid.NewGuid():N}");
-        try
-        {
-            Directory.CreateDirectory(inspectionDir);
-            await RunAsync(
-                "docker",
-                ["cp", $"{containerId}:/app/wwwroot/App_Plugins/Articulate/.", inspectionDir],
-                Repo);
+static class Env
+{
+    public static readonly string Repo = FindRepo();
+    public static readonly string Solution = Path.Combine(Repo, "src", "Articulate.sln");
+    public static readonly string? CallerCi = Environment.GetEnvironmentVariable("CI");
+    public static readonly string? CallerGithubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS");
+    public static readonly string? CallerAct = Environment.GetEnvironmentVariable("ACT");
 
-            var backofficeBundle = Directory
-                .EnumerateFiles(inspectionDir, "articulate-backoffice.js", SearchOption.AllDirectories)
-                .FirstOrDefault();
-            var manifest = Directory
-                .EnumerateFiles(inspectionDir, "umbraco-package.json", SearchOption.AllDirectories)
-                .FirstOrDefault();
+    public static string? Get(string name, string? fallback = null)
+        => Environment.GetEnvironmentVariable(name) ?? fallback;
 
-            if (backofficeBundle is null || manifest is null)
-                throw new InvalidOperationException(
-                    "The running articulate container is missing the Backoffice bundle or umbraco-package.json.");
+    public static bool IsTrue(string? v) => string.Equals(v, "true", StringComparison.OrdinalIgnoreCase);
 
-            Console.WriteLine($"Backoffice bundle: {Path.GetRelativePath(inspectionDir, backofficeBundle)}");
-            Console.WriteLine($"Package manifest: {Path.GetRelativePath(inspectionDir, manifest)}");
-        }
-        finally
-        {
-            DeleteDirectory(inspectionDir);
-        }
-    }
-
-    static async Task DockerTestAsync(Options options)
-    {
-        var requested = options.Value("lane") ?? "all";
-        if (requested is not ("v17" or "v18" or "all"))
-            throw new ArgumentException("--lane must be v17, v18, or all.");
-        var lanes = requested == "all" ? new[] { "v17", "v18" } : new[] { requested };
-        var keep = options.Flag("keep");
-        var skipSmoke = options.Flag("skip-smoke");
-
-        foreach (var lane in lanes)
-        {
-            await EnsurePackagesAsync(lane);
-            ConfigureLane(lane);
-            try
-            {
-                await ComposeAsync(["build", "--no-cache", "--pull"]);
-                await DockerDevAsync(Options.FromFlags(skipSmoke ? ["skip-smoke"] : []));
-                if (!skipSmoke) await DockerProdAsync(new Options());
-                Console.WriteLine($"PASSED: {lane}");
-            }
-            finally
-            {
-                if (!keep) await ComposeAsync(["down", "-v"], allowFailure: true);
-            }
-        }
-    }
-
-    static async Task EnsurePackagesAsync(string lane)
-    {
-        var major = lane == "v18" ? "7" : "6";
-        var dir = Path.Combine(BuildDir, "Release", lane);
-        var package = Directory.Exists(dir) && Directory.EnumerateFiles(dir, $"Articulate.{major}.*.nupkg").Any();
-        var sample = Directory.Exists(dir) && Directory.EnumerateFiles(dir, $"Articulate.Theme.Sample.{major}.*.nupkg").Any();
-        if (!package || !sample)
-            await BuildAsync(Options.FromValues(("lane", lane), ("sample", "true")));
-    }
-
-    static void ConfigureLane(string lane)
-    {
-        var is18 = lane == "v18";
-        // HTTPS 44317/44318 match the Umbraco major; HTTP 44380/44381 avoid
-        // common dev-tool port-snatch ranges. Override with CADDY_HTTPS_PORT /
-        // CADDY_HTTP_PORT before invoking the build script.
-        var https = is18 ? "44318" : "44317";
-        var http = is18 ? "44381" : "44380";
-        Environment.SetEnvironmentVariable("ARTICULATE_PACKAGE_LANE", lane);
-        Environment.SetEnvironmentVariable("COMPOSE_PROJECT_NAME", $"art_{lane}");
-        Environment.SetEnvironmentVariable("COMPOSE_VOLUME_PREFIX", $"art_{lane}");
-        Environment.SetEnvironmentVariable("IMAGE_TAG", $"articulate-local:{lane}");
-        Environment.SetEnvironmentVariable("PACKAGE_SOURCE", $"build/Release/{lane}");
-        Environment.SetEnvironmentVariable("UMBRACO_CMS_VERSION", is18 ? "[18.0.0-*,19.0.0)" : "[17.4.0,18.0.0)");
-        // Per-lane auth cookies: cookies are domain-scoped, so the default
-        // back-office cookie would clobber itself across lanes on localhost.
-        Environment.SetEnvironmentVariable("Umbraco__CMS__Security__AuthCookieName", $"UMB_UCONTEXT-{lane}");
-        // Umbraco 17.3+ OAuth cookies (PR #22057): SiteName is appended verbatim.
-        Environment.SetEnvironmentVariable("Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName", $"-{lane}");
-        SetHostValue("CADDY_HTTPS_PORT", https);
-        SetHostValue("CADDY_HTTP_PORT", http);
-        SetHostValue("CADDY_HTTPS_HOST", $"localhost:{https}");
-        SetHostValue("UMBRACO_PUBLIC_HOST", $"https://localhost:{https}");
-        SetHostValue("UMBRACO_PUBLIC_URL", $"https://localhost:{https}/");
-        SetHostValue("ARTICULATE_REDIRECT_URI", $"https://localhost:{https}/a-new/");
-        SetHostValue("ARTICULATE_LOGOUT_REDIRECT_URI", $"https://localhost:{https}/");
-
-        var caddyHttpsHost = Env("CADDY_HTTPS_HOST") ?? $"localhost:{https}";
-        var caddyTlsHost = caddyHttpsHost;
-        var portIndex = caddyHttpsHost.LastIndexOf(':');
-        if (portIndex >= 0)
-        {
-            caddyTlsHost = caddyHttpsHost[..portIndex];
-        }
-        SetHostValue("CADDY_TLS_HOST", caddyTlsHost);
-    }
-
-    static async Task ComposeAsync(IEnumerable<string> args, bool allowFailure = false) =>
-        await RunAsync("docker", ["compose", .. args], Repo, allowFailure);
-
-    static async Task SmokeAsync(string command)
-    {
-        var node = Env("NODE_BIN") ?? "node";
-        await RunAsync(node, [Path.Combine(DockerDir, "smoke.mjs"), command], Repo);
-    }
-
-    static async Task WaitForAsync(Uri uri)
-    {
-        using var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
-        var deadline = DateTime.UtcNow.AddMinutes(5);
-        while (DateTime.UtcNow < deadline)
-        {
-            try
-            {
-                using var response = await client.GetAsync(uri);
-                if (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Found) return;
-            }
-            catch (HttpRequestException) { }
-            catch (TaskCanceledException) { }
-            await Task.Delay(2000);
-        }
-        throw new TimeoutException($"Timed out waiting for {uri}.");
-    }
-
-    static async Task RunAsync(string file, IEnumerable<string> args, string cwd, bool allowFailure = false)
-    {
-        Require(file);
-        var info = new ProcessStartInfo(file) { WorkingDirectory = cwd, UseShellExecute = false };
-        foreach (var arg in args) info.ArgumentList.Add(arg);
-        Console.WriteLine($"> {file} {string.Join(' ', info.ArgumentList)}");
-        using var process = Process.Start(info) ?? throw new InvalidOperationException($"Could not start {file}.");
-        await process.WaitForExitAsync();
-        if (process.ExitCode != 0 && !allowFailure)
-            throw new InvalidOperationException($"{file} exited with code {process.ExitCode}.");
-    }
-
-    static async Task<string> CaptureAsync(string file, IEnumerable<string> args, string cwd)
-    {
-        Require(file);
-        var info = new ProcessStartInfo(file) { WorkingDirectory = cwd, UseShellExecute = false, RedirectStandardOutput = true };
-        foreach (var arg in args) info.ArgumentList.Add(arg);
-        using var process = Process.Start(info) ?? throw new InvalidOperationException($"Could not start {file}.");
-        var output = await process.StandardOutput.ReadToEndAsync();
-        await process.WaitForExitAsync();
-        if (process.ExitCode != 0) throw new InvalidOperationException($"{file} exited with code {process.ExitCode}.");
-        return output;
-    }
-
-    static void DeleteBuildOutputs(string root)
-    {
-        foreach (var dir in Directory.EnumerateDirectories(root, "*", SearchOption.AllDirectories)
-                     .Where(path => Path.GetFileName(path) is "bin" or "obj")
-                     .OrderByDescending(path => path.Length).ToArray())
-            DeleteDirectory(dir);
-    }
-
-    static void DeleteDirectory(string path)
-    {
-        if (Directory.Exists(path)) Directory.Delete(path, recursive: true);
-    }
-
-    static string Lane(Options options)
-    {
-        var lane = (options.Value("lane") ?? Env("ARTICULATE_PACKAGE_LANE") ?? "v17").ToLowerInvariant();
-        if (lane is not ("v17" or "v18")) throw new ArgumentException("Lane must be v17 or v18.");
-        return lane;
-    }
-
-    static bool BoolOption(Options options, string key, string env, bool fallback) =>
-        options.Value(key) is { } value ? IsTrue(value) :
-        Env(env) is { } envValue ? IsTrue(envValue) : fallback;
-
-    static bool IsTrue(string? value) => string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
-    static string? Env(string name) => Environment.GetEnvironmentVariable(name);
-    static void SetDefault(string name, string value)
-    {
-        if (string.IsNullOrWhiteSpace(Env(name))) Environment.SetEnvironmentVariable(name, value);
-    }
-    static void SetHostValue(string name, string fallback)
-    {
-        var value = HostOverrides[name];
-        Environment.SetEnvironmentVariable(name, string.IsNullOrWhiteSpace(value) ? fallback : value);
-    }
-    static void RequireSecret()
-    {
-        // Default matches the docker-compose.yml fallback so local dev works
-        // without exporting anything. Override explicitly in CI.
-        SetDefault("ARTICULATE_DEV_AUTOMATION_CLIENT_SECRET", "articulate-dev-local-secret");
-        SetDefault("ARTICULATE_DEV_AUTOMATION_CLIENT_ID", "articulate-dev-automation");
-    }
-    static void Require(string command)
+    public static void Require(string command)
     {
         if (Path.IsPathRooted(command) && File.Exists(command)) return;
-        var names = OperatingSystem.IsWindows() ? new[] { command, $"{command}.exe", $"{command}.cmd" } : [command];
-        if ((Env("PATH") ?? "").Split(Path.PathSeparator).Any(dir => names.Any(name => File.Exists(Path.Combine(dir, name))))) return;
+        var names = OperatingSystem.IsWindows()
+            ? new[] { command, $"{command}.exe", $"{command}.cmd" }
+            : new[] { command };
+        if ((Get("PATH") ?? "").Split(Path.PathSeparator).Any(d => names.Any(n => File.Exists(Path.Combine(d, n)))))
+            return;
         throw new InvalidOperationException($"Required command not found on PATH: {command}");
     }
 
     static string FindRepo()
     {
-        for (var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "global.json")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "src", "Articulate.Web")))
-                return directory.FullName;
-        }
-
-        throw new InvalidOperationException("Run this command from the Articulate repository.");
+        for (var d = new DirectoryInfo(Directory.GetCurrentDirectory()); d is not null; d = d.Parent)
+            if (File.Exists(Path.Combine(d.FullName, "global.json")) &&
+                Directory.Exists(Path.Combine(d.FullName, "src", "Articulate.Web")))
+                return d.FullName;
+        throw new InvalidOperationException("Run from the Articulate repository.");
     }
 }
 
-sealed class Options
+// ---- Options ----
+
+// ---- Build defaults ----
+
+record BuildDefaults(bool Tests, bool Client, bool Sample)
 {
-    readonly Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase);
-    public static Options Parse(string[] args)
+    public static BuildDefaults Resolve(Opts o, bool inCi, string? cfg) => new(
+        Tests:  o.Flag("tests")  || o.Bool("tests",  "RUN_TESTS",         inCi),
+        Client: o.Bool("client", "ENABLE_CLIENT_BUILD",                  inCi || cfg == "Release"),
+        Sample: o.Flag("sample") || o.Bool("sample", "PACK_SAMPLE_THEME", !inCi));
+}
+
+sealed class Opts
+{
+    readonly Dictionary<string, string?> _v = new(StringComparer.OrdinalIgnoreCase);
+    Opts(Dictionary<string, string?> v) { this._v = v; }
+
+    public static Opts Parse(string[] a)
     {
-        var result = new Options();
-        for (var i = 0; i < args.Length; i++)
+        var d = new Dictionary<string, string?>();
+        for (var i = 0; i < a.Length; i++)
         {
-            if (!args[i].StartsWith("--")) throw new ArgumentException($"Unexpected argument '{args[i]}'.");
-            var key = args[i][2..];
-            result.values[key] = i + 1 < args.Length && !args[i + 1].StartsWith("--") ? args[++i] : null;
+            if (!a[i].StartsWith("--")) throw new ArgumentException($"Unexpected argument '{a[i]}'.");
+            var key = a[i][2..];
+            d[key] = i + 1 < a.Length && !a[i + 1].StartsWith("--") ? a[++i] : null;
         }
-        return result;
+        return new Opts(d);
     }
-    public static Options FromFlags(IEnumerable<string> flags)
+
+    public Opts Validate(string command, params string[] allowed)
     {
-        var result = new Options();
-        foreach (var flag in flags) result.values[flag] = null;
-        return result;
-    }
-    public static Options FromValues(params (string Key, string Value)[] values)
-    {
-        var result = new Options();
-        foreach (var (key, value) in values) result.values[key] = value;
-        return result;
-    }
-    public void Validate(string command, IReadOnlyCollection<string> allowed)
-    {
-        string[] unknown = values.Keys.Where(key => !allowed.Contains(key, StringComparer.OrdinalIgnoreCase)).ToArray();
+        var unknown = _v.Keys.Where(key => !allowed.Contains(key, StringComparer.OrdinalIgnoreCase)).ToArray();
         if (unknown.Length > 0)
             throw new ArgumentException(
                 $"Unknown option(s) for {command}: {string.Join(", ", unknown.Select(x => $"--{x}"))}. " +
-                $"Run 'dotnet run --file build/build.cs -- help {command}'.");
+                $"Run 'dotnet run build/build.cs -- help {command}'.");
 
         RequireValue("lane");
         RequireValue("configuration");
-        RequireValue("client");
-        RequireValue("tag");
         RequireBoolean("tests");
         RequireBoolean("client");
         RequireBoolean("sample");
         RequireFlag("clean");
         RequireFlag("reset");
-        RequireFlag("skip-smoke");
-        RequireFlag("keep");
 
-        if (Value("configuration") is { } configuration &&
+        if (String("configuration") is { } configuration &&
             configuration is not ("Debug" or "Release"))
             throw new ArgumentException("--configuration must be Debug or Release.");
+
+        return this;
     }
+
+    public string Lane() => (String("lane") ?? Env.Get("ARTICULATE_PACKAGE_LANE", "v17") ?? "v17").ToLowerInvariant() switch
+    {
+        "v17" => "v17",
+        "v18" => "v18",
+        var x => throw new ArgumentException($"--lane must be v17 or v18 (got '{x}').")
+    };
+
+    public string? String(string key, string? fallback = null) => _v.TryGetValue(key, out var v) ? v : fallback;
+
+    public bool Bool(string key, string env, bool fallback)
+        => _v.TryGetValue(key, out var v) && v is not null
+            ? bool.TryParse(v, out var b) ? b : Env.IsTrue(v)
+            : Env.Get(env) is { } envValue ? Env.IsTrue(envValue) : fallback;
+
+    public bool Flag(string key) => _v.TryGetValue(key, out var v) && v is null;
+
     void RequireValue(string key)
     {
-        if (values.ContainsKey(key) && string.IsNullOrWhiteSpace(values[key]))
+        if (_v.ContainsKey(key) && string.IsNullOrWhiteSpace(_v[key]))
             throw new ArgumentException($"--{key} requires a value.");
     }
+
     void RequireBoolean(string key)
     {
-        if (Value(key) is { } value && !bool.TryParse(value, out _))
+        if (String(key) is { } value && !bool.TryParse(value, out _))
             throw new ArgumentException($"--{key} must be true or false.");
     }
+
     void RequireFlag(string key)
     {
-        if (Value(key) is not null)
+        if (String(key) is not null)
             throw new ArgumentException($"--{key} is a flag and does not accept a value.");
     }
-    public string? Value(string key) => values.TryGetValue(key, out var value) ? value : null;
-    public bool Flag(string key) => values.ContainsKey(key) && values[key] is null;
 }

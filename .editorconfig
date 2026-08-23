@@ -18,6 +18,7 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
+end_of_line = lf
 csharp_indent_labels = no_change
 csharp_using_directive_placement = outside_namespace:warning
 csharp_prefer_simple_using_statement = true:suggestion
@@ -203,6 +204,9 @@ csharp_using_directive_placement = outside_namespace:warning
 csharp_prefer_static_local_function = true:warning
 csharp_prefer_simple_using_statement = true:suggestion
 
+[build/build.cs]
+dotnet_analyzer_diagnostic.severity = none
+
 ##########################################
 # .NET Formatting Conventions
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-code-style-settings-reference#formatting-conventions
@@ -379,7 +383,7 @@ dotnet_naming_symbols.instance_fields.applicable_kinds = field
 dotnet_naming_style.instance_field_style.capitalization = camel_case
 dotnet_naming_style.instance_field_style.required_prefix = _
 tab_width = 4
-end_of_line = crlf
+end_of_line = lf
 dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 
 ##########################################

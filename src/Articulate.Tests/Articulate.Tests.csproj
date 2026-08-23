@@ -19,7 +19,6 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Umbraco.Cms" />
-    <PackageReference Include="Umbraco.Cms.Tests.Integration" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">

@@ -20,12 +20,7 @@
     <PackageReference Include="System.ServiceModel.Syndication" />
   </ItemGroup>
 
-  <ItemGroup Label="Force minimum versions">
-    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup>
-
     <InternalsVisibleTo Include="Articulate.Web" />
     <InternalsVisibleTo Include="Articulate.Tests" />
   </ItemGroup>

@@ -14,6 +14,11 @@
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>false</IncludeSymbols>
+    <!-- Theme.Sample ships from the same build pass as Articulate; the v18 stable nupkg's
+         dep range surfaces a v17 prerelease only because ProjectVersion on the inner project
+         build isn't overridden (see Directory.Build.props OverrideArticulatePackageVersion).
+         The artifact is never published, so just quiet the warning. -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

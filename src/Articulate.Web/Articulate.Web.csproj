@@ -43,7 +43,6 @@
     <PackageReference Include="Markdig" />
     <PackageReference Include="WilderMinds.MetaWeblog" />
     <PackageReference Include="System.ServiceModel.Syndication" />
-    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Build targets shipped with the package (copies XML docs for Swagger) -->
@@ -74,7 +73,12 @@
   </ItemGroup>
   <PropertyGroup>
     <ClientProjectDirectory>$(MSBuildProjectDirectory)/Client</ClientProjectDirectory>
-    <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">17</UmbracoClientVersion>
+    <ExpectedUmbracoClientVersion Condition="'$(ArticulatePackageLane)' == 'v17'">17</ExpectedUmbracoClientVersion>
+    <ExpectedUmbracoClientVersion Condition="'$(ArticulatePackageLane)' == 'v18'">18</ExpectedUmbracoClientVersion>
+    <!-- Derive UmbracoClientVersion from ArticulatePackageLane unless the caller set it explicitly. -->
+    <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">$(ExpectedUmbracoClientVersion)</UmbracoClientVersion>
+    <ArticulateClientVersionValidationError Condition="'$(UmbracoClientVersion)' != '17' and '$(UmbracoClientVersion)' != '18'">$([System.Int32]::Parse("UmbracoClientVersion must be '17' or '18' (got '$(UmbracoClientVersion)')."))</ArticulateClientVersionValidationError>
+    <ArticulateClientLaneConsistencyError Condition="'$(ExpectedUmbracoClientVersion)' != '' and '$(UmbracoClientVersion)' != '$(ExpectedUmbracoClientVersion)'">$([System.Int32]::Parse("UmbracoClientVersion '$(UmbracoClientVersion)' is inconsistent with ArticulatePackageLane '$(ArticulatePackageLane)'. Expected '$(ExpectedUmbracoClientVersion)'."))</ArticulateClientLaneConsistencyError>
     <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
@@ -87,10 +91,15 @@
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-lock.yaml" />
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-workspace.yaml" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/common/**/*" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/scripts/**/*" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/package.json" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/tsconfig*.json" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/vite.config.ts" />
-    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/src/**/*" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/public/**/*" />
+    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/ambient.d.ts" />
+    <ClientBuildInput Include="$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/Themes/**/assets/src/**/*" />
+    <ClientBuildInput Include="$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/MarkdownEditor/assets/src/**/*" />
   </ItemGroup>
 
   <!--
@@ -135,7 +144,8 @@
     <ItemGroup>
       <Content Remove="$(BackofficeOutputDir)\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\BackOffice\**" />
-      <Content Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\dist\**" />
+      <Content Remove="wwwroot\App_Plugins\Articulate\Themes\**\assets\**" />
+      <Content Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\MarkdownEditor\assets\dist\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\umbraco-package.json" />
     </ItemGroup>
@@ -143,7 +153,7 @@
 
   <Target Name="EnsureClientAssets" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'!='$(ClientBuildTargetFramework)' and !Exists('$(ClientBuildStamp)')" BeforeTargets="ResolveProjectStaticWebAssets">
     <Message Text="Client assets missing for $(TargetFramework); triggering BuildBackofficeClient..." Importance="High" />
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration);UmbracoClientVersion=$(UmbracoClientVersion)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration);ArticulatePackageLane=$(ArticulatePackageLane);UmbracoClientVersion=$(UmbracoClientVersion)" />
   </Target>
 
   <Target Name="CleanClientAssets" AfterTargets="Clean" Condition="'$(EnableClientBuild)'=='true'">

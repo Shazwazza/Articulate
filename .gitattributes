@@ -43,7 +43,7 @@
 *.fs text=auto
 *.fsx text=auto
 *.hs text=auto
-*.json text=lf
+*.json text eol=lf
 *.xml text=auto
 *.resx text=auto
 *.yml text eol=lf core.whitespace whitespace=tab-in-indent,trailing-space,tabwidth=2
@@ -59,3 +59,26 @@
 *.gitattributes text eol=lf
 
 .github/workflows/*.lock.yml linguist-generated=true merge=ours
+
+# Project config files — be explicit about LF
+.editorconfig text eol=lf
+.globalconfig text eol=lf
+.gitignore text eol=lf
+
+# Build / MSBuild files
+*.props text eol=lf
+*.targets text eol=lf
+*.csproj text eol=lf merge=union
+
+# PowerShell
+*.ps1 text eol=lf
+
+# Missing image types actually used in this repo
+*.ico binary
+*.xcf binary
+*.jpeg binary
+*.webp binary
+*.svg binary
+
+# Generated build outputs
+build/ClientAssets/** linguist-generated=true diff=nodiff
