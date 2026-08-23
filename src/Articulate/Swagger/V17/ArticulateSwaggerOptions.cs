@@ -1,28 +1,20 @@
 #nullable enable
-using System.Reflection;
-using Articulate.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.SwaggerGen;
-#if NET10_0_OR_GREATER
 using Microsoft.OpenApi;
-#else
-using Microsoft.OpenApi.Models;
-#endif
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 
-namespace Articulate.Options
+namespace Articulate.Swagger.V17
 {
     /// <summary>
-    /// Configures SwaggerGen options for the Articulate API, including documentation, tags, and XML comments.
+    ///     Configures Articulate management API OpenAPI generation via Swashbuckle in Umbraco 17.
     /// </summary>
     public class ArticulateSwaggerOptions(ILogger<ArticulateSwaggerOptions> logger)
         : IConfigureOptions<SwaggerGenOptions>
     {
-        /// <summary>
-        /// Configures SwaggerGen options for the Articulate API.
-        /// </summary>
-        /// <param name="options">The SwaggerGen options to configure.</param>
+        /// <inheritdoc />
         public void Configure(SwaggerGenOptions options)
         {
             var year = DateTime.Now.Year.ToString();
@@ -32,7 +24,7 @@ namespace Articulate.Options
                 {
                     Title = "Articulate Management API",
                     Description =
-                        "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco. ",
+                        "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.",
                     Version = "Latest",
                     Contact = new OpenApiContact
                     {

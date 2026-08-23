@@ -1,7 +1,7 @@
 #nullable enable
 using Umbraco.Cms.Api.Management.OpenApi;
 
-namespace Articulate.Swagger
+namespace Articulate.Swagger.V17
 {
     /// <summary>
     /// Adds security requirements to Articulate API operations for Swagger documentation.
