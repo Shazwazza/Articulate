@@ -1,7 +1,6 @@
-@using Microsoft.AspNetCore.Authentication.Cookies
-@using Microsoft.Extensions.Options
+@using Articulate.Services
 @using Umbraco.Cms.Core
-@inject IOptionsMonitor<CookieAuthenticationOptions> backOfficeCookieOptions
+@inject BackOfficeAuthService backOfficeAuthService
 
 @model IMasterModel
 @{
@@ -11,17 +10,9 @@
         ? "site-header site-header--has-banner"
         : "site-header";
 
-    var isBackOfficeLoggedIn = false;
-    var cookieOptions = backOfficeCookieOptions.Get(Constants.Security.BackOfficeAuthenticationType);
-    var cookieName = cookieOptions.Cookie.Name;
-    var cookie = string.IsNullOrWhiteSpace(cookieName)
-        ? null
-        : Context.Request.Cookies[cookieName];
-    if (cookie is not null)
-    {
-        var unprotected = cookieOptions.TicketDataFormat.Unprotect(cookie);
-        isBackOfficeLoggedIn = unprotected is not null && unprotected.AuthenticationScheme == Constants.Security.BackOfficeAuthenticationType;
-    }
+    var isBackOfficeLoggedIn = await backOfficeAuthService.IsBackOfficeLoggedInAsync(
+        Context,
+        Constants.Security.BackOfficeAuthenticationType);
 }
 <!DOCTYPE html>
 <html lang="en">

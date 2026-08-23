@@ -28,7 +28,7 @@ This sample also uses normal Razor layout files (`_ViewStart.cshtml` and `_Layou
 
 See the wiki for the full theme guidance:
 
-- https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme
-- https://github.com/Shazwazza/Articulate/wiki/Theme-File-Structure
+- [Creating Themes](https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme)
+- [Theme File Structure](https://github.com/Shazwazza/Articulate/wiki/Theme-File-Structure)
 
 For local development in this repository, the sample theme is referenced by `Articulate.Tests.Website`.

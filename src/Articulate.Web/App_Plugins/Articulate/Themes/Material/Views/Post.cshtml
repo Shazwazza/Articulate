@@ -65,7 +65,7 @@
         </div>
         @if (Model.EnableComments && Model.IsDisqusEnabled)
         {
-            <div class="mdl-card__supporting-text mdl-color--grey-200">
+            <div class="mdl-card__supporting-text mdl-color--white" style="box-sizing: border-box">
 
 
                 @await Html.PartialAsync("CommentsDisqus", Model)

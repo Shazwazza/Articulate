@@ -55,10 +55,9 @@
         }
     }
 
+    <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/mdl/material.pink-blue.min.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
     <environment include="Development">
-        <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/mdl/material.pink-blue.min.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
         <link href="~/App_Plugins/Articulate/Themes/@theme/assets/src/css/styles.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
-        <link href="~/App_Plugins/Articulate/Themes/@theme/assets/src/css/styles_custom.css" rel="stylesheet" asp-append-version="true">
     </environment>
     <environment exclude="Development">
         <link href="~/App_Plugins/Articulate/Themes/@theme/assets/dist/css/@(themeLower).min.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
@@ -81,8 +80,8 @@
         <div class="mdl-layout__obfuscator"></div>
     </div>
 
+    <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/mdl/material.min.js" type="text/javascript" asp-append-version="true"></script>
     <environment include="Development">
-        <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/mdl/material.min.js" type="text/javascript" asp-append-version="true"></script>
         <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/mdl-cards.js" type="text/javascript" asp-append-version="true"></script>
         <script defer src="~/App_Plugins/Articulate/Themes/@theme/assets/src/js/share.js" type="text/javascript" asp-append-version="true"></script>
     </environment>
