@@ -14,18 +14,19 @@
 - ObjectPool<StringBuilder> available transitively via ASP.NET Core (Microsoft.Extensions.ObjectPool)
 - TemplateMatcher.TryMatch is thread-safe (only writes to caller-supplied RouteValueDictionary)
 - Big refactor merged PR #520 (2026-07-02): Umbraco 18 lane, CPM, locked packable deps, net10.0 TFM
-- RssFeedGenerator.GetFeedItem computes mediaRoot/rootUrlTrimmed per post — mediaRoot hoisted via Lazy<string> in PR #574 (2026-08-20); rootUrlTrimmed still computed per-post (same rootUrl passed in, TrimEnd is O(n) on URL string)
+- RssFeedGenerator.GetFeedItem computes mediaRoot/rootUrlTrimmed per post — mediaRoot hoisted via Lazy<string> in PR #574; rootUri+GetLeftPart+rootUrlTrimmed still per-post (blocked on PR #573)
 - AffectsArticulateRoutes is called per content-cache-refresh, iterates all Articulate root nodes
-- GetDefaultIsoCodeAsync called in notification handlers; hoisted with ??= pattern in PR #570 (2026-08-17)
-- StringExtensions._newlineRegex migrated to [GeneratedRegex] in PR #571 (2026-08-18)
+- GetDefaultIsoCodeAsync called in notification handlers; hoisted with ??= pattern in PR #570
+- StringExtensions._newlineRegex migrated to [GeneratedRegex] in PR #571
 - IHostingEnvironment.ApplicationVirtualPath is app-lifetime constant — safe to cache normalized forms
+- ArticulateRouter.GetOrBuildRoutes: requestBaseUri now hoisted outside loop; Split('/').Length replaced with Count(c == '/') in PR #576
 
 ## Optimisation Backlog
 | Priority | Area | Opportunity | Notes |
 |---|---|---|---|
 | MEDIUM | Data | `GetPagedPostsSortedByPublishedDate` loads ALL posts into memory before paging | Architectural (Umbraco IPublishedCache) |
 | LOW | Code | `ContentExtensions.VariesByCulture` linear scan of `CompositionPropertyTypes` | Not a hot path |
-| LOW | Code | `RssFeedGenerator.GetFeedItem` rootUrlTrimmed per-post TrimEnd | Still per-post; rootUri + GetLeftPart also per-post (rootUri is feed-scoped) |
+| LOW | Code | `RssFeedGenerator.GetFeedItem` rootUri+GetLeftPart+rootUrlTrimmed per-post | Blocked until PR #573 merges |
 
 ## Completed Work
 - 2026-05-25: PR #481 — static readonly SearchFields FrozenDictionary in DefaultArticulateSearcher (merged)
@@ -37,12 +38,14 @@
 - 2026-06-08: PR #495 — hoist EnsureEndsWith out of per-author loop and AdvertiseWeblogApi (closed)
 - 2026-06-09: PR #497 — replace ParseExact+catch with TryParseExact in DateFormattedPostContentFinder (closed)
 - 2026-06-12: PR #500 — cache TemplateMatcher in ArticulateRouteTemplate (closed)
-- 2026-08-14: PR #566 (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop in GetContentId
-- 2026-08-15: PR #568 (branch: efficiency/hoist-changedpath-concat) — hoist changedPath concat out of per-node loop in AffectsArticulateRoutes
-- 2026-08-17: PR #570 (branch: efficiency/hoist-getdefaultisocode) — hoist GetDefaultIsoCodeAsync out of per-entity loops in ContentSaved/Published handlers using ??= lazy pattern
-- 2026-08-18: PR #571 (branch: efficiency/generated-regex-newline) — migrate StringExtensions._newlineRegex to [GeneratedRegex]
-- 2026-08-20: PR #574 (branch: efficiency/cache-apppath-rssfeed) — cache normalized ApplicationVirtualPath in RssFeedGenerator
+- 2026-08-14: PR #566 (branch: efficiency/hoist-domain-uri-cast) — hoist DomainAndUri cast out of per-domain loop
+- 2026-08-15: PR #568 (branch: efficiency/hoist-changedpath-concat) — hoist changedPath concat out of per-node loop
+- 2026-08-17: PR #570 (branch: efficiency/hoist-getdefaultisocode) — hoist GetDefaultIsoCodeAsync out of per-entity loops
+- 2026-08-18: PR #571 (branch: efficiency/generated-regex-newline) — migrate _newlineRegex to [GeneratedRegex]
+- 2026-08-20: PR #573 (branch: efficiency/cache-apppath-rssfeed) — cache normalized ApplicationVirtualPath in RssFeedGenerator
+- 2026-08-22: PR #575 (branch: efficiency/no-interpolation-in-search-query-builder) — replace interpolated strings with chained Append in search query builder
+- 2026-08-23: PR #576 (branch: efficiency/hoist-request-uri-and-split) — hoist requestBaseUri + replace Split('/').Length with Count in ArticulateRouter
 
 ## Last Run
-- 2026-08-20: Tasks 3, 7
+- 2026-08-23: Tasks 3, 7
 - Monthly Activity: Updated August 2026 issue #567
