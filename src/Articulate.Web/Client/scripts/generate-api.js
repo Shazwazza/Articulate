@@ -1,4 +1,4 @@
-import { createClient, defaultPlugins } from "@hey-api/openapi-ts";
+import { createClient } from "@hey-api/openapi-ts";
 import chalk from "chalk";
 import fetch from "node-fetch";
 
@@ -8,6 +8,13 @@ console.log(chalk.green("Generating OpenAPI client..."));
 const args = process.argv.slice(2);
 const swaggerUrl = args[0];
 const outputPath = args[1];
+const laneIndex = args.indexOf("--lane");
+const lane = laneIndex !== -1 && args[laneIndex + 1] ? args[laneIndex + 1] : "v17";
+
+if (lane !== "v17" && lane !== "v18") {
+  console.error(chalk.red(`ERROR: Unsupported client lane: ${lane}`));
+  process.exit(1);
+}
 
 // Find --includeTags and --excludeTags in the arguments
 const includeIndex = args.indexOf("--includeTags");
@@ -56,11 +63,11 @@ fetch(swaggerUrl)
         )} for the script ${chalk.yellow("generate-openapi")}`
       );
       console.error(
-        `Or review back office logs, ${chalk.yellow(
+        `Or review back office logs. ${chalk.yellow(
           "Swagger"
-        )} may not be able to generate a valid schema due to ${chalk.yellow(
-          "route conflicts or duplicate API attributes"
-        )}; (e.g. multiple GET methods for the same route, or decorating methods with '[ProducesResponseType(StatusCodes.Status401Unauthorized)]' which Swagger already does).`
+        )} cannot generate a schema with route conflicts or duplicate API attributes. ` +
+          "The Management API security filter already documents 401 and 403; " +
+          "do not add those ProducesResponseType attributes to endpoints, because duplicate response keys make schema generation fail."
       );
       process.exit(1);
     }
@@ -82,12 +89,13 @@ fetch(swaggerUrl)
         path: outputPath,
       },
       plugins: [
-        ...defaultPlugins,
         '@hey-api/client-fetch',
         {
           name: '@hey-api/sdk',
-          asClass: true,
-          classNameBuilder: '{{name}}Service',
+          operations: {
+            strategy: 'byTags',
+            containerName: '{{name}}Service',
+          },
         },
         {
           name: '@hey-api/typescript',

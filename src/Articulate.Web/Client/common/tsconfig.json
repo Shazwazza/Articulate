@@ -1,0 +1,7 @@
+{
+  "extends": "../v17/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "@umbraco-cms/backoffice/extension-types", "@umbraco-cms/backoffice/external/lit"]
+  },
+  "include": ["src/**/*.ts", "vite.config.ts", "../v17/ambient.d.ts"]
+}
