@@ -1,24 +1,29 @@
 # Dev Container for Articulate
-# Provides: .NET 9 + 10 SDKs, Node 24, pnpm, nbgv, sqlite
+# Provides: .NET 10 SDK, Node 24, pnpm, nbgv, sqlite, GitHub CLI.
 
 FROM mcr.microsoft.com/devcontainers/dotnet:dev-10.0
 
-# Install .NET 9 SDK (side-by-side with 10)
-RUN curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 9.0 --install-dir /usr/share/dotnet
-
-# Install Node.js 24
+# Install Node.js 24 and the pinned pnpm release.
 ARG NODE_VERSION=24
+ARG PNPM_VERSION=11.19.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates nodejs sqlite3 libsqlite3-dev \
+    && apt-get install -y --no-install-recommends nodejs sqlite3 libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Corepack and set pnpm version
-RUN corepack enable \
-    && corepack prepare pnpm@11.4.0 --activate
+ENV SHELL=/bin/bash
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PNPM_HOME}/bin:${PATH}"
+RUN curl -fsSL https://get.pnpm.io/install.sh -o /tmp/install-pnpm.sh \
+    && SHELL=/bin/bash PNPM_VERSION=${PNPM_VERSION} sh /tmp/install-pnpm.sh \
+    && rm /tmp/install-pnpm.sh \
+    && node --version \
+    && pnpm --version
 
-
-# Install nbgv as global tool
+    # Install nbgv as global tool
 RUN dotnet tool install -g nbgv
 
 # Add dotnet tools to PATH

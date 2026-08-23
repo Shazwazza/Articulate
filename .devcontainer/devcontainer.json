@@ -3,7 +3,12 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "runArgs": ["--memory=8g", "--shm-size=1g"],
     "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
     "forwardPorts": [
         8080,
         8443,
@@ -26,6 +31,7 @@
             }
         }
     },
-    "postCreateCommand": "cd src && dotnet restore && cd Articulate.Web/Client && pnpm install && pnpm run build:dev",
+    "postCreateCommand": "cd src && dotnet restore",
+    "postStartCommand": "sudo chown -R vscode:vscode /workspaces/${localWorkspaceFolderBasename} || true && mkdir -p /workspaces/${localWorkspaceFolderBasename}/.pnpm-store && pnpm config set store-dir /workspaces/${localWorkspaceFolderBasename}/.pnpm-store",
     "remoteUser": "vscode"
 }
