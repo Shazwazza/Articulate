@@ -24,6 +24,11 @@ namespace Articulate.Services
         IPublishedValueFallback publishedValueFallback)
         : RepositoryBase(scopeAccessor, appCaches), IArticulateTagRepository
     {
+        // Compile-time cache-key constants — avoids typeof(T).Name reflection on every cache lookup.
+        private const string TagInfoCachePrefix = nameof(ArticulateTagRepository) + nameof(IArticulateTagRepository.GetAllTagInfos);
+        private const string ContentByTagsCachePrefix = nameof(UmbracoHelperExtensions) + "GetContentByTags";
+        private const string ContentByTagCachePrefix = nameof(UmbracoHelperExtensions) + "GetContentByTag";
+        private const string PublishedDateCacheKey = nameof(ArticulateTagRepository) + "_publishedDatePropertyTypeId";
         /// <summary>
         /// Returns a list of all categories belonging to this articulate root
         /// </summary>
@@ -86,8 +91,7 @@ namespace Articulate.Services
 #else
             return (IEnumerable<ArticulateTagInfo>)AppCaches.RuntimeCache.Get(
                 string.Concat(
-                    typeof(ArticulateTagRepository).Name,
-                    nameof(IArticulateTagRepository.GetAllTagInfos),
+                    TagInfoCachePrefix,
                     rootPath,
                     tagGroup),
                 GetResult,
@@ -165,8 +169,7 @@ namespace Articulate.Services
             // Cache this result for a short amount of time
             return (IEnumerable<PostsByTagModel>)AppCaches.RuntimeCache.Get(
                 string.Concat(
-                typeof(UmbracoHelperExtensions).Name,
-                "GetContentByTags",
+                ContentByTagsCachePrefix,
                 masterModel.RootBlogNode.Id,
                 tagGroup),
                 GetResult,
@@ -209,7 +212,7 @@ namespace Articulate.Services
                     });
 #else
                 var publishedDatePropertyTypeId = (int)AppCaches.RuntimeCache.Get(
-                    $"{typeof(ArticulateTagRepository).Name}_publishedDatePropertyTypeId",
+                    PublishedDateCacheKey,
                     () => Database.ExecuteScalar<int>(
                         $@"SELECT {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.id FROM {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType} INNER JOIN {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType} ON {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.contentTypeId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType}.nodeId WHERE {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AND {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.alias = @propertyTypeAlias",
                         new
@@ -253,8 +256,7 @@ namespace Articulate.Services
             // Cache this result for a short amount of time
             return (PostsByTagModel)AppCaches.RuntimeCache.Get(
                 string.Concat(
-                typeof(UmbracoHelperExtensions).Name,
-                "GetContentByTag",
+                ContentByTagCachePrefix,
                 masterModel.RootBlogNode.Id,
                 tagGroup,
                 tag,
