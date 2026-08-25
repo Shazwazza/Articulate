@@ -30,14 +30,17 @@ package lane from clean outputs.
 ### docker-dev
 
 ```text
-dotnet run docker/run.cs -- docker-dev [--lane v17|v18] [--clean] [--reset] [--skip-smoke]
+dotnet run docker/run.cs -- docker-dev [--lane v17|v18] [--clean] [--reset] [--skip-smoke] [--reuse-packages]
 ```
 
 Builds current packages through `build/build.cs` and builds the Docker image,
-starts the development stack, then runs publish/confirm smoke checks. Docker
-package refreshes preserve the host test site's `umbraco` state; Docker database
-state lives in named volumes. `--reset` removes the lane's Docker volumes first;
-`--skip-smoke` stops after readiness succeeds.
+starts the development stack, then runs publish/confirm smoke checks. Use
+`--reuse-packages` to skip the package build and use the existing
+`build/Release/<lane>` output; this is useful when only the Docker stack needs
+restarting. It cannot be combined with `--clean`. Docker package refreshes
+preserve the host test site's `umbraco` state; Docker database state lives in
+named volumes. `--reset` removes the lane's Docker volumes first; `--skip-smoke`
+stops after readiness succeeds.
 
 ### docker-prod
 

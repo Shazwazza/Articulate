@@ -18,7 +18,7 @@ try
     return command switch
     {
         "docker-build"  => await DockerBuild(opts.Validate(command, "lane", "tag", "clean")),
-        "docker-dev"    => await DockerDev(opts.Validate(command, "lane", "skip-smoke", "reset", "clean")),
+        "docker-dev"    => await DockerDev(opts.Validate(command, "lane", "skip-smoke", "reset", "clean", "reuse-packages")),
         "docker-prod"   => await DockerProd(opts.Validate(command, "lane", "skip-smoke")),
         "docker-down"   => await DockerDown(opts.Validate(command, "lane", "volumes", "purge")),
         "docker-status" => await DockerStatus(opts.Validate(command, "lane")),
@@ -69,7 +69,10 @@ async Task<int> DockerBuild(Opts o)
 async Task<int> DockerDev(Opts o, bool build = true, bool ensurePackages = true)
 {
     var lane = ConfigureLane(o.Lane());
-    if (ensurePackages) await EnsurePackages(lane, o.Flag("clean"));
+    var reusePackages = o.Flag("reuse-packages");
+    if (reusePackages && o.Flag("clean"))
+        throw new ArgumentException("--clean cannot be used with --reuse-packages.");
+    if (ensurePackages && !reusePackages) await EnsurePackages(lane, o.Flag("clean"));
     Env.Set("UMBRACO_RUNTIME_MODE", "BackofficeDevelopment");
     if (o.Flag("reset")) await Compose(new[] { "down", "--volumes" }, allowFailure: true);
     await Compose(build ? new[] { "up", "--detach", "--build" } : new[] { "up", "--detach" });

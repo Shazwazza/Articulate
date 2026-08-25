@@ -174,8 +174,9 @@ separately via `UMBRACO_USER_NAME` / `UMBRACO_USER_EMAIL` /
 
 Package inputs come from `build/Release/<lane>` and must include Articulate and
 the sample theme. Docker installs those `.nupkg` files; it does not consume
-project output directly. Docker commands invoke the package runner; same-lane
-builds are incremental and `--clean` is required when switching lanes.
+project output directly. Docker commands invoke the package runner by default;
+`docker-dev --reuse-packages` skips it and reuses the existing lane output.
+Same-lane builds are incremental and `--clean` is required when switching lanes.
 
 The Docker runner resolves `UmbracoCmsPackageVersion` and
 `TinyMceUmbracoPackageVersion` from `Directory.Packages.props` via

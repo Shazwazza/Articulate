@@ -7,15 +7,17 @@ import { fileURLToPath } from "node:url";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const runner = readFileSync(new URL("run.cs", import.meta.url), "utf8");
-const buildRunner = readFileSync(new URL("../build/build.cs", import.meta.url), "utf8");
+const buildRunner = readFileSync(
+    new URL("../build/build.cs", import.meta.url),
+    "utf8",
+);
 const smoke = readFileSync(new URL("smoke.mjs", import.meta.url), "utf8");
 
 function run(...args) {
-    return spawnSync(
-        "dotnet",
-        ["run", "docker/run.cs", "--", ...args],
-        { cwd: repo, encoding: "utf8" },
-    );
+    return spawnSync("dotnet", ["run", "docker/run.cs", "--", ...args], {
+        cwd: repo,
+        encoding: "utf8",
+    });
 }
 
 function command(name, nextName) {
@@ -38,20 +40,20 @@ const valuedFlag = run("docker-test", "--keep", "true");
 assert.equal(valuedFlag.status, 1);
 assert.match(valuedFlag.stderr, /--keep is a flag and does not accept a value/);
 
+const incompatibleFlags = run("docker-dev", "--clean", "--reuse-packages");
+assert.equal(incompatibleFlags.status, 1);
+assert.match(incompatibleFlags.stderr, /cannot be used with --reuse-packages/);
+
 const destructiveFlags = run("docker-down", "--volumes", "--purge");
 assert.equal(destructiveFlags.status, 1);
-assert.match(destructiveFlags.stderr, /--volumes and --purge cannot be used together/);
+assert.match(
+    destructiveFlags.stderr,
+    /--volumes and --purge cannot be used together/,
+);
 
 const composeFailure = spawnSync(
     "dotnet",
-    [
-        "run",
-        "docker/run.cs",
-        "--",
-        "docker-down",
-        "--lane",
-        "all",
-    ],
+    ["run", "docker/run.cs", "--", "docker-down", "--lane", "all"],
     {
         cwd: repo,
         encoding: "utf8",
@@ -66,8 +68,12 @@ assert.match(runner, /build\/build\.cs/);
 assert.doesNotMatch(buildRunner, /docker-/i);
 assert.match(command("DockerBuild", "DockerDev"), /EnsurePackages/);
 assert.match(command("DockerDev", "DockerProd"), /EnsurePackages/);
+assert.match(command("DockerDev", "DockerProd"), /reusePackages/);
 assert.doesNotMatch(command("DockerDown", "DockerStatus"), /allowFailure/);
 assert.doesNotMatch(command("DockerProd", "DockerDown"), /EnsurePackages/);
-assert.match(smoke, /unpublished \+= await confirmChildren\(base, token, item\.id/);
+assert.match(
+    smoke,
+    /unpublished \+= await confirmChildren\(base, token, item\.id/,
+);
 
 console.log("Docker runner smoke checks passed.");
