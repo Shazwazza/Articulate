@@ -5,9 +5,9 @@ import { copyFile, mkdir, writeFile, unlink, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 
 // --- CONSTANTS & PATHS ---
-// v17 lives under Client/, so WEB_ROOT is two levels up from this workspace folder.
-// Vite runs from the selected lane package. Keep the implementation here and
-// let each lane provide only its package metadata/API/config shim.
+// Each lane lives under Client/, so WEB_ROOT is two levels up from this workspace folder.
+// Vite runs from the selected lane package. Keep the implementation and
+// generated Articulate client here; each lane provides only package metadata.
 const UI_ROOT = process.cwd();
 const require = createRequire(path.resolve(UI_ROOT, 'package.json'));
 const { defineConfig } = require('vite');
@@ -336,7 +336,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
     base: '/App_Plugins/Articulate/BackOffice/',
     resolve: {
       alias: {
-        '@api': path.resolve(UI_ROOT, '../common/src/api', lane),
+        '@api': path.resolve(UI_ROOT, '../common/src/api'),
         '@lane': path.resolve(UI_ROOT, '../common/src/lane-adapter.ts'),
         'lit-html': path.resolve(UI_ROOT, 'node_modules/lit-html'),
       },

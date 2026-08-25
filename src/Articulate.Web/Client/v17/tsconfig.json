@@ -2,7 +2,7 @@
   "extends": "../common/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@api/*": ["../common/src/api/v17/*"],
+      "@api/*": ["../common/src/api/*"],
       "@lane": ["../common/src/lane-adapter.ts"],
       "@umbraco-cms/backoffice/auth": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/auth/index"],
       "@umbraco-cms/backoffice/controller-api": ["./node_modules/@umbraco-cms/backoffice/dist-cms/libs/controller-api/index"],

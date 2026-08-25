@@ -24,7 +24,7 @@
     "check": "tsc --noEmit",
     "lint": "pnpm --dir .. exec -- v17/node_modules/.bin/eslint --config v17/eslint.config.mjs common/src",
     "lint:fix": "pnpm --dir .. exec -- v17/node_modules/.bin/eslint --fix --config v17/eslint.config.mjs common/src",
-    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ../scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ../common/src/api/v17 --lane v17 --excludeTags 'Markdown Editor'"
+    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ../scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ../common/.api-check/v17 --lane v17 --excludeTags 'Markdown Editor'"
   },
   "dependenciesComments": {
     "lit-html": "Direct dependency for the keyed directive used by the BlogML importer."

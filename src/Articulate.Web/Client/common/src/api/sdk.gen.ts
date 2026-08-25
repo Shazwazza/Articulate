@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteBlogmlImportFileData, DeleteBlogmlImportFileErrors, DeleteBlogmlImportFileResponses, GetBlogmlExportDisqusData, GetBlogmlExportDisqusErrors, GetBlogmlExportDisqusResponses, GetEditorsThemePickerThemesData, GetEditorsThemePickerThemesErrors, GetEditorsThemePickerThemesResponses, GetThemeDefaultData, GetThemeDefaultErrors, GetThemeDefaultResponses, PostBlogmlExportData, PostBlogmlExportErrors, PostBlogmlExportResponses, PostBlogmlImportData, PostBlogmlImportErrors, PostBlogmlImportFileData, PostBlogmlImportFileErrors, PostBlogmlImportFileResponses, PostBlogmlImportResponses, PostEditorsMarkdownPostData, PostEditorsMarkdownPostErrors, PostEditorsMarkdownPostResponses, PostThemeCopyData, PostThemeCopyErrors, PostThemeCopyResponses } from './types.gen';
+import type { DeleteBlogmlImportFileData, DeleteBlogmlImportFileErrors, DeleteBlogmlImportFileResponses, GetBlogmlExportDisqusData, GetBlogmlExportDisqusErrors, GetEditorsThemePickerThemesData, GetEditorsThemePickerThemesErrors, GetEditorsThemePickerThemesResponses, GetThemeDefaultData, GetThemeDefaultErrors, GetThemeDefaultResponses, PostBlogmlExportData, PostBlogmlExportErrors, PostBlogmlImportData, PostBlogmlImportErrors, PostBlogmlImportFileData, PostBlogmlImportFileErrors, PostBlogmlImportFileResponses, PostBlogmlImportResponses, PostEditorsMarkdownPostData, PostEditorsMarkdownPostErrors, PostEditorsMarkdownPostResponses, PostThemeCopyData, PostThemeCopyErrors, PostThemeCopyResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -20,7 +20,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 
 export class BlogMlService {
     public static postBlogmlExport<ThrowOnError extends boolean = false>(options: Options<PostBlogmlExportData, ThrowOnError>) {
-        return (options.client ?? client).post<PostBlogmlExportResponses, PostBlogmlExportErrors, ThrowOnError>({
+        return (options.client ?? client).post<unknown, PostBlogmlExportErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/export',
             ...options,
@@ -30,15 +30,15 @@ export class BlogMlService {
             }
         });
     }
-
+    
     public static getBlogmlExportDisqus<ThrowOnError extends boolean = false>(options?: Options<GetBlogmlExportDisqusData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetBlogmlExportDisqusResponses, GetBlogmlExportDisqusErrors, ThrowOnError>({
+        return (options?.client ?? client).get<unknown, GetBlogmlExportDisqusErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/umbraco/articulate/api/v1/blogml/export/disqus',
             ...options
         });
     }
-
+    
     public static postBlogmlImport<ThrowOnError extends boolean = false>(options: Options<PostBlogmlImportData, ThrowOnError>) {
         return (options.client ?? client).post<PostBlogmlImportResponses, PostBlogmlImportErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
@@ -50,7 +50,7 @@ export class BlogMlService {
             }
         });
     }
-
+    
     public static deleteBlogmlImportFile<ThrowOnError extends boolean = false>(options?: Options<DeleteBlogmlImportFileData, ThrowOnError>) {
         return (options?.client ?? client).delete<DeleteBlogmlImportFileResponses, DeleteBlogmlImportFileErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
@@ -58,7 +58,7 @@ export class BlogMlService {
             ...options
         });
     }
-
+    
     public static postBlogmlImportFile<ThrowOnError extends boolean = false>(options: Options<PostBlogmlImportFileData, ThrowOnError>) {
         return (options.client ?? client).post<PostBlogmlImportFileResponses, PostBlogmlImportFileErrors, ThrowOnError>({
             ...formDataBodySerializer,
@@ -100,7 +100,7 @@ export class ThemeOptionsService {
             }
         });
     }
-
+    
     public static getThemeDefault<ThrowOnError extends boolean = false>(options?: Options<GetThemeDefaultData, ThrowOnError>) {
         return (options?.client ?? client).get<GetThemeDefaultResponses, GetThemeDefaultErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
