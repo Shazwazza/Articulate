@@ -25,7 +25,7 @@ Bash:
 dotnet run build/build.cs -- build --configuration Debug --client true --sample
 ```
 
-This restores NuGet and npm packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
+This restores NuGet and Node packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
 
 1. Open `src/Articulate.sln`.
 2. Set `Articulate.Tests.Website` as the startup project.
@@ -56,12 +56,13 @@ From `src/Articulate.Web/Client`:
 ```bash
 pnpm install
 pnpm run build
-pnpm run generate:api
 ```
 
-`pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
+`pnpm run build` runs both lanes (`tsc && vite build`); the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
-`pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
+For API client generation and the v17 LTS schema comparison workflow, see
+[BUILD.md's Client API generation section](BUILD.md#client-api-generation). That
+section is authoritative.
 
 ## Build And Pack
 

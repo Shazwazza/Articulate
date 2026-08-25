@@ -103,10 +103,21 @@ Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`. The build runner
 tracks the active lane in an ignored marker; same-lane builds use the per-lane
 Vite stamp, while `--clean` is required before switching lanes.
 
-Client source and tooling are shared under `src/Articulate.Web/Client/common/`.
-The lane folders retain only package metadata, generated API output, and small
-compatibility adapters; the Markdown property editor uses Umbraco's native
-Markdown input.
+### Client API generation
+
+Client source, tooling, and the generated Articulate API client are shared under
+`src/Articulate.Web/Client/common/`. The lane folders retain only package
+metadata and small compatibility adapters; the Markdown property editor uses
+Umbraco's native Markdown input.
+
+The checked-in client is generated from the v18 OpenAPI document because its
+request-body types are stricter and its response types are safely broad for
+both lanes. To review future contract drift, run `pnpm --dir src/Articulate.Web/Client/v17 run generate:api`
+and `pnpm --dir src/Articulate.Web/Client/v18 run generate:api`. v18 updates
+`common/src/api/`; v17 writes a temporary comparison client
+to `common/.api-check/v17/`. Compare that output with the checked-in client
+manually. Keep one common client unless the route or wire-format diff is real;
+if it is, fix the API metadata first rather than adding lane branches to UI code.
 
 ## NuGet lock files
 
