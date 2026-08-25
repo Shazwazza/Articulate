@@ -226,11 +226,11 @@ namespace Articulate.Tests.Routing
             new(
                 Mock.Of<IControllerActionSearcher>(),
                 Mock.Of<IScopeProvider>(),
-                NullLogger<ArticulateRouter>.Instance
 #if UMBRACO_18_OR_GREATER
-                , Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>()
-                , Mock.Of<Umbraco.Cms.Core.Services.Navigation.IDocumentNavigationQueryService>()
-                , Mock.Of<Umbraco.Cms.Core.Services.Navigation.IPublishedContentStatusFilteringService>()
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>()
+#else
+                NullLogger<ArticulateRouter>.Instance
 #endif
             );
     }

@@ -22,71 +22,46 @@ namespace Articulate.Routing
     {
 #if UMBRACO_18_OR_GREATER
         private readonly IDocumentUrlService _documentUrlService;
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for Umbraco 18+.
-        /// </summary>
-        public DateFormattedUrlProvider(
-            IOptionsMonitor<RequestHandlerSettings> requestSettings,
-            ILogger<DefaultUrlProvider> logger,
-            ISiteDomainMapper siteDomainMapper,
-            IUmbracoContextAccessor umbracoContextAccessor,
-            UriUtility uriUtility,
-            IPublishedContentCache publishedContentCache,
-            IDomainCache domainCache,
-            IIdKeyMap idKeyMap,
-            IDocumentUrlService documentUrlService,
-            IDocumentNavigationQueryService navigationQueryService,
-            IPublishedContentStatusFilteringService publishedContentStatusFilteringService,
-            ILanguageService languageService)
-            : base(
-                requestSettings,
-                logger,
-                siteDomainMapper,
-                umbracoContextAccessor,
-                uriUtility,
-                publishedContentCache,
-                domainCache,
-                idKeyMap,
-                documentUrlService,
-                navigationQueryService,
-                publishedContentStatusFilteringService,
-                languageService)
-        {
-            _documentUrlService = documentUrlService;
-        }
-#else
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class for NET9 (Umbraco 16).
-        /// </summary>
-        public DateFormattedUrlProvider(
-            IOptionsMonitor<RequestHandlerSettings> requestSettings,
-            ILogger<NewDefaultUrlProvider> logger,
-            ISiteDomainMapper siteDomainMapper,
-            IUmbracoContextAccessor umbracoContextAccessor,
-            UriUtility uriUtility,
-            IPublishedContentCache publishedContentCache,
-            IDomainCache domainCache,
-            IIdKeyMap idKeyMap,
-            IDocumentUrlService documentUrlService,
-            IDocumentNavigationQueryService navigationQueryService,
-            IPublishedContentStatusFilteringService publishedContentStatusFilteringService,
-            ILanguageService languageService)
-            : base(
-                requestSettings,
-                logger,
-                siteDomainMapper,
-                umbracoContextAccessor,
-                uriUtility,
-                publishedContentCache,
-                domainCache,
-                idKeyMap,
-                documentUrlService,
-                navigationQueryService,
-                publishedContentStatusFilteringService,
-                languageService)
-        {
-        }
 #endif
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateFormattedUrlProvider"/> class.
+        /// </summary>
+        public DateFormattedUrlProvider(
+            IOptionsMonitor<RequestHandlerSettings> requestSettings,
+#if UMBRACO_18_OR_GREATER
+            ILogger<DefaultUrlProvider> logger,
+#else
+            ILogger<NewDefaultUrlProvider> logger,
+#endif
+            ISiteDomainMapper siteDomainMapper,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            UriUtility uriUtility,
+            IPublishedContentCache publishedContentCache,
+            IDomainCache domainCache,
+            IIdKeyMap idKeyMap,
+            IDocumentUrlService documentUrlService,
+            IDocumentNavigationQueryService navigationQueryService,
+            IPublishedContentStatusFilteringService publishedContentStatusFilteringService,
+            ILanguageService languageService)
+            : base(
+                requestSettings,
+                logger,
+                siteDomainMapper,
+                umbracoContextAccessor,
+                uriUtility,
+                publishedContentCache,
+                domainCache,
+                idKeyMap,
+                documentUrlService,
+                navigationQueryService,
+                publishedContentStatusFilteringService,
+                languageService)
+        {
+#if UMBRACO_18_OR_GREATER
+            _documentUrlService = documentUrlService;
+#endif
+        }
 
 
         /// <inheritdoc/>

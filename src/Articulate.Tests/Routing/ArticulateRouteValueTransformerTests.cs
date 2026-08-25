@@ -124,11 +124,11 @@ namespace Articulate.Tests.Routing
             ArticulateRouter router = new(
                 Mock.Of<IControllerActionSearcher>(),
                 scopeProvider.Object,
-                NullLogger<ArticulateRouter>.Instance
 #if UMBRACO_18_OR_GREATER
-                , Mock.Of<IDocumentUrlService>()
-                , Mock.Of<Umbraco.Cms.Core.Services.Navigation.IDocumentNavigationQueryService>()
-                , Mock.Of<Umbraco.Cms.Core.Services.Navigation.IPublishedContentStatusFilteringService>()
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<IDocumentUrlService>()
+#else
+                NullLogger<ArticulateRouter>.Instance
 #endif
             );
 

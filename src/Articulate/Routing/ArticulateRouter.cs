@@ -15,7 +15,6 @@ using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Website.Routing;
 #if UMBRACO_18_OR_GREATER
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core.Services.Navigation;
 #endif
 
 namespace Articulate.Routing
@@ -54,8 +53,6 @@ namespace Articulate.Routing
         private readonly IScopeProvider _scopeProvider;
 #if UMBRACO_18_OR_GREATER
         private readonly IDocumentUrlService _documentUrlService;
-        private readonly IDocumentNavigationQueryService _documentNavigationQueryService;
-        private readonly IPublishedContentStatusFilteringService _publishedContentStatusFilteringService;
 #endif
 
 #if UMBRACO_18_OR_GREATER
@@ -64,8 +61,6 @@ namespace Articulate.Routing
         /// <param name="scopeProvider">Provides data access scope.</param>
         /// <param name="logger">Logger instance.</param>
         /// <param name="documentUrlService">Service for generating document URLs (Umbraco 18+).</param>
-        /// <param name="documentNavigationQueryService">Service for querying document navigation structure (Umbraco 18+).</param>
-        /// <param name="publishedContentStatusFilteringService">Service for filtering published content by status (Umbraco 18+).</param>
 #else
         /// <summary>Constructor for Articulate router initialization.</summary>
         /// <param name="controllerActionSearcher">Searches for controller actions.</param>
@@ -77,9 +72,7 @@ namespace Articulate.Routing
             IScopeProvider scopeProvider,
 #if UMBRACO_18_OR_GREATER
             ILogger<ArticulateRouter> logger,
-            IDocumentUrlService documentUrlService,
-            IDocumentNavigationQueryService documentNavigationQueryService,
-            IPublishedContentStatusFilteringService publishedContentStatusFilteringService)
+            IDocumentUrlService documentUrlService)
 #else
             ILogger<ArticulateRouter> logger)
 #endif
@@ -89,8 +82,6 @@ namespace Articulate.Routing
             _scopeProvider = scopeProvider;
 #if UMBRACO_18_OR_GREATER
             _documentUrlService = documentUrlService;
-            _documentNavigationQueryService = documentNavigationQueryService;
-            _publishedContentStatusFilteringService = publishedContentStatusFilteringService;
 #endif
         }
 

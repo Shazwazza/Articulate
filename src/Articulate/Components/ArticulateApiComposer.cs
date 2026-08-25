@@ -27,11 +27,10 @@ namespace Articulate.Components
         public void Compose(IUmbracoBuilder builder)
         {
             IServiceCollection services = builder.Services;
+            _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
 #if !UMBRACO_18_OR_GREATER
             _ = services.AddSingleton<IOperationIdHandler, ArticulateOperationIdHandler>();
-            _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
 #else
-            _ = services.ConfigureOptions<ArticulateSwaggerOptions>();
             _ = builder.AddBackOfficeOpenApiDocument(
                 ArticulateConstants.ManagementApi.Name,
                 document => document
