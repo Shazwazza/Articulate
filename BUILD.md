@@ -112,10 +112,20 @@ Umbraco's native Markdown input.
 
 The checked-in client is generated from the v18 OpenAPI document because its
 request-body types are stricter and its response types are safely broad for
-both lanes. To review future contract drift, run `pnpm --dir src/Articulate.Web/Client/v17 run generate:api`
-and `pnpm --dir src/Articulate.Web/Client/v18 run generate:api`. v18 updates
-`common/src/api/`; v17 writes a temporary comparison client
-to `common/.api-check/v17/`. Compare that output with the checked-in client
+both lanes. The package scripts fetch both documents from the local
+`Articulate.Tests.Website` on `https://localhost:44366`. Start each lane in turn:
+
+```powershell
+dotnet run build/build.cs -- site --lane v17 --reset
+pnpm --dir src/Articulate.Web/Client/v17 run generate:api
+# stop the test website
+dotnet run build/build.cs -- site --lane v18 --reset
+pnpm --dir src/Articulate.Web/Client/v18 run generate:api
+# stop the test website
+```
+
+v18 updates `common/src/api/`; v17 writes a temporary comparison client to
+`common/.api-check/v17/`. Compare that output with the checked-in client
 manually. Keep one common client unless the route or wire-format diff is real;
 if it is, fix the API metadata first rather than adding lane branches to UI code.
 

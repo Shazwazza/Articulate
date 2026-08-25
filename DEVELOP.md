@@ -62,7 +62,8 @@ pnpm run build
 
 For API client generation and the v17 LTS schema comparison workflow, see
 [BUILD.md's Client API generation section](BUILD.md#client-api-generation). That
-section is authoritative.
+section is authoritative. Generation uses `Articulate.Tests.Website` on port
+44366.
 
 ## Build And Pack
 
