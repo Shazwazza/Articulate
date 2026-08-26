@@ -73,10 +73,10 @@ async Task<int> BuildAsync(Opts o)
     Directory.CreateDirectory(releaseDir);
 
     var clientRoot = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
+    var clientAssetsDir = Path.Combine(Env.Repo, "build", "ClientAssets");
     var backofficeDir = Path.Combine(Env.Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice");
-    var stamp = Path.Combine(Env.Repo, "build", "ClientAssets", $"BackofficeClient_v{lane[1..]}.stamp");
-    var activeLanePath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-lane.txt");
-    var activeVersionPath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-version.txt");
+    var activeLanePath = Path.Combine(clientAssetsDir, "active-lane.txt");
+    var activeVersionPath = Path.Combine(clientAssetsDir, "active-version.txt");
     var testSiteData = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco");
     if (clean && !inCi)
     {
@@ -101,7 +101,7 @@ async Task<int> BuildAsync(Opts o)
     {
         await Run("dotnet", new[] { "build-server", "shutdown" }, cwd: Env.Repo, allowFailure: true);
         DeleteBuildOutputs(Path.Combine(Env.Repo, "src"));
-        DeleteDir(Path.Combine(Env.Repo, "build", "ClientAssets"));
+        DeleteDir(clientAssetsDir);
     }
 
     if (defaults.Client)
@@ -113,7 +113,7 @@ async Task<int> BuildAsync(Opts o)
         if (clean || activeLane is null || !string.Equals(activeVersion, packageVersion, StringComparison.Ordinal))
         {
             DeleteDir(backofficeDir);
-            DeleteFile(stamp);
+            DeleteClientBuildStamps(clientAssetsDir, lane);
         }
         DeleteFile(activeLanePath);
         DeleteFile(activeVersionPath);
@@ -121,7 +121,7 @@ async Task<int> BuildAsync(Opts o)
     else
     {
         DeleteDir(backofficeDir);
-        DeleteFile(stamp);
+        DeleteClientBuildStamps(clientAssetsDir, lane);
         DeleteFile(activeLanePath);
         DeleteFile(activeVersionPath);
     }
@@ -264,6 +264,13 @@ async Task<string> Capture(string file, IEnumerable<string> args, string cwd)
 
 void DeleteDir(string path) { if (Directory.Exists(path)) Directory.Delete(path, recursive: true); }
 void DeleteFile(string path) { if (File.Exists(path)) File.Delete(path); }
+void DeleteClientBuildStamps(string clientAssetsDir, string lane)
+{
+    if (!Directory.Exists(clientAssetsDir)) return;
+    var laneSuffix = lane[1..];
+    foreach (var stamp in Directory.EnumerateFiles(clientAssetsDir, $"BackofficeClient_v{laneSuffix}*.stamp"))
+        DeleteFile(stamp);
+}
 
 void DeleteBuildOutputs(string root)
 {

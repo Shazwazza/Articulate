@@ -84,19 +84,24 @@
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
     <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
     <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
-    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion).stamp</ClientBuildStamp>
+    <ClientBuildMode>prod</ClientBuildMode>
+    <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
+    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode).stamp</ClientBuildStamp>
     <ClientBuildTargetFramework>net10.0</ClientBuildTargetFramework>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
+    <ClientBuildInput Include="$(MSBuildProjectFullPath)" />
+    <ClientBuildInput Include="$(MSBuildProjectDirectory)/../../Directory.Build.props" />
+    <ClientBuildInput Include="$(MSBuildProjectDirectory)/../../Directory.Build.props.user" Condition="Exists('$(MSBuildProjectDirectory)/../../Directory.Build.props.user')" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/.npmrc" Condition="Exists('$(ClientProjectDirectory)/.npmrc')" />
+    <ClientBuildInput Include="$(ClientProjectDirectory)/package.json" />
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-lock.yaml" />
     <ClientBuildInput Include="$(ClientProjectDirectory)/pnpm-workspace.yaml" />
     <ClientBuildInput Include="$(ClientProjectDirectory)/common/**/*" />
-    <ClientBuildInput Include="$(ClientProjectDirectory)/scripts/**/*" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/package.json" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/tsconfig*.json" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/vite.config.ts" />
-    <ClientBuildInput Include="$(ClientWorkspaceDirectory)/public/**/*" />
     <ClientBuildInput Include="$(ClientWorkspaceDirectory)/ambient.d.ts" />
     <ClientBuildInput Include="$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/Themes/**/assets/src/**/*" />
     <ClientBuildInput Include="$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/MarkdownEditor/assets/src/**/*" />
