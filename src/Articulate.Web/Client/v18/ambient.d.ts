@@ -1,1 +1,1 @@
-declare const LANE: "v18";
+declare const LANE: 'v18';
