@@ -3,10 +3,27 @@
 ## Requirements
 
 - .NET 10.0 SDK
-- Node.js 24.x and pnpm 11.19.0; enable pnpm with `corepack enable pnpm`
+- Node.js 24.x and pnpm 11.19.0. Install the pinned pnpm version with the [official standalone script](https://pnpm.io/installation): `curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=11.19.0 sh -`. PowerShell: `$env:PNPM_VERSION = '11.19.0'; Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression`.
 - Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`) for local `build` and pack commands, unless `ARTICULATE_PACKAGE_VERSION` is set explicitly
 - IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code
 - Shell: PowerShell 5+, PowerShell 7+, or Bash (WSL/Linux)
+
+## Dev Containers
+
+The repository includes a dev container with .NET 10, Node.js 24, pnpm 11.19.0,
+NBGV, SQLite, GitHub CLI, and the Copilot CLI. Install the [Dev Containers
+extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+For an isolated checkout, use the VS Code Command Palette:
+
+- **Dev Containers: Clone Repository in Container Volume...** for a branch or the
+  default branch. Paste a repository or GitHub branch URL.
+- **Dev Containers: Clone GitHub Pull Request in Container Volume...** for a PR.
+  Paste the pull request URL.
+
+For a normal local checkout, use **Dev Containers: Reopen in Container**. See the
+[VS Code isolated container volume guide](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-a-git-repository-or-github-pr-in-an-isolated-container-volume)
+for details.
 
 ## First Run
 

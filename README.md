@@ -18,9 +18,6 @@ Choose the package line that matches your Umbraco installation.
 - Umbraco 17.6.2 through 17.x: `dotnet add package Articulate --version 7.0.0`
 - Umbraco 18.1.1 through 18.x: `dotnet add package Articulate --version 8.0.0`
 
-The package includes the backoffice extension and static assets. Source-build
-and Docker instructions are in [DEVELOP.md](DEVELOP.md) and [BUILD.md](BUILD.md).
-
 ### Umbraco 13 (.NET 8, maintenance)
 
 Articulate 5.x remains available for existing Umbraco 13 sites. Umbraco 13
@@ -67,8 +64,9 @@ The [Articulate wiki](https://github.com/Shazwazza/Articulate/wiki) covers:
 
 ## Development
 
-Local development and contribution guidance lives in [DEVELOP.md](DEVELOP.md).
-The build system and CI pipeline are documented in [BUILD.md](BUILD.md).
+The package includes the backoffice extension and static assets. Local development,
+source-build, Docker, and CI guidance lives in [DEVELOP.md](DEVELOP.md) and
+[BUILD.md](BUILD.md).
 
 ## Copyright and licence
 
