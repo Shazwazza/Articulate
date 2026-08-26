@@ -1,5 +1,5 @@
 # Dev Container for Articulate
-# Provides: .NET 10 SDK, Node 24, pnpm, nbgv, sqlite, GitHub CLI.
+# Provides: .NET 10 SDK, Node 24, pnpm, nbgv, sqlite, GitHub CLI, Copilot CLI.
 
 FROM mcr.microsoft.com/devcontainers/dotnet:dev-10.0
 
@@ -23,7 +23,18 @@ RUN curl -fsSL https://get.pnpm.io/install.sh -o /tmp/install-pnpm.sh \
     && node --version \
     && pnpm --version
 
-    # Install nbgv as global tool
+# Install GitHub Copilot CLI.
+RUN npm install -g @github/copilot \
+    && copilot --version
+
+# Optional CLI examples; uncomment any you want:
+# RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent \
+#     && pi --version
+# RUN curl -fsSL https://chatgpt.com/codex/install.sh | sh \
+#     && codex --version
+# RUN dotnet tool install --global ilspycmd
+
+# Install nbgv as global tool
 RUN dotnet tool install -g nbgv
 
 # Add dotnet tools to PATH
