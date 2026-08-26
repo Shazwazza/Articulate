@@ -15,7 +15,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 ENV SHELL=/bin/bash
-ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PNPM_HOME="/usr/local/share/pnpm"
 ENV PATH="${PNPM_HOME}/bin:${PATH}"
 RUN curl -fsSL https://get.pnpm.io/install.sh -o /tmp/install-pnpm.sh \
     && SHELL=/bin/bash PNPM_VERSION=${PNPM_VERSION} sh /tmp/install-pnpm.sh \
