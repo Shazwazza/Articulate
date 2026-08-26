@@ -21,15 +21,15 @@ Supporting all the features you'd want in a blogging platform:
 - Post from your mobile phone including photos direct from your camera
 - Disqus comment support (or build your own)
 - Search
-- BlogML import/export (including Disqus import)
+- BlogML import/export and Disqus export
 - Customizable RSS feeds
 - Customizable URLs
 - Author profiles
 
 ## Minimum requirements
 
-- Umbraco 18.1.1+ - Articulate version 8.x
-- Umbraco 17.6.2+ - Articulate version 7.x
+- Umbraco 18.1.1 through 18.x - Articulate version 8.x
+- Umbraco 17.6.2 through 17.x - Articulate version 7.x
 - Umbraco 16.5.1+ or early Umbraco 17.4.0+ - Articulate version 6.x (deprecated)
 - Umbraco 13 LTS (maintenance) - Articulate 5.x.
 

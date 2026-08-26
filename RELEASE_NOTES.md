@@ -5,7 +5,7 @@
 ### Breaking changes for v8.0.0
 
   > [!WARNING]
-  > Requires Umbraco 18.1.1+ on .NET 10.
+  > Requires Umbraco 18.1.1 through 18.x on .NET 10.
   >
   > Articulate 8 is a separate package line from Articulate 7 because Umbraco 18
   > APIs and backoffice extension points are not binary-compatible.
@@ -18,7 +18,7 @@
 ### Breaking changes for v7.0.0
 
   > [!WARNING]
-  > Requires Umbraco 17.6.2+ on .NET 10. Umbraco 16 is not supported.
+  > Requires Umbraco 17.6.2 through 17.x on .NET 10. Umbraco 16 is not supported.
   >
   > Articulate 7 is a separate package line from Articulate 6 because Umbraco 17
   > APIs and backoffice extension points are not binary-compatible.
