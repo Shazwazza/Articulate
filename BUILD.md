@@ -46,25 +46,25 @@ paths, always run full-solution lane builds sequentially and with `-m:1`
 
 Local debug build with the Back Office client:
 
-```powershell
+```sh
 dotnet run build/build.cs -- build --configuration Debug --client true
 ```
 
 v17 release package with sample theme:
 
-```powershell
+```sh
 dotnet run build/build.cs -- build --lane v17 --sample
 ```
 
 v18 release package with sample theme:
 
-```powershell
+```sh
 dotnet run build/build.cs -- build --lane v18 --sample
 ```
 
 CI / release build for both lanes:
 
-```powershell
+```sh
 # Run once per lane; each run cleans shared outputs first.
 dotnet run build/build.cs -- build --lane v17 --clean --client true --tests --sample
 dotnet run build/build.cs -- build --lane v18 --clean --client true --tests --sample
@@ -86,12 +86,13 @@ workflow job; omit it only when intentionally running every workflow job.
 
 | Lane  | Package line     | Umbraco support | Target framework | Output folder       |
 |-------|------------------|-----------------|------------------|---------------------|
-| `v17` | Articulate 7.0.x | Umbraco 17.6.2+   | `net10.0`        | `build/Release/v17` |
-| `v18` | Articulate 8.0.x | Umbraco 18.1.1+   | `net10.0`        | `build/Release/v18` |
+| `v17` | Articulate 7.0.x | Umbraco 17.6.2–17.x | `net10.0` | `build/Release/v17` |
+| `v18` | Articulate 8.0.x | Umbraco 18.1.1–18.x   | `net10.0` | `build/Release/v18` |
 
-The lanes produce separate NuGet packages because Umbraco 17 and 18 extension
-points are not binary-compatible. Do not cross-install (Articulate 7 ↔ Umbraco 18,
-or Articulate 8 ↔ Umbraco 17).
+The lanes produce separate NuGet packages because their Umbraco extension
+points are not binary-compatible. Each lane has its own supported Umbraco range:
+Articulate 7 starts at Umbraco 17.6.2 and stops before 18.0.0; Articulate 8
+starts at Umbraco 18.1.1 and stops before 19.0.0.
 
 `version.json` defines the Articulate 7.0 version through NBGV.
 `version-v18.txt` defines the Articulate 8.0 base version. The build runner
@@ -115,7 +116,7 @@ request-body types are stricter and its response types are safely broad for
 both lanes. The package scripts fetch both documents from the local
 `Articulate.Tests.Website` on `https://localhost:44366`. Start each lane in turn:
 
-```powershell
+```sh
 dotnet run build/build.cs -- site --lane v17 --reset
 pnpm --dir src/Articulate.Web/Client/v17 run generate:api
 # stop the test website
@@ -145,7 +146,7 @@ When you change a centralized version in `Directory.Packages.props` (e.g. the
 Umbraco floor), regenerate the lock files for both lanes.
 Run from the repo root:
 
-```powershell
+```sh
 dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v17 -p:RestoreLockedMode=false --force-evaluate
 dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v18 -p:RestoreLockedMode=false --force-evaluate
 ```
@@ -184,9 +185,9 @@ To update a client floor:
 4. Run the client checks for the affected lane.
 5. Run the full lane build and package smoke test.
 
-Do not regenerate the Articulate API client for an Umbraco package update
-unless an Articulate endpoint contract changed. Regenerate both lane clients
-after a shared Articulate route, model, authorization, or OpenAPI change.
+An Umbraco package update alone leaves the Articulate API client unchanged.
+Regenerate both lane clients after a shared Articulate route, model,
+authorization, or OpenAPI change.
 
 ### TinyMCE opt-in (dev / test sites only)
 

@@ -11,7 +11,9 @@ dotnet run docker/run.cs -- help docker-dev
 ```
 
 `docker/help.md` is the canonical command and option reference. The rest of this
-page documents runtime behavior, credentials, and direct Compose use.
+page documents runtime behavior, credentials, and direct Compose use. Examples
+use POSIX shell syntax; in PowerShell, replace `export NAME='value'` with
+`$env:NAME = 'value'`.
 
 Full smoke tests use `ARTICULATE_TEST_SITE_CLIENT_SECRET` (defaults are applied if unset via `Env.RequireSecret()`).
 
@@ -36,8 +38,8 @@ administrator:
 - Display name: `Jane Doe`
 
 Use this account to sign in to either backoffice URL above. These are public,
-local-development defaults. Do not reuse them in a deployed site. Override the
-unattended user with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and
+local-development defaults. A deployed site needs different credentials. Override
+the unattended user with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and
 `UMBRACO_USER_PASSWORD`.
 
 ## Trust Caddy's local CA once per machine
@@ -46,7 +48,7 @@ Caddy terminates TLS with a locally generated certificate. Trust Caddy's root
 CA once per machine before opening the backoffice. The Docker runner exposes
 the portable entrypoint:
 
-```powershell
+```sh
 dotnet run docker/run.cs -- docker-ca --lane v17
 ```
 
@@ -59,8 +61,8 @@ confirmation prompt when the Caddy root is added to the current-user trust store
 Against an already healthy stack, `smoke.mjs` supports `publish`, `confirm`,
 `smoke`, and `theme`:
 
-```powershell
-$env:UMBRACO_PUBLIC_URL = 'https://localhost:44317/'
+```sh
+export UMBRACO_PUBLIC_URL='https://localhost:44317/'
 node docker/smoke.mjs publish
 node docker/smoke.mjs confirm
 node docker/smoke.mjs publish --no-descendants
@@ -83,14 +85,14 @@ The harness remains loopback-only by default. To test the standalone editor
 from another machine, set the LAN origin consistently and reset the database so
 OpenIddict registers redirect URIs for that origin:
 
-```powershell
-$env:ARTICULATE_TEST_SITE_CLIENT_SECRET='articulate-test-site-secret'
-$env:CADDY_BIND_IP='0.0.0.0'
-$env:CADDY_HTTPS_HOST='<LAN-IP>:44317'
-$env:UMBRACO_PUBLIC_HOST='https://<LAN-IP>:44317'
-$env:UMBRACO_PUBLIC_URL='https://<LAN-IP>:44317/'
-$env:ARTICULATE_REDIRECT_URI='https://<LAN-IP>:44317/a-new/'
-$env:ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:44317/'
+```sh
+export ARTICULATE_TEST_SITE_CLIENT_SECRET='articulate-test-site-secret'
+export CADDY_BIND_IP='0.0.0.0'
+export CADDY_HTTPS_HOST='<LAN-IP>:44317'
+export UMBRACO_PUBLIC_HOST='https://<LAN-IP>:44317'
+export UMBRACO_PUBLIC_URL='https://<LAN-IP>:44317/'
+export ARTICULATE_REDIRECT_URI='https://<LAN-IP>:44317/a-new/'
+export ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:44317/'
 dotnet run docker/run.cs -- docker-dev --lane v17 --reset
 ```
 
@@ -112,8 +114,8 @@ package-install noise and require no Articulate change.
 Set `USE_TINYMCE_UMBRACO=true` before starting the Docker site when testing the
 optional TinyMCE integration:
 
-```powershell
-$env:USE_TINYMCE_UMBRACO = 'true'
+```sh
+export USE_TINYMCE_UMBRACO='true'
 dotnet run docker/run.cs -- docker-dev --lane v17
 ```
 
@@ -195,7 +197,7 @@ Rebuilding an image does not replace an already running container. The Docker
 utility uses `--force-recreate` where required. If a site still serves stale
 assets, inspect the running stack and its packaged Backoffice files:
 
-```powershell
+```sh
 dotnet run docker/run.cs -- docker-status --lane v17
 ```
 

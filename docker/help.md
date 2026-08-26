@@ -78,8 +78,9 @@ dotnet run docker/run.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-sm
 
 Each lane builds fresh packages and images, starts in development mode, and
 verifies production/theme behavior unless smoke is skipped. With `--skip-smoke`,
-no content is published and a public-root 404 is expected. `--keep` leaves
-successful stacks running.
+smoke publishing is skipped. The public root may return 404 when the blog root
+or its children are unpublished; an existing volume with published content may
+return 200. `--keep` leaves successful stacks running.
 
 ### docker-ca
 

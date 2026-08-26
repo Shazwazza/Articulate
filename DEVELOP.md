@@ -3,8 +3,8 @@
 ## Requirements
 
 - .NET 10.0 SDK
-- Node.js 24+ with `corepack enable pnpm`
-- Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for Release builds
+- Node.js 24.x and pnpm 11.19.0; enable pnpm with `corepack enable pnpm`
+- Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`) for local `build` and pack commands, unless `ARTICULATE_PACKAGE_VERSION` is set explicitly
 - IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code
 - Shell: PowerShell 5+, PowerShell 7+, or Bash (WSL/Linux)
 
@@ -13,25 +13,25 @@
 1. Clone or fork the repository.
 2. Prime the site and solution so the Back Office client extension and asset bundles are built.
 
-PowerShell:
-
-```powershell
-dotnet run build/build.cs -- build --configuration Debug --client true --sample
-```
-
-Bash:
-
-```bash
+```sh
 dotnet run build/build.cs -- build --configuration Debug --client true --sample
 ```
 
 This restores NuGet and Node packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
 
-1. Open `src/Articulate.sln`.
-2. Set `Articulate.Tests.Website` as the startup project.
-3. Start `Articulate.Tests.Website` and complete the Umbraco installer.
-4. The Articulate package migrations will run and install the required schema and content items.
-   - **Tip:** The `ArticulatePackageLane` property selects the Umbraco version: `v17` uses Umbraco 17 and `v18` uses Umbraco 18. The default lane is `v17`; set `ArticulatePackageLane=v18` when testing the v18 path.
+1. Start the test site:
+
+   ```sh
+   dotnet run build/build.cs -- site --lane v17
+   ```
+
+   Use `--lane v18` when testing the Umbraco 18 path. As an alternative, open
+   `src/Articulate.sln`, set `Articulate.Tests.Website` as the startup project,
+   and start it from the IDE.
+2. The test site installs Umbraco and runs the Articulate package migrations
+   automatically. Sign in with the local credentials in
+   `src/Articulate.Tests.Website/appsettings.json`. Use `--reset` with the site
+   command when you need a fresh database.
 
 ## Docker Modes
 
@@ -71,40 +71,45 @@ section is authoritative. Generation uses `Articulate.Tests.Website` on port
 | --- | --- |
 | Any shell | `dotnet run build/build.cs -- build [options]` |
 
-- `--configuration Debug` is the default for local builds; Release is the default in packaging flows.
+- The `site` command defaults to `Debug`. The `build` command defaults to `Release`; pass `--configuration Debug` when you need a local debug build.
 - `--client true` enables local TypeScript Back Office client builds.
 - `--sample` packs `Articulate.Theme.Sample`.
 - `build/build.cs` cleans, restores, builds, tests, and packs the current Articulate projects.
 - The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)` by default.
-- If you change packaged runtime dependencies or client/static assets, regenerate the Docker inputs before validating source-built or Docker-based installs:
-  - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
-  - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
+- If you change packaged runtime dependencies or client/static assets, rebuild the affected lane with the repository runner. It writes the package inputs Docker consumes:
+  - `dotnet run build/build.cs -- build --lane v17 --client true --sample`
+  - `dotnet run build/build.cs -- build --lane v18 --client true --sample`
+- For Docker validation, use the lane-specific runner so package versions, output paths, and `UMBRACO_CMS_VERSION` stay aligned:
+  - `dotnet run docker/run.cs -- docker-test --lane v17`
+  - `dotnet run docker/run.cs -- docker-test --lane v18`
 - The Dockerfile selects the newest `Articulate.[0-9]*.nupkg` in `build/Release` by modified time and ignores `.snupkg` files and theme packages when choosing the version.
-- Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use `docker compose up -d --build --force-recreate articulate`, or run both steps explicitly:
-  - `docker compose build articulate`
-  - `docker compose up -d --force-recreate --no-deps articulate`
+- Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use the lane runner to rebuild and recreate it:
+  - `dotnet run docker/run.cs -- docker-dev --lane v17`
+  - `dotnet run docker/run.cs -- docker-dev --lane v18`
+  Add `--reuse-packages` when only the image and container need refreshing. Direct Compose use needs the package-version variables and lane-specific ports from `docker/docker-compose.yml`.
 - The default image tag is `articulate-local:chiseled`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
 - If the Docker back office still appears stale after a rebuild, check the running container, not just the image:
   - `docker compose ps`
   - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
-  - `Invoke-WebRequest https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js -SkipCertificateCheck`
+  - `curl --insecure --fail https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js`
 - The default unattended Docker backoffice user is `admin@localhost` with password `@rticulate` and display name `Jane Doe`. Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` when needed.
 
 ## Back Office Client Builds
 
 `EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, pass `--client true` to the build command:
 
-PowerShell:
-
-```powershell
+```sh
 dotnet run build/build.cs -- build --client true --sample
 ```
 
-Bash:
+## Theme API reference
 
-```bash
-dotnet run build/build.cs -- build --client true --sample
-```
+The wiki covers theme creation and layout. The repository owns the complete theme
+API contracts and helper implementations:
+
+- [`IMasterModel.cs`](src/Articulate/Models/IMasterModel.cs)
+- [`MasterModel.cs`](src/Articulate/Models/MasterModel.cs)
+- [`PublishedContentExtensions.cs`](src/Articulate/Models/PublishedContentExtensions.cs)
 
 ## Schema And Data
 
