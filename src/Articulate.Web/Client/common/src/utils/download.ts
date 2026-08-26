@@ -1,8 +1,8 @@
 export const getDownloadFileName = (contentDisposition: string | null | undefined, fallback: string): string => {
   if (!contentDisposition) return fallback;
 
-  const encoded = contentDisposition.match(/filename\*="UTF-8''([^"]+)"/);
-  if (encoded?.[1]) return encoded[1];
+  const encoded = contentDisposition.match(/filename\*=(?:"?UTF-8''([^";]+)"?)/i);
+  if (encoded?.[1]) return decodeURIComponent(encoded[1]);
 
   const plain = contentDisposition.match(/filename="?([^"]+)"?/);
   return plain?.[1] || fallback;
