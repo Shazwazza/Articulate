@@ -20,8 +20,8 @@ namespace Articulate
                 pageIndex,
                 pageSize,
                 out totalRecords,
-                null,
-                filter,
-                ordering);
+                propertyAliases: null,
+                filter: filter,
+                ordering: ordering);
     }
 }

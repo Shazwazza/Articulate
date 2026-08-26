@@ -19,7 +19,7 @@
 	<PropertyGroup>
 		<ArticulatePackageLane Condition="'$(ArticulatePackageLane)' == ''">v17</ArticulatePackageLane>
 		<_ValidatedArticulatePackageLane Condition="'$(ArticulatePackageLane)' == 'v17' or '$(ArticulatePackageLane)' == 'v18'">$(ArticulatePackageLane)</_ValidatedArticulatePackageLane>
-		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17 or v18 (got $(ArticulatePackageLane).'))</_ArticulatePackageLaneValidationError>
+		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17 or v18 (got $(ArticulatePackageLane)).'))</_ArticulatePackageLaneValidationError>
 	</PropertyGroup>
 
 	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
