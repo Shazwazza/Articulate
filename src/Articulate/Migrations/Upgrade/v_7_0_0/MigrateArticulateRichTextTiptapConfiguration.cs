@@ -8,7 +8,7 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Articulate.Migrations.Upgrade.V_7_0_0;
 
 /// <summary>
-/// Applies the complete Tiptap configuration to existing Articulate Rich Text data types.
+/// Applies the complete Tiptap configuration to data types still using Articulate's known v6 defaults.
 /// </summary>
 public sealed class MigrateArticulateRichTextTiptapConfiguration(
     IMigrationContext context,
@@ -33,7 +33,8 @@ public sealed class MigrateArticulateRichTextTiptapConfiguration(
         int updated = await UpdateDataTypeAsync(
             ArticulateConstants.DataType.ArticulateRichTextKey,
             TiptapEditorUiAlias,
-            TiptapConfigurationJson);
+            TiptapConfigurationJson,
+            MigrateArticulateRichText.V6TiptapConfigurationJson);
 
         logger.LogInformation("Updated {Count} Articulate Rich Text data type records.", updated);
     }
