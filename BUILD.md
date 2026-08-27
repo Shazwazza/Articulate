@@ -258,7 +258,7 @@ What it checks for `Articulate.<ver>.nupkg`:
 - `Articulate.Web.dll` exposes the `Articulate.Theme://` logical-name prefix
   (used by `ArticulateThemeRepository.CopyThemeAsync`) and at least 50
   occurrences of `App_Plugins_Articulate_Themes_*` (compiled razor views).
-- No `packages.*.lock.json` anywhere in the archive.
+- No `packages.*.lock.json` or `.map` source-map files anywhere in the archive.
 
 What it checks for `Articulate.Theme.Sample.<ver>.nupkg`:
 

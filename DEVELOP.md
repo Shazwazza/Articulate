@@ -50,21 +50,20 @@ This restores NuGet and Node packages, builds the Back Office client, builds the
    `src/Articulate.Tests.Website/appsettings.json`. Use `--reset` with the site
    command when you need a fresh database.
 
-## Docker Modes
+## Docker
 
-The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`. The default is `BackofficeDevelopment`; switch to `Production` for the production-style check.
+Use the [Docker guide](docker/README.md) for ports, credentials, runtime modes,
+smoke checks, and diagnostics. Its command reference is in
+[`docker/help.md`](docker/help.md).
 
-- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only test-site bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
-- `Production` for the production-style check. This disables test-site bootstrap and keeps the stack honest about what content was already published in the data volume.
+For a standard local stack:
 
-Recommended benchmark flow:
+```sh
+dotnet run docker/run.cs -- docker-dev --lane v17
+```
 
-1. Start with an empty Docker volume set in `BackofficeDevelopment` with `dotnet run docker/run.cs -- docker-dev --lane v17 --reset`.
-2. Unattended install and package migrations run, test-site bootstrap provisions credentials, and `docker/smoke.mjs` publishes/verifies the Articulate content tree.
-3. Verify `/` returns `200` and record the timing.
-4. Re-run the same volume set in `Production` to confirm the published content still serves without any dev-only test-site bootstrap.
-
-- `--reset` runs `docker compose down -v` before the dev command starts the stack. Use it for empty-DB QA, not for normal iterative runs.
+Use `--lane v18` for the Umbraco 18 path. Use `--reset` only when you need a
+fresh Docker database.
 
 ## Client Development
 
@@ -84,40 +83,10 @@ section is authoritative. Generation uses `Articulate.Tests.Website` on port
 
 ## Build And Pack
 
-| Shell | Command |
-| --- | --- |
-| Any shell | `dotnet run build/build.cs -- build [options]` |
-
-- The `site` command defaults to `Debug`. The `build` command defaults to `Release`; pass `--configuration Debug` when you need a local debug build.
-- `--client true` enables local TypeScript Back Office client builds.
-- `--sample` packs `Articulate.Theme.Sample`.
-- `build/build.cs` cleans, restores, builds, tests, and packs the current Articulate projects.
-- The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)` by default.
-- If you change packaged runtime dependencies or client/static assets, rebuild the affected lane with the repository runner. It writes the package inputs Docker consumes:
-  - `dotnet run build/build.cs -- build --lane v17 --client true --sample`
-  - `dotnet run build/build.cs -- build --lane v18 --client true --sample`
-- For Docker validation, use the lane-specific runner so package versions, output paths, and `UMBRACO_CMS_VERSION` stay aligned:
-  - `dotnet run docker/run.cs -- docker-test --lane v17`
-  - `dotnet run docker/run.cs -- docker-test --lane v18`
-- The Dockerfile selects the newest `Articulate.[0-9]*.nupkg` in `build/Release` by modified time and ignores `.snupkg` files and theme packages when choosing the version.
-- Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use the lane runner to rebuild and recreate it:
-  - `dotnet run docker/run.cs -- docker-dev --lane v17`
-  - `dotnet run docker/run.cs -- docker-dev --lane v18`
-  Add `--reuse-packages` when only the image and container need refreshing. Direct Compose use needs the package-version variables and lane-specific ports from `docker/docker-compose.yml`.
-- The default image tag is `articulate-local:chiseled`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
-- If the Docker back office still appears stale after a rebuild, check the running container, not just the image:
-  - `docker compose ps`
-  - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
-  - `curl --insecure --fail https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js`
-- The default unattended Docker backoffice user is `admin@localhost` with password `@rticulate` and display name `Jane Doe`. Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` when needed.
-
-## Back Office Client Builds
-
-`EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, pass `--client true` to the build command:
-
-```sh
-dotnet run build/build.cs -- build --client true --sample
-```
+See [BUILD.md](BUILD.md) for build parameters, lane boundaries, lock files, API
+generation, package smoke checks, and CI. Visual Studio client builds stay
+disabled by default; pass `--client true` when packaging or validating Back
+Office changes.
 
 ## Theme API reference
 
