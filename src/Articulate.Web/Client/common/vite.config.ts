@@ -356,7 +356,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
         fileName: 'articulate-backoffice',
       },
       rollupOptions: { external: [/^@umbraco/] },
-      sourcemap: true,
+      sourcemap: isProd ? false : 'inline',
       minify: isProd ? 'esbuild' : false,
       cssMinify: isProd ? 'lightningcss' : false,
     },

@@ -128,6 +128,12 @@ function checkMainPackage(file, entries, names, work) {
 			locks.length === 0,
 			locks.length ? `(found: ${locks.join(", ")})` : "",
 		);
+		const sourceMaps = names.filter((name) => /\.map$/.test(name));
+		expect(
+			"no source maps shipped",
+			sourceMaps.length === 0,
+			sourceMaps.length ? `(found: ${sourceMaps.join(", ")})` : "",
+		);
 	});
 
 	checkGroup(".nuspec", () => {
