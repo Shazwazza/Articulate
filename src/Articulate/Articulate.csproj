@@ -12,6 +12,7 @@
     <PackageReference Include="Umbraco.Cms.Web.Website" />
 
     <PackageReference Include="Umbraco.Cms.Api.Management" />
+    <PackageReference Include="OpenIddict.Abstractions" />
 
     <PackageReference Include="Argotic.Core" />
     <PackageReference Include="FileSignatures" />

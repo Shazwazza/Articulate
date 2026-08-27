@@ -24,6 +24,7 @@
 		<PackageVersion Include="FileSignatures" Version="7.2.1" />
 		<PackageVersion Include="Markdig" Version="$(MarkdigPackageVersion)" />
 		<PackageVersion Include="MessagePack" Version="3.1.8" />
+		<PackageVersion Include="OpenIddict.Abstractions" Version="7.6.0" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" Condition="'$(ArticulatePackageLane)' == 'v18'" />
 	    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />

@@ -51,6 +51,17 @@
         "resolved": "3.10.91",
         "contentHash": "9MtEXm/um2lQAEoek1EkF4CXNH4JuXxv2jV3Ew2XlzP0LXxFaFiECS7ji8zf1ZaMnPGYbbom+Nm6y4ADc5HNHQ=="
       },
+      "OpenIddict.Abstractions": {
+        "type": "Direct",
+        "requested": "[7.6.0, )",
+        "resolved": "7.6.0",
+        "contentHash": "Fp2MUvm6wwsqk6+ieUM/3MTMlbCL1zwSXixM0xC22FgKcl5EQB7E0vV38IRI/rSF8UGgvC/AOjMOF6FoFyks8g==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.10",
+          "Microsoft.Extensions.Primitives": "10.0.10",
+          "Microsoft.IdentityModel.Tokens": "8.19.2"
+        }
+      },
       "StyleCop.Analyzers": {
         "type": "Direct",
         "requested": "[1.2.0-beta.556, )",
@@ -1069,16 +1080,6 @@
           "OpenIddict.Validation.SystemNetHttp": "7.6.0"
         }
       },
-      "OpenIddict.Abstractions": {
-        "type": "Transitive",
-        "resolved": "7.6.0",
-        "contentHash": "Fp2MUvm6wwsqk6+ieUM/3MTMlbCL1zwSXixM0xC22FgKcl5EQB7E0vV38IRI/rSF8UGgvC/AOjMOF6FoFyks8g==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.10",
-          "Microsoft.Extensions.Primitives": "10.0.10",
-          "Microsoft.IdentityModel.Tokens": "8.19.2"
-        }
-      },
       "OpenIddict.AspNetCore": {
         "type": "Transitive",
         "resolved": "7.6.0",
@@ -1765,6 +1766,7 @@
           "Argotic.Core": "[3001.0.0, )",
           "FileSignatures": "[7.2.1, )",
           "Markdig": "[1.3.2, 2.0.0)",
+          "OpenIddict.Abstractions": "[7.6.0, )",
           "System.ServiceModel.Syndication": "[10.0.10, 11.0.0)",
           "Umbraco.Cms.Api.Management": "[18.1.1, 19.0.0)",
           "Umbraco.Cms.Web.Website": "[18.1.1, 19.0.0)",
