@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Services.OperationStatus;
 using Umbraco.Cms.Infrastructure.Migrations;
 using Umbraco.Cms.Infrastructure.Scoping;
 
@@ -93,15 +94,21 @@ namespace Articulate.Migrations.Upgrade
                     return 0;
                 }
 
-                _ = await _dataTypeService.UpdateAsync(dt, Constants.Security.SuperUserKey);
+                Attempt<IDataType, DataTypeOperationStatus> update = await _dataTypeService.UpdateAsync(dt, Constants.Security.SuperUserKey);
+                if (!update.Success)
+                {
+                    throw new InvalidOperationException(
+                        $"Failed updating DataType id {id}: {update.Status}",
+                        update.Exception);
+                }
+
                 return 1;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed updating DataType id {id}", id);
+                throw;
             }
-
-            return 0;
         }
 
         private static Dictionary<string, object> TryParseConfiguration(string json, ILogger logger)

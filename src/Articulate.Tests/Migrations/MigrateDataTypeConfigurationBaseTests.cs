@@ -40,7 +40,8 @@ public class MigrateDataTypeConfigurationBaseTests
         var result = await migration.RunUpdate(
             id,
             "Umb.PropertyEditorUi.Tiptap",
-            "{\"extensions\":[\"Umb.Tiptap.Embed\"]}");
+            "{\"extensions\":[\"Umb.Tiptap.Embed\"]}",
+            "{\"extensions\":[\"Legacy.Extension\"]}");
 
         Assert.That(result, Is.Zero);
         Assert.That(dataType.ConfigurationData, Is.SameAs(currentConfiguration));
@@ -61,7 +62,7 @@ public class MigrateDataTypeConfigurationBaseTests
         dataTypeService.Setup(x => x.GetAsync(id)).ReturnsAsync(dataType);
         dataTypeService
             .Setup(x => x.UpdateAsync(It.IsAny<IDataType>(), It.IsAny<Guid>()))
-            .ReturnsAsync(default(Attempt<IDataType, DataTypeOperationStatus>));
+            .ReturnsAsync(Attempt<IDataType, DataTypeOperationStatus>.Succeed(DataTypeOperationStatus.Success, dataType));
         Mock<IScopeProvider> scopeProvider = CreateScopeProvider();
         var migration = new TestMigration(
             Mock.Of<IMigrationContext>(),
@@ -77,6 +78,32 @@ public class MigrateDataTypeConfigurationBaseTests
         Assert.That(dataType.EditorUiAlias, Is.EqualTo("Umb.PropertyEditorUi.Tiptap"));
         Assert.That(dataType.ConfigurationData["extensions"].ToString(), Does.Contain("New.Extension"));
         dataTypeService.Verify(x => x.UpdateAsync(dataType, It.IsAny<Guid>()), Times.Once);
+    }
+
+    [Test]
+    public void UpdateDataTypeAsync_throws_when_update_fails()
+    {
+        var id = Guid.NewGuid();
+        DataType dataType = CreateDataType(
+            new Dictionary<string, object> { ["extensions"] = new[] { "Old.Extension" } },
+            "Umb.PropertyEditorUi.TinyMce");
+        var dataTypeService = new Mock<IDataTypeService>();
+        dataTypeService.Setup(x => x.GetAsync(id)).ReturnsAsync(dataType);
+        dataTypeService
+            .Setup(x => x.UpdateAsync(It.IsAny<IDataType>(), It.IsAny<Guid>()))
+            .ReturnsAsync(default(Attempt<IDataType, DataTypeOperationStatus>));
+        Mock<IScopeProvider> scopeProvider = CreateScopeProvider();
+        var migration = new TestMigration(
+            Mock.Of<IMigrationContext>(),
+            scopeProvider.Object,
+            dataTypeService.Object);
+
+        Assert.That(
+            async () => await migration.RunUpdate(
+                id,
+                "Umb.PropertyEditorUi.Tiptap",
+                "{\"extensions\":[\"New.Extension\"]}"),
+            Throws.TypeOf<InvalidOperationException>());
     }
 
     private static Mock<IScopeProvider> CreateScopeProvider()
@@ -119,8 +146,12 @@ public class MigrateDataTypeConfigurationBaseTests
             dataTypeService,
             NullLogger<MigrateDataTypeConfigurationBase>.Instance)
     {
-        public Task<int> RunUpdate(Guid id, string editorUiAlias, string configurationJson) =>
-            UpdateDataTypeAsync(id, editorUiAlias, configurationJson);
+        public Task<int> RunUpdate(
+            Guid id,
+            string editorUiAlias,
+            string configurationJson,
+            string? expectedCurrentConfigurationJson = null) =>
+            UpdateDataTypeAsync(id, editorUiAlias, configurationJson, expectedCurrentConfigurationJson);
 
         protected override Task MigrateAsync() => Task.CompletedTask;
     }

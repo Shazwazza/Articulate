@@ -1,6 +1,7 @@
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Services.OperationStatus;
 using Umbraco.Cms.Infrastructure.Migrations;
 
 #nullable enable
@@ -33,7 +34,13 @@ public sealed class OrganizeArticulatePostProperties(
 
         if (changed)
         {
-            await contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+            Attempt<ContentTypeOperationStatus> update = await contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+            if (!update.Success)
+            {
+                throw new InvalidOperationException(
+                    $"Failed updating ArticulatePost content type: {update.Result}",
+                    update.Exception);
+            }
         }
     }
 
