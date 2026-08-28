@@ -10,7 +10,7 @@ import { createRequire } from 'node:module';
 // generated Articulate client here; each lane provides only package metadata.
 const UI_ROOT = process.cwd();
 const require = createRequire(path.resolve(UI_ROOT, 'package.json'));
-const { defineConfig } = require('vite');
+const { defineConfig, transformWithEsbuild } = require('vite');
 const { build: esbuildBuild } = require('esbuild');
 const lightningcss = require('lightningcss');
 const UI_ENTRY = path.resolve(UI_ROOT, '../common/src/main.ts');
@@ -24,6 +24,23 @@ const WEB_THEMES = path.resolve(WEB_ROOT, 'wwwroot/App_Plugins/Articulate/Themes
 const WEB_MARKDOWN = path.resolve(WEB_ROOT, 'wwwroot/App_Plugins/Articulate/MarkdownEditor');
 const BUILD_VERSION_ENV_VAR = 'ARTICULATE_APP_VERSION';
 const PACKAGE_JSON_PATH = path.resolve(UI_ROOT, 'package.json');
+
+const legacyDecoratorsPlugin = (): Plugin => ({
+  name: 'legacy-typescript-decorators',
+  enforce: 'pre',
+  async transform(code, id) {
+    if (!/\.tsx?$/.test(id) || id.includes('node_modules')) return;
+    return transformWithEsbuild(code, id, {
+      loader: id.endsWith('.tsx') ? 'tsx' : 'ts',
+      tsconfigRaw: {
+        compilerOptions: {
+          experimentalDecorators: true,
+          useDefineForClassFields: false,
+        },
+      },
+    });
+  },
+});
 
 const defaultBuildVersion = (() => {
   try {
@@ -360,6 +377,6 @@ export default defineConfig(({ mode }: { mode: string }) => {
       minify: isProd ? 'esbuild' : false,
       cssMinify: isProd ? 'lightningcss' : false,
     },
-    plugins: [sideCarAssetsPlugin(), versioningPlugin(), umbracoPackagePlugin()],
+    plugins: [legacyDecoratorsPlugin(), sideCarAssetsPlugin(), versioningPlugin(), umbracoPackagePlugin()],
   };
 });
