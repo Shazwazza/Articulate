@@ -12,7 +12,7 @@ namespace Articulate.Swagger.V18
         : IConfigureNamedOptions<OpenApiOptions>
     {
         /// <summary>
-        /// Configures the named Articulate OpenAPI document by registering operation/document transformers.
+        /// Configures the named Articulate OpenAPI document metadata.
         /// </summary>
         /// <param name="name">The OpenAPI document name.</param>
         /// <param name="options">The OpenAPI options for the named document.</param>
@@ -23,7 +23,6 @@ namespace Articulate.Swagger.V18
                 return;
             }
 
-            options.AddOperationTransformer<ArticulateOperationIdHandler>();
             options.AddDocumentTransformer((document, _, _) =>
             {
                 document.Info.Version = "Latest";
