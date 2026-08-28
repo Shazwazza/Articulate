@@ -29,6 +29,7 @@ dotnet run build/build.cs -- build [options]
 | `--client`        | `ENABLE_CLIENT_BUILD`, otherwise true in Release/CI | Build the Backoffice client.                                                                                                                                                                                                                                                                                                        |
 | `--sample`        | `PACK_SAMPLE_THEME`, otherwise true locally         | Pack `Articulate.Theme.Sample`.                                                                                                                                                                                                                                                                                                     |
 | `--clean`         | `false`                                             | Clean source outputs, client assets, and packaged Backoffice assets first; required when switching lanes. It does not delete client dependencies or local test-site state. Use `site --reset` for an explicit site reset. Same-lane builds reuse client dependencies and, when tracked client inputs and build mode are unchanged, the incremental client stamp. |
+| `--update-locks`  | `false`                                             | Regenerate both v17 and v18 NuGet lock files before building. Local-only; the command refuses to run in CI or act. |
 
 Packages land in `build/<Configuration>/<lane>/`.
 

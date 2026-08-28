@@ -133,7 +133,7 @@
     </Exec>
     <Error Text="pnpm-lock.yaml is out of sync. Run 'pnpm install' locally." Condition="'$(PnpmFrozenExitCode)' != '0' and '$(PnpmFrozenExitCode)' != ''" />
 
-    <Exec Command="pnpm install" WorkingDirectory="$(ClientProjectDirectory)" Condition="'$(CI)' != 'true'" />
+    <Exec Command="pnpm install --frozen-lockfile" WorkingDirectory="$(ClientProjectDirectory)" Condition="'$(CI)' != 'true'" />
 
     <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientWorkspaceDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
 

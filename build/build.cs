@@ -24,7 +24,7 @@ try
     var opts = Opts.Parse(args[1..]);
     return command switch
     {
-        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean")),
+        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean", "update-locks")),
         "client"        => await ClientAsync(opts.Validate(command, "lane")),
         "site"          => await SiteAsync(opts.Validate(command, "lane", "configuration", "reset")),
         _ => throw new ArgumentException($"Unknown command '{command}'. Run with --help.")
@@ -66,6 +66,9 @@ async Task<int> BuildAsync(Opts o)
     ValidateConfiguration(cfg);
     var inCi = Env.IsTrue(Env.CallerCi) || Env.IsTrue(Env.CallerGithubActions) || Env.IsTrue(Env.CallerAct);
     if (inCi) Environment.SetEnvironmentVariable("CI", "true");
+    if (o.Flag("update-locks") && inCi)
+        throw new InvalidOperationException("--update-locks is for local development only and cannot run in CI or act.");
+
     var defaults = BuildDefaults.Resolve(o, inCi, cfg);
     var clean = o.Flag("clean");
     var releaseDir = Path.Combine(Env.Repo, "build", cfg ?? "Release", lane);
@@ -118,6 +121,23 @@ async Task<int> BuildAsync(Opts o)
 
     var cfgName = cfg ?? "Release";
     var common = new[] { "-c", cfgName, "-m:1", "-p:BuildInParallel=false" };
+
+    if (o.Flag("update-locks"))
+    {
+        foreach (var lockLane in new[] { "v17", "v18" })
+        {
+            Console.WriteLine($"> dotnet restore lock files ({lockLane})");
+            await Run("dotnet", new[]
+            {
+                "restore", Env.Solution,
+                "-v", "minimal",
+                "-p:RestoreUseStaticGraphEvaluation=true",
+                $"-p:ArticulatePackageLane={lockLane}",
+                "-p:RestoreLockedMode=false",
+                "--force-evaluate"
+            });
+        }
+    }
 
     var restoreArgs = new[] { "restore", Env.Solution, "-v", "minimal", "-p:RestoreUseStaticGraphEvaluation=true" }
         .Concat(inCi ? new string[] { "--locked-mode" } : Array.Empty<string>())

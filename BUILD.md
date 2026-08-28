@@ -147,11 +147,18 @@ The two shipped packages use lock files (opt-in via `RestorePackagesWithLockFile
 CI and the build script use `--locked-mode`, so these files must be checked in
 and kept current.
 
-### After any version bump
+### After any dependency change
 
-When you change a centralized version in `Directory.Packages.props` (e.g. the
-Umbraco floor), regenerate the lock files for both lanes.
-Run from the repo root:
+When you change a package reference, project reference, or centralized version
+in `Directory.Packages.props`, regenerate the lock files for both lanes. Run
+this from the repository root before a local build:
+
+```sh
+dotnet run build/build.cs -- build --lane v17 --update-locks --clean
+```
+
+`--update-locks` always refreshes both lanes and is rejected by CI and `act`.
+For a restore without a build, run the two lane-specific commands directly:
 
 ```sh
 dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v17 -p:RestoreLockedMode=false --force-evaluate
