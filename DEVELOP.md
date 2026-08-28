@@ -76,6 +76,18 @@ pnpm run build
 
 `pnpm run build` runs both lanes (`tsc && vite build`); the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
 
+### Backoffice client compatibility
+
+Keep `legacyDecoratorsPlugin()` in `src/Articulate.Web/Client/common/vite.config.ts`.
+Vite 8 otherwise emits decorators in a format Umbraco’s Lit runtime does not accept.
+
+BlogML download responses remain `unknown` in the shared client because Umbraco 17
+and 18 describe them differently. The callers check for a `Blob` before downloading it.
+
+See `src/Articulate/Controllers/Api/BlogMlApiController.cs`,
+`src/Articulate.Web/Client/common/src/components/blogml-exporter.element.ts`,
+`blogml-importer.element.ts`, and `utils/download.ts`.
+
 For API client generation and the v17 LTS schema comparison workflow, see
 [BUILD.md's Client API generation section](BUILD.md#client-api-generation). That
 section is authoritative. Generation uses `Articulate.Tests.Website` on port
