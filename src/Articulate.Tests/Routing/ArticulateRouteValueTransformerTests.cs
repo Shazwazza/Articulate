@@ -126,9 +126,11 @@ namespace Articulate.Tests.Routing
                 scopeProvider.Object,
 #if UMBRACO_18_OR_GREATER
                 NullLogger<ArticulateRouter>.Instance,
-                Mock.Of<IDocumentUrlService>()
+                Mock.Of<IDocumentUrlService>(),
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
 #else
-                NullLogger<ArticulateRouter>.Instance
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
 #endif
             );
 

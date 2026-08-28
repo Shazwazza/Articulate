@@ -228,9 +228,11 @@ namespace Articulate.Tests.Routing
                 Mock.Of<IScopeProvider>(),
 #if UMBRACO_18_OR_GREATER
                 NullLogger<ArticulateRouter>.Instance,
-                Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>()
+                Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>(),
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
 #else
-                NullLogger<ArticulateRouter>.Instance
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
 #endif
             );
     }

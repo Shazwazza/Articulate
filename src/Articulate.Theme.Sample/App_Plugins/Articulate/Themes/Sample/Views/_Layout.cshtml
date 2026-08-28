@@ -3,6 +3,9 @@
 @inject BackOfficeAuthService backOfficeAuthService
 
 @model IMasterModel
+@using Articulate.Options
+@using Microsoft.Extensions.Options
+@inject IOptions<ArticulateOptions> ArticulateOptions
 @{
     var theme = Model.Theme;
     var bannerStyle = Model.BlogBanner.ToCssBackgroundImageVariableValue("--blog-banner-image");
@@ -24,7 +27,7 @@
     <title>@Model.PageTitle</title>
     @Model.MetaTags()
     @Html.SocialMetaTags(Model)
-    @Model.AdvertiseWeblogApi()
+    @Model.AdvertiseWeblogApi(ArticulateOptions.Value.EnableMetaWeblog)
     @Model.RssFeed()
     @Model.RenderOpenSearch()
     <link rel="preconnect" href="https://fonts.googleapis.com">

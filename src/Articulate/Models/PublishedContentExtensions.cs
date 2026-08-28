@@ -341,8 +341,13 @@ namespace Articulate.Models
         /// <summary>
         /// Renders link tags to advertise the Weblog APIs (RSD/WLW).
         /// </summary>
-        public static IHtmlContent AdvertiseWeblogApi(this IMasterModel model)
+        public static IHtmlContent AdvertiseWeblogApi(this IMasterModel model, bool enabled = true)
         {
+            if (!enabled)
+            {
+                return HtmlString.Empty;
+            }
+
             var rootUrl = model.RootBlogNode.Url(mode: UrlMode.Absolute).EnsureEndsWith('/');
             var rsdUrl = rootUrl + "rsd/" + model.RootBlogNode.Id;
             var manifestUrl = rootUrl + "wlwmanifest/" + model.RootBlogNode.Id;

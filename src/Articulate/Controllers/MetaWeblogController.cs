@@ -50,6 +50,11 @@ namespace Articulate.Controllers
         [HttpPost]
         public async Task<ActionResult> IndexAsync(int id)
         {
+            if (!articulateOptions.CurrentValue.EnableMetaWeblog)
+            {
+                return NotFound();
+            }
+
             if (id <= 0)
             {
                 return Problem("Invalid root node id");

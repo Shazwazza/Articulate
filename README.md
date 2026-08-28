@@ -38,13 +38,15 @@ work is on Articulate 7.x and 8.x.
 - Categories and tags
 - Themes and custom theme packages
 - Multiple archives and author profiles
-- Live Writer and MetaWeblog support
+- Live Writer and MetaWeblog support (disabled by default; enable `Articulate:EnableMetaWeblog` when required)
 - Markdown and rich-text posts
 - Disqus comments
 - Search and customizable URLs
 - BlogML import/export and Disqus export
 - Customizable RSS feeds
 - Mobile publishing with image support
+
+Legacy MetaWeblog and Open Live Writer support is disabled by default because it uses legacy username/password authentication. Set `Articulate:EnableMetaWeblog` to `true` and restart the application when you need it.
 
 ## Documentation
 

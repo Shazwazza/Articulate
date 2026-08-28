@@ -1,9 +1,11 @@
 #nullable enable
 using System.Xml.Linq;
 using Articulate.Attributes;
+using Articulate.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common;
@@ -19,7 +21,8 @@ namespace Articulate.Controllers
         UmbracoHelper umbraco,
         ILogger<WlwManifestController> logger,
         ICompositeViewEngine compositeViewEngine,
-        IUmbracoContextAccessor umbracoContextAccessor)
+        IUmbracoContextAccessor umbracoContextAccessor,
+        IOptions<ArticulateOptions> articulateOptions)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         // http://msdn.microsoft.com/en-us/library/bb463260.aspx
@@ -31,6 +34,11 @@ namespace Articulate.Controllers
         [HttpGet]
         public ActionResult Index(int id)
         {
+            if (!articulateOptions.Value.EnableMetaWeblog)
+            {
+                return new NotFoundResult();
+            }
+
             IPublishedContent? node = umbraco.Content(id);
             if (node is null)
             {
