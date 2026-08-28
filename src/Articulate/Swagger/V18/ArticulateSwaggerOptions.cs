@@ -24,12 +24,9 @@ namespace Articulate.Swagger.V18
             }
 
             options.AddOperationTransformer<ArticulateOperationIdHandler>();
-            options.AddOperationTransformer<ArticulateOperationSecurityFilter>();
-            options.AddDocumentTransformer<ArticulateOperationSecurityFilter>();
             options.AddDocumentTransformer((document, _, _) =>
             {
                 document.Info.Version = "Latest";
-                document.Info.Title = "Articulate Management API";
                 document.Info.Description = "API for the back office dashboard section Articulate, a wonderful Blog engine built on Umbraco.";
                 document.Info.Contact = new OpenApiContact
                 {
