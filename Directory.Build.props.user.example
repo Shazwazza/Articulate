@@ -7,8 +7,8 @@
   they pass command-line properties (-p:...) to `dotnet` which override this file.
   After changing this file run __Clean Solution__ so package changes are restored.
   If you're working with the backoffice after a package lane change, run the client build
-  manually from `src/Articulate.Web/Client`: `pnpm --filter articulate-backoffice-v17 run build:dev`
-  or `pnpm --filter articulate-backoffice-v18 run build:dev`.
+  manually from `src/Articulate.Web/Client` using the pnpm filter command for the v17
+  or v18 backoffice package.
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
