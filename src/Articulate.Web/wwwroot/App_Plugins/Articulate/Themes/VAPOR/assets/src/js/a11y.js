@@ -2,11 +2,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Find the first element with class 'skip-link' and add a click event listener
   const skipLink = document.querySelector('.skip-link');
-  
+
   if (!skipLink) {
     return; // Exit gracefully if skip-link doesn't exist
   }
-  
+
   skipLink.addEventListener('click', function(e) {
     // Get the href value (like '#main-content') and find that element
     const target = document.querySelector(this.getAttribute('href'));
