@@ -195,8 +195,8 @@ async Task<int> DockerCa(Opts o)
 
 string ConfigureLane(string lane)
 {
-    var https = lane == "v18" ? "44318" : "44317";
-    var http = lane == "v18" ? "44381" : "44380";
+    var https = Env.HostValue("CADDY_HTTPS_PORT", lane == "v18" ? "44318" : "44317");
+    var http = Env.HostValue("CADDY_HTTP_PORT", lane == "v18" ? "44381" : "44380");
     foreach (var (key, value) in new Dictionary<string, string>
     {
         ["ARTICULATE_PACKAGE_LANE"] = lane,
@@ -227,7 +227,7 @@ string ConfigureLane(string lane)
 Task EnsurePackages(string lane, bool clean = false)
 {
     var args = new List<string> { "run", "build/build.cs", "--", "build", "--lane", lane, "--sample" };
-    if (clean) args.AddRange(new[] { "--clean", "--preserve-site" });
+    if (clean) args.Add("--clean");
     return Run("dotnet", args, Env.Repo);
 }
 
@@ -307,11 +307,10 @@ static class Env
 
     public static void Set(string name, string value) => Environment.SetEnvironmentVariable(name, value);
 
-    public static void SetHostValue(string name, string fallback)
-    {
-        var value = HostOverrides.GetValueOrDefault(name);
-        Set(name, string.IsNullOrWhiteSpace(value) ? fallback : value);
-    }
+    public static string HostValue(string name, string fallback)
+        => string.IsNullOrWhiteSpace(HostOverrides.GetValueOrDefault(name)) ? fallback : HostOverrides[name]!;
+
+    public static void SetHostValue(string name, string fallback) => Set(name, HostValue(name, fallback));
 
     public static void RequireSecret()
     {

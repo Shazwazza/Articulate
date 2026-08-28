@@ -1,17 +1,29 @@
 name: Articulate Build
 
 on:
+  # Feature branches are validated by their pull request; only shared and
+  # release refs need a separate push build.
   push:
+    branches:
+      - develop
+      - main
+      - "release/**"
+    tags:
+      - "v*"
   pull_request:
+    branches:
+      - develop
+      - main
+      - "release/**"
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Cancel in-flight PR runs when a new push lands; never cancel main.
+# Cancel superseded PR and develop integration runs; preserve release runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/develop' }}
 
 jobs:
   build:

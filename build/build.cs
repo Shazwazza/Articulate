@@ -24,7 +24,7 @@ try
     var opts = Opts.Parse(args[1..]);
     return command switch
     {
-        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean", "preserve-site")),
+        "build"         => await BuildAsync(opts.Validate(command, "lane", "configuration", "tests", "client", "sample", "clean")),
         "client"        => await ClientAsync(opts.Validate(command, "lane")),
         "site"          => await SiteAsync(opts.Validate(command, "lane", "configuration", "reset")),
         _ => throw new ArgumentException($"Unknown command '{command}'. Run with --help.")
@@ -68,23 +68,13 @@ async Task<int> BuildAsync(Opts o)
     if (inCi) Environment.SetEnvironmentVariable("CI", "true");
     var defaults = BuildDefaults.Resolve(o, inCi, cfg);
     var clean = o.Flag("clean");
-    var preserveSite = o.Flag("preserve-site");
     var releaseDir = Path.Combine(Env.Repo, "build", cfg ?? "Release", lane);
     Directory.CreateDirectory(releaseDir);
 
-    var clientRoot = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
     var clientAssetsDir = Path.Combine(Env.Repo, "build", "ClientAssets");
     var backofficeDir = Path.Combine(Env.Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice");
     var activeLanePath = Path.Combine(clientAssetsDir, "active-lane.txt");
     var activeVersionPath = Path.Combine(clientAssetsDir, "active-version.txt");
-    var testSiteData = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco");
-    if (clean && !inCi)
-    {
-        DeleteDir(Path.Combine(clientRoot, "node_modules"));
-        DeleteDir(Path.Combine(clientRoot, "v17", "node_modules"));
-        DeleteDir(Path.Combine(clientRoot, "v18", "node_modules"));
-        if (!preserveSite) DeleteDir(testSiteData);
-    }
 
     var props = new List<string>
     {

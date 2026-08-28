@@ -189,9 +189,8 @@ pending migrations, while a database newer than the running code fails startup
 instead of being downgraded. To test an upgrade, start an older package/image
 with `docker-dev --reset`, keep the lane's volumes, then rebuild and run
 `docker-dev` without `--reset`. For the local test site, use `site --reset` only
-for the baseline and then restart `site` without `--reset`; use
-`build --clean --preserve-site` when build outputs need cleaning without deleting
-the migration database.
+for the baseline and then restart `site` without `--reset`. `build --clean`
+never deletes the migration database.
 
 Rebuilding an image does not replace an already running container. The Docker
 utility uses `--force-recreate` where required. If a site still serves stale

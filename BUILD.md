@@ -24,8 +24,7 @@ local overrides.
 | `--tests`                    | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                                                                                                                             |
 | `--client`                   | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                                                                                                                               |
 | `--sample`                   | `true` locally, `false` in CI          | Also pack `Articulate.Theme.Sample`. The sample .nupkg is consumed locally by the Docker pipeline (see `docker/src/ArticulateDockerSite.csproj`); it is **not** published and is excluded from CI artifact uploads. |
-| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, client `node_modules`, and the local test site's `umbraco` state (database, logs, indexes, and caches); required when switching lanes. CI preserves client dependencies and does not remove local test-site state. |
-| `--preserve-site`            | `false`                                | Keep the local test site's `umbraco` state while cleaning build/client outputs; use this to test forward migrations. |
+| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and packaged Backoffice assets; required when switching lanes. It does not delete client dependencies or the local test site's `umbraco` state. Use `site --reset` for an explicit site reset. |
 | `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `version-v18.txt` plus NBGV metadata.                                                                                                            |
 
 The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj`
@@ -39,8 +38,16 @@ paths, always run full-solution lane builds sequentially and with `-m:1`
 > **Switching lanes:** the Back Office output is shared between v17 and v18.
 > After building one lane, pass `--clean` on the first build of the other
 > lane. For example: `build --lane v18 --clean` after a v17 build. The Docker
-> runner's `--clean` option passes this through to the package build while
-> preserving the host test site's `umbraco` state.
+> runner's `--clean` option passes this through to the package build. Cleaning
+> never resets the local test site; use `site --reset` explicitly when needed.
+
+## CI trigger policy
+
+The build workflow runs for pull requests targeting `develop`, `main`, or a
+`release/**` branch. Push builds run for those shared/release branches and for
+`v*` tags. Feature branches are validated through their pull request; use
+`workflow_dispatch` when a pre-PR build is needed. Pull request and `develop`
+integration runs cancel superseded work; release and tag runs are preserved.
 
 ## Common build commands
 

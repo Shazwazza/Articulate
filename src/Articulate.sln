@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1
 		..\nuget.config = ..\nuget.config
 		..\umbraco-marketplace-readme.md = ..\umbraco-marketplace-readme.md
 		..\umbraco-marketplace.json = ..\umbraco-marketplace.json
-		..\build\v18-version.txt = ..\build\v18-version.txt
+		..\version-v18.txt = ..\version-v18.txt
 		..\version.json = ..\version.json
 	EndProjectSection
 EndProject
