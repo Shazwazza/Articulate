@@ -81,9 +81,11 @@ namespace Articulate.Controllers.Api
             // Note: File size limits are enforced by server configuration (Kestrel, IIS, FormOptions).
             // The server will return 413 Payload Too Large if the file exceeds configured limits.
 
+            string? fileName = null;
+            bool keepFile = false;
             try
             {
-                var fileName = Path.GetRandomFileName();
+                fileName = Path.GetRandomFileName();
                 await using Stream sourceStream = importFile.OpenReadStream();
                 using var buffer = new MemoryStream();
 
@@ -107,6 +109,7 @@ namespace Articulate.Controllers.Api
                         isProductionMode) is not null)
                     .ToArray();
 
+                keepFile = true;
                 return Ok(new ImportFileResponse
                 {
                     TemporaryFileName = fileName,
@@ -125,6 +128,13 @@ namespace Articulate.Controllers.Api
                     title: "Internal Server Error",
                     detail: "An unexpected error occurred during file initialization for import.",
                     statusCode: StatusCodes.Status500InternalServerError);
+            }
+            finally
+            {
+                if (!keepFile && fileName is not null && articulateTempFileSystem.FileExists(fileName))
+                {
+                    articulateTempFileSystem.DeleteFile(fileName);
+                }
             }
         }
 
