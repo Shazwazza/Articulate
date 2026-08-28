@@ -11,7 +11,7 @@ using Microsoft.OpenApi;
 namespace Articulate.Swagger.V18
 {
     /// <summary>
-    /// Transforms OpenAPI operation IDs for Articulate API endpoints in Umbraco 18+.
+    /// Transforms operation IDs and binary download responses for Articulate API endpoints in Umbraco 18+.
     /// </summary>
     internal class ArticulateOperationIdHandler : IOpenApiOperationTransformer
     {
@@ -25,9 +25,32 @@ namespace Articulate.Swagger.V18
             if (operationId is not null)
             {
                 operation.OperationId = operationId;
+                SetBinaryResponse(operation, operationId);
             }
 
             return Task.CompletedTask;
+        }
+
+        private static void SetBinaryResponse(OpenApiOperation operation, string operationId)
+        {
+            if (operationId is not ("PostBlogmlExport" or "GetBlogmlExportDisqus") ||
+                operation.Responses is not { } responses)
+            {
+                return;
+            }
+
+            if (!responses.TryGetValue("200", out IOpenApiResponse? response) ||
+                response is not OpenApiResponse openApiResponse)
+            {
+                openApiResponse = new OpenApiResponse();
+                responses["200"] = openApiResponse;
+            }
+
+            openApiResponse.Content ??= new Dictionary<string, OpenApiMediaType>();
+            openApiResponse.Content["application/octet-stream"] = new OpenApiMediaType
+            {
+                Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "binary" },
+            };
         }
 
         private static string? GenerateOperationId(OpenApiOperationTransformerContext context)

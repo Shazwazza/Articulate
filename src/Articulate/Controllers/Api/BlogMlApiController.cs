@@ -173,7 +173,11 @@ namespace Articulate.Controllers.Api
         /// <response code="500">Export failed due to a server error.</response>
         /// <response code="503">The service is unavailable or the blog node is invalid.</response>
         [HttpPost("export")]
+#if !UMBRACO_18_OR_GREATER
+        [Produces("application/octet-stream", Type = typeof(FileContentResult))]
+#else
         [Produces("application/octet-stream")]
+#endif
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> PostExportBlogMl(ExportModel model)
@@ -338,7 +342,11 @@ namespace Articulate.Controllers.Api
         /// <response code="200">Returns the Disqus comment XML file as a downloadable stream.</response>
         /// <response code="404">The Disqus XML export file could not be found.</response>
         [HttpGet("export/disqus")]
+#if !UMBRACO_18_OR_GREATER
+        [Produces("application/octet-stream", Type = typeof(FileContentResult))]
+#else
         [Produces("application/octet-stream")]
+#endif
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
         public IActionResult GetDisqusExport()
         {

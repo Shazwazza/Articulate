@@ -93,6 +93,12 @@ export type PostBlogmlExportErrors = {
 
 export type PostBlogmlExportError = PostBlogmlExportErrors[keyof PostBlogmlExportErrors];
 
+export type PostBlogmlExportResponses = {
+    200: Blob | File;
+};
+
+export type PostBlogmlExportResponse = PostBlogmlExportResponses[keyof PostBlogmlExportResponses];
+
 export type GetBlogmlExportDisqusData = {
     body?: never;
     path?: never;
@@ -116,6 +122,12 @@ export type GetBlogmlExportDisqusErrors = {
 };
 
 export type GetBlogmlExportDisqusError = GetBlogmlExportDisqusErrors[keyof GetBlogmlExportDisqusErrors];
+
+export type GetBlogmlExportDisqusResponses = {
+    200: Blob | File;
+};
+
+export type GetBlogmlExportDisqusResponse = GetBlogmlExportDisqusResponses[keyof GetBlogmlExportDisqusResponses];
 
 export type PostBlogmlImportData = {
     body: ImportModel;

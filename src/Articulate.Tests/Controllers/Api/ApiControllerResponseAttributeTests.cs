@@ -32,6 +32,19 @@ namespace Articulate.Tests.Controllers.Api
             Assert.That(hasBadRequestResponse, Is.True);
         }
 
+#if !UMBRACO_18_OR_GREATER
+        [TestCase(nameof(BlogMlApiController.PostExportBlogMl))]
+        [TestCase(nameof(BlogMlApiController.GetDisqusExport))]
+        public void BlogMl_download_actions_declare_binary_success_response(string actionName)
+        {
+            MethodInfo method = typeof(BlogMlApiController).GetMethod(actionName)!;
+            ProducesAttribute produces = method.GetCustomAttribute<ProducesAttribute>()!;
+
+            Assert.That(produces.ContentTypes, Does.Contain("application/octet-stream"));
+            Assert.That(produces.Type, Is.EqualTo(typeof(FileContentResult)));
+        }
+#endif
+
         [Test]
         public void Markdown_editor_create_post_declares_internal_server_error_response()
         {

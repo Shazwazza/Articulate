@@ -35,6 +35,34 @@ namespace Articulate.Tests.Swagger.V18
             Assert.That(operation.OperationId, Is.EqualTo("PostBlogmlImportFile"));
         }
 
+        [TestCase("umbraco/management/api/v1/blogml/export", "POST", "PostBlogmlExport")]
+        [TestCase("umbraco/management/api/v1/blogml/export/disqus", "GET", "GetBlogmlExportDisqus")]
+        public async Task TransformAsync_declares_binary_success_response_for_download(string relativePath, string httpMethod, string operationId)
+        {
+            OpenApiOperation operation = new()
+            {
+                Responses = new OpenApiResponses
+                {
+                    ["200"] = new OpenApiResponse { Content = new Dictionary<string, OpenApiMediaType>() },
+                },
+            };
+            OpenApiOperationTransformerContext context = CreateContext(
+                typeof(StubArticulateController), relativePath, httpMethod);
+
+            await new ArticulateOperationIdHandler().TransformAsync(operation, context, CancellationToken.None);
+
+            Assert.That(operation.Responses, Is.Not.Null);
+            IOpenApiResponse response = operation.Responses!["200"];
+            Assert.That(response.Content, Is.Not.Null);
+            IOpenApiSchema schema = response.Content!["application/octet-stream"].Schema!;
+            Assert.Multiple(() =>
+            {
+                Assert.That(operation.OperationId, Is.EqualTo(operationId));
+                Assert.That(schema.Type, Is.EqualTo(JsonSchemaType.String));
+                Assert.That(schema.Format, Is.EqualTo("binary"));
+            });
+        }
+
         [Test]
         public async Task TransformAsync_leaves_operation_id_unchanged_for_unrelated_namespace()
         {
