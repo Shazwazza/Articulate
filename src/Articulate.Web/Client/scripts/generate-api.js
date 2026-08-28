@@ -1,9 +1,7 @@
 import { createClient } from "@hey-api/openapi-ts";
-import chalk from "chalk";
-import fetch from "node-fetch";
 
 // Start notifying user we are generating the TypeScript client
-console.log(chalk.green("Generating OpenAPI client..."));
+console.log("Generating OpenAPI client...");
 
 const args = process.argv.slice(2);
 const swaggerUrl = args[0];
@@ -12,7 +10,7 @@ const laneIndex = args.indexOf("--lane");
 const lane = laneIndex !== -1 && args[laneIndex + 1] ? args[laneIndex + 1] : "v17";
 
 if (lane !== "v17" && lane !== "v18") {
-  console.error(chalk.red(`ERROR: Unsupported client lane: ${lane}`));
+  console.error(`ERROR: Unsupported client lane: ${lane}`);
   process.exit(1);
 }
 
@@ -30,42 +28,34 @@ const excludeTags =
     : undefined;
 
 if (swaggerUrl === undefined || outputPath === undefined) {
-  console.error(chalk.red(`ERROR: Missing URL to OpenAPI spec or output path`));
+  console.error(`ERROR: Missing URL to OpenAPI spec or output path`);
   console.error(
     `Please provide the URL and output path as the first two arguments.`
   );
   console.error(
-    `Example: node generate-openapi.js ${chalk.yellow(
-      "https://.../swagger.json"
-    )} ${chalk.yellow("./src/api")}`
+    `Example: node generate-openapi.js https://.../swagger.json ./src/api`
   );
   process.exit(1);
 }
 
 // Start checking to see if we can connect to the OpenAPI spec
 console.log("Ensure your Umbraco instance is running");
-console.log(`Fetching OpenAPI definition from ${chalk.yellow(swaggerUrl)}`);
+console.log(`Fetching OpenAPI definition from ${swaggerUrl}`);
 
 fetch(swaggerUrl)
   .then(async (response) => {
     if (!response.ok) {
       console.error(
-        chalk.red(
-          `ERROR: OpenAPI spec returned with a non OK (200) response: ${response.status} ${response.statusText}`
-        )
+        `ERROR: OpenAPI spec returned with a non OK (200) response: ${response.status} ${response.statusText}`
       );
       console.error(
         `The URL to your Umbraco instance may be wrong or the instance is not running`
       );
       console.error(
-        `Please verify or change the URL in the ${chalk.yellow(
-          "package.json"
-        )} for the script ${chalk.yellow("generate-openapi")}`
+        `Please verify or change the URL in the package.json for the script generate-openapi`
       );
       console.error(
-        `Or review back office logs. ${chalk.yellow(
-          "Swagger"
-        )} cannot generate a schema with route conflicts or duplicate API attributes. ` +
+        `Or review back office logs. Swagger cannot generate a schema with route conflicts or duplicate API attributes. ` +
           "The Management API security filter already documents 401 and 403; " +
           "do not add those ProducesResponseType attributes to endpoints, because duplicate response keys make schema generation fail."
       );
@@ -74,7 +64,7 @@ fetch(swaggerUrl)
 
     console.log(`OpenAPI spec fetched successfully`);
     console.log(
-      `Calling ${chalk.yellow("hey-api")} to generate TypeScript client`
+      `Calling hey-api to generate TypeScript client`
     );
 
     const config = {
@@ -120,9 +110,7 @@ fetch(swaggerUrl)
   })
   .catch((error) => {
     console.error(
-      `ERROR: Failed to connect to the OpenAPI spec: ${chalk.red(
-        error.message
-      )}`
+      `ERROR: Failed to connect to the OpenAPI spec: ${error.message}`
     );
     console.error(
       `The URL to your Umbraco instance may be wrong or the instance is not running`
