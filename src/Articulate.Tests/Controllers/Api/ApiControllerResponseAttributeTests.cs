@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 #if !UMBRACO_18_OR_GREATER
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Articulate.Swagger.V17;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
