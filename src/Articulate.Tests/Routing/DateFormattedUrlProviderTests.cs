@@ -15,32 +15,52 @@ using Umbraco.Cms.Core.Web;
 
 namespace Articulate.Tests.Routing
 {
-    /// <summary>
-    ///     Covers the content-type eligibility guard in
-    ///     <see cref="DateFormattedUrlProvider.GetUrl" />: only ArticulateMarkdown / ArticulateRichText
-    ///     posts are candidates for date-formatted URLs; everything else short-circuits to null before
-    ///     any navigation lookup.
-    /// </summary>
-    /// <remarks>
-    ///     The remaining guards (parent-chain, publishedDate, useDateFormatForUrl) and the positive
-    ///     URL-build path all read <c>content.Parent()</c> — an extension method that resolves via the
-    ///     Umbraco navigation services, not a mockable property. They need an integration test.
-    /// </remarks>
     [TestFixture]
     public class DateFormattedUrlProviderTests
     {
         private static readonly Uri _currentUri = new("https://example.com", UriKind.Absolute);
 
-        // Non-Articulate content types short-circuit at the content-type guard before Parent() is
-        // ever evaluated (|| short-circuits on the true branch). These are the cleanly unit-testable
-        // cases — no navigation context needed.
+        private Mock<IDocumentNavigationQueryService> _navigationQueryService = null!;
+        private Mock<IPublishedContentStatusFilteringService> _statusFilteringService = null!;
+        private Mock<IPublishedValueFallback> _publishedValueFallback = null!;
+        private Mock<IDocumentUrlService> _documentUrlService = null!;
+        private Mock<IUmbracoContextAccessor> _umbracoContextAccessor = null!;
+        private Mock<ILanguageService> _languageService = null!;
+        private Mock<IDomainCache> _domainCache = null!;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _navigationQueryService = new Mock<IDocumentNavigationQueryService>();
+            _statusFilteringService = new Mock<IPublishedContentStatusFilteringService>();
+            _publishedValueFallback = new Mock<IPublishedValueFallback>();
+            _documentUrlService = new Mock<IDocumentUrlService>();
+            _umbracoContextAccessor = new Mock<IUmbracoContextAccessor>();
+            _languageService = new Mock<ILanguageService>();
+            _domainCache = new Mock<IDomainCache>();
+
+            Mock<IUmbracoContext> umbracoContext = new();
+            umbracoContext.SetupGet(x => x.InPreviewMode).Returns(false);
+            IUmbracoContext? context = umbracoContext.Object;
+            _umbracoContextAccessor
+                .Setup(x => x.TryGetUmbracoContext(out context))
+                .Returns(true);
+
+            _languageService
+                .Setup(x => x.GetDefaultIsoCodeAsync())
+                .ReturnsAsync("en-US");
+            _domainCache
+                .Setup(x => x.GetAssigned(It.IsAny<int>(), It.IsAny<bool>()))
+                .Returns(Array.Empty<Domain>());
+        }
+
         [TestCase("article")]
         [TestCase("blogPost")]
-        [TestCase("Articulate")] // prefix match must not pass; exact alias required
+        [TestCase("Articulate")]
         [TestCase("ArticulateMarkdownPost")]
         public void GetUrl_returns_null_for_non_articulate_content_type(string contentTypeAlias)
         {
-            IPublishedContent content = CreateContent(contentTypeAlias);
+            IPublishedContent content = CreateContent(contentTypeAlias, Guid.NewGuid(), 1);
             DateFormattedUrlProvider sut = CreateProvider();
 
             UrlInfo? result = sut.GetUrl(content, UrlMode.Default, culture: null, _currentUri);
@@ -48,16 +68,49 @@ namespace Articulate.Tests.Routing
             Assert.That(result, Is.Null);
         }
 
-        // Full base-class dependency chain so the provider is instantiable. The guard under test
-        // returns before any of these are used, so plain Mock.Of<T>() suffices.
-        private static DateFormattedUrlProvider CreateProvider()
+        [Test]
+        public void GetUrl_returns_date_formatted_url_for_articulate_post()
+        {
+            (IPublishedContent site, IPublishedContent blog, IPublishedContent post) = CreatePostTree(
+                useDateFormat: true);
+            ConfigureTree(site, blog, post);
+            DateFormattedUrlProvider sut = CreateProvider(blog.Key, post.Key);
+
+            UrlInfo? result = sut.GetUrl(post, UrlMode.Auto, culture: null, _currentUri);
+
+            Assert.That(result?.Url?.ToString(), Is.EqualTo("/blog/2024/06/13/my-post/"));
+        }
+
+        [Test]
+        public void GetUrl_returns_null_when_date_format_is_disabled()
+        {
+            (IPublishedContent site, IPublishedContent blog, IPublishedContent post) = CreatePostTree(
+                useDateFormat: false);
+            ConfigureTree(site, blog, post);
+            DateFormattedUrlProvider sut = CreateProvider(blog.Key, post.Key);
+
+            UrlInfo? result = sut.GetUrl(post, UrlMode.Auto, culture: null, _currentUri);
+
+            Assert.That(result, Is.Null);
+        }
+
+        private DateFormattedUrlProvider CreateProvider(Guid blogKey = default, Guid postKey = default)
         {
             Mock<IHostingEnvironment> hostingEnv = new();
             hostingEnv.Setup(x => x.ApplicationVirtualPath).Returns("/");
             var uriUtility = new UriUtility(hostingEnv.Object);
 
             Mock<IOptionsMonitor<RequestHandlerSettings>> optionsMonitor = new();
-            optionsMonitor.SetupGet(x => x.CurrentValue).Returns(new RequestHandlerSettings());
+            optionsMonitor
+                .SetupGet(x => x.CurrentValue)
+                .Returns(new RequestHandlerSettings { AddTrailingSlash = true });
+
+            _documentUrlService
+                .Setup(x => x.GetLegacyRouteFormat(blogKey, It.IsAny<string?>(), false))
+                .Returns("100/blog");
+            _documentUrlService
+                .Setup(x => x.GetUrlSegment(postKey, It.IsAny<string>(), false))
+                .Returns("my-post");
 
             return new DateFormattedUrlProvider(
                 optionsMonitor.Object,
@@ -67,26 +120,111 @@ namespace Articulate.Tests.Routing
                 Mock.Of<ILogger<NewDefaultUrlProvider>>(),
 #endif
                 Mock.Of<ISiteDomainMapper>(),
-                Mock.Of<IUmbracoContextAccessor>(),
+                _umbracoContextAccessor.Object,
                 uriUtility,
                 Mock.Of<IPublishedContentCache>(),
-                Mock.Of<IDomainCache>(),
+                _domainCache.Object,
                 Mock.Of<IIdKeyMap>(),
-                Mock.Of<IDocumentUrlService>(),
-                Mock.Of<IDocumentNavigationQueryService>(),
-                Mock.Of<IPublishedContentStatusFilteringService>(),
-                Mock.Of<ILanguageService>());
+                _documentUrlService.Object,
+                _navigationQueryService.Object,
+                _statusFilteringService.Object,
+                _publishedValueFallback.Object,
+                _languageService.Object);
         }
 
-        // Minimal IPublishedContent with only ContentType.Alias set. Parent()/Value<T>() are NOT
-        // configured — the content-type guard must short-circuit before they are read.
-        private static IPublishedContent CreateContent(string contentTypeAlias)
+        private void ConfigureTree(
+            IPublishedContent site,
+            IPublishedContent blog,
+            IPublishedContent post)
         {
-            Mock<IPublishedContent> content = new();
+            var parentKeys = new Dictionary<Guid, Guid?>
+            {
+                [post.Key] = blog.Key,
+                [blog.Key] = site.Key,
+                [site.Key] = null
+            };
+
+            _navigationQueryService
+                .Setup(x => x.TryGetParentKey(It.IsAny<Guid>(), out It.Ref<Guid?>.IsAny))
+                .Callback(new TryGetParentKeyCallback((Guid key, out Guid? parentKey) =>
+                    parentKey = parentKeys[key]))
+                .Returns(true);
+
+            var contentByKey = new Dictionary<Guid, IPublishedContent>
+            {
+                [site.Key] = site,
+                [blog.Key] = blog,
+                [post.Key] = post
+            };
+#pragma warning disable CS0618 // The explicit Parent overload still uses this compatibility API in the supported Umbraco lanes.
+            _statusFilteringService
+                .Setup(x => x.Unfiltered(It.IsAny<IEnumerable<Guid>>()))
+                .Returns((IEnumerable<Guid> keys) => keys
+                    .Select(key => contentByKey.GetValueOrDefault(key))
+                    .OfType<IPublishedContent>());
+#pragma warning restore CS0618
+        }
+
+        private static (IPublishedContent Site, IPublishedContent Blog, IPublishedContent Post) CreatePostTree(
+            bool useDateFormat)
+        {
+            var siteKey = Guid.NewGuid();
+            var blogKey = Guid.NewGuid();
+            var postKey = Guid.NewGuid();
+
+            IPublishedContent site = CreateContent(
+                "site",
+                siteKey,
+                100,
+                ("useDateFormatForUrl", useDateFormat));
+            IPublishedContent blog = CreateContent("blog", blogKey, 101);
+            IPublishedContent post = CreateContent(
+                ArticulateConstants.ContentType.ArticulateMarkdown,
+                postKey,
+                102,
+                ("publishedDate", new DateTime(2024, 6, 13)));
+#if !UMBRACO_18_OR_GREATER
+            Mock.Get(post).SetupGet(x => x.UrlSegment).Returns("my-post");
+#endif
+
+            return (site, blog, post);
+        }
+
+        private static IPublishedContent CreateContent(
+            string contentTypeAlias,
+            Guid key,
+            int id,
+            params (string Alias, object Value)[] values)
+        {
             Mock<IPublishedContentType> contentType = new();
             contentType.SetupGet(x => x.Alias).Returns(contentTypeAlias);
+            contentType.SetupGet(x => x.ItemType).Returns(PublishedItemType.Content);
+
+            Dictionary<string, IPublishedProperty> properties = values.ToDictionary(
+                value => value.Alias,
+                value => CreateProperty(value.Value));
+            Mock<IPublishedContent> content = new();
+            content.SetupGet(x => x.Key).Returns(key);
+            content.SetupGet(x => x.Id).Returns(id);
             content.SetupGet(x => x.ContentType).Returns(contentType.Object);
+            content
+                .Setup(x => x.GetProperty(It.IsAny<string>()))
+                .Returns((string alias) => properties.GetValueOrDefault(alias));
             return content.Object;
         }
+
+        private static IPublishedProperty CreateProperty(object value)
+        {
+            Mock<IPublishedProperty> property = new();
+            property
+                .Setup(x => x.HasValue(It.IsAny<string?>(), It.IsAny<string?>()))
+                .Returns(true);
+            property
+                .Setup(x => x.GetValue(It.IsAny<string?>(), It.IsAny<string?>()))
+                .Returns(value);
+            return property.Object;
+        }
+
+        private delegate void TryGetParentKeyCallback(Guid key, out Guid? parentKey);
     }
 }

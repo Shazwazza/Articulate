@@ -8,6 +8,7 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 namespace Articulate.Routing
 {
@@ -20,6 +21,9 @@ namespace Articulate.Routing
     public class DateFormattedUrlProvider : NewDefaultUrlProvider
 #endif
     {
+        private readonly IDocumentNavigationQueryService _navigationQueryService;
+        private readonly IPublishedContentStatusFilteringService _publishedContentStatusFilteringService;
+        private readonly IPublishedValueFallback _publishedValueFallback;
 #if UMBRACO_18_OR_GREATER
         private readonly IDocumentUrlService _documentUrlService;
 #endif
@@ -43,6 +47,7 @@ namespace Articulate.Routing
             IDocumentUrlService documentUrlService,
             IDocumentNavigationQueryService navigationQueryService,
             IPublishedContentStatusFilteringService publishedContentStatusFilteringService,
+            IPublishedValueFallback publishedValueFallback,
             ILanguageService languageService)
             : base(
                 requestSettings,
@@ -58,48 +63,47 @@ namespace Articulate.Routing
                 publishedContentStatusFilteringService,
                 languageService)
         {
+            _navigationQueryService = navigationQueryService;
+            _publishedContentStatusFilteringService = publishedContentStatusFilteringService;
+            _publishedValueFallback = publishedValueFallback;
 #if UMBRACO_18_OR_GREATER
             _documentUrlService = documentUrlService;
 #endif
         }
 
-
         /// <inheritdoc/>
         public override UrlInfo? GetUrl(IPublishedContent content, UrlMode mode, string? culture, Uri current)
         {
-            if (content is
-                    not
-                    {
-                        ContentType.Alias: ArticulateConstants.ContentType.ArticulateRichText
-                        or ArticulateConstants.ContentType.ArticulateMarkdown
-                    }
-                || content.Parent() is null)
+            string contentTypeAlias = content.ContentType.Alias;
+            if (contentTypeAlias != ArticulateConstants.ContentType.ArticulateRichText &&
+                contentTypeAlias != ArticulateConstants.ContentType.ArticulateMarkdown)
             {
                 return null;
             }
 
-            if (content.Parent()?.Parent() is not null)
+            IPublishedContent? parent = content.Parent<IPublishedContent>(
+                _navigationQueryService,
+                _publishedContentStatusFilteringService);
+            if (parent is null)
             {
-                var useDateFormat = content.Parent()?.Parent()?.Value<bool>("useDateFormatForUrl") ?? false;
-                if (!useDateFormat)
-                {
-                    return null;
-                }
+                return null;
             }
 
-            DateTime? date = content.Value<DateTime?>("publishedDate");
+            IPublishedContent? root = parent.Parent<IPublishedContent>(
+                _navigationQueryService,
+                _publishedContentStatusFilteringService);
+            if (root is not null && root.Value<bool>(_publishedValueFallback, "useDateFormatForUrl") is false)
+            {
+                return null;
+            }
+
+            DateTime? date = content.Value<DateTime?>(_publishedValueFallback, "publishedDate");
             if (date is null)
             {
                 return null;
             }
 
             var urlFolder = $"{date.Value.Year}/{date.Value.Month:d2}/{date.Value.Day:d2}";
-            IPublishedContent? parent = content.Parent();
-            if (parent is null)
-            {
-                return null;
-            }
-
             UrlInfo? parentPath = base.GetUrl(parent, mode, culture, current);
             var parentUrl = parentPath?.Url?.ToString().EnsureEndsWith("/");
 #if UMBRACO_18_OR_GREATER
