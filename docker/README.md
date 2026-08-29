@@ -7,7 +7,7 @@ the host-side Management API assertions.
 ## Commands
 
 ```text
-dotnet run docker/run.cs -- help docker-dev
+dotnet run --file docker/run.cs -- help docker-dev
 ```
 
 `docker/help.md` is the canonical command and option reference. The rest of this
@@ -49,7 +49,7 @@ CA once per machine before opening the backoffice. The Docker runner exposes
 the portable entrypoint:
 
 ```sh
-dotnet run docker/run.cs -- docker-ca --lane v17
+dotnet run --file docker/run.cs -- docker-ca --lane v17
 ```
 
 The Docker runner selects the platform-specific certificate-store helper internally;
@@ -93,7 +93,7 @@ export UMBRACO_PUBLIC_HOST='https://<LAN-IP>:44317'
 export UMBRACO_PUBLIC_URL='https://<LAN-IP>:44317/'
 export ARTICULATE_REDIRECT_URI='https://<LAN-IP>:44317/a-new/'
 export ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:44317/'
-dotnet run docker/run.cs -- docker-dev --lane v17 --reset
+dotnet run --file docker/run.cs -- docker-dev --lane v17 --reset
 ```
 
 Use port `44318` and `--lane v18` for the v18 lane. Browsers must accept
@@ -116,7 +116,7 @@ optional TinyMCE integration:
 
 ```sh
 export USE_TINYMCE_UMBRACO='true'
-dotnet run docker/run.cs -- docker-dev --lane v17
+dotnet run --file docker/run.cs -- docker-dev --lane v17
 ```
 
 The runner passes the lane's `TinyMceUmbracoPackageVersion` floor from
@@ -197,7 +197,7 @@ utility uses `--force-recreate` where required. If a site still serves stale
 assets, inspect the running stack and its packaged Backoffice files:
 
 ```sh
-dotnet run docker/run.cs -- docker-status --lane v17
+dotnet run --file docker/run.cs -- docker-status --lane v17
 ```
 
 Use `--lane v18` for the v18 lane.

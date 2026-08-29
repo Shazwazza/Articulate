@@ -399,7 +399,7 @@ sealed class Opts
         if (unknown.Length > 0)
             throw new ArgumentException(
                 $"Unknown option(s) for {command}: {string.Join(", ", unknown.Select(x => $"--{x}"))}. " +
-                $"Run 'dotnet run build/build.cs -- help {command}'.");
+                $"Run 'dotnet run --file build/build.cs -- help {command}'.");
 
         RequireValue("lane");
         RequireValue("configuration");

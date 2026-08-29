@@ -380,7 +380,7 @@ sealed class Opts
         if (unknown.Length > 0)
             throw new ArgumentException(
                 $"Unknown option(s) for {command}: {string.Join(", ", unknown.Select(key => $"--{key}"))}. " +
-                $"Run 'dotnet run docker/run.cs -- help {command}'.");
+                $"Run 'dotnet run --file docker/run.cs -- help {command}'.");
 
         RequireValue("lane");
         RequireValue("tag");

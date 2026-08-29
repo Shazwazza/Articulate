@@ -30,16 +30,14 @@ for details.
 1. Clone or fork the repository.
 2. Prime the site and solution so the Back Office client extension and asset bundles are built.
 
-```sh
-dotnet run build/build.cs -- build --configuration Debug --client true --sample
-```
-
-This restores NuGet and Node packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
+   ```sh
+   dotnet run --file build/build.cs -- build --configuration Debug --client true --sample
+   ```
 
 1. Start the test site:
 
    ```sh
-   dotnet run build/build.cs -- site --lane v17
+   dotnet run --file build/build.cs -- site --lane v17
    ```
 
    Use `--lane v18` when testing the Umbraco 18 path. As an alternative, open
@@ -59,7 +57,7 @@ smoke checks, and diagnostics. Its command reference is in
 For a standard local stack:
 
 ```sh
-dotnet run docker/run.cs -- docker-dev --lane v17
+dotnet run --file docker/run.cs -- docker-dev --lane v17
 ```
 
 Use `--lane v18` for the Umbraco 18 path. Use `--reset` only when you need a

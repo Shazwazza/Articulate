@@ -7,8 +7,8 @@ developer setup, see [DEVELOP.md](DEVELOP.md).
 and test-site tasks:
 
 ```text
-dotnet run build/build.cs -- help
-dotnet run build/build.cs -- help <command>
+dotnet run --file build/build.cs -- help
+dotnet run --file build/build.cs -- help <command>
 ```
 
 The CLI help is the canonical command/option reference, including defaults and
@@ -54,27 +54,27 @@ integration runs cancel superseded work; release and tag runs are preserved.
 Local debug build with the Back Office client:
 
 ```sh
-dotnet run build/build.cs -- build --configuration Debug --client true
+dotnet run --file build/build.cs -- build --configuration Debug --client true
 ```
 
 v17 release package with sample theme:
 
 ```sh
-dotnet run build/build.cs -- build --lane v17 --sample
+dotnet run --file build/build.cs -- build --lane v17 --sample
 ```
 
 v18 release package with sample theme:
 
 ```sh
-dotnet run build/build.cs -- build --lane v18 --sample
+dotnet run --file build/build.cs -- build --lane v18 --sample
 ```
 
 CI / release build for both lanes:
 
 ```sh
 # Run once per lane; each run cleans shared outputs first.
-dotnet run build/build.cs -- build --lane v17 --clean --client true --tests --sample
-dotnet run build/build.cs -- build --lane v18 --clean --client true --tests --sample
+dotnet run --file build/build.cs -- build --lane v17 --clean --client true --tests --sample
+dotnet run --file build/build.cs -- build --lane v18 --clean --client true --tests --sample
 ```
 
 ### Run CI locally with act
@@ -124,10 +124,10 @@ both lanes. The package scripts fetch both documents from the local
 `Articulate.Tests.Website` on `https://localhost:44366`. Start each lane in turn:
 
 ```sh
-dotnet run build/build.cs -- site --lane v17 --reset
+dotnet run --file build/build.cs -- site --lane v17 --reset
 pnpm --dir src/Articulate.Web/Client/v17 run generate:api
 # stop the test website
-dotnet run build/build.cs -- site --lane v18 --reset
+dotnet run --file build/build.cs -- site --lane v18 --reset
 pnpm --dir src/Articulate.Web/Client/v18 run generate:api
 # stop the test website
 ```
@@ -154,7 +154,7 @@ in `Directory.Packages.props`, regenerate the lock files for both lanes. Run
 this from the repository root before a local build:
 
 ```sh
-dotnet run build/build.cs -- build --lane v17 --update-locks --clean
+dotnet run --file build/build.cs -- build --lane v17 --update-locks --clean
 ```
 
 `--update-locks` always refreshes both lanes and is rejected by CI and `act`.

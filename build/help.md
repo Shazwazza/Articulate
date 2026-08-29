@@ -1,8 +1,8 @@
 # Articulate build utility
 
 ```text
-dotnet run build/build.cs -- <command> [options]
-dotnet run build/build.cs -- help [command]
+dotnet run --file build/build.cs -- <command> [options]
+dotnet run --file build/build.cs -- help [command]
 ```
 
 Use `build/build.cs` for repository build, client, and test-site tasks.
@@ -18,7 +18,7 @@ Commands default to lane `v17`.
 ### build
 
 ```text
-dotnet run build/build.cs -- build [options]
+dotnet run --file build/build.cs -- build [options]
 ```
 
 | Option            | Default                                             | Notes                                                                                                                                                                                                                                                                                                                               |
@@ -36,7 +36,7 @@ Packages land in `build/<Configuration>/<lane>/`.
 ### client
 
 ```text
-dotnet run build/build.cs -- client [--lane v17|v18]
+dotnet run --file build/build.cs -- client [--lane v17|v18]
 ```
 
 Runs `pnpm install`, then `check`, `build`, and `lint` for the selected lane.
@@ -44,7 +44,7 @@ Runs `pnpm install`, then `check`, `build`, and `lint` for the selected lane.
 ### site
 
 ```text
-dotnet run build/build.cs -- site [options]
+dotnet run --file build/build.cs -- site [options]
 ```
 
 | Option            | Default | Notes                                         |

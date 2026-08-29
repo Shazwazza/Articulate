@@ -113,7 +113,7 @@ jobs:
           # output, including the v17 hashed JS asset (e.g. client.gen-XXXX.js).
           for lane in v17 v18; do
             echo "::group::Build ${lane}"
-            dotnet run build/build.cs -- build --lane "${lane}" --sample --clean
+            dotnet run --file build/build.cs -- build --lane "${lane}" --sample --clean
             echo "::endgroup::"
           done
 

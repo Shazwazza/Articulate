@@ -14,8 +14,8 @@ The package registers itself with Articulate by contributing the `Sample` theme 
 Build the sample theme for local validation with either package lane:
 
 ```sh
-dotnet run build/build.cs -- build --lane v17 --sample
-dotnet run build/build.cs -- build --lane v18 --sample
+dotnet run --file build/build.cs -- build --lane v17 --sample
+dotnet run --file build/build.cs -- build --lane v18 --sample
 ```
 
 The Docker test site consumes the resulting package locally. This package is not
