@@ -1,5 +1,6 @@
 #nullable enable
 using Articulate.Services;
+using Microsoft.Data.Sqlite;
 using Moq;
 using NPoco;
 using NUnit.Framework;
@@ -9,106 +10,123 @@ using Umbraco.Cms.Infrastructure.Persistence.SqlSyntax;
 namespace Articulate.Tests.Services
 {
     /// <summary>
-    ///     Asserts the shape of the hand-rolled tag/category SQL built by
-    ///     <see cref="ArticulateTagRepository" />. The builders are pure (no ambient scope); tests pass
-    ///     a stub <see cref="ISqlSyntaxProvider" /> and inspect the emitted <see cref="Sql" /> text and
-    ///     arguments. Catches the regression-prone parts: multi-blog <c>path LIKE</c> scoping,
-    ///     published-only filters, publishedDate property filter, and parameterisation (no injection).
+    ///     Executes the hand-rolled tag/category SQL builders against a focused in-memory database.
+    ///     This covers the observable filtering and join behaviour without requiring an Umbraco host.
     /// </summary>
-    /// <remarks>
-    ///     These cover SQL shape only — the <c>Database.Fetch</c>/<c>Page</c> round-trip needs a real
-    ///     database and is left to an integration test. NPoco rewrites named parameters to positional
-    ///     (<c>@path</c> → <c>@0</c>, <c>@1</c> ...) inside <see cref="Sql.SQL" />, so assertions match
-    ///     on the clause text and read the bound values from <see cref="Sql.Arguments" /> in order.
-    /// </remarks>
     [TestFixture]
     public class ArticulateTagRepositorySqlTests
     {
         private const string RootPath = "-1,1234";
-        private const string QuotedPath = "[path]";
 
         [Test]
-        public void BuildTagQuery_scopes_to_blog_root_path()
+        public void BuildTagQuery_returns_only_document_under_requested_root()
         {
-            Sql sql = ArticulateTagRepository.BuildTagQuery("id", RootPath, CreateSqlSyntax());
+            string nodeTable = Constants.DatabaseSchema.Tables.Node;
+            string tagTable = Constants.DatabaseSchema.Tables.Tag;
+            string relationshipTable = Constants.DatabaseSchema.Tables.TagRelationship;
+            string contentTable = Constants.DatabaseSchema.Tables.Content;
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(sql.SQL, Does.Contain($"{QuotedPath} LIKE @"));
-                Assert.That(ArgumentsOf(sql), Does.Contain(RootPath + ",%"));
-            });
+            using SqliteConnection database = CreateDatabase($"""
+                CREATE TABLE [{tagTable}] (id INTEGER PRIMARY KEY);
+                CREATE TABLE [{relationshipTable}] (tagId INTEGER, nodeId INTEGER);
+                CREATE TABLE [{contentTable}] (nodeId INTEGER);
+                CREATE TABLE [{nodeTable}] (id INTEGER PRIMARY KEY, nodeObjectType TEXT, [path] TEXT);
+                INSERT INTO [{tagTable}] (id) VALUES (1);
+                INSERT INTO [{relationshipTable}] (tagId, nodeId) VALUES (1, 100), (1, 101), (1, 102);
+                INSERT INTO [{contentTable}] (nodeId) VALUES (100), (101), (102), (103);
+                INSERT INTO [{nodeTable}] (id, nodeObjectType, [path]) VALUES
+                    (100, '{Constants.ObjectTypes.Document}', '-1,1234,100'),
+                    (101, '{Constants.ObjectTypes.Document}', '-1,9999,101'),
+                    (102, 'media', '-1,1234,102'),
+                    (103, '{Constants.ObjectTypes.Document}', '-1,1234,103');
+                """);
+
+            Sql sql = ArticulateTagRepository.BuildTagQuery(
+                $"{nodeTable}.id", RootPath, CreateSqlSyntax());
+
+            Assert.That(ExecuteIds(database, sql), Is.EqualTo(new[] { 100L }));
         }
 
         [Test]
-        public void BuildTagQuery_filters_to_document_node_object_type()
+        public void BuildContentByTagQueryForPaging_returns_only_published_matching_date_property()
         {
-            Sql sql = ArticulateTagRepository.BuildTagQuery("id", RootPath, CreateSqlSyntax());
+            string nodeTable = Constants.DatabaseSchema.Tables.Node;
+            string documentTable = Constants.DatabaseSchema.Tables.Document;
+            string contentVersionTable = Constants.DatabaseSchema.Tables.ContentVersion;
+            string documentVersionTable = Constants.DatabaseSchema.Tables.DocumentVersion;
+            string propertyDataTable = Constants.DatabaseSchema.Tables.PropertyData;
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(sql.SQL, Does.Contain("nodeObjectType = @"));
-                Assert.That(ArgumentsOf(sql), Does.Contain(Constants.ObjectTypes.Document));
-            });
-        }
+            using SqliteConnection database = CreateDatabase($"""
+                CREATE TABLE [{nodeTable}] (id INTEGER PRIMARY KEY, nodeObjectType TEXT, [path] TEXT);
+                CREATE TABLE [{documentTable}] (nodeId INTEGER, published INTEGER);
+                CREATE TABLE [{contentVersionTable}] (nodeId INTEGER, id INTEGER PRIMARY KEY);
+                CREATE TABLE [{documentVersionTable}] (id INTEGER PRIMARY KEY, published INTEGER);
+                CREATE TABLE [{propertyDataTable}] (versionId INTEGER, propertytypeid INTEGER, dateValue TEXT);
+                INSERT INTO [{nodeTable}] (id, nodeObjectType, [path]) VALUES
+                    (100, '{Constants.ObjectTypes.Document}', '-1,1234,100'),
+                    (101, '{Constants.ObjectTypes.Document}', '-1,1234,101'),
+                    (102, '{Constants.ObjectTypes.Document}', '-1,1234,102'),
+                    (103, '{Constants.ObjectTypes.Document}', '-1,1234,103'),
+                    (104, '{Constants.ObjectTypes.Document}', '-1,9999,104'),
+                    (105, 'media', '-1,1234,105'),
+                    (106, '{Constants.ObjectTypes.Document}', '-1,1234,106');
+                INSERT INTO [{documentTable}] (nodeId, published) VALUES
+                    (100, 1), (101, 0), (102, 1), (103, 1), (104, 1), (105, 1), (106, 1);
+                INSERT INTO [{contentVersionTable}] (nodeId, id) VALUES
+                    (100, 1000), (101, 1001), (102, 1002), (103, 1003),
+                    (104, 1004), (105, 1005), (106, 1006);
+                INSERT INTO [{documentVersionTable}] (id, published) VALUES
+                    (1000, 1), (1001, 1), (1002, 0), (1003, 1),
+                    (1004, 1), (1005, 1), (1006, 1);
+                INSERT INTO [{propertyDataTable}] (versionId, propertytypeid, dateValue) VALUES
+                    (1000, 42, '2026-01-01'), (1001, 42, '2026-01-02'),
+                    (1002, 42, '2026-01-03'), (1003, 99, '2026-01-04'),
+                    (1004, 42, '2026-01-05'), (1005, 42, '2026-01-06');
+                """);
 
-        [Test]
-        public void BuildTagQuery_joins_tag_relationship_and_content_tables()
-        {
-            Sql sql = ArticulateTagRepository.BuildTagQuery("id", RootPath, CreateSqlSyntax());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(sql.SQL, Does.Contain(Constants.DatabaseSchema.Tables.Tag));
-                Assert.That(sql.SQL, Does.Contain(Constants.DatabaseSchema.Tables.TagRelationship));
-                Assert.That(sql.SQL, Does.Contain(Constants.DatabaseSchema.Tables.Node));
-            });
-        }
-
-        [Test]
-        public void BuildContentByTagQueryForPaging_requires_published_document_and_version()
-        {
             Sql sql = ArticulateTagRepository.BuildContentByTagQueryForPaging(
-                "id", RootPath, publishedDatePropertyTypeId: 42, CreateSqlSyntax());
+                $"{nodeTable}.id", RootPath, publishedDatePropertyTypeId: 42, CreateSqlSyntax());
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(sql.SQL, Does.Contain($"{Constants.DatabaseSchema.Tables.Document}.published = 1"));
-                Assert.That(sql.SQL, Does.Contain($"{Constants.DatabaseSchema.Tables.DocumentVersion}.published = 1"));
-            });
+            Assert.That(ExecuteIds(database, sql), Is.EqualTo(new[] { 100L }));
         }
 
-        [Test]
-        public void BuildContentByTagQueryForPaging_filters_to_publishedDate_property_type()
+        private static SqliteConnection CreateDatabase(string schema)
         {
-            Sql sql = ArticulateTagRepository.BuildContentByTagQueryForPaging(
-                "id", RootPath, publishedDatePropertyTypeId: 42, CreateSqlSyntax());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(sql.SQL, Does.Contain("propertytypeid = @"));
-                Assert.That(ArgumentsOf(sql), Does.Contain(42));
-            });
+            var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            Execute(connection, schema);
+            return connection;
         }
 
-        [Test]
-        public void BuildContentByTagQueryForPaging_scopes_to_blog_root_path()
+        private static long[] ExecuteIds(SqliteConnection database, Sql sql)
         {
-            Sql sql = ArticulateTagRepository.BuildContentByTagQueryForPaging(
-                "id", RootPath, publishedDatePropertyTypeId: 42, CreateSqlSyntax());
+            using SqliteCommand command = database.CreateCommand();
+            command.CommandText = sql.SQL;
 
-            Assert.Multiple(() =>
+            object?[] arguments = sql.Arguments.Cast<object?>().ToArray();
+            for (var index = 0; index < arguments.Length; index++)
             {
-                Assert.That(sql.SQL, Does.Contain($"{QuotedPath} LIKE @"));
-                Assert.That(ArgumentsOf(sql), Does.Contain(RootPath + ",%"));
-            });
+                object? argument = arguments[index] is Guid guid ? guid.ToString() : arguments[index];
+                command.Parameters.AddWithValue($"@{index}", argument ?? DBNull.Value);
+            }
+
+            using SqliteDataReader reader = command.ExecuteReader();
+            var ids = new List<long>();
+            while (reader.Read())
+            {
+                ids.Add(reader.GetInt64(0));
+            }
+
+            return ids.ToArray();
         }
 
-        // NPoco's .Arguments is the bound parameter values; unwrap whatever collection shape it has.
-        private static IEnumerable<object?> ArgumentsOf(Sql sql) =>
-            sql.Arguments as IEnumerable<object?> ?? Array.Empty<object?>();
+        private static void Execute(SqliteConnection database, string sql)
+        {
+            using SqliteCommand command = database.CreateCommand();
+            command.CommandText = sql;
+            command.ExecuteNonQuery();
+        }
 
-        // Minimal stub: the builders only call GetQuotedColumnName. SQL Server-style [col] quoting
-        // keeps assertions readable while still exercising the indirection.
         private static ISqlSyntaxProvider CreateSqlSyntax()
         {
             Mock<ISqlSyntaxProvider> syntax = new();
