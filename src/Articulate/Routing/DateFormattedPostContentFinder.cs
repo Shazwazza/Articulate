@@ -8,6 +8,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
 
 namespace Articulate.Routing
@@ -23,6 +24,9 @@ namespace Articulate.Routing
     {
         private readonly IDocumentUrlService _documentUrlService;
         private readonly IPublishedContentCache _publishedContentCache;
+        private readonly IDocumentNavigationQueryService _navigationQueryService;
+        private readonly IPublishedContentStatusFilteringService _publishedContentStatusFilteringService;
+        private readonly IPublishedValueFallback _publishedValueFallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DateFormattedPostContentFinder"/> class.
@@ -36,7 +40,10 @@ namespace Articulate.Routing
             IUmbracoContextAccessor umbracoContextAccessor,
             IDocumentUrlService documentUrlService,
             IPublishedContentCache publishedContentCache,
-            IOptionsMonitor<WebRoutingSettings> webRoutingSettings)
+            IOptionsMonitor<WebRoutingSettings> webRoutingSettings,
+            IDocumentNavigationQueryService navigationQueryService,
+            IPublishedContentStatusFilteringService publishedContentStatusFilteringService,
+            IPublishedValueFallback publishedValueFallback)
             : base(
                 logger,
                 umbracoContextAccessor,
@@ -46,6 +53,9 @@ namespace Articulate.Routing
         {
             _documentUrlService = documentUrlService;
             _publishedContentCache = publishedContentCache;
+            _navigationQueryService = navigationQueryService;
+            _publishedContentStatusFilteringService = publishedContentStatusFilteringService;
+            _publishedValueFallback = publishedValueFallback;
         }
 
         /// <inheritdoc/>
@@ -161,7 +171,7 @@ namespace Articulate.Routing
             return newRoute;
         }
 
-        private static bool ValidateArticulatePost(IPublishedContent? node, DateTime postDate)
+        private bool ValidateArticulatePost(IPublishedContent? node, DateTime postDate)
         {
             if (node is null)
             {
@@ -174,13 +184,19 @@ namespace Articulate.Routing
                 return false;
             }
 
-            var useDateFormat = node.Parent()?.Parent()?.Value<bool?>("useDateFormatForUrl");
+            IPublishedContent? parent = node.Parent<IPublishedContent>(
+                _navigationQueryService,
+                _publishedContentStatusFilteringService);
+            IPublishedContent? root = parent?.Parent<IPublishedContent>(
+                _navigationQueryService,
+                _publishedContentStatusFilteringService);
+            var useDateFormat = root?.Value<bool?>(_publishedValueFallback, "useDateFormatForUrl");
             if (useDateFormat != true)
             {
                 return false;
             }
 
-            return node.Value<DateTime>("publishedDate").Date == postDate.Date;
+            return node.Value<DateTime>(_publishedValueFallback, "publishedDate").Date == postDate.Date;
         }
     }
 }
