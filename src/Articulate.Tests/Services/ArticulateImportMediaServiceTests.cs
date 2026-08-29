@@ -186,7 +186,8 @@ namespace Articulate.Tests.Services
             });
 
             using var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new ByteArrayContent(imageBytes);
+            response.Content = new StreamContent(new NonSeekableReadStream(imageBytes));
+            Assert.That(response.Content.Headers.ContentLength, Is.Null);
 
             var finalUri = new Uri("http://example.com/image.png");
 
