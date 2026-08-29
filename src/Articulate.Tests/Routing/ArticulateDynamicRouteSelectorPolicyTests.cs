@@ -18,6 +18,42 @@ namespace Articulate.Tests.Routing
     public class ArticulateDynamicRouteSelectorPolicyTests
     {
         [Test]
+        public void AppliesToEndpoints_returns_true_for_dynamic_candidates_with_articulate_endpoint()
+        {
+            Endpoint[] endpoints =
+            [
+                EndpointWithMetadata(Mock.Of<IDynamicEndpointMetadata>(), new ArticulateDynamicRouteAttribute()),
+                EndpointWithMetadata(Mock.Of<IDynamicEndpointMetadata>())
+            ];
+
+            Assert.That(new ArticulateDynamicRouteSelectorPolicy().AppliesToEndpoints(endpoints), Is.True);
+        }
+
+        [Test]
+        public void AppliesToEndpoints_returns_false_when_any_candidate_is_not_dynamic()
+        {
+            Endpoint[] endpoints =
+            [
+                EndpointWithMetadata(new ArticulateDynamicRouteAttribute()),
+                EndpointWithMetadata(Mock.Of<IDynamicEndpointMetadata>())
+            ];
+
+            Assert.That(new ArticulateDynamicRouteSelectorPolicy().AppliesToEndpoints(endpoints), Is.False);
+        }
+
+        [Test]
+        public void AppliesToEndpoints_returns_false_without_an_articulate_endpoint()
+        {
+            Endpoint[] endpoints =
+            [
+                EndpointWithMetadata(Mock.Of<IDynamicEndpointMetadata>()),
+                EndpointWithMetadata(Mock.Of<IDynamicEndpointMetadata>())
+            ];
+
+            Assert.That(new ArticulateDynamicRouteSelectorPolicy().AppliesToEndpoints(endpoints), Is.False);
+        }
+
+        [Test]
         public async Task ApplyAsync_keeps_only_articulate_candidate_after_articulate_routing_succeeds()
         {
             Endpoint articulateEndpoint = EndpointWithMetadata(new ArticulateDynamicRouteAttribute());
