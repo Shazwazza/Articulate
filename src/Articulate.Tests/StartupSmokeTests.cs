@@ -10,9 +10,10 @@ namespace Articulate.Tests
         [Test]
         public void WebsiteHostStartup_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
                 using WebApplication app = BuildApplication();
+                await app.BootUmbracoAsync();
             });
         }
 
@@ -20,9 +21,10 @@ namespace Articulate.Tests
         [Test]
         public void DeliveryApiHostStartup_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
                 using WebApplication app = BuildApplication(static builder => builder.AddDeliveryApi());
+                await app.BootUmbracoAsync();
             });
         }
 
@@ -35,11 +37,12 @@ namespace Articulate.Tests
 
             Assert.That(developmentModeType, Is.Not.Null);
 
-            Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
                 using WebApplication app = BuildApplication(
                     static builder => builder.AddDeliveryApi(),
                     "Development");
+                await app.BootUmbracoAsync();
             });
         }
 
