@@ -124,6 +124,7 @@ namespace Articulate.Tests.Services
         {
             var applicationManager = new Mock<IOpenIddictApplicationManager>();
             object existingApplication = new();
+            OpenIddictApplicationDescriptor? descriptor = null;
             applicationManager
                 .Setup(x => x.FindByClientIdAsync("articulate-editor", It.IsAny<CancellationToken>()))
                 .Returns(new ValueTask<object?>(existingApplication));
@@ -132,6 +133,7 @@ namespace Articulate.Tests.Services
                     existingApplication,
                     It.IsAny<OpenIddictApplicationDescriptor>(),
                     It.IsAny<CancellationToken>()))
+                .Callback<object, OpenIddictApplicationDescriptor, CancellationToken>((_, value, _) => descriptor = value)
                 .Returns(ValueTask.CompletedTask);
 
             using ServiceProvider serviceProvider = CreateServiceProvider(applicationManager.Object);
@@ -158,6 +160,18 @@ namespace Articulate.Tests.Services
                     It.IsAny<OpenIddictApplicationDescriptor>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never);
+            Assert.That(descriptor, Is.Not.Null);
+            Assert.That(descriptor!.ClientId, Is.EqualTo("articulate-editor"));
+            Assert.That(descriptor.DisplayName, Is.EqualTo("articulate-editor"));
+            Assert.That(descriptor.ClientType, Is.EqualTo(OpenIddictConstants.ClientTypes.Public));
+            Assert.That(descriptor.RedirectUris, Does.Contain(new Uri("https://example.com/editor/callback/")));
+            Assert.That(descriptor.PostLogoutRedirectUris, Is.Empty);
+            Assert.That(
+                descriptor.Permissions,
+                Is.EquivalentTo(new ArticulateOpenIdClientOptions().Permissions));
+            Assert.That(
+                descriptor.Requirements,
+                Is.EquivalentTo(new ArticulateOpenIdClientOptions().Requirements));
         }
 
         [Test]
