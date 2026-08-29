@@ -1,4 +1,4 @@
-#!/usr/bin/dotnet run
+#!/usr/bin/env -S dotnet --
 #:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
 
 # nullable enable

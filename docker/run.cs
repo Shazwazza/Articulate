@@ -1,4 +1,4 @@
-#!/usr/bin/dotnet run
+#!/usr/bin/env -S dotnet --
 #:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
 
 # nullable enable
@@ -57,7 +57,7 @@ async Task<int> DockerBuild(Opts o)
     await Run("docker", new[]
     {
         "build", "--file", "docker/Dockerfile", "--target", "chiseled", "--tag", o.String("tag", $"articulate-local:{lane}")!,
-        "--build-arg", $"PACKAGE_SOURCE=build/Release/{lane}",
+        "--build-arg", $"PACKAGE_SOURCE={Env.Get("PACKAGE_SOURCE", $"build/Release/{lane}")}",
         "--build-arg", $"UMBRACO_CMS_VERSION={Env.Get("UMBRACO_CMS_VERSION")}",
         "--build-arg", $"USE_TINYMCE_UMBRACO={Env.Get("USE_TINYMCE_UMBRACO", "false")}",
         "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_VERSION={Env.Get("TINYMCE_UMBRACO_PACKAGE_VERSION")}",
@@ -197,13 +197,15 @@ string ConfigureLane(string lane)
 {
     var https = Env.HostValue("CADDY_HTTPS_PORT", lane == "v18" ? "44318" : "44317");
     var http = Env.HostValue("CADDY_HTTP_PORT", lane == "v18" ? "44381" : "44380");
+    var configuration = Env.Get("BUILD_CONFIGURATION")?.Trim();
+    if (string.IsNullOrWhiteSpace(configuration)) configuration = "Release";
     foreach (var (key, value) in new Dictionary<string, string>
     {
         ["ARTICULATE_PACKAGE_LANE"] = lane,
         ["COMPOSE_PROJECT_NAME"] = $"art_{lane}",
         ["COMPOSE_VOLUME_PREFIX"] = $"art_{lane}",
         ["IMAGE_TAG"] = $"articulate-local:{lane}",
-        ["PACKAGE_SOURCE"] = $"build/Release/{lane}",
+        ["PACKAGE_SOURCE"] = $"build/{configuration}/{lane}",
         ["UMBRACO_CMS_VERSION"] = Env.MsbuildProperty("UmbracoCmsPackageVersion", lane),
         ["TINYMCE_UMBRACO_PACKAGE_VERSION"] = Env.MsbuildProperty("TinyMceUmbracoPackageVersion", lane),
         ["Umbraco__CMS__Security__AuthCookieName"] = $"UMB_UCONTEXT-{lane}",
