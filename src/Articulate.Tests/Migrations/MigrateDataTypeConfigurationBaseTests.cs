@@ -44,7 +44,8 @@ public class MigrateDataTypeConfigurationBaseTests
             "{\"extensions\":[\"Legacy.Extension\"]}");
 
         Assert.That(result, Is.Zero);
-        Assert.That(dataType.ConfigurationData, Is.SameAs(currentConfiguration));
+        Assert.That(dataType.ConfigurationData["extensions"], Is.EqualTo(new[] { "Custom.Extension" }));
+        Assert.That(dataType.ConfigurationData["toolbar"], Is.EqualTo(new[] { new[] { "Custom.Toolbar" } }));
         dataTypeService.Verify(x => x.UpdateAsync(It.IsAny<IDataType>(), It.IsAny<Guid>()), Times.Never);
     }
 
