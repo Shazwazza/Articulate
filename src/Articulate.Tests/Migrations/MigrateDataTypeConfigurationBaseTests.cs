@@ -2,6 +2,7 @@
 using Articulate.Migrations.Upgrade;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Data;
+using System.Text.Json;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Cms.Core;
@@ -77,7 +78,10 @@ public class MigrateDataTypeConfigurationBaseTests
 
         Assert.That(result, Is.EqualTo(1));
         Assert.That(dataType.EditorUiAlias, Is.EqualTo("Umb.PropertyEditorUi.Tiptap"));
-        Assert.That(dataType.ConfigurationData["extensions"].ToString(), Does.Contain("New.Extension"));
+        var extensions = (JsonElement)dataType.ConfigurationData["extensions"];
+        Assert.That(extensions.ValueKind, Is.EqualTo(JsonValueKind.Array));
+        Assert.That(extensions.GetArrayLength(), Is.EqualTo(1));
+        Assert.That(extensions[0].GetString(), Is.EqualTo("New.Extension"));
         dataTypeService.Verify(x => x.UpdateAsync(dataType, It.IsAny<Guid>()), Times.Once);
     }
 
