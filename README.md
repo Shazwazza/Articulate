@@ -33,15 +33,15 @@ Articulate 6.x supports Umbraco 16.5.1–16.x on .NET 9 and Umbraco 17.4.0–17.
 - Categories and tags
 - Themes and custom theme packages
 - Multiple archives and author profiles
-- Live Writer and MetaWeblog support (disabled by default; enable `Articulate:EnableMetaWeblog` when required)
+- Open Live Writer desktop publishing through MetaWeblog (supported, disabled by default)
 - Markdown and rich-text posts
+- Responsive Markdown editor for browser, phone, and tablet publishing
 - Disqus comments
 - Search and customizable URLs
 - BlogML import/export and Disqus export
 - Customizable RSS feeds
-- Mobile publishing with image support
 
-Legacy MetaWeblog and Open Live Writer support is disabled by default because it uses legacy username/password authentication. Set `Articulate:EnableMetaWeblog` to `true` and restart the application when you need it.
+Articulate provides different authoring clients for different workflows. The Markdown editor is a responsive browser client for quick posts. It uses Umbraco's Back Office OAuth/PKCE sign-in and Management API, so it follows the site's current authentication flow, including 2FA where configured. Open Live Writer is a desktop client that uses the older MetaWeblog XML-RPC protocol and direct username/password validation; it does not use the Back Office OAuth/2FA flow. Keep `Articulate:EnableMetaWeblog` disabled unless an existing desktop workflow needs it.
 
 ## Documentation
 

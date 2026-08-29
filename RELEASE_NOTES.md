@@ -25,7 +25,7 @@
 - Adds lane-specific OpenAPI, Swagger, and generated backoffice API support.
 - Adds the Umbraco 17 backoffice client lane and updated Markdown editor assets.
 - Requires the standalone Markdown editor OpenID client to be public and use PKCE; client secrets are not supported.
-- Legacy MetaWeblog and Open Live Writer routes are disabled by default. Set `Articulate:EnableMetaWeblog` to `true` and restart the application to keep using them.
+- Open Live Writer and MetaWeblog routes are disabled by default because this desktop integration uses direct username/password authentication rather than the current Back Office OAuth/2FA flow. Set `Articulate:EnableMetaWeblog` to `true` and restart the application to keep using them.
 - When converting from TinyMCE, the upgrade applies Articulate's default TipTap settings.
   - Existing custom TipTap configuration is preserved.
 - Organizes the built-in post URL-alias and import-ID properties into SEO and System property groups during migration.
