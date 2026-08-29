@@ -197,6 +197,23 @@ namespace Articulate.Tests.Services
         }
 
         [Test]
+        public async Task DownloadAndValidateImageAsync_rejects_unconfigured_host()
+        {
+            var httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
+            using var templateClient = new HttpClient();
+            httpClientFactory
+                .Setup(x => x.CreateClient(string.Empty))
+                .Returns(templateClient);
+            ArticulateImportMediaService sut = CreateSut(httpClientFactory: httpClientFactory.Object);
+
+            ImportMediaValidationResult result = await sut.DownloadAndValidateImageAsync(
+                new Uri("https://untrusted.example/image.png"));
+
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.ErrorMessage, Does.Contain("no allowed media hosts"));
+        }
+
+        [Test]
         public async Task ProcessImageResponseAsync_returns_failure_for_non_success_status_code()
         {
             ArticulateImportMediaService sut = CreateSut();
@@ -284,7 +301,8 @@ namespace Articulate.Tests.Services
 
         private static ArticulateImportMediaService CreateSut(
             ContentSettings? contentSettings = null,
-            ArticulateOptions? articulateOptions = null)
+            ArticulateOptions? articulateOptions = null,
+            IHttpClientFactory? httpClientFactory = null)
         {
             ContentSettings effectiveContentSettings = contentSettings ?? new ContentSettings
             {
@@ -317,7 +335,7 @@ namespace Articulate.Tests.Services
                 new MediaUrlGeneratorCollection(() => []),
                 Mock.Of<IContentTypeBaseServiceProvider>(),
                 Mock.Of<IAbsoluteUrlBuilder>(),
-                Mock.Of<IHttpClientFactory>(),
+                httpClientFactory ?? Mock.Of<IHttpClientFactory>(),
                 new FileFormatInspector([new Png(), new Jpeg()]),
                 CreateOptionsMonitor(effectiveContentSettings),
                 CreateOptionsMonitor(new RuntimeSettings { Mode = RuntimeMode.BackofficeDevelopment }),
