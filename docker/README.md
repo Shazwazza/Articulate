@@ -14,10 +14,10 @@ Full smoke tests require `ARTICULATE_TEST_SITE_CLIENT_SECRET`; `Env.RequireSecre
 
 | Lane  | Image                  | HTTPS backoffice URL               | HTTP listener             |
 |-------|------------------------|------------------------------------|---------------------------|
-| `v17` | `articulate-local:v17` | `https://localhost:44317/umbraco/` | `http://localhost:44380/` |
-| `v18` | `articulate-local:v18` | `https://localhost:44318/umbraco/` | `http://localhost:44381/` |
+| `v17` | `articulate-local:v17` | `https://localhost:18443/umbraco/` | `http://localhost:8080/` |
+| `v18` | `articulate-local:v18` | `https://localhost:18444/umbraco/` | `http://localhost:8081/` |
 
-HTTPS ports (44317 / 44318) match the Umbraco major. HTTP ports (44380 / 44381) avoid the Windows port range reserved for the updater orchestrator (17000-18099). Override either with `CADDY_HTTPS_PORT` / `CADDY_HTTP_PORT`. Running `docker compose up` without the runner still requires the package-version variables in `docker/docker-compose.yml` and uses Compose's own ports (18443 HTTPS / 8080 HTTP). Prefer the per-lane runner for package values and port isolation.
+The runner uses host ports 18443/18444 for HTTPS and 8080/8081 for HTTP. Override either with `CADDY_HTTPS_PORT` / `CADDY_HTTP_PORT` when a port is already in use. Running `docker compose up` without the runner still requires the package-version variables in `docker/docker-compose.yml` and uses Compose's default ports (18443 HTTPS / 8080 HTTP). Prefer the per-lane runner for package values and port isolation.
 
 The unattended install creates this default local Docker backoffice administrator:
 
@@ -42,13 +42,13 @@ The Docker runner selects the platform-specific certificate-store helper interna
 Against an already healthy stack, `smoke.mjs` supports `publish`, `confirm`, `smoke`, and `theme`:
 
 ```sh
-export UMBRACO_PUBLIC_URL='https://localhost:44317/'
+export UMBRACO_PUBLIC_URL='https://localhost:18443/'
 node docker/smoke.mjs publish
 node docker/smoke.mjs confirm
 node docker/smoke.mjs publish --no-descendants
 ```
 
-`confirm` is read-only and checks all descendants under the Articulate root. Publication processes the root first, waits for the public route and published-content cache, then publishes descendants. Use `https://localhost:44318/` for the v18 lane. Set `NODE_BIN` if `node` is not on `PATH`. On Windows, invoke the script from PowerShell or cmd rather than passing `node.exe` through WSL or Git Bash.
+`confirm` is read-only and checks all descendants under the Articulate root. Publication processes the root first, waits for the public route and published-content cache, then publishes descendants. Use `https://localhost:18444/` for the v18 lane. Set `NODE_BIN` if `node` is not on `PATH`. On Windows, invoke the script from PowerShell or cmd rather than passing `node.exe` through WSL or Git Bash.
 
 The smoke client bypasses certificate validation for loopback and RFC1918 private IPv4 hosts used by the development harness. Public hosts retain normal certificate validation.
 
@@ -59,15 +59,15 @@ The harness remains loopback-only by default. To test the standalone editor from
 ```sh
 export ARTICULATE_TEST_SITE_CLIENT_SECRET='articulate-test-site-secret'
 export CADDY_BIND_IP='0.0.0.0'
-export CADDY_HTTPS_HOST='<LAN-IP>:44317'
-export UMBRACO_PUBLIC_HOST='https://<LAN-IP>:44317'
-export UMBRACO_PUBLIC_URL='https://<LAN-IP>:44317/'
-export ARTICULATE_REDIRECT_URI='https://<LAN-IP>:44317/a-new/'
-export ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:44317/'
+export CADDY_HTTPS_HOST='<LAN-IP>:18443'
+export UMBRACO_PUBLIC_HOST='https://<LAN-IP>:18443'
+export UMBRACO_PUBLIC_URL='https://<LAN-IP>:18443/'
+export ARTICULATE_REDIRECT_URI='https://<LAN-IP>:18443/a-new/'
+export ARTICULATE_LOGOUT_REDIRECT_URI='https://<LAN-IP>:18443/'
 dotnet run --file docker/run.cs -- docker-dev --lane v17 --reset
 ```
 
-Use port `44318` and `--lane v18` for the v18 lane. Browsers must accept Caddy's development certificate.
+Use port `18444` and `--lane v18` for the v18 lane. Browsers must accept Caddy's development certificate.
 
 > [!WARNING]
 > LAN exposure makes the site and its fixed development credentials available to the local network. Never use this configuration on a public or untrusted network.
@@ -142,7 +142,7 @@ The Docker harness auto-provisions the API user this server expects. Configure y
 
 - `UMBRACO_CLIENT_ID` = `articulate-test-site` (fixed test-site client ID)
 - `UMBRACO_CLIENT_SECRET` = `ARTICULATE_TEST_SITE_CLIENT_SECRET`
-- `UMBRACO_BASE_URL` = the lane's public URL (e.g. `https://localhost:44317`)
+- `UMBRACO_BASE_URL` = the lane's public URL (e.g. `https://localhost:18443`)
 
 Install with the lane-matched tag (`@umbraco-cms/mcp-dev@17` for the v17 lane, `@18` for v18). See the [Umbraco MCP documentation](https://docs.umbraco.com/umbraco-developer-mcp) for the full tool list, permissions model, and Claude Desktop config snippet.
 

@@ -195,8 +195,8 @@ async Task<int> DockerCa(Opts o)
 
 string ConfigureLane(string lane)
 {
-    var https = Env.HostValue("CADDY_HTTPS_PORT", lane == "v18" ? "44318" : "44317");
-    var http = Env.HostValue("CADDY_HTTP_PORT", lane == "v18" ? "44381" : "44380");
+    var https = Env.HostValue("CADDY_HTTPS_PORT", lane == "v18" ? "18444" : "18443");
+    var http = Env.HostValue("CADDY_HTTP_PORT", lane == "v18" ? "8081" : "8080");
     var configuration = Env.Get("BUILD_CONFIGURATION")?.Trim();
     if (string.IsNullOrWhiteSpace(configuration)) configuration = "Release";
     foreach (var (key, value) in new Dictionary<string, string>
@@ -228,14 +228,14 @@ string ConfigureLane(string lane)
 
 Task EnsurePackages(string lane, bool clean = false)
 {
-    var args = new List<string> { "run", "build/build.cs", "--", "build", "--lane", lane, "--sample" };
+    var args = new List<string> { "run", "--file", "build/build.cs", "--", "build", "--lane", lane, "--sample" };
     if (clean) args.Add("--clean");
     return Run("dotnet", args, Env.Repo);
 }
 
 async Task WaitForPublicSite()
 {
-    var url = Env.Get("UMBRACO_PUBLIC_URL") ?? "https://localhost:44317/";
+    var url = Env.Get("UMBRACO_PUBLIC_URL") ?? "https://localhost:18443/";
     using var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true };
     using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
     var deadline = DateTime.UtcNow.AddMinutes(5);
