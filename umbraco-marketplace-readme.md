@@ -11,14 +11,14 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform:
+Features include:
 
-- Categories & Tags
+- Categories and tags
 - Themes
 - Multiple archives
-- Live Writer support
+- Live Writer support (disabled by default)
 - Markdown support
-- Post from your mobile phone including photos direct from your camera
+- Post from a mobile device, including photos
 - Disqus comment support (or build your own)
 - Search
 - BlogML import/export and Disqus export
@@ -30,23 +30,18 @@ Supporting all the features you'd want in a blogging platform:
 
 - Umbraco 18.1.1 through 18.x - Articulate version 8.x
 - Umbraco 17.6.2 through 17.x - Articulate version 7.x
-- Umbraco 16.5.1+ or early Umbraco 17.4.0+ - Articulate version 6.x (deprecated)
+- Umbraco 16.5.1–16.x on .NET 9 or Umbraco 17.4.0–17.x on .NET 10 - Articulate version 6.x (deprecated; Articulate 7.0.0 supersedes it from Umbraco 17.6.2)
 - Umbraco 13 LTS (maintenance) - Articulate 5.x.
 
 ## Installation
 
-Install the package version that matches your Umbraco installation. See the
-[Installation guide](https://github.com/Shazwazza/Articulate/wiki/Installation)
-for the compatibility matrix and version-specific commands.
+Install the package version that matches your Umbraco installation. See the [Installation guide](https://github.com/Shazwazza/Articulate/wiki/Installation) for the compatibility matrix and version-specific commands.
 
 ## Upgrading
 
 Back up your site, database, and media before upgrading.
 
-On Umbraco 17 or 18, install [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco)
-before first run to keep TinyMCE as your rich-text editor. Without it, Articulate
-converts the editor to TipTap using its default settings. Existing custom
-TipTap configuration is preserved.
+On Umbraco 17 or 18, install [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) before first run to keep TinyMCE as your rich-text editor. Without it, Articulate converts the editor to TipTap using its default settings. Existing custom TipTap configuration is preserved.
 
 See [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation) and [Upgrading Articulate](https://github.com/Shazwazza/Articulate/wiki/Upgrading) for version selection, editor migration, BlogML guidance, and post-upgrade checks.
 
@@ -61,5 +56,4 @@ See [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation) an
 
 &copy; 2026 Shannon Deminick
 
-Articulate is free software licensed under the
-[MIT License](https://opensource.org/licenses/MIT).
+Articulate is free software licensed under the [MIT License](https://opensource.org/licenses/MIT).

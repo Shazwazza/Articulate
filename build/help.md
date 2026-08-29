@@ -57,7 +57,6 @@ This command remains attached to the running site until stopped.
 
 ## Conventions
 
-- Both lanes share project `bin`/`obj` and static-web-asset paths; full-solution
-  lane builds run sequentially with `-m:1`.
+- Both lanes share project `bin`/`obj` and static-web-asset paths; full-solution lane builds run sequentially with `-m:1`.
 - `ARTICULATE_PACKAGE_VERSION` overrides calculated package versions.
 - `help` is the canonical build command and option reference.

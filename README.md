@@ -22,16 +22,11 @@ These are pre-release packages. Use `7.0.0` or `8.0.0` after the stable release.
 
 ### Umbraco 13 (.NET 8, maintenance)
 
-Articulate 5.x remains available for existing Umbraco 13 sites. Umbraco 13
-security support ended in December 2025 and reaches end of life in December
-2026. See the [Umbraco lifecycle page](https://umbraco.com/products/knowledge-center/long-term-support-and-end-of-life/)
-for the current platform dates.
+Articulate 5.x remains available for existing Umbraco 13 sites. Umbraco 13 security support ended in December 2025 and reaches end of life in December 2026. See the [Umbraco lifecycle page](https://umbraco.com/products/knowledge-center/long-term-support-and-end-of-life/) for the current platform dates.
 
 ### Articulate 6.x (deprecated)
 
-Articulate 6.x supports Umbraco 16.5.1+ on .NET 9 and early Umbraco 17
-releases on .NET 10. This line is for existing installations; current feature
-work is on Articulate 7.x and 8.x.
+Articulate 6.x supports Umbraco 16.5.1–16.x on .NET 9 and Umbraco 17.4.0–17.x on .NET 10. Articulate 7.0.0 supersedes it for Umbraco 17.6.2+; current feature work is on Articulate 7.x and 8.x.
 
 ## Features
 
@@ -68,9 +63,7 @@ The [Articulate wiki](https://github.com/Shazwazza/Articulate/wiki) covers:
 
 ## Development
 
-The package includes the backoffice extension and static assets. Local development,
-source-build, Docker, and CI guidance lives in [DEVELOP.md](DEVELOP.md) and
-[BUILD.md](BUILD.md).
+The package includes the backoffice extension and static assets. Local development, source-build, Docker, and CI guidance lives in [DEVELOP.md](DEVELOP.md) and [BUILD.md](BUILD.md).
 
 ## Copyright and licence
 

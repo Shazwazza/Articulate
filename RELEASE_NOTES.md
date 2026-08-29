@@ -4,11 +4,10 @@
 
 ### Breaking changes for v8.0.0
 
-  > [!WARNING]
-  > Requires Umbraco 18.1.1 through 18.x on .NET 10.
-  >
-  > Articulate 8 is a separate package line from Articulate 7 because Umbraco 18
-  > APIs and backoffice extension points are not binary-compatible.
+> [!WARNING]
+> Requires Umbraco 18.1.1 through 18.x on .NET 10.
+>
+> Articulate 8 is a separate package line from Articulate 7 because Umbraco 18 APIs and backoffice extension points are not binary-compatible.
 
 - Adds the Articulate 8 package line for Umbraco 18.
 - Includes the functional changes listed under [Version 7.0.0](#version-700).
@@ -17,11 +16,10 @@
 
 ### Breaking changes for v7.0.0
 
-  > [!WARNING]
-  > Requires Umbraco 17.6.2 through 17.x on .NET 10. Umbraco 16 is not supported.
-  >
-  > Articulate 7 is a separate package line from Articulate 6 because Umbraco 17
-  > APIs and backoffice extension points are not binary-compatible.
+> [!WARNING]
+> Requires Umbraco 17.6.2 through 17.x on .NET 10. Umbraco 16 is not supported.
+>
+> Articulate 7 is a separate package line from Articulate 6 because Umbraco 17 APIs and backoffice extension points are not binary-compatible.
 
 - Adds the Articulate 7 package line for Umbraco 17.
 - Adds lane-specific OpenAPI, Swagger, and generated backoffice API support.
@@ -34,12 +32,12 @@
 
 ## Version 6.0.0
 
-### Breaking Changes for v6.0.0
+### Breaking changes for v6.0.0
 
 > [!WARNING]
-> Minimum Umbraco version: **16.5.1** on .NET 9
-> Umbraco 17 support starts at **17.4.0** on .NET 10; [Version 7.0.0](#version-700) supersedes this and is the recommended version for Umbraco 17.
-> Umbraco 15 and earlier are no longer supported by Articulate 6
+> Supports Umbraco **16.5.1–16.x** on .NET 9 and Umbraco **17.4.0–17.x** on .NET 10.
+> [Version 7.0.0](#version-700) supersedes this line for Umbraco 17.6.2+.
+> Umbraco 15 and earlier are no longer supported by Articulate 6.
 
 - Articulate 6 is deprecated; these notes document compatibility for existing installations.
 - Articulate 6 is multi-targeted for `net9.0` and `net10.0`, supporting Umbraco 16 and 17 from a single package.
@@ -50,7 +48,7 @@
 
 ### Theme Migration
 
-For Razor themes migrating from older Articulate versions, helper usage should move from `Html` and `Url` helpers to model extension methods:
+When migrating Razor themes from older Articulate versions, replace the `Html` and `Url` helpers with model extension methods:
 
 | Old (v5)                               | New (v6)                           |
 |----------------------------------------|------------------------------------|

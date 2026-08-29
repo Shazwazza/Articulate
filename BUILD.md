@@ -1,19 +1,15 @@
 # Articulate Build
 
-The canonical reference for the build system and CI pipeline. For day-to-day
-developer setup, see [DEVELOP.md](DEVELOP.md).
+This is the canonical reference for the build system and CI pipeline. For day-to-day developer setup, see [DEVELOP.md](DEVELOP.md).
 
-`build/build.cs` is the repo-owned entry point for local and CI build, client,
-and test-site tasks:
+`build/build.cs` is the repo-owned entry point for local and CI build, client, and test-site tasks:
 
 ```text
 dotnet run --file build/build.cs -- help
 dotnet run --file build/build.cs -- help <command>
 ```
 
-The CLI help is the canonical command/option reference, including defaults and
-environment requirements. Environment variables remain supported for CI and
-local overrides.
+The CLI help is the canonical command/option reference, including defaults and environment requirements. Environment variables remain supported for CI and local overrides.
 
 ## Build parameters
 
@@ -27,27 +23,15 @@ local overrides.
 | `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and packaged Backoffice assets; required when switching lanes. It does not delete client dependencies or the local test site's `umbraco` state. Use `site --reset` for an explicit site reset. |
 | `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `version-v18.txt` plus NBGV metadata.                                                                                                            |
 
-The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj`
-(`PackageId=Articulate`). Packages are written under `build/$(Configuration)/v17`
-or `build/$(Configuration)/v18`.
+The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)/v17` or `build/$(Configuration)/v18`.
 
-Because both lanes share project `bin`/`obj` directories and static-web-asset
-paths, always run full-solution lane builds sequentially and with `-m:1`
-(`build/build.cs` already does this internally).
+Because both lanes share project `bin`/`obj` directories and static-web-asset paths, always run full-solution lane builds sequentially and with `-m:1` (`build/build.cs` already does this internally).
 
-> **Switching lanes:** the Back Office output is shared between v17 and v18.
-> After building one lane, pass `--clean` on the first build of the other
-> lane. For example: `build --lane v18 --clean` after a v17 build. The Docker
-> runner's `--clean` option passes this through to the package build. Cleaning
-> never resets the local test site; use `site --reset` explicitly when needed.
+> **Switching lanes:** The Back Office output is shared between v17 and v18. After building one lane, pass `--clean` on the first build of the other lane. For example: `build --lane v18 --clean` after a v17 build. The Docker runner's `--clean` option passes this through to the package build. Cleaning leaves the local test site unchanged; use `site --reset` explicitly when needed.
 
 ## CI trigger policy
 
-The build workflow runs for pull requests targeting `develop`, `main`, or a
-`release/**` branch. Push builds run for those shared/release branches and for
-`v*` tags. Feature branches are validated through their pull request; use
-`workflow_dispatch` when a pre-PR build is needed. Pull request and `develop`
-integration runs cancel superseded work; release and tag runs are preserved.
+The build workflow runs for pull requests targeting `develop`, `main`, or a `release/**` branch. Push builds run for those shared/release branches and for `v*` tags. Feature branches are validated through their pull request; use `workflow_dispatch` when a pre-PR build is needed. Pull request and `develop` integration runs cancel superseded work; release and tag runs are preserved.
 
 ## Common build commands
 
@@ -85,9 +69,7 @@ Run the GitHub Actions build job locally with `act`:
 act -W ./.github/workflows/build.yml -j build
 ```
 
-Repository defaults in `.actrc` provide the runner image, 2 GiB container
-limit, serial execution, cleanup, and `ACT=true`. `-j build` selects this
-workflow job; omit it only when intentionally running every workflow job.
+Repository defaults in `.actrc` provide the runner image, 2 GiB container limit, serial execution, cleanup, and `ACT=true`. `-j build` selects this workflow job; omit it only when intentionally running every workflow job.
 
 ## Package lanes
 
@@ -96,32 +78,17 @@ workflow job; omit it only when intentionally running every workflow job.
 | `v17` | Articulate 7.0.x | Umbraco 17.6.2–17.x | `net10.0` | `build/Release/v17` |
 | `v18` | Articulate 8.0.x | Umbraco 18.1.1–18.x   | `net10.0` | `build/Release/v18` |
 
-The lanes produce separate NuGet packages because their Umbraco extension
-points are not binary-compatible. Each lane has its own supported Umbraco range:
-Articulate 7 starts at Umbraco 17.6.2 and stops before 18.0.0; Articulate 8
-starts at Umbraco 18.1.1 and stops before 19.0.0.
+The lanes produce separate NuGet packages because their Umbraco extension points are not binary-compatible. Each lane has its own supported Umbraco range: Articulate 7 starts at Umbraco 17.6.2 and stops before 18.0.0; Articulate 8 starts at Umbraco 18.1.1 and stops before 19.0.0.
 
-`version.json` defines the Articulate 7.0 version through NBGV.
-`version-v18.txt` defines the Articulate 8.0 base version. The build runner
-appends NBGV commit metadata when present: a v18 base of `8.0.0` produces
-`8.0.0.gabcdef`. Change the text file to advance the v18 release; callers do
-not normally pass a version.
+`version.json` defines the Articulate 7.0 version through NBGV. `version-v18.txt` defines the Articulate 8.0 base version. The build runner appends NBGV commit metadata when present: a v18 base of `8.0.0` produces `8.0.0.gabcdef`. Change the text file to advance the v18 release; callers normally use these version sources.
 
-Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`. The build runner
-tracks the active lane in an ignored marker; same-lane builds use the per-lane
-Vite stamp, while `--clean` is required before switching lanes.
+Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`. The build runner tracks the active lane in an ignored marker; same-lane builds use the per-lane Vite stamp, while `--clean` is required before switching lanes.
 
 ### Client API generation
 
-Client source, tooling, and the generated Articulate API client are shared under
-`src/Articulate.Web/Client/common/`. The lane folders retain only package
-metadata and small compatibility adapters; the Markdown property editor uses
-Umbraco's native Markdown input.
+Client source, tooling, and the generated Articulate API client are shared under `src/Articulate.Web/Client/common/`. The lane folders retain only package metadata and small compatibility adapters; the Markdown property editor uses Umbraco's native Markdown input.
 
-The checked-in client is generated from the v18 OpenAPI document because its
-request-body types are stricter and its response types are safely broad for
-both lanes. The package scripts fetch both documents from the local
-`Articulate.Tests.Website` on `https://localhost:44366`. Start each lane in turn:
+The checked-in client is generated from the v18 OpenAPI document because its request-body types are stricter and its response types are safely broad for both lanes. The package scripts fetch both documents from the local `Articulate.Tests.Website` on `https://localhost:44366`. Start each lane in turn:
 
 ```sh
 dotnet run --file build/build.cs -- site --lane v17 --reset
@@ -132,10 +99,7 @@ pnpm --dir src/Articulate.Web/Client/v18 run generate:api
 # stop the test website
 ```
 
-v18 updates `common/src/api/`; v17 writes a temporary comparison client to
-`common/.api-check/v17/`. Compare that output with the checked-in client
-manually. Keep one common client unless the route or wire-format diff is real;
-if it is, fix the API metadata first rather than adding lane branches to UI code.
+v18 updates `common/src/api/`; v17 writes a temporary comparison client to `common/.api-check/v17/`. Compare that output with the checked-in client manually. Keep one common client. If the route or wire format differs, fix the API metadata before adding lane-specific UI code.
 
 ## NuGet lock files
 
@@ -144,31 +108,24 @@ The two shipped packages use lock files (opt-in via `RestorePackagesWithLockFile
 - `src/Articulate.Web/packages.v17.lock.json`, `…packages.v18.lock.json`
 - `src/Articulate.Theme.Sample/packages.v17.lock.json`, `…packages.v18.lock.json`
 
-CI and the build script use `--locked-mode`, so these files must be checked in
-and kept current.
+CI and the build script use `--locked-mode`, so these files must be checked in and kept current.
 
 ### After any dependency change
 
-When you change a package reference, project reference, or centralized version
-in `Directory.Packages.props`, regenerate the lock files for both lanes. Run
-this from the repository root before a local build:
+When you change a package reference, project reference, or centralized version in `Directory.Packages.props`, regenerate the lock files for both lanes. Run this from the repository root before a local build:
 
 ```sh
 dotnet run --file build/build.cs -- build --lane v17 --update-locks --clean
 ```
 
-`--update-locks` always refreshes both lanes and is rejected by CI and `act`.
-For a restore without a build, run the two lane-specific commands directly:
+`--update-locks` always refreshes both lanes and is rejected by CI and `act`. For a restore without a build, run the two lane-specific commands directly:
 
 ```sh
 dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v17 -p:RestoreLockedMode=false --force-evaluate
 dotnet restore ./src/Articulate.sln -p:ArticulatePackageLane=v18 -p:RestoreLockedMode=false --force-evaluate
 ```
 
-`--force-evaluate` re-evaluates NuGet sources and props without rebuilding the
-MSBuild graph, so a CPM-only change still triggers a fresh dependency resolve.
-`-p:RestoreLockedMode=false` is required when the in-tree lock files pin an
-older dependency floor. CI restores use locked mode.
+`--force-evaluate` re-evaluates NuGet sources and props without rebuilding the MSBuild graph, so a CPM-only change still triggers a fresh dependency resolve. `-p:RestoreLockedMode=false` is required when the in-tree lock files pin an older dependency floor. CI restores use locked mode.
 
 Current floors in `Directory.Packages.props`:
 
@@ -188,8 +145,7 @@ The Back Office client package must meet the Umbraco floor for its lane.
 | `v17` | `@umbraco-cms/backoffice ^17.6.2` |
 | `v18` | `@umbraco-cms/backoffice ^18.1.1` |
 
-The client package is a development dependency. It is not included in the
-Articulate NuGet package. Umbraco supplies the Back Office runtime.
+The client package is a development dependency. It is not included in the Articulate NuGet package. Umbraco supplies the Back Office runtime.
 
 To update a client floor:
 
@@ -199,47 +155,30 @@ To update a client floor:
 4. Run the client checks for the affected lane.
 5. Run the full lane build and package smoke test.
 
-An Umbraco package update alone leaves the Articulate API client unchanged.
-Regenerate both lane clients after a shared Articulate route, model,
-authorization, or OpenAPI change.
+An Umbraco package update alone leaves the Articulate API client unchanged. Regenerate both lane clients after a shared Articulate route, model, authorization, or OpenAPI change.
 
 ### TinyMCE opt-in (dev / test sites only)
 
-TinyMCE.Umbraco is included only when `UseTinyMceUmbraco=true` is set at build
-time, and only in the two non-packable consumers:
+TinyMCE.Umbraco is included only when `UseTinyMceUmbraco=true` is set at build time, and only in the two non-packable consumers:
 
 - `docker/src/ArticulateDockerSite.csproj` — dev Docker site
 - `src/Articulate.Tests.Website/Articulate.Tests.Website.csproj` — test website
 
-The dist `Articulate.nupkg` and `Articulate.Theme.Sample.nupkg` do **not**
-include TinyMCE.Umbraco and do **not** reference it; consumers install it
-separately if they want it.
+The dist `Articulate.nupkg` and `Articulate.Theme.Sample.nupkg` do **not** include TinyMCE.Umbraco and do **not** reference it; consumers install it separately if they want it.
 
-To enable TinyMCE in the test website (the typical local-dev path), add
-`<UseTinyMceUmbraco>true</UseTinyMceUmbraco>` to `Directory.Build.props.user`
-next to your `ArticulatePackageLane` line. CPM picks the right version per lane.
+To enable TinyMCE in the test website (the typical local-dev path), add `<UseTinyMceUmbraco>true</UseTinyMceUmbraco>` to `Directory.Build.props.user` next to your `ArticulatePackageLane` line. CPM picks the right version per lane.
 
-Docker-site TinyMCE opt-in is documented with the Docker command reference in
-[`docker/README.md`](docker/README.md).
+Docker-site TinyMCE opt-in is documented with the Docker command reference in [`docker/README.md`](docker/README.md).
 
-The runtime migration in `src/Articulate/Migrations/Upgrade/V_6_0_0/MigrateArticulateRichText.cs`
-probes for the TinyMCE assembly via reflection and branches behavior based on
-whether TinyMCE is installed at runtime — no compile-time reference, so the
-dist package's detection code works whether or not TinyMCE is present.
+The runtime migration in `src/Articulate/Migrations/Upgrade/V_6_0_0/MigrateArticulateRichText.cs` probes for the TinyMCE assembly via reflection and branches behavior based on whether TinyMCE is installed at runtime — no compile-time reference, so the dist package's detection code works whether or not TinyMCE is present.
 
 Test projects and the test website float; they do not need lock files.
 
-The lock files are restore-time inputs for `<RestoreLockedMode>` and never ship
-in the published package — both packable `.csproj` files exclude
-`packages.*.lock.json` via `<Content Remove>`. The [package smoke test](#package-smoke-test)
-fails the build if a lock file reappears in any `*.nupkg`.
+The lock files are restore-time inputs for `<RestoreLockedMode>` and never ship in the published package — both packable `.csproj` files exclude `packages.*.lock.json` via `<Content Remove>`. The [package smoke test](#package-smoke-test) fails the build if a lock file reappears in any `*.nupkg`.
 
 ## Package smoke test
 
-`build/smoke-package.mjs` opens each `build/Release/<lane>/*.nupkg` and
-`*.snupkg`, extracts key files, and verifies the package is well-formed. CI runs
-it after both lanes pack and before artifact upload; a failed check skips the
-workflow upload so leaks never reach GitHub Actions artifacts.
+`build/smoke-package.mjs` opens each `build/Release/<lane>/*.nupkg` and `*.snupkg`, extracts key files, and verifies the package is well-formed. CI runs it after both lanes pack and before artifact upload; a failed check skips the workflow upload so leaks never reach GitHub Actions artifacts.
 
 Run it locally after a build:
 
@@ -250,34 +189,22 @@ node build/smoke-package.mjs build/Release/v17 build/Release/v18
 What it checks for `Articulate.<ver>.nupkg`:
 
 - Root files: `LICENSE`, `README.md`, `icon.png`.
-- `.nuspec` parses; `id=Articulate`; has the `net10.0` dependency group with
-  `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`.
-- Ships only `staticwebassets/` for client assets (no legacy `content/` or
-  `contentFiles/any/{tfm}/` paths).
-- Built-in theme assets include `src` and `vendor` files as well as generated
-  `dist` bundles. The Sample RCL package is checked separately.
+- `.nuspec` parses; `id=Articulate`; has the `net10.0` dependency group with `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`.
+- Ships only `staticwebassets/` for client assets (no legacy `content/` or `contentFiles/any/{tfm}/` paths).
+- Built-in theme assets include `src` and `vendor` files as well as generated `dist` bundles. The Sample RCL package is checked separately.
 - `lib/net10.0/`: `Articulate.Web.dll` + `.xml`, `Articulate.dll` + `.xml`.
-- `build/`: `Articulate.targets`, `Articulate.props`, and the
-  `Microsoft.AspNetCore.StaticWebAssets*.props` files.
+- `build/`: `Articulate.targets`, `Articulate.props`, and the `Microsoft.AspNetCore.StaticWebAssets*.props` files.
 - `umbraco-package.json` parses and declares a back-office entry.
-- BackOffice bundles present (entrypoint, articulate-backoffice.js, dashboard,
-  theme-picker, markdown editor) and all four theme preview PNGs
-  (`theme-{material,mini,phantom,vapor}.png`).
+- BackOffice bundles present (entrypoint, articulate-backoffice.js, dashboard, theme-picker, markdown editor) and all four theme preview PNGs (`theme-{material,mini,phantom,vapor}.png`).
 - `MarkdownEditor` assets (`md-editor.min.css`, `md-editor.min.js`).
-- Each shipped theme (Material, Mini, Phantom, VAPOR) has its `*.min.css` (and
-  the JS bundles that exist).
-- `Articulate.dll` contains every embedded resource under
-  `Articulate.Packaging.*` — `author.jpg`, `banner.jpg`, `logo.png`,
-  `package.zip` (Starter Kit installer), `post1.jpg`, `post2.jpg`.
-- `Articulate.Web.dll` exposes the `Articulate.Theme://` logical-name prefix
-  (used by `ArticulateThemeRepository.CopyThemeAsync`) and at least 50
-  occurrences of `App_Plugins_Articulate_Themes_*` (compiled razor views).
+- Each shipped theme (Material, Mini, Phantom, VAPOR) has its `*.min.css` (and the JS bundles that exist).
+- `Articulate.dll` contains every embedded resource under `Articulate.Packaging.*` — `author.jpg`, `banner.jpg`, `logo.png`, `package.zip` (Starter Kit installer), `post1.jpg`, `post2.jpg`.
+- `Articulate.Web.dll` exposes the `Articulate.Theme://` logical-name prefix (used by `ArticulateThemeRepository.CopyThemeAsync`) and at least 50 occurrences of `App_Plugins_Articulate_Themes_*` (compiled Razor views).
 - No `packages.*.lock.json` or `.map` source-map files anywhere in the archive.
 
 What it checks for `Articulate.Theme.Sample.<ver>.nupkg`:
 
-- Root files, no lock files, single `.nuspec` with `id=Articulate.Theme.Sample`
-  and a dependency on `Articulate`.
+- Root files, no lock files, single `.nuspec` with `id=Articulate.Theme.Sample` and a dependency on `Articulate`.
 - `lib/net10.0/Articulate.Theme.Sample.dll` present.
 - `staticwebassets/.../Themes/Sample/assets/{css/site.css,js/site.js}` present.
 

@@ -23,9 +23,7 @@ Commands default to lane `v17`; `docker-test` defaults to both lanes.
 dotnet run --file docker/run.cs -- docker-build [--lane v17|v18] [--clean] [--tag image:tag]
 ```
 
-Builds current packages through `build/build.cs` before creating
-`articulate-local:<lane>` unless a tag is supplied. `--clean` rebuilds the
-package lane from clean outputs.
+Builds current packages through `build/build.cs` before creating `articulate-local:<lane>` unless a tag is supplied. `--clean` rebuilds the package lane from clean outputs.
 
 ### docker-dev
 
@@ -33,14 +31,7 @@ package lane from clean outputs.
 dotnet run --file docker/run.cs -- docker-dev [--lane v17|v18] [--clean] [--reset] [--skip-smoke] [--reuse-packages]
 ```
 
-Builds current packages through `build/build.cs` and builds the Docker image,
-starts the development stack, then runs publish/confirm smoke checks. Use
-`--reuse-packages` to skip the package build and use the existing
-`build/Release/<lane>` output; this is useful when only the Docker stack needs
-restarting. It cannot be combined with `--clean`. Docker package refreshes
-preserve the host test site's `umbraco` state; Docker database state lives in
-named volumes. `--reset` removes the lane's Docker volumes first; `--skip-smoke`
-stops after readiness succeeds.
+Builds current packages through `build/build.cs` and builds the Docker image, starts the development stack, then runs publish/confirm smoke checks. Use `--reuse-packages` to skip the package build and use the existing `build/Release/<lane>` output; this is useful when only the Docker stack needs restarting. It cannot be combined with `--clean`. Docker package refreshes preserve the host test site's `umbraco` state; Docker database state lives in named volumes. `--reset` removes the lane's Docker volumes first; `--skip-smoke` stops after readiness succeeds.
 
 ### docker-prod
 
@@ -48,8 +39,7 @@ stops after readiness succeeds.
 dotnet run --file docker/run.cs -- docker-prod [--lane v17|v18] [--skip-smoke]
 ```
 
-Recreates the lane's existing image in Production mode. Run `docker-dev` or
-`docker-build` first when package contents changed.
+Recreates the lane's existing image in Production mode. Run `docker-dev` or `docker-build` first when package contents changed.
 
 ### docker-down
 
@@ -57,9 +47,7 @@ Recreates the lane's existing image in Production mode. Run `docker-dev` or
 dotnet run --file docker/run.cs -- docker-down [--lane v17|v18|all] [--volumes|--purge]
 ```
 
-`--lane all` stops both lanes. `--volumes` removes volumes for the selected
-lane. `--purge` removes the selected lane's containers, volumes, service images,
-and orphans.
+`--lane all` stops both lanes. `--volumes` removes volumes for the selected lane. `--purge` removes the selected lane's containers, volumes, service images, and orphans.
 
 ### docker-status
 
@@ -67,8 +55,7 @@ and orphans.
 dotnet run --file docker/run.cs -- docker-status [--lane v17|v18]
 ```
 
-Shows the lane's containers and verifies the packaged Backoffice files inside
-the running site.
+Shows the lane's containers and verifies the packaged Backoffice files inside the running site.
 
 ### docker-test
 
@@ -76,11 +63,7 @@ the running site.
 dotnet run --file docker/run.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke]
 ```
 
-Each lane builds fresh packages and images, starts in development mode, and
-verifies production/theme behavior unless smoke is skipped. With `--skip-smoke`,
-smoke publishing is skipped. The public root may return 404 when the blog root
-or its children are unpublished; an existing volume with published content may
-return 200. `--keep` leaves successful stacks running.
+Each lane builds fresh packages and images, starts in development mode, and verifies production/theme behavior unless smoke is skipped. With `--skip-smoke`, smoke publishing is skipped. The public root may return 404 when the blog root or its children are unpublished; an existing volume with published content may return 200. `--keep` leaves successful stacks running.
 
 ### docker-ca
 
@@ -88,5 +71,4 @@ return 200. `--keep` leaves successful stacks running.
 dotnet run --file docker/run.cs -- docker-ca [--lane v17|v18]
 ```
 
-Exports and trusts the running lane's Caddy root CA.
-On Windows, the certificate-store step requires user confirmation.
+Exports and trusts the running lane's Caddy root CA. On Windows, the certificate-store step requires user confirmation.
