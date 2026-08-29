@@ -148,7 +148,17 @@ namespace Articulate.Tests.Components
         [Test]
         public void Handle_refresh_by_payload_ignores_payload_without_relevant_change_types()
         {
-            ContentCacheRefresherHandler sut = CreateSut([], out Mock<IArticulateRouteRefreshState> routeRefreshState);
+            IPublishedContent changedContent = CreatePublishedContent(
+                id: 100,
+                path: "-1,100",
+                level: 1,
+                sortOrder: 0,
+                alias: ArticulateConstants.ContentType.Articulate);
+
+            ContentCacheRefresherHandler sut = CreateSut(
+                [],
+                out Mock<IArticulateRouteRefreshState> routeRefreshState,
+                CreateUmbracoContextAccessor(liveContent: changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(
                 new[] { new ContentCacheRefresher.JsonPayload { Id = 100, ChangeTypes = TreeChangeTypes.None } },
