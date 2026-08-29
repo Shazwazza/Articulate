@@ -25,7 +25,7 @@ namespace Articulate.Tests.Components
             IContent secondChild = CreateContent("child");
             ContentPublishingNotification notification = new(root, new EventMessages());
 
-            CreateSut([firstChild, secondChild], "shared").Handle(notification);
+            CreateSut(root, [firstChild, secondChild], "shared").Handle(notification);
 
             Assert.That(notification.Cancel, Is.True);
             Assert.That(notification.Messages, Is.Not.Empty);
@@ -34,14 +34,16 @@ namespace Articulate.Tests.Components
         [Test]
         public void Handle_ignores_non_articulate_content()
         {
-            ContentPublishingNotification notification = new(CreateContent("textPage"), new EventMessages());
+            IContent content = CreateContent("textPage");
+            ContentPublishingNotification notification = new(content, new EventMessages());
 
-            CreateSut().Handle(notification);
+            CreateSut(content).Handle(notification);
 
             Assert.That(notification.Cancel, Is.False);
         }
 
         private static ContentPublishingHandler CreateSut(
+            IContent root,
             IReadOnlyList<IContent>? children = null,
             string? routeSegment = null)
         {
@@ -49,9 +51,9 @@ namespace Articulate.Tests.Components
             Mock<IContentService> contentService = new();
             contentService
                 .Setup(x => x.GetPagedChildren(
-                    It.IsAny<int>(),
-                    It.IsAny<long>(),
-                    It.IsAny<int>(),
+                    root.Id,
+                    0,
+                    int.MaxValue,
                     out It.Ref<long>.IsAny,
                     null,
                     null,

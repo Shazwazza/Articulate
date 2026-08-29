@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
 using Moq;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -59,12 +60,23 @@ namespace Articulate.Tests.Controllers.Api
                 .AddApplicationPart(typeof(BlogMlApiController).Assembly);
             _ = services.AddEndpointsApiExplorer();
             _ = services.AddSwaggerGen();
+            _ = services.Configure<SwaggerGenOptions>(options => options.DocInclusionPredicate((_, _) => true));
             _ = services.AddSingleton<IConfigureOptions<SwaggerGenOptions>, ArticulateSwaggerOptions>();
 
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
             ISwaggerProvider swaggerProvider = serviceProvider.GetRequiredService<ISwaggerProvider>();
 
-            Assert.DoesNotThrow(() => swaggerProvider.GetSwagger(ArticulateConstants.ManagementApi.Name));
+            OpenApiDocument document = swaggerProvider.GetSwagger(ArticulateConstants.ManagementApi.Name);
+            OpenApiOperation importOperation = document.Paths
+                .Where(path => path.Value is not null
+                    && path.Key.EndsWith("blogml/import-file", StringComparison.OrdinalIgnoreCase))
+                .SelectMany(path => path.Value!.Operations!.Where(operation => operation.Key == System.Net.Http.HttpMethod.Post))
+                .Select(operation => operation.Value!)
+                .Single();
+
+            Assert.That(
+                importOperation.Responses!.Keys,
+                Is.EquivalentTo(new[] { "200", "400", "401", "403", "415", "500" }));
         }
 
         private sealed class BackOfficeRouteTokenConvention : IApplicationModelConvention

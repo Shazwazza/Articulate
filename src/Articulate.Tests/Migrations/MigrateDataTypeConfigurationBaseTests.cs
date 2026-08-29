@@ -63,7 +63,7 @@ public class MigrateDataTypeConfigurationBaseTests
         var dataTypeService = new Mock<IDataTypeService>();
         dataTypeService.Setup(x => x.GetAsync(id)).ReturnsAsync(dataType);
         dataTypeService
-            .Setup(x => x.UpdateAsync(It.IsAny<IDataType>(), It.IsAny<Guid>()))
+            .Setup(x => x.UpdateAsync(dataType, Constants.Security.SuperUserKey))
             .ReturnsAsync(Attempt<IDataType, DataTypeOperationStatus>.Succeed(DataTypeOperationStatus.Success, dataType));
         Mock<IScopeProvider> scopeProvider = CreateScopeProvider();
         var migration = new TestMigration(
@@ -82,7 +82,7 @@ public class MigrateDataTypeConfigurationBaseTests
         Assert.That(extensions.ValueKind, Is.EqualTo(JsonValueKind.Array));
         Assert.That(extensions.GetArrayLength(), Is.EqualTo(1));
         Assert.That(extensions[0].GetString(), Is.EqualTo("New.Extension"));
-        dataTypeService.Verify(x => x.UpdateAsync(dataType, It.IsAny<Guid>()), Times.Once);
+        dataTypeService.Verify(x => x.UpdateAsync(dataType, Constants.Security.SuperUserKey), Times.Once);
     }
 
     [Test]
