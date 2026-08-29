@@ -23,6 +23,19 @@ namespace Articulate.Tests.Services
     public class ArticulateImportMediaServiceTests
     {
         private const string OneByOnePngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=";
+        private IServiceProvider _originalServiceProvider = null!;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _originalServiceProvider = StaticServiceProvider.Instance;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            StaticServiceProvider.Instance = _originalServiceProvider;
+        }
 
         [Test]
         public async Task ValidateImageAsync_returns_failure_when_extension_is_blocked_by_upload_settings()
