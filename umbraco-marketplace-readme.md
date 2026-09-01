@@ -1,4 +1,5 @@
 # Articulate
+
 [![Articulate Build](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml/badge.svg)](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml)
 
 ![Articulate](https://raw.githubusercontent.com/Shazwazza/Articulate/develop/assets/Logo.png?raw=true)
@@ -10,60 +11,49 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform
+Features include:
 
-- Categories & Tags
+- Categories and tags
 - Themes
 - Multiple archives
-- Live Writer support
+- Live Writer support (disabled by default)
 - Markdown support
-- Post from your mobile phone including photos direct from your camera
+- Post from a mobile device, including photos
 - Disqus comment support (or build your own)
 - Search
-- BlogML import/export (including Disqus import)
+- BlogML import/export and Disqus export
 - Customizable RSS feeds
 - Customizable URLs
 - Author profiles
 
 ## Minimum requirements
 
-- Umbraco 16.5.1+ (NET 9) and 17.4.0+ (NET 10) - Articulate version 6.x
+- Umbraco 18.1.1 through 18.x - Articulate version 8.x
+- Umbraco 17.6.2 through 17.x - Articulate version 7.x
+- Umbraco 16.5.1–16.x on .NET 9 or Umbraco 17.4.0–17.x on .NET 10 - Articulate version 6.x (deprecated; Articulate 7.0.0 supersedes it from Umbraco 17.6.2)
 - Umbraco 13 LTS (maintenance) - Articulate 5.x.
 
-## Upgrade note for rich text editor compatibility
+## Installation
 
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
+Install the package version that matches your Umbraco installation. See the [Installation guide](https://github.com/Shazwazza/Articulate/wiki/Installation) for the compatibility matrix and version-specific commands.
 
-- You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
-- This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
+## Upgrading
 
-## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
+Back up your site, database, and media before upgrading.
 
-Docs on installation, creating posts, customizing/creating themes, etc...
+On Umbraco 17 or 18, install [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) before first run to keep TinyMCE as your rich-text editor. Without it, Articulate converts the editor to TipTap using its default settings. Existing custom TipTap configuration is preserved.
 
-## [Discussions](https://forum.umbraco.com/tag/packages)
+See [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation) and [Upgrading Articulate](https://github.com/Shazwazza/Articulate/wiki/Upgrading) for version selection, editor migration, BlogML guidance, and post-upgrade checks.
 
-Please post to this Umbraco discussions forum to discuss Articulate, it's features and functionality. Do not post issues here, [post them here](https://github.com/Shazwazza/Articulate/issues) on GitHub
+## Learn more
 
-## [Issues](https://github.com/Shazwazza/Articulate/issues)
+- [Documentation](https://github.com/Shazwazza/Articulate/wiki/)
+- [Releases](https://github.com/Shazwazza/Articulate/releases)
+- [Community discussions](https://forum.umbraco.com/tag/packages)
+- [Report an issue](https://github.com/Shazwazza/Articulate/issues)
 
-If you have any issues, please post them here on GitHub
+## Copyright and license
 
-## [Releases](https://github.com/Shazwazza/Articulate/releases)
+&copy; 2026 Shannon Deminick
 
-See here for the list of releases and their release notes
-
-## Development
-
-For local setup and contributor notes, see [DEVELOP.md](https://github.com/Shazwazza/Articulate/blob/develop/DEVELOP.md).
-
-### Changing Umbraco Articulate schema/data elements
-
-If you need to make changes to the underlying Umbraco schema (doc types, data types, etc...) or the installed package's content/media, then you will need
-to re-create the Articulate package in the back office with all required dependencies and then re-save the package.zip file and commit it to the repository.
-
-## Copyright & License
-
-&copy; 2026 by Shannon Deminick
-
-This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
+Articulate is free software licensed under the [MIT License](https://opensource.org/licenses/MIT).

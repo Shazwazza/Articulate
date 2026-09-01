@@ -1,68 +1,25 @@
 {
-  "name": "articulate-backoffice",
+  "name": "articulate-backoffice-workspace",
   "private": true,
-  "version": "0.0.0-dev",
   "type": "module",
-  "description": "Articulate BackOffice extension",
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@11.4.0",
-  "keywords": [
-    "blog",
-    "umbraco",
-    "backoffice",
-    "lit",
-    "web components"
-  ],
-  "author": "Articulate",
-  "license": "MIT",
+  "packageManager": "pnpm@11.19.0",
   "scripts": {
-    "dev": "vite build --watch --mode development",
-    "build": "tsc && vite build",
-    "build:dev": "tsc && vite build --mode development",
-    "check": "tsc --noEmit",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "clean": "node -e \"const fs = require('fs'); ['node_modules', 'pnpm-lock.yaml'].forEach(f => fs.rmSync(f, { recursive: true, force: true }))\"",
-    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ./scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ./src/api --excludeTags 'Markdown Editor'"
-  },
-  "dependenciesComments": {
-    "monaco-editor": "Articulate Markdown Editor property editor (not the mobile markdown editor), only required until Umbraco Core editor supports better markdown to HTML processing; see https://github.com/umbraco/Umbraco-CMS/issues/19500",
-    "lit-html": "Required for client build due to use of lit keyed directive, can be droped when umbraco-cms/backoffice bumped to v17+ to bring in https://github.com/umbraco/Umbraco-CMS/pull/20963"
-  },
-  "dependencies": {
-    "lit-html": "^3.3.2",
-    "monaco-editor": "0.54.0"
+    "dev": "pnpm --filter articulate-backoffice-v17 run dev & pnpm --filter articulate-backoffice-v18 run dev",
+    "build": "pnpm --filter articulate-backoffice-v17 run build && pnpm --filter articulate-backoffice-v18 run build",
+    "build:dev": "pnpm --filter articulate-backoffice-v17 run build:dev && pnpm --filter articulate-backoffice-v18 run build:dev",
+    "check": "pnpm --filter articulate-backoffice-v17 run check && pnpm --filter articulate-backoffice-v18 run check",
+    "lint": "pnpm --filter articulate-backoffice-v17 run lint && pnpm --filter articulate-backoffice-v18 run lint",
+    "lint:fix": "pnpm --filter articulate-backoffice-v17 run lint:fix && pnpm --filter articulate-backoffice-v18 run lint:fix",
+    "generate:api:v17": "pnpm --filter articulate-backoffice-v17 run generate:api",
+    "generate:api:v18": "pnpm --filter articulate-backoffice-v18 run generate:api"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.3",
-    "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.4",
-    "@hey-api/openapi-ts": "0.85.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.1",
-    "@typescript-eslint/parser": "^8.59.1",
-    "@umbraco-cms/backoffice": "16.5.1",
-    "chalk": "^5.6.2",
-    "cross-env": "^10.1.0",
-    "dompurify": "^3.4.2",
-    "esbuild": "^0.28.0",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-lit": "^2.2.1",
-    "eslint-plugin-lit-a11y": "^5.1.1",
-    "eslint-plugin-local-rules": "^3.0.2",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-wc": "^3.1.0",
-    "globals": "^17.5.0",
-    "lightningcss": "^1.32.0",
-    "marked": "^16.4.2",
-    "node-fetch": "^3.3.2",
-    "prettier": "^3.8.3",
-    "terser": "^5.46.2",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.10"
+    "@hey-api/openapi-ts": "^0.97.3",
+    "@types/node": "^24",
+    "@umbraco-cms/backoffice": "^17.6.2",
+    "vite": "^8.2.0"
   }
 }

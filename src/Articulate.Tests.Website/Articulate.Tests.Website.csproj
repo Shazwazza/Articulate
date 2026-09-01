@@ -3,10 +3,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <UseArticulateUsings>false</UseArticulateUsings>
+    <UseTinyMceUmbraco Condition="'$(UseTinyMceUmbraco)' == ''">false</UseTinyMceUmbraco>
+    <!-- TinyMceUmbracoPackageVersion comes from Directory.Packages.props (CPM, per-lane floor). -->
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" />
     <PackageReference Include="Umbraco.Cms" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseTinyMceUmbraco)' == 'true'">
+    <PackageReference Include="TinyMCE.Umbraco" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' and ($([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[17.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.')))">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />

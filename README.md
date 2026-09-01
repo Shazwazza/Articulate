@@ -11,265 +11,62 @@ _❤️ If you use and like Articulate please consider [becoming a GitHub Sponso
 
 ## Installation
 
-Two support tracks are available depending on the Umbraco version you run.
+Choose the package line that matches your Umbraco installation.
 
-### Umbraco 13 LTS (maintenance mode)
+### Umbraco 17 and 18 (.NET 10)
 
-Articulate 5.x remains available for Umbraco 13, which is in security maintenance until **December 2025** and reaches end of life in **December 2026**. The package still installs from the Umbraco marketplace.
+- Umbraco 17.6.2 through 17.x: `dotnet add package Articulate --version 7.0.0-rc1`
+- Umbraco 18.1.1 through 18.x: `dotnet add package Articulate --version 8.0.0-rc1`
 
-- After installing, open the Packages section (`umbraco/section/packages/view/installed`) and run any pending migrations.
-- Save the `Articulate Image Picker` data type once to fix bundled demo media (issue [#460](https://github.com/Shazwazza/Articulate/issues/460)). This step is only required on Umbraco 13.
-- For long-term projects consider upgrading to Umbraco 16+ where Articulate 6 receives active feature work.
+These are pre-release packages. Use `7.0.0` or `8.0.0` after the stable release.
 
-_Need help?_ Head over to [Articulate on GitHub](https://github.com/Shazwazza/Articulate) for extra tips, known issues and fixes.
+### Umbraco 13 (.NET 8, maintenance)
 
-### Umbraco 16 (NET 9) & 17 (NET 10) (current track)
+Articulate 5.x remains available for existing Umbraco 13 sites. Umbraco 13 security support ended in December 2025 and reaches end of life in December 2026. See the [Umbraco lifecycle page](https://umbraco.com/products/knowledge-center/long-term-support-and-end-of-life/) for the current platform dates.
 
-- Install `Articulate` from NuGet (`dotnet add package Articulate`). The package includes the backoffice extension and static assets; no extra package references or manual copies required.
-- When building from source, run the test site with `-f net9.0` for Umbraco 16 or `-f net10.0` for Umbraco 17, then sign into the Umbraco Back Office to finish setup.
-- Migrating from 5.x: in place upgrade or export BlogML from your Articulate 5 site and import it into Articulate 6; media in `media/articulate` is not auto-migrated. During import you can map `postImage` to base64 or an attachment; other inline images must be moved manually (copy the folder, or consider an in-place package upgrade).
+### Articulate 6.x (deprecated)
 
-#### Rich Text Editor upgrade behavior
-
-On Umbraco 16/17, Articulate will migrate the built-in `Umbraco.RichText` property editor to `Umb.PropertyEditorUi.TipTap` during package upgrade only if the TinyMCE editor UI is not registered. 
-
-- You must have the [TinyMCE.Umbraco](https://github.com/ProWorksCorporation/TinyMCE-Umbraco) package installed before you start your site to keep using TinyMCE after upgrade.
-- This setting affects upgrades only. Once the Articulate migration plan step has executed, Umbraco records it as complete.
-
-### Theme Structure (Articulate 6)
-
-Articulate 6 separates built-in theme views from static assets:
-
-- Built-in Razor views live under `src/Articulate.Web/App_Plugins/Articulate/Themes/{Theme}/Views/`
-- Built-in static assets live under `src/Articulate.Web/wwwroot/App_Plugins/Articulate/Themes/{Theme}/assets/`
-
-For copied or custom user themes, the preferred layout is:
-
-- views in `Views/ArticulateThemes/{Theme}/Views/`
-- assets in `wwwroot/App_Plugins/Articulate/Themes/{Theme}/assets/`
-
-Reusable RCL/NuGet theme packages can also contribute themes to the Articulate theme picker by registering `IArticulateThemeDescriptorProvider` and returning one or more canonical theme keys. Those keys should match the package theme folder name and the theme picker value. Built-in theme names are reserved, and duplicate package keys are ignored.
-
-## Markdown Editor Authentication
-
-The standalone Markdown editor uses Umbraco's built-in back-office OpenIddict endpoints with the authorization code flow and PKCE.
-
-- `RedirectUris` are the allowed callback URLs after a successful sign-in.
-- `PostLogoutRedirectUris` are the allowed final destinations after sign-out completes.
-- The built-in sign-out endpoint is an endpoint the client calls. It is **not** itself a post-logout redirect URI.
-- The editor requests a specific `post_logout_redirect_uri` during sign-out. Umbraco/OpenIddict will only honor it if it exists in `PostLogoutRedirectUris`.
-- The editor keeps the access token in memory. Refreshing the page clears that token and requires the user to sign in again.
-
-Minimal example:
-
-```json
-"Articulate": {
-  "ManagementApi": {
-    "OpenIddict": {
-      "Client": {
-        "Enabled": true,
-        "ClientId": "umbraco-articulate",
-        "DisplayName": "Articulate Markdown Editor",
-        "RedirectUris": [
-          "https://localhost:44366/a-new/"
-        ],
-        "PostLogoutRedirectUris": [
-          "https://localhost:44366/"
-        ]
-      }
-    }
-  }
-}
-```
-
-## BlogML External Image Import
-
-Articulate treats external BlogML image import as an opt-in convenience feature for trusted hosts.
-
-- If `Articulate:AllowedMediaHosts` is empty, external image downloads are disabled.
-- BlogML posts still import normally; this only affects fetching the first external image attachment when `Import First Image from Post Attachments` is enabled.
-- In the backoffice importer, click `Verify file` after selecting a BlogML file to analyze it before import. The summary shows:
-  - the number of external image attachments
-  - the unique external hosts referenced by the file
-  - which hosts are currently allowed
-  - which hosts are currently blocked by the external image safety policy
-- Redirects are limited and revalidated on every hop. Redirect targets must still be allowlisted in `Articulate:AllowedMediaHosts`, pass IP safety checks, and cannot downgrade from `https` to `http`.
-- This supports common CDN-style redirects such as `images.example.com` redirecting to `cdn.example.com`, as long as both hosts are explicitly allowlisted.
-- Downloads are validated against Umbraco upload rules and image file types, capped by size, and pinned to the validated IP address for the actual connection.
-- External image downloads use direct validated connections and do not inherit ambient proxy settings or default authentication headers from application `HttpClient` configuration.
-
-Production-oriented example:
-
-```json
-{
-  "Articulate": {
-    "MaxImportImageBytes": 10485760,
-    "AllowedMediaHosts": [
-      "images.example.com",
-      "cdn.example.com"
-    ],
-    "AllowUnsafeLocalExternalImageHostsInDevelopment": false
-  },
-  "Umbraco": {
-    "CMS": {
-      "Runtime": {
-        "Mode": "Production"
-      }
-    }
-  }
-}
-```
-
-Local development example:
-
-```json
-{
-  "Articulate": {
-    "MaxImportImageBytes": 10485760,
-    "AllowedMediaHosts": [
-      "localhost"
-    ],
-    "AllowUnsafeLocalExternalImageHostsInDevelopment": true
-  },
-  "Umbraco": {
-    "CMS": {
-      "Runtime": {
-        "Mode": "BackofficeDevelopment"
-      }
-    }
-  }
-}
-```
-
-Notes:
-
-- Only add hosts you control or strongly trust.
-- `AllowUnsafeLocalExternalImageHostsInDevelopment` is ignored when `Umbraco:CMS:Runtime:Mode` is `Production`.
-- `localhost`, loopback, and private-network targets remain blocked unless the development-only override is enabled.
-- For BlogML export/import round-trip tests, use an importer-reachable media hostname end-to-end. `localhost` only works when the importer resolves it to the exporting site. If not, rewrite the BlogML media URLs before import or configure the exporting site to emit a reachable hostname instead.
-- See [DEVELOP.md](DEVELOP.md) for Docker-based development and testing notes.
-
-## Upload and Request Limits
-
-Images entering Articulate import/editor flows are validated against Umbraco upload rules and image file types, and capped by `Articulate:MaxImportImageBytes` (`10 MB` by default).
-
-Large BlogML files and MetaWeblog XML-RPC requests can hit hosting request-size limits before Articulate receives them.
-
-These limits are related but separate: `MaxImportImageBytes` caps each image Articulate accepts after a request is being processed; the startup/server request limits below cap the total HTTP request size before import or MetaWeblog processing can run.
-
-Keep these aligned:
-
-- `Umbraco:CMS:Runtime:MaxRequestLength`
-- ASP.NET Core `FormOptions.MultipartBodyLengthLimit`
-- Kestrel `Limits.MaxRequestBodySize`
-- IIS `MaxRequestBodySize` when applicable
-
-The local site config uses:
-
-```csharp
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 104857600; // 100MB
-});
-
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-    options.Limits.MaxRequestBodySize = 104857600; // 100MB
-});
-
-builder.Services.Configure<IISServerOptions>(options =>
-{
-    options.MaxRequestBodySize = 104857600; // 100MB
-});
-```
-
-The included site uses the same `FormOptions` and Kestrel configuration pattern.
-
-Appsettings example:
-
-```json
-{
-  "Umbraco": {
-    "CMS": {
-      "Runtime": {
-        "MaxRequestLength": 102400
-      }
-    }
-  }
-}
-```
-
-If you still rely on IIS `web.config` request settings, update those too:
-
-```xml
-<configuration>
-  <system.web>
-    <httpRuntime maxRequestLength="102400" />
-  </system.web>
-  <system.webServer>
-    <security>
-      <requestFiltering>
-        <requestLimits maxAllowedContentLength="104857600" />
-      </requestFiltering>
-    </security>
-  </system.webServer>
-</configuration>
-```
-
-If one layer remains lower than the others, uploads can still fail with `413 Payload Too Large`.
+Articulate 6.x supports Umbraco 16.5.1–16.x on .NET 9 and Umbraco 17.4.0–17.x on .NET 10. Articulate 7.0.0 supersedes it for Umbraco 17.6.2+; current feature work is on Articulate 7.x and 8.x.
 
 ## Features
 
-Supporting all the features you'd want in a blogging platform
-
-- Categories & Tags
-- Themes
-- Multiple archives
-- Live Writer support
-- Markdown support
-- Post from your mobile phone including photos direct from your camera
-- Disqus comment support (or build your own)
-- Search
-- BlogML import/export (including Disqus import)
+- Categories and tags
+- Themes and custom theme packages
+- Multiple archives and author profiles
+- Open Live Writer desktop publishing through MetaWeblog (supported, disabled by default)
+- Markdown and rich-text posts
+- Responsive Markdown editor for browser, phone, and tablet publishing
+- Disqus comments
+- Search and customizable URLs
+- BlogML import/export and Disqus export
 - Customizable RSS feeds
-- Customizable URLs
-- Author profiles
 
-## Disqus comments
+Articulate provides different authoring clients for different workflows. The Markdown editor is a responsive browser client for quick posts. It uses Umbraco's Back Office OAuth/PKCE sign-in and Management API, so it follows the site's current authentication flow, including 2FA where configured. Open Live Writer is a desktop client that uses the older MetaWeblog XML-RPC protocol and direct username/password validation; it does not use the Back Office OAuth/2FA flow. Keep `Articulate:EnableMetaWeblog` disabled unless an existing desktop workflow needs it.
 
-Built-in themes render Disqus comments only when both post comments are enabled and the Articulate root has a valid `disqusShortname` value. Leave `disqusShortname` empty to disable the Disqus widget entirely; themes should not render placeholder comment panels or load Disqus scripts without it.
+## Documentation
 
-## Minimum requirements
+The [Articulate wiki](https://github.com/Shazwazza/Articulate/wiki) covers:
 
-- Articulate 5.x (maintenance): Umbraco 13 LTS (security support through Dec 2025, EOL Dec 2026)
-- Articulate 6.x (current): Umbraco 16.5.1+ on .NET 9; Umbraco 17.4.0+ on .NET 10
+- [Installation](https://github.com/Shazwazza/Articulate/wiki/Installation)
+- [Configuration](https://github.com/Shazwazza/Articulate/wiki/Configuration)
+- [Creating blog posts](https://github.com/Shazwazza/Articulate/wiki/Creating-a-blog-post)
+- [Themes](https://github.com/Shazwazza/Articulate/wiki/Themes)
+- [Markdown editor authentication](https://github.com/Shazwazza/Articulate/wiki/Markdown-Editor-Authentication)
+- [Importing](https://github.com/Shazwazza/Articulate/wiki/Importing)
+- [Upgrading](https://github.com/Shazwazza/Articulate/wiki/Upgrading)
 
-## [Documentation](https://github.com/Shazwazza/Articulate/wiki)
+## Issues and discussions
 
-Docs on installation, creating posts, customizing/creating themes, etc...
-
-For Umbraco 16/17 upgrades, also see the rich text editor upgrade behavior notes above if you need to preserve TinyMCE compatibility.
-
-## [Issues](https://github.com/Shazwazza/Articulate/issues)
-
-If you have any issues, please post them here on GitHub
-
-## [Releases](https://github.com/Shazwazza/Articulate/releases)
-
-See here for the list of releases and their release notes
-
-## [Community Discussions](https://forum.umbraco.com/tag/packages)
-
-- Please use the Umbraco forums to ask questions and discuss Articulate, it's features and functionality.
-- Do not post issues here, post them to [Articulate/issues](https://github.com/Shazwazza/Articulate/issues) on GitHub
+- [Report an issue](https://github.com/Shazwazza/Articulate/issues)
+- [Community discussions](https://forum.umbraco.com/tag/packages)
+- [Releases](https://github.com/Shazwazza/Articulate/releases)
 
 ## Development
 
-Local development and contributor setup lives in [DEVELOP.md](DEVELOP.md).
+The package includes the backoffice extension and static assets. Local development, source-build, Docker, and CI guidance lives in [DEVELOP.md](DEVELOP.md) and [BUILD.md](BUILD.md).
 
-## Copyright & License
+## Copyright and licence
 
-&copy; 2026 by Shannon Deminick
+&copy; 2026 Shannon Deminick
 
-This is free software and is licensed under the [The MIT License (MIT)](http://opensource.org/licenses/MIT)
-
+This is free software licensed under the [MIT License](http://opensource.org/licenses/MIT).

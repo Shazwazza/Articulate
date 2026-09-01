@@ -12,6 +12,7 @@
     <PackageReference Include="Umbraco.Cms.Web.Website" />
 
     <PackageReference Include="Umbraco.Cms.Api.Management" />
+    <PackageReference Include="OpenIddict.Abstractions" />
 
     <PackageReference Include="Argotic.Core" />
     <PackageReference Include="FileSignatures" />
@@ -20,12 +21,7 @@
     <PackageReference Include="System.ServiceModel.Syndication" />
   </ItemGroup>
 
-  <ItemGroup Label="Force minimum versions">
-    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup>
-
     <InternalsVisibleTo Include="Articulate.Web" />
     <InternalsVisibleTo Include="Articulate.Tests" />
   </ItemGroup>

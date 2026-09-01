@@ -9,6 +9,17 @@
 
 The package registers itself with Articulate by contributing the `Sample` theme key through `IArticulateThemeDescriptorProvider`.
 
+## Local use
+
+Build the sample theme for local validation with either package lane:
+
+```sh
+dotnet run --file build/build.cs -- build --lane v17 --sample
+dotnet run --file build/build.cs -- build --lane v18 --sample
+```
+
+The Docker test site consumes the resulting package locally. This package is not published to the general NuGet feed.
+
 ## View contract
 
 Articulate controllers render these theme views directly:
@@ -28,7 +39,7 @@ This sample also uses normal Razor layout files (`_ViewStart.cshtml` and `_Layou
 
 See the wiki for the full theme guidance:
 
-- https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme
-- https://github.com/Shazwazza/Articulate/wiki/Theme-File-Structure
+- [Creating Themes](https://github.com/Shazwazza/Articulate/wiki/Creating-a-theme)
+- [Theme File Structure](https://github.com/Shazwazza/Articulate/wiki/Theme-File-Structure)
 
 For local development in this repository, the sample theme is referenced by `Articulate.Tests.Website`.

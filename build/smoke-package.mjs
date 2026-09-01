@@ -2,7 +2,7 @@
 // Verify Articulate .nupkg / .snupkg contents. CI runs this after `dotnet pack`
 // and skips the artifact upload on any failure.
 //   node build/smoke-package.mjs build/Release/v17 [build/Release/v18 ...]
-//   node build/smoke-package.mjs path/to/Articulate.6.1.0-rc1.nupkg
+//   node build/smoke-package.mjs path/to/Articulate.<version>.nupkg
 
 import { spawnSync } from "node:child_process";
 import {
@@ -63,23 +63,28 @@ let checks = 0;
 let failures = 0;
 const failuresByPackage = new Map();
 
+let groupFails = [];
+
 function expect(label, condition, detail = "") {
 	checks++;
-	if (condition) {
-		console.log(`  ok  ${label}`);
-	} else {
-		console.log(`  FAIL ${label}${detail ? "  " + detail : ""}`);
-		failures++;
-		failuresByPackage.set(
-			currentPackage,
-			(failuresByPackage.get(currentPackage) ?? 0) + 1,
-		);
-	}
+	if (condition) return;
+	failures++;
+	failuresByPackage.set(
+		currentPackage,
+		(failuresByPackage.get(currentPackage) ?? 0) + 1,
+	);
+	groupFails.push(`      FAIL ${label}${detail ? "  " + detail : ""}`);
 }
 
 function checkGroup(name, fn) {
-	console.log(`\n${currentPackage} :: ${name}`);
+	const start = checks;
+	groupFails = [];
 	fn();
+	const total = checks - start;
+	if (groupFails.length > 0) {
+		console.log(`  FAIL ${name} (${groupFails.length}/${total} failed)`);
+		for (const line of groupFails) console.log(line);
+	}
 }
 
 let currentPackage = "";
@@ -93,6 +98,7 @@ function checkPackage(file) {
 	// We need a temp dir to extract DLLs/etc. for resource inspection.
 	const work = mkdtempSync(join(tmpdir(), "smoke-pkg-"));
 
+	console.log(`\n${currentPackage}`);
 	try {
 		if (isSymbols) {
 			checkSymbols(file, entries, names, work);
@@ -122,6 +128,12 @@ function checkMainPackage(file, entries, names, work) {
 			locks.length === 0,
 			locks.length ? `(found: ${locks.join(", ")})` : "",
 		);
+		const sourceMaps = names.filter((name) => /\.map$/.test(name));
+		expect(
+			"no source maps shipped",
+			sourceMaps.length === 0,
+			sourceMaps.length ? `(found: ${sourceMaps.join(", ")})` : "",
+		);
 	});
 
 	checkGroup(".nuspec", () => {
@@ -144,17 +156,36 @@ function checkMainPackage(file, entries, names, work) {
 			"depends on Umbraco.Cms.Api.Management",
 			/<dependency id="Umbraco\.Cms\.Api\.Management"/.test(nuspec),
 		);
-		// Modern .NET 8+ static web assets emit `<contentFiles>` only when the
-		// package ships legacy contentFiles/any/{tfm}/... files. The newer
-		// staticwebassets/ root layout doesn't declare contentFiles, so accept
-		// either as a valid sign that the static web assets pipeline ran.
-		const hasContentFiles = /<contentFiles>/.test(nuspec);
+		// Expect the modern staticwebassets/ root layout. Legacy content/
+		// and contentFiles/any/{tfm}/ were the dual-pack leak fixed in the
+		// v18 build pipeline — keep them out.
 		const hasStaticWebAssets = names.some((n) =>
 			n.startsWith("staticwebassets/"),
 		);
+		const legacyContent = names.filter(
+			(n) => n === "content" || n.startsWith("content/"),
+		);
+		const legacyContentFiles = names.filter((n) =>
+			/^contentFiles\/any\/[^/]+\//.test(n),
+		);
 		expect(
-			"declares contentFiles or ships staticwebassets/",
-			hasContentFiles || hasStaticWebAssets,
+			"ships staticwebassets/ (modern SDK layout)",
+			hasStaticWebAssets,
+			hasStaticWebAssets ? "" : "(no staticwebassets/ entries)",
+		);
+		expect(
+			"no legacy content/ at package root",
+			legacyContent.length === 0,
+			legacyContent.length
+				? `(found ${legacyContent.length}: ${legacyContent.slice(0, 3).join(", ")})`
+				: "",
+		);
+		expect(
+			"no contentFiles/any/{tfm}/ dual-pack leak",
+			legacyContentFiles.length === 0,
+			legacyContentFiles.length
+				? `(found ${legacyContentFiles.length}: ${legacyContentFiles.slice(0, 3).join(", ")})`
+				: "",
 		);
 	});
 
@@ -200,7 +231,13 @@ function checkMainPackage(file, entries, names, work) {
 		expect("manifest present", !!manifest);
 		if (!manifest) return;
 		unzipExtract(file, [manifest], work);
-		const json = JSON.parse(readFileSync(join(work, manifest), "utf8"));
+		let json;
+		try {
+			json = JSON.parse(readFileSync(join(work, manifest), "utf8"));
+		} catch (err) {
+			expect("manifest is valid JSON", false, `(${err.message})`);
+			return;
+		}
 		expect(
 			"manifest has id",
 			typeof json.id === "string" && json.id.length > 0,
@@ -286,6 +323,7 @@ function checkMainPackage(file, entries, names, work) {
 		];
 		for (const [theme, css, js] of required) {
 			const base = `App_Plugins/Articulate/Themes/${theme}/assets/dist/`;
+			const staticBase = `staticwebassets/App_Plugins/Articulate/Themes/${theme}/assets/`;
 			expect(
 				`${theme} theme css present`,
 				names.some(
@@ -304,8 +342,17 @@ function checkMainPackage(file, entries, names, work) {
 					),
 				);
 			}
+			expect(
+				`${theme} theme source assets present`,
+				names.some((n) => n.startsWith(`${staticBase}src/`)),
+			);
+			expect(
+				`${theme} theme vendor assets present`,
+				names.some((n) => n.startsWith(`${staticBase}vendor/`)),
+			);
 		}
 	});
+
 
 	checkGroup("embedded resources in Articulate.dll", () => {
 		const dllPath = "lib/net10.0/Articulate.dll";

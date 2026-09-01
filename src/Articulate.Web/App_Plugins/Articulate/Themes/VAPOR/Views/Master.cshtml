@@ -1,4 +1,6 @@
 @model IMasterModel
+@using Microsoft.Extensions.Options
+@inject IOptions<ArticulateOptions> ArticulateOptions
 @{
     var theme = Model.Theme;
     var themeLower = theme.ToLower();
@@ -19,12 +21,12 @@
     <title>@Model.PageTitle</title>
     @Model.MetaTags()
     @Html.SocialMetaTags(Model)
-    @Model.AdvertiseWeblogApi()
+    @Model.AdvertiseWeblogApi(ArticulateOptions.Value.EnableMetaWeblog)
     @Model.RssFeed()
     @Model.RenderOpenSearch()
 
+    <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/normalize/normalize.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
     <environment include="Development">
-        <link href="~/App_Plugins/Articulate/Themes/@theme/assets/vendor/normalize/normalize.css" rel="stylesheet" fetchpriority="high" asp-append-version="true">
         <link href="~/App_Plugins/Articulate/Themes/@theme/assets/src/css/screen.css" rel="stylesheet" asp-append-version="true">
     </environment>
     <environment exclude="Development">

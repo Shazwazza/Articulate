@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Articulate website",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/Articulate.Tests.Website/Articulate.Tests.Website.csproj",
+      "launchSettingsProfile": "Umbraco.Web.UI.NetCore"
+    }
+  ]
+}

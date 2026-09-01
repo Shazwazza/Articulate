@@ -503,10 +503,8 @@ scratch/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/[Pp]ackages/repositories.config
 # except monaco markdown editor package used by Articulate's BackOffice UI
-!/src/Articulate.Web/Client/v17/src/packages/
-!/src/Articulate.Web/Client/v17/src/packages/**
-!/src/Articulate.Web/Client/v18/src/packages/
-!/src/Articulate.Web/Client/v18/src/packages/**
+!/src/Articulate.Web/Client/common/src/packages/
+!/src/Articulate.Web/Client/common/src/packages/**
 
 # theme build artifacts
 /src/Articulate.Web/wwwroot/App_Plugins/Articulate/Themes/**/dist/
@@ -530,16 +528,14 @@ scratch/
 /src/Articulate.Tests/appsettings-schema.Umbraco.Cms.json
 src/Articulate.Tests/appsettings-schema.json
 
-/build/docker-site/appsettings-schema.Umbraco.Cms.json
-/build/docker-site/umbraco-package-schema.json
-/build/docker-site/appsettings-schema.json
+/docker/src/appsettings-schema.Umbraco.Cms.json
+/docker/src/umbraco-package-schema.json
+/docker/src/appsettings-schema.json
 
 
 /.playwright-mcp
 
-build/ClientAssets/BackofficeClient_v18.stamp
-build/ClientAssets/BackofficeClient_v17.stamp
+build/ClientAssets/
 
 # Local-only developer tooling overrides
-/.actrc
 /Directory.Build.props.user

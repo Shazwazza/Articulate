@@ -1,22 +1,24 @@
+#nullable enable
 using NPoco;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Infrastructure.Persistence.Repositories.Implement;
+using Umbraco.Cms.Infrastructure.Persistence.SqlSyntax;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Common;
 
-#nullable enable
 namespace Articulate.Services
 {
     /// <summary>
-    /// Custom tag repository for Articulate blog posts.
+    ///     Custom tag repository for Articulate blog posts.
     /// </summary>
     /// <remarks>
-    /// Uses custom SQL because Umbraco's <see cref="ITagQuery"/> doesn't support path-scoped queries
-    /// (multi-blog), paging, or sorting by publishedDate. Both Tags and Categories are stored as
-    /// Umbraco tags with different groups (ArticulateTags and ArticulateCategories).
+    ///     Uses custom SQL because Umbraco's <see cref="ITagQuery" /> doesn't support path-scoped queries
+    ///     (multi-blog), paging, or sorting by publishedDate. Both Tags and Categories are stored as
+    ///     Umbraco tags with different groups (ArticulateTags and ArticulateCategories).
     /// </remarks>
     internal class ArticulateTagRepository(
         IScopeAccessor scopeAccessor,
@@ -25,7 +27,7 @@ namespace Articulate.Services
         : RepositoryBase(scopeAccessor, appCaches), IArticulateTagRepository
     {
         /// <summary>
-        /// Returns a list of all categories belonging to this articulate root
+        ///     Returns a list of all categories belonging to this articulate root
         /// </summary>
         /// <param name="masterModel"></param>
         /// <returns></returns>
@@ -34,16 +36,16 @@ namespace Articulate.Services
         {
             // Umbraco's ITagQuery does not support the path-scoped, grouped query Articulate needs here.
             Sql sql = GetTagQuery(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.id AS TagId, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag AS Tag, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.[group] AS [Group], Count(*) as NodeCount",
+                    $"{Constants.DatabaseSchema.Tables.Tag}.id AS TagId, {Constants.DatabaseSchema.Tables.Tag}.tag AS Tag, {Constants.DatabaseSchema.Tables.Tag}.[group] AS [Group], Count(*) as NodeCount",
                     masterModel.RootBlogNode.Path)
                 .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}." +
+                    $"{Constants.DatabaseSchema.Tables.Tag}." +
                     SqlSyntax.GetQuotedColumnName("group") + " = @tagGroup",
-                    new { tagGroup = ArticulateConstants.DataType.ArticulateCategories, })
+                    new { tagGroup = ArticulateConstants.DataType.ArticulateCategories })
                 .GroupBy(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.id",
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag",
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}." +
+                    $"{Constants.DatabaseSchema.Tables.Tag}.id",
+                    $"{Constants.DatabaseSchema.Tables.Tag}.tag",
+                    $"{Constants.DatabaseSchema.Tables.Tag}." +
                     SqlSyntax.GetQuotedColumnName("group") + string.Empty);
 
             IOrderedEnumerable<string> results =
@@ -52,26 +54,24 @@ namespace Articulate.Services
             return results;
         }
 
-        IEnumerable<string> IArticulateTagRepository.GetAllTags(string rootPath, string tagGroup)
-        {
-            return ((IArticulateTagRepository)this).GetAllTagInfos(rootPath, tagGroup).Select(x => x.Name);
-        }
+        IEnumerable<string> IArticulateTagRepository.GetAllTags(string rootPath, string tagGroup) =>
+            ((IArticulateTagRepository)this).GetAllTagInfos(rootPath, tagGroup).Select(x => x.Name);
 
         IEnumerable<ArticulateTagInfo> IArticulateTagRepository.GetAllTagInfos(string rootPath, string tagGroup)
         {
             IEnumerable<ArticulateTagInfo> GetResult()
             {
                 Sql sql = GetTagQuery(
-                        $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.id AS TagId, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag AS Tag, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.[group] AS [Group]",
+                        $"{Constants.DatabaseSchema.Tables.Tag}.id AS TagId, {Constants.DatabaseSchema.Tables.Tag}.tag AS Tag, {Constants.DatabaseSchema.Tables.Tag}.[group] AS [Group]",
                         rootPath)
                     .Where(
-                        $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}." +
+                        $"{Constants.DatabaseSchema.Tables.Tag}." +
                         SqlSyntax.GetQuotedColumnName("group") + " = @tagGroup",
                         new { tagGroup })
                     .GroupBy(
-                        $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.id",
-                        $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag",
-                        $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}." +
+                        $"{Constants.DatabaseSchema.Tables.Tag}.id",
+                        $"{Constants.DatabaseSchema.Tables.Tag}.tag",
+                        $"{Constants.DatabaseSchema.Tables.Tag}." +
                         SqlSyntax.GetQuotedColumnName("group") + string.Empty);
 
                 return Database.Fetch<TagDto>(sql)
@@ -95,7 +95,7 @@ namespace Articulate.Services
 #endif
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<PostsByTagModel> IArticulateTagRepository.GetContentByTags(
             UmbracoHelper helper,
             ITagQuery tagQuery,
@@ -117,14 +117,11 @@ namespace Articulate.Services
                 foreach (IEnumerable<TagModel?> tagBatch in tags.InGroupsOf(2000))
                 {
                     Sql sql = GetTagQuery(
-                            $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.TagRelationship}.nodeId, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.TagRelationship}.tagId, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag",
+                            $"{Constants.DatabaseSchema.Tables.TagRelationship}.nodeId, {Constants.DatabaseSchema.Tables.TagRelationship}.tagId, {Constants.DatabaseSchema.Tables.Tag}.tag",
                             masterModel.RootBlogNode.Path)
                         .Where(
                             "tagId IN (@tagIds) AND cmsTags." + SqlSyntax.GetQuotedColumnName("group") + " = @tagGroup",
-                            new
-                            {
-                                tagIds = tagBatch.Where(x => x is not null).Select(x => x!.Id).ToArray(), tagGroup,
-                            });
+                            new { tagIds = tagBatch.Where(x => x is not null).Select(x => x!.Id).ToArray(), tagGroup });
 
                     List<TagDto> dbTags = Database.Fetch<TagDto>(sql);
 
@@ -174,7 +171,7 @@ namespace Articulate.Services
 #endif
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         PostsByTagModel IArticulateTagRepository.GetContentByTag(
             UmbracoHelper helper,
             IMasterModel masterModel,
@@ -187,21 +184,21 @@ namespace Articulate.Services
             PostsByTagModel GetResult()
             {
                 Sql sqlTags = GetTagQuery(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.id",
+                    $"{Constants.DatabaseSchema.Tables.Node}.id",
                     masterModel.RootBlogNode.Path);
 
                 // Cast to NVARCHAR to handle tags with hyphens
                 sqlTags.Where(
-                    $"CAST({Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.tag AS NVARCHAR(200)) = @tagName AND {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}." +
+                    $"CAST({Constants.DatabaseSchema.Tables.Tag}.tag AS NVARCHAR(200)) = @tagName AND {Constants.DatabaseSchema.Tables.Tag}." +
                     SqlSyntax.GetQuotedColumnName("group") + " = @tagGroup",
-                    new { tagName = tag, tagGroup, });
+                    new { tagName = tag, tagGroup });
 
                 // The publishedDate property type ID is schema-level data that only changes on
                 // schema migration, so cache it for the app lifetime to avoid a DB round-trip on
                 // every tag-page cache miss.
 #if DEBUG
                 var publishedDatePropertyTypeId = Database.ExecuteScalar<int>(
-                    $@"SELECT {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.id FROM {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType} INNER JOIN {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType} ON {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.contentTypeId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType}.nodeId WHERE {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AND {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyType}.alias = @propertyTypeAlias",
+                    $@"SELECT {Constants.DatabaseSchema.Tables.PropertyType}.id FROM {Constants.DatabaseSchema.Tables.ContentType} INNER JOIN {Constants.DatabaseSchema.Tables.PropertyType} ON {Constants.DatabaseSchema.Tables.PropertyType}.contentTypeId = {Constants.DatabaseSchema.Tables.ContentType}.nodeId WHERE {Constants.DatabaseSchema.Tables.ContentType}.alias = @contentTypeAlias AND {Constants.DatabaseSchema.Tables.PropertyType}.alias = @propertyTypeAlias",
                     new
                     {
                         contentTypeAlias = ArticulateConstants.ContentType.ArticulatePost,
@@ -221,15 +218,15 @@ namespace Articulate.Services
 #endif
 
                 Sql sqlContent = GetContentByTagQueryForPaging(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.id, {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyData}.dateValue",
+                    $"{Constants.DatabaseSchema.Tables.Node}.id, {Constants.DatabaseSchema.Tables.PropertyData}.dateValue",
                     masterModel,
                     publishedDatePropertyTypeId);
 
-                sqlContent.Append($"WHERE ({Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.id IN (")
+                sqlContent.Append($"WHERE ({Constants.DatabaseSchema.Tables.Node}.id IN (")
                     .Append(sqlTags).Append("))");
 
 
-                sqlContent.OrderBy($"({Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyData}.dateValue) DESC");
+                sqlContent.OrderBy($"({Constants.DatabaseSchema.Tables.PropertyData}.dateValue) DESC");
 
                 // Put on a single line - NPoco paging has issues with multiline SQL
                 sqlContent = SqlContext.Sql(sqlContent.SQL.ToSingleLine(), sqlContent.Arguments);
@@ -270,64 +267,80 @@ namespace Articulate.Services
             string selectCols,
             IMasterModel masterModel,
             int publishedDatePropertyTypeId)
+            => BuildContentByTagQueryForPaging(
+                selectCols,
+                masterModel.RootBlogNode.Path,
+                publishedDatePropertyTypeId,
+                SqlSyntax);
+
+        // Pure builder (no ambient scope dependency) so ArticulateTagRepositorySqlTests can assert
+        // the generated SQL shape — multi-blog path scoping, published-only filters, publishedDate
+        // property filter, parameterisation — without a database.
+        internal static Sql BuildContentByTagQueryForPaging(
+            string selectCols,
+            string rootPath,
+            int publishedDatePropertyTypeId,
+            ISqlSyntaxProvider sqlSyntax)
         {
-            Sql sql = new Sql()
+            var pathColumn = $"{Constants.DatabaseSchema.Tables.Node}.{sqlSyntax.GetQuotedColumnName("path")}";
+            return new Sql()
                 .Select(selectCols)
-                .From(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node)
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Document)
+                .From(Constants.DatabaseSchema.Tables.Node)
+                .InnerJoin(Constants.DatabaseSchema.Tables.Document)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Document}.nodeId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.id")
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentVersion)
+                    $"{Constants.DatabaseSchema.Tables.Document}.nodeId = {Constants.DatabaseSchema.Tables.Node}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.ContentVersion)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentVersion}.nodeId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Document}.nodeId")
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.DocumentVersion)
+                    $"{Constants.DatabaseSchema.Tables.ContentVersion}.nodeId = {Constants.DatabaseSchema.Tables.Document}.nodeId")
+                .InnerJoin(Constants.DatabaseSchema.Tables.DocumentVersion)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.DocumentVersion}.id = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.ContentVersion}.id")
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyData)
+                    $"{Constants.DatabaseSchema.Tables.DocumentVersion}.id = {Constants.DatabaseSchema.Tables.ContentVersion}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.PropertyData)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyData}.versionId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.DocumentVersion}.id")
+                    $"{Constants.DatabaseSchema.Tables.PropertyData}.versionId = {Constants.DatabaseSchema.Tables.DocumentVersion}.id")
                 .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType",
-                    new { nodeObjectType = Umbraco.Cms.Core.Constants.ObjectTypes.Document })
+                    $"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType",
+                    new { nodeObjectType = Constants.ObjectTypes.Document })
                 // Must be published - ensures only one version is selected
-                .Where($"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Document}.published = 1")
-                .Where($"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.DocumentVersion}.published = 1")
+                .Where($"{Constants.DatabaseSchema.Tables.Document}.published = 1")
+                .Where($"{Constants.DatabaseSchema.Tables.DocumentVersion}.published = 1")
                 // Filter to publishedDate property for sorting
                 .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.PropertyData}.propertytypeid = @propTypeId",
+                    $"{Constants.DatabaseSchema.Tables.PropertyData}.propertytypeid = @propTypeId",
                     new { propTypeId = publishedDatePropertyTypeId })
                 // Scope to current blog root path (multi-blog support)
-                .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}." +
-                    SqlSyntax.GetQuotedColumnName("path") + " LIKE @path",
-                    new { path = masterModel.RootBlogNode.Path + ",%" });
-            return sql;
+                .Where($"{pathColumn} LIKE @path", new { path = rootPath + ",%" });
         }
 
 
         private Sql GetTagQuery(string selectCols, string rootPath)
+            => BuildTagQuery(selectCols, rootPath, SqlSyntax);
+
+        // Pure builder — see BuildContentByTagQueryForPaging. Path-scoped, node-object-type-filtered
+        // tag join used by every tag/category listing query.
+        internal static Sql BuildTagQuery(
+            string selectCols,
+            string rootPath,
+            ISqlSyntaxProvider sqlSyntax)
         {
-            Sql sql = new Sql()
+            var pathColumn = $"{Constants.DatabaseSchema.Tables.Node}.{sqlSyntax.GetQuotedColumnName("path")}";
+            return new Sql()
                 .Select(selectCols)
-                .From(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag)
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.TagRelationship)
+                .From(Constants.DatabaseSchema.Tables.Tag)
+                .InnerJoin(Constants.DatabaseSchema.Tables.TagRelationship)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.TagRelationship}.tagId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Tag}.id")
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Content)
+                    $"{Constants.DatabaseSchema.Tables.TagRelationship}.tagId = {Constants.DatabaseSchema.Tables.Tag}.id")
+                .InnerJoin(Constants.DatabaseSchema.Tables.Content)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Content}.nodeId = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.TagRelationship}.nodeId")
-                .InnerJoin(Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node)
+                    $"{Constants.DatabaseSchema.Tables.Content}.nodeId = {Constants.DatabaseSchema.Tables.TagRelationship}.nodeId")
+                .InnerJoin(Constants.DatabaseSchema.Tables.Node)
                 .On(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.id = {Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Content}.nodeId")
+                    $"{Constants.DatabaseSchema.Tables.Node}.id = {Constants.DatabaseSchema.Tables.Content}.nodeId")
                 .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType",
-                    new { nodeObjectType = Umbraco.Cms.Core.Constants.ObjectTypes.Document })
+                    $"{Constants.DatabaseSchema.Tables.Node}.nodeObjectType = @nodeObjectType",
+                    new { nodeObjectType = Constants.ObjectTypes.Document })
                 // Scope to current blog root path (multi-blog support)
-                .Where(
-                    $"{Umbraco.Cms.Core.Constants.DatabaseSchema.Tables.Node}." +
-                    SqlSyntax.GetQuotedColumnName("path") + " LIKE @path",
-                    new { path = rootPath + ",%" });
-            return sql;
+                .Where($"{pathColumn} LIKE @path", new { path = rootPath + ",%" });
         }
 
         // DTO for NPoco query results

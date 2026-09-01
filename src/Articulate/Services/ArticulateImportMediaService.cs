@@ -380,7 +380,10 @@ namespace Articulate.Services
             return pinnedAddresses;
         }
 
-        private static Uri GetValidatedRedirectUri(HttpResponseMessage response, Uri currentUri, int redirectCount)
+        /// <summary>
+        /// Validates and resolves a redirect response without requiring a live HTTP server.
+        /// </summary>
+        internal static Uri GetValidatedRedirectUri(HttpResponseMessage response, Uri currentUri, int redirectCount)
         {
             if (redirectCount == MaxRedirects)
             {

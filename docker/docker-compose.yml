@@ -1,0 +1,94 @@
+services:
+  articulate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: chiseled
+      args:
+        BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
+        TARGET_FRAMEWORK: ${TARGET_FRAMEWORK:-net10.0}
+        DOTNET_SDK_IMAGE: ${DOTNET_SDK_IMAGE:-mcr.microsoft.com/dotnet/sdk:10.0}
+        DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0}
+        # UMBRACO_CMS_VERSION and TinyMCE versions come from Directory.Packages.props
+        # via run.cs ConfigureLane. Set them in the shell for direct `docker compose` use.
+        UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:?UMBRACO_CMS_VERSION is required (see run.cs ConfigureLane)}
+        PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release/v17}
+        USE_TINYMCE_UMBRACO: ${USE_TINYMCE_UMBRACO:-false}
+        # Dockerfile validates this when USE_TINYMCE_UMBRACO=true; empty is valid when it is off.
+        TINYMCE_UMBRACO_PACKAGE_VERSION: ${TINYMCE_UMBRACO_PACKAGE_VERSION:-}
+    image: ${IMAGE_TAG:-articulate-local:chiseled}
+    mem_limit: 512m
+    mem_reservation: 256m
+    user: "1654:1654"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Container}
+      ASPNETCORE_URLS: http://+:8080
+      Umbraco__CMS__Runtime__Mode: ${UMBRACO_RUNTIME_MODE:-BackofficeDevelopment}
+      # HTTPS configuration (Caddy terminates TLS)
+      Umbraco__CMS__Global__UseHttps: "true"
+      Umbraco__CMS__Security__BackOfficeHost: ${UMBRACO_PUBLIC_HOST:-https://localhost:18443}
+      Umbraco__CMS__Security__AuthCookieName: ${Umbraco__CMS__Security__AuthCookieName:-UMB_UCONTEXT}
+      Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName: ${Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName:-}
+      Umbraco__CMS__WebRouting__UmbracoApplicationUrl: ${UMBRACO_PUBLIC_URL:-https://localhost:18443/}
+      # Unattended install
+      Umbraco__CMS__Unattended__InstallUnattended: "true"
+      Umbraco__CMS__Unattended__UpgradeUnattended: "true"
+      Umbraco__CMS__Unattended__UnattendedUserName: ${UMBRACO_USER_NAME:-Jane Doe}
+      Umbraco__CMS__Unattended__UnattendedUserEmail: ${UMBRACO_USER_EMAIL:-admin@localhost}
+      Umbraco__CMS__Unattended__UnattendedUserPassword: ${UMBRACO_USER_PASSWORD:-@rticulate}
+      # Dev-only test-site bootstrap
+      Articulate__TestSite__Enabled: ${ARTICULATE_TEST_SITE_ENABLED:-true}
+      Articulate__TestSite__ClientSecret: ${ARTICULATE_TEST_SITE_CLIENT_SECRET:-articulate-test-site-secret}
+      # Articulate OpenID Connect (Markdown Editor client)
+      Articulate__ManagementApi__OpenIddict__Client__Enabled: "true"
+      Articulate__ManagementApi__OpenIddict__Client__ClientId: ${ARTICULATE_OPENID_CLIENT_ID:-umbraco-articulate}
+      Articulate__ManagementApi__OpenIddict__Client__DisplayName: ${ARTICULATE_OPENID_DISPLAY_NAME:-Articulate Markdown Editor}
+      Articulate__ManagementApi__OpenIddict__Client__RedirectUris__0: ${ARTICULATE_REDIRECT_URI:-https://localhost:18443/a-new/}
+      Articulate__ManagementApi__OpenIddict__Client__PostLogoutRedirectUris__0: ${ARTICULATE_LOGOUT_REDIRECT_URI:-https://localhost:18443/}
+      # Allow manual BlogML imports to fetch images from the host or local site.
+      Articulate__AllowedMediaHosts__0: host.docker.internal
+      Articulate__AllowedMediaHosts__1: localhost
+      Articulate__AllowUnsafeLocalExternalImageHostsInDevelopment: "true"
+      # If you add a mock image sidecar, allowlist its service hostname too.
+      Umbraco__CMS__ModelsBuilder__ModelsMode: ${MODELS_MODE:-Nothing}
+    volumes:
+      - articulate-media:/app/wwwroot/media
+      - articulate-db:/app/umbraco/Data
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    mem_limit: 64m
+    mem_reservation: 32m
+    # Bind to loopback only: this harness auto-provisions an OAuth client and an
+    # unattended Umbraco install with a known password. `0.0.0.0` would expose
+    # them on the LAN. Keep host/LAN reachable? Override CADDY_BIND_IP below.
+    ports:
+      - "${CADDY_BIND_IP:-127.0.0.1}:${CADDY_HTTP_PORT:-8080}:8080"
+      - "${CADDY_BIND_IP:-127.0.0.1}:${CADDY_HTTPS_PORT:-18443}:18443"
+    environment:
+      ARTICULATE_HOST: articulate
+      HTTPS_HOST: ${CADDY_HTTPS_HOST:-localhost:18443}
+      CADDY_TLS_HOST: ${CADDY_TLS_HOST:-localhost}
+    command: caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - articulate
+
+volumes:
+  articulate-media:
+    name: ${COMPOSE_VOLUME_PREFIX:-articulate}_media
+  articulate-db:
+    name: ${COMPOSE_VOLUME_PREFIX:-articulate}_db
+  caddy-data:
+  caddy-config:

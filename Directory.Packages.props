@@ -5,29 +5,34 @@
 		<CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
 	</PropertyGroup>
 	<PropertyGroup>
-		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">[17.4.0,18.0.0)</UmbracoCmsPackageVersion>
-		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.0.0,19.0.0)</UmbracoCmsPackageVersion>
-		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' != 'v18'">2.4.0</UmbracoCodePackageVersion>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v17'">[17.6.2,18.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCmsPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.1.1,19.0.0)</UmbracoCmsPackageVersion>
+		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' == 'v17'">2.4.0</UmbracoCodePackageVersion>
 		<UmbracoCodePackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">3.0.0-beta</UmbracoCodePackageVersion>
-		<SystemServiceModelSyndicationPackageVersion>[10.0.5,11.0.0)</SystemServiceModelSyndicationPackageVersion>
-		<SystemSecurityCryptographyXmlPackageVersion>[10.0.7,11.0.0)</SystemSecurityCryptographyXmlPackageVersion>
-		<MarkdigPackageVersion>[1.1.3,2.0.0)</MarkdigPackageVersion>
-		<MicrosoftNetTestSdkPackageVersion>[18.5.1,19.0.0)</MicrosoftNetTestSdkPackageVersion>
+		<SystemServiceModelSyndicationPackageVersion>[10.0.10,11.0.0)</SystemServiceModelSyndicationPackageVersion>
+  		<MarkdigPackageVersion Condition="'$(ArticulatePackageLane)' == 'v17'">[1.1.3,2.0.0)</MarkdigPackageVersion>
+  		<MarkdigPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[1.3.2,2.0.0)</MarkdigPackageVersion>
+  		<MicrosoftNetTestSdkPackageVersion>[18.8.1,19.0.0)</MicrosoftNetTestSdkPackageVersion>
+		<!-- TinyMCE.Umbraco is opt-in via UseTinyMceUmbraco in the dev/test csprojs; never pulled into the dist Articulate.nupkg / Articulate.Theme.Sample.nupkg.
+		     Floor per lane (TinyMCE.Umbraco N requires Umbraco N+, so the lane gate keeps major versions aligned). -->
+		<TinyMceUmbracoPackageVersion Condition="'$(ArticulatePackageLane)' == 'v17'">[17.5.0,18.0.0)</TinyMceUmbracoPackageVersion>
+		<TinyMceUmbracoPackageVersion Condition="'$(ArticulatePackageLane)' == 'v18'">[18.0.0,19.0.0)</TinyMceUmbracoPackageVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageVersion Include="Argotic.Core" Version="3001.0.0" />
 		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
 		<PackageVersion Include="FileSignatures" Version="7.2.1" />
 		<PackageVersion Include="Markdig" Version="$(MarkdigPackageVersion)" />
-		<PackageVersion Include="MessagePack" Version="3.1.7" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.3.0" Condition="'$(ArticulatePackageLane)' == 'v18'" />
-		<PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+		<PackageVersion Include="MessagePack" Version="3.1.8" />
+		<PackageVersion Include="OpenIddict.Abstractions" Version="7.6.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" Condition="'$(ArticulatePackageLane)' == 'v18'" />
+	    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
 		<PackageVersion Include="Moq" Version="4.20.72" />
 		<PackageVersion Include="NUnit" Version="3.14.0" />
 		<PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
-		<PackageVersion Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlPackageVersion)" />
 		<PackageVersion Include="System.ServiceModel.Syndication" Version="$(SystemServiceModelSyndicationPackageVersion)" />
+		<PackageVersion Include="TinyMCE.Umbraco" Version="$(TinyMceUmbracoPackageVersion)" />
 		<PackageVersion Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
 		<PackageVersion Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
 		<PackageVersion Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="$(UmbracoCmsPackageVersion)" />
@@ -36,7 +41,7 @@
 		<PackageVersion Include="WilderMinds.MetaWeblog" Version="5.1.3" />
 	</ItemGroup>
 	<ItemGroup>
-		<GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.85" Condition="!Exists('packages.config')" PrivateAssets="All" />
+		<GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.91" Condition="!Exists('packages.config')" PrivateAssets="All" />
 		<GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
 		<GlobalPackageReference Include="Umbraco.Code" Version="$(UmbracoCodePackageVersion)" PrivateAssets="All" />
 		<GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="All" />

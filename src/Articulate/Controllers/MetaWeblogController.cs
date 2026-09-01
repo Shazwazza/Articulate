@@ -50,6 +50,11 @@ namespace Articulate.Controllers
         [HttpPost]
         public async Task<ActionResult> IndexAsync(int id)
         {
+            if (!articulateOptions.CurrentValue.EnableMetaWeblog)
+            {
+                return NotFound();
+            }
+
             if (id <= 0)
             {
                 return Problem("Invalid root node id");
@@ -94,9 +99,7 @@ namespace Articulate.Controllers
                 return StatusCode(413, $"Request body exceeds the configured limit of {maxRequestBodyBytes} bytes");
             }
 
-            string normalized = NormalizeMetaWeblogRequest(rawContent);
-
-            if (!IsValidXmlRpcEnvelope(normalized))
+            if (!TryNormalizeMetaWeblogRequest(rawContent, maxRequestBodyBytes, out string normalized))
             {
                 return BadRequest("Invalid XML-RPC request envelope.");
             }
@@ -113,25 +116,30 @@ namespace Articulate.Controllers
             }
         }
 
-        internal static bool IsValidXmlRpcEnvelope(string content)
+        internal static bool TryNormalizeMetaWeblogRequest(
+            string rawContent,
+            long maxCharactersInDocument,
+            out string normalized)
         {
+            normalized = string.Empty;
             try
             {
-                var doc = XDocument.Parse(content);
-                return doc.Root?.Name.LocalName == "methodCall"
-                    && doc.Descendants("methodName").FirstOrDefault() is not null;
-            }
-            catch (XmlException)
-            {
-                return false;
-            }
-        }
+                var settings = new XmlReaderSettings
+                {
+                    DtdProcessing = DtdProcessing.Prohibit,
+                    XmlResolver = null,
+                    MaxCharactersInDocument = maxCharactersInDocument,
+                };
 
-        private static string NormalizeMetaWeblogRequest(string rawContent)
-        {
-            try
-            {
-                var document = XDocument.Parse(rawContent, LoadOptions.PreserveWhitespace);
+                using var reader = XmlReader.Create(new StringReader(rawContent), settings);
+                var document = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+
+                if (document.Root?.Name.LocalName != "methodCall"
+                    || document.Descendants("methodName").FirstOrDefault() is null)
+                {
+                    return false;
+                }
+
                 foreach (XElement nameElement in document.Descendants("name"))
                 {
                     if (nameElement.Value == "date_created_gmt")
@@ -140,12 +148,27 @@ namespace Articulate.Controllers
                     }
                 }
 
-                return document.ToString(SaveOptions.DisableFormatting);
+                XElement? methodName = document.Descendants("methodName").FirstOrDefault();
+                XElement? parameters = document.Root.Element("params");
+                if (methodName?.Value == "wp.getUsersBlogs"
+                    && parameters?.Elements("param").Count() == 2)
+                {
+                    // Open Live Writer retries with two arguments; add the unused first parameter.
+                    methodName.Value = "blogger.getUsersBlogs";
+                    parameters.AddFirst(
+                        new XElement("param", new XElement("value", new XElement("string", string.Empty))));
+                }
+
+                normalized = document.ToString(SaveOptions.DisableFormatting);
+                return true;
             }
             catch (XmlException)
             {
-                return rawContent;
+                return false;
             }
         }
+
+        internal static bool IsValidXmlRpcEnvelope(string content) =>
+            TryNormalizeMetaWeblogRequest(content, long.MaxValue, out _);
     }
 }

@@ -1,0 +1,62 @@
+{
+  "name": "articulate-backoffice-v17",
+  "private": true,
+  "version": "0.0.0-dev",
+  "type": "module",
+  "description": "Articulate BackOffice extension",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "keywords": [
+    "blog",
+    "umbraco",
+    "backoffice",
+    "lit",
+    "web components"
+  ],
+  "author": "Articulate",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "tsc && vite build",
+    "build:dev": "tsc && vite build --mode development",
+    "check": "tsc --noEmit",
+    "lint": "pnpm --dir .. exec -- v17/node_modules/.bin/eslint --config v17/eslint.config.mjs common/src",
+    "lint:fix": "pnpm --dir .. exec -- v17/node_modules/.bin/eslint --fix --config v17/eslint.config.mjs common/src",
+    "generate:api": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 node ../scripts/generate-api.js https://localhost:44366/umbraco/swagger/articulate/swagger.json ../common/.api-check/v17 --lane v17 --excludeTags 'Markdown Editor'"
+  },
+  "dependenciesComments": {
+    "lit-html": "Direct dependency for the keyed directive used by the BlogML importer."
+  },
+  "dependencies": {
+    "lit-html": "^3.3.3"
+  },
+  "devDependencies": {
+    "@alpinejs/csp": "3.15.12",
+    "@fontsource/material-icons": "5.3.0",
+    "@fontsource/roboto": "5.3.0",
+    "material-design-lite": "1.3.0",
+    "normalize.css": "8.0.1",
+    "tiny-markdown-editor": "0.2.32",
+    "@eslint/compat": "^2.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "@umbraco-cms/backoffice": "^17.6.2",
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-lit": "^2.3.1",
+    "eslint-plugin-lit-a11y": "^5.1.1",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-wc": "^3.1.0",
+    "globals": "^17.9.0",
+    "lightningcss": "^1.33.0",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.0"
+  }
+}

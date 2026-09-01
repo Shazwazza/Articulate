@@ -26,9 +26,14 @@ namespace Articulate.Options
             }
 
             bool isPublic = string.Equals(options.ClientType, OpenIddictConstants.ClientTypes.Public, StringComparison.OrdinalIgnoreCase);
-            if (!isPublic && !options.HasClientSecret())
+            if (!isPublic)
             {
-                errors.Add("Articulate:ManagementApi:OpenIddict:Client: Confidential clients must specify ClientSecret.");
+                errors.Add("Articulate:ManagementApi:OpenIddict:Client: ClientType must be Public because the editor runs in the browser.");
+            }
+
+            if (options.HasClientSecret())
+            {
+                errors.Add("Articulate:ManagementApi:OpenIddict:Client: ClientSecret is not supported for the browser editor and must be omitted.");
             }
 
             return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);

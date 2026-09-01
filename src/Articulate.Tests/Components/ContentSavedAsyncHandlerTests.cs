@@ -36,6 +36,77 @@ namespace Articulate.Tests.Components
         }
 
         [Test]
+        public async Task HandleAsync_creates_required_children_when_new_articulate_root_is_saved()
+        {
+            Mock<IContentTypeService> contentTypeService = new();
+            Mock<IContentService> contentService = new();
+            Mock<ILanguageService> languageService = new();
+
+            IContent root = CreateContent(
+                id: 100,
+                contentTypeId: 1,
+                alias: ArticulateConstants.ContentType.Articulate,
+                published: false);
+            Mock.Get(root)
+                .Setup(x => x.WasPropertyDirty("Id"))
+                .Returns(true);
+            IContent archive = CreateContent(
+                id: 101,
+                contentTypeId: 10,
+                alias: ArticulateConstants.ContentType.ArticulateArchive,
+                published: false);
+            IContent authors = CreateContent(
+                id: 102,
+                contentTypeId: 11,
+                alias: ArticulateConstants.ContentType.ArticulateAuthors,
+                published: false);
+
+            contentTypeService
+                .Setup(x => x.Get(ArticulateConstants.ContentType.ArticulateArchive))
+                .Returns(CreateContentType(10, ArticulateConstants.ContentType.ArticulateArchive));
+            contentTypeService
+                .Setup(x => x.Get(ArticulateConstants.ContentType.ArticulateAuthors))
+                .Returns(CreateContentType(11, ArticulateConstants.ContentType.ArticulateAuthors));
+
+            SetupGetPagedChildren(contentService, []);
+            languageService.Setup(x => x.GetDefaultIsoCodeAsync()).ReturnsAsync("en-US");
+            contentService
+                .Setup(x => x.Create(string.Empty, root, ArticulateConstants.ContentType.ArticulateArchive))
+                .Returns(archive);
+            contentService
+                .Setup(x => x.Create(string.Empty, root, ArticulateConstants.ContentType.ArticulateAuthors))
+                .Returns(authors);
+            contentService
+                .Setup(x => x.Save(archive))
+                .Returns(OperationResult.Succeed(new EventMessages()));
+            contentService
+                .Setup(x => x.Save(authors))
+                .Returns(OperationResult.Succeed(new EventMessages()));
+
+            ArticulateRootContentLifecycleHandler sut = new(
+                contentTypeService.Object,
+                contentService.Object,
+                languageService.Object,
+                NullLogger<ArticulateRootContentLifecycleHandler>.Instance,
+                _scopeProvider.Object);
+
+            await sut.HandleAsync(
+                new ContentSavedNotification(root, new EventMessages()),
+                CancellationToken.None);
+
+            contentService.Verify(
+                x => x.Create(string.Empty, root, ArticulateConstants.ContentType.ArticulateArchive),
+                Times.Once);
+            contentService.Verify(
+                x => x.Create(string.Empty, root, ArticulateConstants.ContentType.ArticulateAuthors),
+                Times.Once);
+            contentService.Verify(x => x.Save(archive), Times.Once);
+            contentService.Verify(x => x.Save(authors), Times.Once);
+            Mock.Get(archive).VerifySet(x => x.Name = ArticulateConstants.Convention.ArticlesDocument, Times.Once);
+            Mock.Get(authors).VerifySet(x => x.Name = ArticulateConstants.Convention.AuthorsDocument, Times.Once);
+        }
+
+        [Test]
         public async Task HandleAsync_publishes_required_children_when_articulate_root_is_published()
         {
             Mock<IContentTypeService> contentTypeService = new();
@@ -97,7 +168,6 @@ namespace Articulate.Tests.Components
 
         private static void SetupGetPagedChildren(Mock<IContentService> contentService, IEnumerable<IContent> children)
         {
-#if NET10_0_OR_GREATER
             contentService
                 .Setup(x => x.GetPagedChildren(
                     It.IsAny<int>(),
@@ -108,30 +178,20 @@ namespace Articulate.Tests.Components
                     null,
                     null,
                     true))
-                .Returns((int _, long _, int _, out long total, string[]? _, IQuery<IContent>? _, Ordering? _, bool _) =>
+                .Returns((
+                    int _,
+                    long _,
+                    int _,
+                    out long total,
+                    string[]? _,
+                    IQuery<IContent>? _,
+                    Ordering? _,
+                    bool _) =>
                 {
                     var items = children.ToList();
                     total = items.Count;
                     return items;
                 });
-#else
-#pragma warning disable CS0618
-            contentService
-                .Setup(x => x.GetPagedChildren(
-                    It.IsAny<int>(),
-                    It.IsAny<long>(),
-                    It.IsAny<int>(),
-                    out It.Ref<long>.IsAny,
-                    null,
-                    null))
-                .Returns((int _, long _, int _, out long total, IQuery<IContent>? _, Ordering? _) =>
-                {
-                    var items = children.ToList();
-                    total = items.Count;
-                    return items;
-                });
-#pragma warning restore CS0618
-#endif
         }
 
         private static IContentType CreateContentType(int id, string alias, bool variesByCulture = false)

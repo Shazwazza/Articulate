@@ -2,53 +2,48 @@
 
 ## Requirements
 
-- .NET 9.0 SDK
-- .NET 10.0 SDK
-- Node.js 24+ with `corepack enable pnpm`
-- Optional: Nerdbank.GitVersioning CLI (`dotnet tool install -g nbgv`), only needed for Release builds
-- IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code
-- Shell: PowerShell 5+, PowerShell 7+, or Bash (WSL/Linux)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0); the repository utilities use [.NET file-based apps](https://learn.microsoft.com/en-us/dotnet/core/sdk/file-based-apps).
+- [Node.js 24.x](https://nodejs.org/en/download/) and [pnpm 11.19.0](https://pnpm.io/installation).
+- [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) CLI (`dotnet tool install -g nbgv`) for local build and pack commands. Set `ARTICULATE_PACKAGE_VERSION` to use an explicit version instead.
+- IDE: Visual Studio 2026, JetBrains Rider, or Visual Studio Code.
+- Shell: PowerShell 5+, PowerShell 7+, or Bash (WSL/Linux).
 
 ## First Run
 
 1. Clone or fork the repository.
-2. Prime the site and solution so the Back Office client extension and asset bundles are built.
+2. Build the solution, client, themes, and sample package.
 
-PowerShell:
+   ```sh
+   dotnet run --file build/build.cs -- build --configuration Debug --client true --sample
+   ```
 
-```powershell
-$env:ENABLE_CLIENT_BUILD='true'; $env:BUILD_CONFIGURATION='Debug'; ./build/build.ps1
+This restores NuGet and Node packages, builds the Back Office client, builds the theme and Markdown editor bundles, builds the .NET solution, and produces NuGet packages.
+3. Start the test site.
+
+   ```sh
+   dotnet run --file build/build.cs -- site --lane v17
+   ```
+
+Use `--lane v18` to test Umbraco 18. Use `--reset` when you need a fresh database. Alternatively, open `src/Articulate.sln`, set `Articulate.Tests.Website` as the startup project, and start it from the IDE.
+4. Sign in with the local credentials in `src/Articulate.Tests.Website/appsettings.json`. The test site installs Umbraco and runs the Articulate package migrations automatically.
+
+## Dev Containers
+
+The repository includes a dev container with the required toolchain and supporting CLI tools. Install the [Dev Containers extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+For an isolated checkout, use **Dev Containers: Clone Repository in Container Volume...** for a branch or the default branch, or **Dev Containers: Clone GitHub Pull Request in Container Volume...** for a pull request.
+
+For a normal local checkout, use **Dev Containers: Reopen in Container**. See the [VS Code isolated container volume guide](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-a-git-repository-or-github-pr-in-an-isolated-container-volume) for details.
+
+## Docker
+
+Use the [Docker guide](docker/README.md) for Docker tooling, ports, credentials, runtime modes, smoke checks, and diagnostics. Use [`docker/help.md`](docker/help.md) for command options.
+
+```sh
+dotnet run --file docker/run.cs -- docker-dev --lane v17
 ```
 
-Bash:
-
-```bash
-ENABLE_CLIENT_BUILD=true BUILD_CONFIGURATION=Debug ./build/build.sh
-```
-
-This restores NuGet and npm packages, builds the Back Office client, builds the theme and Markdown editor dist bundles, builds the .NET solution, and produces NuGet packages.
-
-3. Open `src/Articulate.sln`.
-4. Set `Articulate.Tests.Website` as the startup project.
-5. Start `Articulate.Tests.Website` and complete the Umbraco installer.
-6. The Articulate package migrations will run and install the required schema and content items.
-   - **Tip:** The test site's target framework selects the Umbraco version: `net9.0` runs Umbraco 16, and `net10.0` runs Umbraco 17. Use `net10.0` only when you specifically want the v17 path.
-
-## Docker Modes
-
-The Compose stack supports two explicit runtime states through `UMBRACO_RUNTIME_MODE`. The default is `BackofficeDevelopment`; switch to `Production` for the production-style check.
-
-- `BackofficeDevelopment` (default) for local dev and agent runs. This enables the dev-only automation bootstrap so the API user and client credentials can be provisioned automatically after install and migrations.
-- `Production` for the production-style check. This disables automation bootstrap and keeps the stack honest about what content was already published in the data volume.
-
-Recommended benchmark flow:
-
-1. Start with an empty Docker volume set in `BackofficeDevelopment` by running the dev script with `RESET_DOCKER_VOLUMES=true`.
-2. Unattended install and package migrations run, automation bootstrap provisions credentials, and `build/docker-site/smoke.mjs` publishes/verifies the Articulate content tree.
-3. Verify `/` returns `200` and record the timing.
-4. Re-run the same volume set in `Production` to confirm the published content still serves without any dev-only automation.
-
-- `RESET_DOCKER_VOLUMES=true` runs `docker compose down -v` before the dev script starts the stack. Use it for empty-DB QA, not for normal iterative runs.
+Use `--lane v18` for Umbraco 18. Use `--reset` only when you need a fresh Docker database.
 
 ## Client Development
 
@@ -57,55 +52,48 @@ From `src/Articulate.Web/Client`:
 ```bash
 pnpm install
 pnpm run build
-pnpm run generate:api
 ```
 
-`pnpm run build` runs `tsc && vite build`; the Vite sidecar also regenerates the built-in theme `assets/dist` bundles and the Markdown editor assets, not just the Back Office client.
+`pnpm run build` checks both lanes and rebuilds the built-in theme and Markdown editor assets.
 
-`pnpm run generate:api` requires the Umbraco site to be running and regenerates the typed client after API changes.
+## Compatibility
+
+`ArticulatePackageLane` selects the package lane. `Directory.Build.props` defines `UMBRACO_18_OR_GREATER` for v18. The packages remain separate because the Umbraco extension points are not binary-compatible.
+
+### Server API
+
+| Area | v17 | v18 | Source |
+| --- | --- | --- | --- |
+| OpenAPI | Swashbuckle | Back Office OpenAPI | `src/Articulate/Components/ArticulateApiComposer.cs`, `src/Articulate/Swagger/V17/`, `src/Articulate/Swagger/V18/` |
+| Routing | `NewDefaultUrlProvider`, `ContentFinderByUrlNew`, `content.UrlSegment` | `DefaultUrlProvider`, `ContentFinderByUrl`, `IDocumentUrlService.GetUrlSegment` | `src/Articulate/Components/ArticulateComposer.cs`, `src/Articulate/Routing/` |
+| Tag assignment | Existing `AssignTags` overload | `IIdKeyMap` parameter | `src/Articulate/ContentExtensions.cs` and callers |
+| Published wrapper | `PublishedContentWrapped(content, publishedValueFallback)` | `PublishedContentWrapped(content)` | `src/Articulate/Models/MasterModel.cs` |
+
+The date provider and content finder select the matching base class and logger type. `ArticulateRouter` takes `IDocumentUrlService` only in v18. The v18 test projects pin `Microsoft.CodeAnalysis.CSharp.Workspaces` for Umbraco.Code 3. `ArticulateRouteValueTransformerTests.cs` mirrors the v17 `IFileService` and v18 `ITemplateService` constructor requirements.
+
+The checked-in API client uses v18 OpenAPI at `src/Articulate.Web/Client/common/src/api/`; v17 output is comparison-only under `src/Articulate.Web/Client/common/.api-check/v17/`. BlogML responses stay `unknown`; `src/Articulate.Web/Client/common/src/api/api-compatibility.type-test.ts` protects the schema boundary and callers narrow the value to `Blob`.
+
+See [BUILD.md's Client API generation section](BUILD.md#client-api-generation) for generation commands and the v17 schema comparison workflow.
+
+### Back Office client
+
+Feature source lives in `src/Articulate.Web/Client/common/`. The `v17` and `v18` folders contain lane metadata and configuration. `src/Articulate.Web/Client/common/src/lane-adapter.ts` maps v17's deprecated `UmbPropertyValueChangeEvent` to v18's `UmbChangeEvent`; assert the external `change` behaviour rather than the class name.
+
+Keep `legacyDecoratorsPlugin()` in `src/Articulate.Web/Client/common/vite.config.ts`. `pnpm run check` only type-checks; `pnpm run build` also checks the decorator transform. BlogML callers live in `src/Articulate.Web/Client/common/src/components/` and `src/Articulate.Web/Client/common/src/utils/download.ts`.
+
+Run the client build and .NET tests for both lanes after changing compatibility code.
 
 ## Build And Pack
 
-| Shell | Command |
-| --- | --- |
-| Windows PowerShell | `./build/build.ps1` |
-| Bash / WSL / Linux | `./build/build.sh` |
+See [BUILD.md](BUILD.md) for build parameters, lane boundaries, lock files, API generation, package smoke checks, and CI. Visual Studio client builds stay disabled by default; pass `--client true` when packaging or validating Back Office changes.
 
-- For WSL/Linux, make the script executable first with `chmod u+x ./build/build.sh`.
-- `BUILD_CONFIGURATION=Debug` is the default for local builds; Release is the default in packaging flows.
-- `ENABLE_CLIENT_BUILD=true` enables local TypeScript Back Office client builds.
-- `PACK_SAMPLE_THEME=true` forces packing `Articulate.Theme.Sample`; local builds pack it by default, but CI skips it unless explicitly enabled.
-- The scripts clean, restore, build, and pack the current Articulate projects for .NET 9 and .NET 10.
-- The packable NuGet package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)` by default.
-- If you change packaged runtime dependencies or client/static assets, regenerate the Docker inputs before validating source-built or Docker-based installs:
-  - `dotnet pack src/Articulate.Web/Articulate.Web.csproj -c Release`
-  - `dotnet pack src/Articulate.Theme.Sample/Articulate.Theme.Sample.csproj -c Release`
-- The Dockerfile selects the newest `Articulate.[0-9]*.nupkg` in `build/Release` by modified time and ignores `.snupkg` files and theme packages when choosing the version.
-- Rebuilding the image is not enough on its own. A running Compose service can remain on an older image/container. Use `docker compose up -d --build --force-recreate articulate`, or run both steps explicitly:
-  - `docker compose build articulate`
-  - `docker compose up -d --force-recreate --no-deps articulate`
-- The default image tag is `articulate-local:chiseled`; the Compose container name will still be project/service based, for example `articulate-pr-articulate-1`.
-- If the Docker back office still appears stale after a rebuild, check the running container, not just the image:
-  - `docker compose ps`
-  - `docker exec articulate-pr-articulate-1 /bin/sh -c "find /app -path '*App_Plugins/Articulate/BackOffice/articulate-backoffice.js' -o -path '*App_Plugins/Articulate/umbraco-package.json'"`
-  - `Invoke-WebRequest https://localhost:18443/App_Plugins/Articulate/BackOffice/articulate-backoffice.js -SkipCertificateCheck`
-- The default unattended Docker backoffice user is `admin@localhost` with password `@rticulate` and display name `Jane Doe`. Override with `UMBRACO_USER_NAME`, `UMBRACO_USER_EMAIL`, and `UMBRACO_USER_PASSWORD` when needed.
+## Theme API reference
 
-## Back Office Client Builds
+The wiki covers theme creation and layout. The repository owns the complete theme API contracts and helper implementations:
 
-`EnableClientBuild` defaults to `false` so Visual Studio background builds do not clash with Vite output. When you need to rebuild the client during packaging or local validation, set `ENABLE_CLIENT_BUILD=true` inline with the build command:
-
-PowerShell:
-
-```powershell
-$env:ENABLE_CLIENT_BUILD='true'; ./build/build.ps1
-```
-
-Bash:
-
-```bash
-ENABLE_CLIENT_BUILD=true ./build/build.sh
-```
+- [`IMasterModel.cs`](src/Articulate/Models/IMasterModel.cs)
+- [`MasterModel.cs`](src/Articulate/Models/MasterModel.cs)
+- [`PublishedContentExtensions.cs`](src/Articulate/Models/PublishedContentExtensions.cs)
 
 ## Schema And Data
 
