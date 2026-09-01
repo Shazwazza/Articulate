@@ -9,21 +9,15 @@ dotnet run --file build/build.cs -- help
 dotnet run --file build/build.cs -- help <command>
 ```
 
-The CLI help is the canonical command/option reference, including defaults and environment requirements. Environment variables remain supported for CI and local overrides.
+The CLI implementation is authoritative for command behaviour. [`build/help.md`](build/help.md) is the canonical user-facing command and option reference, including defaults and environment requirements.
 
-## Build parameters
+## Build workflow notes
 
-| Parameter                    | Default                                | Description                                                                                                                                                                                                                |
-|------------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--lane`                     | `v17`                                  | Package lane: `v17` (Articulate 7.0 for Umbraco 17) or `v18` (Articulate 8.0 for Umbraco 18).                                                                                                                               |
-| `--configuration`            | `Release`                              | Build configuration: `Debug` or `Release`.                                                                                                                                                                                 |
-| `--tests`                    | `true` in CI, otherwise `false`        | Run `dotnet test` after build.                                                                                                                                                                                             |
-| `--client`                   | `true` in CI/Release, `false` in Debug | Enable the TypeScript Back Office client build (Vite + tsc).                                                                                                                                                               |
-| `--sample`                   | `true` locally, `false` in CI          | Also pack `Articulate.Theme.Sample`. The sample .nupkg is consumed locally by the Docker pipeline (see `docker/src/ArticulateDockerSite.csproj`); it is **not** published and is excluded from CI artifact uploads. |
-| `--clean`                    | `false`                                | Wipe `src/**/bin` and `obj`, `build/ClientAssets`, and packaged Backoffice assets; required when switching lanes. It does not delete client dependencies or the local test site's `umbraco` state. Use `site --reset` for an explicit site reset. |
-| `ARTICULATE_PACKAGE_VERSION` | calculated                             | Optional explicit package-version override. v17 uses NBGV; v18 uses `version-v18.txt` plus NBGV metadata.                                                                                                            |
+For current command syntax, options, and defaults, use [`build/help.md`](build/help.md) or `dotnet run --file build/build.cs -- help <command>`.
 
 The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj` (`PackageId=Articulate`). Packages are written under `build/$(Configuration)/v17` or `build/$(Configuration)/v18`.
+
+Set `ARTICULATE_PACKAGE_VERSION` to override the calculated package version. The sample package supports the local Docker pipeline; it is not published or uploaded as a CI artefact.
 
 Because both lanes share project `bin`/`obj` directories and static-web-asset paths, always run full-solution lane builds sequentially and with `-m:1` (`build/build.cs` already does this internally).
 
