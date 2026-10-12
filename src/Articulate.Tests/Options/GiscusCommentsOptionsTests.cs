@@ -15,25 +15,25 @@ namespace Articulate.Tests.Options
         }
 
         [Test]
-        public void ResolveCorsHeaders_NoOrigin_ReturnsWildcardWithoutVary()
+        public void ResolveCorsHeaders_NoOrigin_ReturnsWildcardWithVary()
         {
             CorsHeaderDecision decision = GiscusCommentsOptions.ResolveCorsHeaders(
                 requestOrigin: null,
                 allowedOrigins: new[] { "https://giscus.app" });
 
             Assert.That(decision.AllowOrigin, Is.EqualTo("*"));
-            Assert.That(decision.Vary, Is.False);
+            Assert.That(decision.Vary, Is.True);
         }
 
         [Test]
-        public void ResolveCorsHeaders_EmptyOrigin_ReturnsWildcardWithoutVary()
+        public void ResolveCorsHeaders_EmptyOrigin_ReturnsWildcardWithVary()
         {
             CorsHeaderDecision decision = GiscusCommentsOptions.ResolveCorsHeaders(
                 requestOrigin: string.Empty,
                 allowedOrigins: new[] { "https://giscus.app" });
 
             Assert.That(decision.AllowOrigin, Is.EqualTo("*"));
-            Assert.That(decision.Vary, Is.False);
+            Assert.That(decision.Vary, Is.True);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace Articulate.Tests.Options
                 allowedOrigins: new[] { "https://giscus.app" });
 
             Assert.That(decision.AllowOrigin, Is.Null);
-            Assert.That(decision.Vary, Is.False);
+            Assert.That(decision.Vary, Is.True);
         }
 
         [Test]
@@ -77,14 +77,14 @@ namespace Articulate.Tests.Options
                 requestOrigin: null,
                 allowedOrigins: null);
             Assert.That(sameOrigin.AllowOrigin, Is.EqualTo("*"));
-            Assert.That(sameOrigin.Vary, Is.False);
+            Assert.That(sameOrigin.Vary, Is.True);
 
             // Origin present but no allowlist → no CORS headers (browser blocks).
             CorsHeaderDecision crossOrigin = GiscusCommentsOptions.ResolveCorsHeaders(
                 requestOrigin: "https://giscus.app",
                 allowedOrigins: null);
             Assert.That(crossOrigin.AllowOrigin, Is.Null);
-            Assert.That(crossOrigin.Vary, Is.False);
+            Assert.That(crossOrigin.Vary, Is.True);
         }
 
         [Test]

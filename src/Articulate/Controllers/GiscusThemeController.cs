@@ -1,6 +1,7 @@
 #nullable enable
 using Articulate.Options;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,7 @@ namespace Articulate.Controllers
     /// </summary>
     /// <remarks>
     /// Reads <c>App_Plugins/Articulate/Themes/{theme}/assets/giscus.css</c> directly
-    /// off disk via <see cref="IWebHostEnvironment.WebRootPath"/>. The same path
+    /// via <see cref="IWebHostEnvironment.WebRootFileProvider"/>. The same path
     /// is also served by Umbraco's static-web-assets middleware at
     /// <c>/App_Plugins/Articulate/Themes/{theme}/assets/giscus.css</c>; this
     /// controller is the cross-origin version for the giscus iframe.
@@ -64,7 +65,7 @@ namespace Articulate.Controllers
         }
 
         // Reflect the request Origin against the configured allowlist (default
-        // ["https://giscus.app"]). Vary: Origin is set on reflection so shared
+        // ["https://giscus.app"]). Vary: Origin is always set so shared
         // caches don't poison Allow-Origin between different callers. Falls back
         // to "*" for same-origin / no-Origin callers.
         private void ApplyCorsHeaders()
@@ -78,7 +79,8 @@ namespace Articulate.Controllers
             }
             if (cors.Vary)
             {
-                Response.Headers["Vary"] = "Origin";
+                // Append, not overwrite: other middleware (e.g. compression) may already vary on Accept-Encoding.
+                Response.Headers.Append("Vary", "Origin");
             }
         }
 

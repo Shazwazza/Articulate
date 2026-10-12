@@ -62,8 +62,8 @@ namespace Articulate.Options
         /// <c>/articulate/giscus-theme/{theme}</c>. The request's <c>Origin</c> header is
         /// echoed back as <c>Access-Control-Allow-Origin</c> when it matches an entry
         /// (case-insensitive, exact); otherwise the response omits the CORS header and
-        /// the browser rejects the stylesheet. <c>Vary: Origin</c> is set on reflected
-        /// responses so shared caches do not poison the allow-origin per origin.
+        /// the browser rejects the stylesheet. <c>Vary: Origin</c> is always set so shared
+        /// caches keep a separate entry per origin.
         /// <para>
         /// Default <c>["https://giscus.app"]</c>. Override to add a self-hosted giscus
         /// domain (e.g. <c>https://comments.example.com</c>) or to widen for development.
@@ -105,7 +105,7 @@ namespace Articulate.Options
         {
             if (string.IsNullOrEmpty(requestOrigin))
             {
-                return new CorsHeaderDecision(AllowOrigin: "*", Vary: false);
+                return new CorsHeaderDecision(AllowOrigin: "*", Vary: true);
             }
 
             if (allowedOrigins is not null)
@@ -120,16 +120,16 @@ namespace Articulate.Options
                 }
             }
 
-            return new CorsHeaderDecision(AllowOrigin: null, Vary: false);
+            return new CorsHeaderDecision(AllowOrigin: null, Vary: true);
         }
     }
 
     /// <summary>
     /// Outcome of <see cref="GiscusCommentsOptions.ResolveCorsHeaders"/>. <c>AllowOrigin</c>
     /// null means "do not emit an <c>Access-Control-Allow-Origin</c> header" (the browser
-    /// will block the response). <c>Vary</c> is true only when <c>AllowOrigin</c> was
-    /// reflected from the request, so shared caches cannot serve one origin's allow-list
-    /// to another origin's request.
+    /// will block the response). <c>Vary</c> is always true because the headers depend on
+    /// the request <c>Origin</c>, so shared caches cannot serve one origin's response
+    /// to another origin.
     /// </summary>
     internal sealed record CorsHeaderDecision(string? AllowOrigin, bool Vary);
 }
