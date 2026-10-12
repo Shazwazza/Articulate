@@ -57,4 +57,5 @@ namespace Articulate.Services
             => !string.IsNullOrEmpty(explicitTheme)
                 ? explicitTheme
                 : (repo.GetThemeAssetUrl(themeName, request) ?? "preferred_color_scheme");
-    }}
+    }
+}
