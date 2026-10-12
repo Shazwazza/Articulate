@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <PackageId>Articulate</PackageId>
     <Title>Articulate</Title>
     <AssemblyName>Articulate.Web</AssemblyName>
@@ -88,7 +87,6 @@
     <ClientBuildMode>prod</ClientBuildMode>
     <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
     <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode).stamp</ClientBuildStamp>
-    <ClientBuildTargetFramework>net10.0</ClientBuildTargetFramework>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
@@ -118,7 +116,7 @@
     <None Include="$(BackofficeOutputDir)\**" />
   </ItemGroup>
 
-  <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'=='$(ClientBuildTargetFramework)'" BeforeTargets="ResolveProjectStaticWebAssets" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
+  <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(NoBuild)'!='true'" BeforeTargets="ResolveProjectStaticWebAssets" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
     <Message Text="Building Articulate BackOffice Client (Incremental)..." Importance="High" />
     <MakeDir Directories="$(ClientAssetsCacheDir)" />
     <PropertyGroup>
@@ -145,7 +143,7 @@
        Vite outputs explicitly after Vite runs so the SDK's static-web-asset
        discovery can find them. Paths must be project-relative - absolute
        paths fail the SDK's "starts with wwwroot/" Identity filter. -->
-  <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveProjectStaticWebAssets" Condition="'$(EnableClientBuild)'=='true'">
+  <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveProjectStaticWebAssets" Condition="'$(EnableClientBuild)'=='true' and '$(NoBuild)'!='true'">
     <Message Text="Refreshing BackOffice assets..." Importance="Low" />
     <ItemGroup>
       <Content Remove="$(BackofficeOutputDir)\**" />
@@ -155,11 +153,6 @@
       <Content Include="wwwroot\App_Plugins\Articulate\MarkdownEditor\assets\dist\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\umbraco-package.json" />
     </ItemGroup>
-  </Target>
-
-  <Target Name="EnsureClientAssets" Condition="'$(EnableClientBuild)'=='true' and '$(TargetFramework)'!='$(ClientBuildTargetFramework)' and !Exists('$(ClientBuildStamp)')" BeforeTargets="ResolveProjectStaticWebAssets">
-    <Message Text="Client assets missing for $(TargetFramework); triggering BuildBackofficeClient..." Importance="High" />
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildBackofficeClient" Properties="TargetFramework=$(ClientBuildTargetFramework);Configuration=$(Configuration);ArticulatePackageLane=$(ArticulatePackageLane);UmbracoClientVersion=$(UmbracoClientVersion)" />
   </Target>
 
   <Target Name="CleanClientAssets" AfterTargets="Clean" Condition="'$(EnableClientBuild)'=='true'">

@@ -2,6 +2,7 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
+		<TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
 		<!-- TODO: Enable after phased migration. https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies -->
 		<Nullable>warnings</Nullable>
 		<WarningsAsErrors>Nullable</WarningsAsErrors>
@@ -36,8 +37,10 @@
 		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(ArticulatePackageLane)' == 'v18' or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.'))">
-		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
+	<PropertyGroup>
+		<_ArticulateUmbracoMajor Condition="'$(UmbracoCmsPackageVersion)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(UmbracoCmsPackageVersion)', '\d+').Value)</_ArticulateUmbracoMajor>
+		<_ArticulateUmbracoMajor Condition="'$(_ArticulateUmbracoMajor)' == ''">$(ArticulatePackageLane.TrimStart('v'))</_ArticulateUmbracoMajor>
+		<DefineConstants Condition="$(_ArticulateUmbracoMajor) &gt;= 18">$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
 		<CompressionEnabled>false</CompressionEnabled>
@@ -76,7 +79,7 @@
 		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
 		<ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)'=='' and '$(ARTICULATE_PACKAGE_VERSION)'!=''">$(ARTICULATE_PACKAGE_VERSION)</ArticulatePackageVersion>
 	</PropertyGroup>
-	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;EnsureClientAssets;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
+	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
 		<PropertyGroup>
 			<Version>$(ArticulatePackageVersion)</Version>
 			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>

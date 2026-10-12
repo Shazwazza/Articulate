@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <UseArticulateUsings>false</UseArticulateUsings>
     <UseTinyMceUmbraco Condition="'$(UseTinyMceUmbraco)' == ''">false</UseTinyMceUmbraco>
@@ -13,7 +12,7 @@
   <ItemGroup Condition="'$(UseTinyMceUmbraco)' == 'true'">
     <PackageReference Include="TinyMCE.Umbraco" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' and ($([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[17.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.')))">
+  <ItemGroup Condition="$(_ArticulateUmbracoMajor) &gt;= 17">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
   </ItemGroup>
   <!-- Keep Roslyn Workspaces aligned with the version required by Umbraco 18's development backoffice. -->

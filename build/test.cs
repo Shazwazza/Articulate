@@ -123,6 +123,8 @@ static async Task<int> RunFresh(Options options)
         var version = Path.GetFileName(main[0])["Articulate.".Length..^".nupkg".Length];
         var cms = (await Capture(dotnet, new[] { "msbuild", Path.Combine(root, "src", "Articulate.Web", "Articulate.Web.csproj"), "-getProperty:UmbracoCmsPackageVersion", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
         if (string.IsNullOrWhiteSpace(cms)) throw new InvalidOperationException("The lane CMS version is missing.");
+        var targetFramework = (await Capture(dotnet, new[] { "msbuild", Path.Combine(root, "src", "Articulate.Web", "Articulate.Web.csproj"), "-getProperty:TargetFramework", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
+        if (string.IsNullOrWhiteSpace(targetFramework)) throw new InvalidOperationException("The lane target framework is missing.");
         var candidate = $"art_e2e_native_{lane}_{Guid.NewGuid():N}";
         var directory = Path.Combine(Path.GetTempPath(), candidate);
         if (Directory.Exists(directory)) throw new IOException("Native candidate directory already exists.");
@@ -191,8 +193,11 @@ static async Task<int> RunFresh(Options options)
             var project = Path.Combine(directory, "ArticulateDockerSite.csproj");
             // The copied host is outside the repository's central-package and implicit-using settings.
             var projectXml = XDocument.Load(project);
-            projectXml.Root!.Element("PropertyGroup")!.Add(new XElement("ImplicitUsings", "enable"),
+            var properties = projectXml.Root!.Element("PropertyGroup")!;
+            properties.Add(new XElement("ImplicitUsings", "enable"),
                 new XElement("ArticulatePackageVersion", version), new XElement("UmbracoCmsPackageVersion", cms));
+            properties.SetElementValue("TargetFramework", targetFramework);
+            properties.SetElementValue("CompressionEnabled", "false");
             foreach (var reference in projectXml.Descendants("PackageReference"))
             {
                 if (reference.Attribute("VersionOverride") is not { } overridden) continue;
