@@ -207,7 +207,10 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: native-e2e-${{ matrix.lane }}-${{ github.run_attempt }}
-          path: .temp/art_e2e_native_${{ matrix.lane }}_*/native-host-*.log
+          path: |
+            .temp/art_e2e_native_${{ matrix.lane }}_*/native-host-*.log
+            src/Articulate.Web/Client/e2e-report-*/
+            src/Articulate.Web/Client/e2e-results-*/
           include-hidden-files: true
           retention-days: 1
           if-no-files-found: warn
