@@ -84,6 +84,15 @@
 			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
 		</PropertyGroup>
 	</Target>
+	<Target Name="ApplyArticulatePackageVersionAfterNbgv" AfterTargets="GetUmbracoBuildVersion" Condition="'$(ArticulatePackageVersion)' != ''">
+		<PropertyGroup>
+			<Version>$(ArticulatePackageVersion)</Version>
+			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<NuGetPackageVersion>$(ArticulatePackageVersion)</NuGetPackageVersion>
+			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
+			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
+		</PropertyGroup>
+	</Target>
 	<ItemGroup>
 		<Content Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false" />
 	</ItemGroup>
