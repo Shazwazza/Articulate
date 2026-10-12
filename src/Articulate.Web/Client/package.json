@@ -7,7 +7,8 @@
   },
   "packageManager": "pnpm@11.19.0",
   "scripts": {
-    "dev": "pnpm --filter articulate-backoffice-v17 run dev & pnpm --filter articulate-backoffice-v18 run dev",
+    "dev:v17": "pnpm --filter articulate-backoffice-v17 run dev",
+    "dev:v18": "pnpm --filter articulate-backoffice-v18 run dev",
     "build": "pnpm --filter articulate-backoffice-v17 run build && pnpm --filter articulate-backoffice-v18 run build",
     "build:dev": "pnpm --filter articulate-backoffice-v17 run build:dev && pnpm --filter articulate-backoffice-v18 run build:dev",
     "check": "pnpm --filter articulate-backoffice-v17 run check && pnpm --filter articulate-backoffice-v18 run check",
