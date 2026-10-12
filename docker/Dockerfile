@@ -18,6 +18,8 @@ ARG TARGET_FRAMEWORK=net10.0
 # UMBRACO_CMS_VERSION is required; run.cs reads the floor from Directory.Packages.props
 # and passes it as --build-arg. No default — explicit fail beats silent version drift.
 ARG UMBRACO_CMS_VERSION
+ARG SIXLABORS_IMAGESHARP_VERSION
+ARG SIXLABORS_IMAGESHARP_WEB_VERSION
 ARG BUILD_CONFIGURATION=Release
 ARG PACKAGE_SOURCE=build/Release/v17
 ARG USE_TINYMCE_UMBRACO=false
@@ -64,6 +66,8 @@ RUN set -eux; \
     # exactly (case-sensitive on Linux). UseTinyMceUmbraco stays as /p: — it's a
     # plain bool flag with no `)` in any value.
     export UmbracoCmsPackageVersion="${UMBRACO_CMS_VERSION}"; \
+    export SixLaborsImageSharpPackageVersion="${SIXLABORS_IMAGESHARP_VERSION}"; \
+    export SixLaborsImageSharpWebPackageVersion="${SIXLABORS_IMAGESHARP_WEB_VERSION}"; \
     if [ "${USE_TINYMCE_UMBRACO}" = "true" ]; then \
       export TinyMceUmbracoPackageVersion="${TINYMCE_UMBRACO_PACKAGE_VERSION}"; \
     fi; \

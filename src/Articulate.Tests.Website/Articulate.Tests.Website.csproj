@@ -8,6 +8,8 @@
   <ItemGroup>
     <PackageReference Include="MessagePack" />
     <PackageReference Include="Umbraco.Cms" />
+    <PackageReference Include="SixLabors.ImageSharp" ExcludeAssets="build" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" ExcludeAssets="build" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseTinyMceUmbraco)' == 'true'">
     <PackageReference Include="TinyMCE.Umbraco" />

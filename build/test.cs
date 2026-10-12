@@ -121,8 +121,19 @@ static async Task<int> RunFresh(Options options)
             .Where(file => Regex.IsMatch(Path.GetFileName(file), @"^Articulate\.[0-9]", RegexOptions.CultureInvariant)).ToArray();
         if (main.Length != 1) throw new InvalidOperationException($"Expected exactly one main package in {packages}.");
         var version = Path.GetFileName(main[0])["Articulate.".Length..^".nupkg".Length];
-        var cms = (await Capture(dotnet, new[] { "msbuild", Path.Combine(root, "src", "Articulate.Web", "Articulate.Web.csproj"), "-getProperty:UmbracoCmsPackageVersion", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
+        var webProject = Path.Combine(root, "src", "Articulate.Web", "Articulate.Web.csproj");
+        var cms = (await Capture(dotnet, new[] { "msbuild", webProject, "-getProperty:UmbracoCmsPackageVersion", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
         if (string.IsNullOrWhiteSpace(cms)) throw new InvalidOperationException("The lane CMS version is missing.");
+        var imageSharp = (await Capture(dotnet, new[] { "msbuild", webProject, "-getProperty:SixLaborsImageSharpPackageVersion", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
+        var imageSharpWeb = (await Capture(dotnet, new[] { "msbuild", webProject, "-getProperty:SixLaborsImageSharpWebPackageVersion", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
+        if (string.IsNullOrWhiteSpace(imageSharp) || string.IsNullOrWhiteSpace(imageSharpWeb))
+            throw new InvalidOperationException("The lane ImageSharp package versions are missing.");
+        var auditSuppressionsJson = await Capture(dotnet, new[] { "msbuild", webProject, "-getItem:NuGetAuditSuppress", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root);
+        using var auditSuppressionsDocument = System.Text.Json.JsonDocument.Parse(auditSuppressionsJson);
+        var auditSuppressions = auditSuppressionsDocument.RootElement.GetProperty("Items");
+        var suppressionUrls = auditSuppressions.TryGetProperty("NuGetAuditSuppress", out var suppressions)
+            ? suppressions.EnumerateArray().Select(item => item.GetProperty("Identity").GetString()!).ToArray()
+            : Array.Empty<string>();
         var targetFramework = (await Capture(dotnet, new[] { "msbuild", Path.Combine(root, "src", "Articulate.Web", "Articulate.Web.csproj"), "-getProperty:TargetFramework", $"-p:ArticulatePackageLane={lane}", "-nodeReuse:false" }, root)).Trim();
         if (string.IsNullOrWhiteSpace(targetFramework)) throw new InvalidOperationException("The lane target framework is missing.");
         var candidate = $"art_e2e_native_{lane}_{Guid.NewGuid():N}";
@@ -195,7 +206,11 @@ static async Task<int> RunFresh(Options options)
             var projectXml = XDocument.Load(project);
             var properties = projectXml.Root!.Element("PropertyGroup")!;
             properties.Add(new XElement("ImplicitUsings", "enable"),
-                new XElement("ArticulatePackageVersion", version), new XElement("UmbracoCmsPackageVersion", cms));
+                new XElement("ArticulatePackageVersion", version), new XElement("UmbracoCmsPackageVersion", cms),
+                new XElement("SixLaborsImageSharpPackageVersion", imageSharp),
+                new XElement("SixLaborsImageSharpWebPackageVersion", imageSharpWeb));
+            projectXml.Root.Add(new XElement("ItemGroup", suppressionUrls.Select(url =>
+                new XElement("NuGetAuditSuppress", new XAttribute("Include", url)))));
             properties.SetElementValue("TargetFramework", targetFramework);
             properties.SetElementValue("CompressionEnabled", "false");
             foreach (var reference in projectXml.Descendants("PackageReference"))
@@ -207,6 +222,17 @@ static async Task<int> RunFresh(Options options)
             projectXml.Save(project);
             var published = Path.Combine(directory, "published");
             await RunCommand(dotnet, new[] { "publish", project, "--configuration", "Release", "--output", published }, root, environment);
+            using (var assets = System.Text.Json.JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(directory, "obj", "project.assets.json"))))
+            {
+                var resolvedImageSharp = assets.RootElement.GetProperty("libraries").EnumerateObject()
+                    .Select(package => package.Name).Where(name => name.StartsWith("SixLabors.ImageSharp", StringComparison.OrdinalIgnoreCase))
+                    .Order(StringComparer.Ordinal).ToArray();
+                var expectedImageSharp = new[] { $"SixLabors.ImageSharp.Web/{imageSharpWeb}", $"SixLabors.ImageSharp/{imageSharp}" }
+                    .Order(StringComparer.Ordinal).ToArray();
+                if (!resolvedImageSharp.SequenceEqual(expectedImageSharp, StringComparer.Ordinal))
+                    throw new InvalidOperationException($"Copied host resolved unexpected ImageSharp packages: {string.Join(", ", resolvedImageSharp)}.");
+                Console.WriteLine($"Native host ImageSharp assets: {string.Join(", ", resolvedImageSharp)}; evaluated audit suppressions={suppressionUrls.Length}");
+            }
             foreach (var package in Directory.EnumerateFiles(packages, "*.nupkg"))
             {
                 var name = Path.GetFileNameWithoutExtension(package);

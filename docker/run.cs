@@ -62,6 +62,8 @@ async Task<int> DockerBuild(Opts o)
         "build", "--file", "docker/Dockerfile", "--target", "chiseled", "--tag", o.String("tag", $"articulate-local:{lane}")!,
         "--build-arg", $"PACKAGE_SOURCE={Env.Get("PACKAGE_SOURCE", $"build/Release/{lane}")}",
         "--build-arg", $"UMBRACO_CMS_VERSION={Env.Get("UMBRACO_CMS_VERSION")}",
+        "--build-arg", $"SIXLABORS_IMAGESHARP_VERSION={Env.Get("SIXLABORS_IMAGESHARP_VERSION")}",
+        "--build-arg", $"SIXLABORS_IMAGESHARP_WEB_VERSION={Env.Get("SIXLABORS_IMAGESHARP_WEB_VERSION")}",
         "--build-arg", $"USE_TINYMCE_UMBRACO={Env.Get("USE_TINYMCE_UMBRACO", "false")}",
         "--build-arg", $"TINYMCE_UMBRACO_PACKAGE_VERSION={Env.Get("TINYMCE_UMBRACO_PACKAGE_VERSION")}",
         "."
@@ -322,6 +324,8 @@ string ConfigureLane(string lane)
         ["IMAGE_TAG"] = $"articulate-local:{lane}",
         ["PACKAGE_SOURCE"] = $"build/{configuration}/{lane}",
         ["UMBRACO_CMS_VERSION"] = Env.MsbuildProperty("UmbracoCmsPackageVersion", lane),
+        ["SIXLABORS_IMAGESHARP_VERSION"] = Env.MsbuildProperty("SixLaborsImageSharpPackageVersion", lane),
+        ["SIXLABORS_IMAGESHARP_WEB_VERSION"] = Env.MsbuildProperty("SixLaborsImageSharpWebPackageVersion", lane),
         ["TINYMCE_UMBRACO_PACKAGE_VERSION"] = Env.MsbuildProperty("TinyMceUmbracoPackageVersion", lane),
         ["Umbraco__CMS__Security__AuthCookieName"] = $"UMB_UCONTEXT-{lane}",
         ["Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName"] = $"-{lane}",

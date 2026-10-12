@@ -13,6 +13,8 @@
     <!-- Versions resolved from properties so this minimal scaffold builds
          without the repo's Directory.Packages.props / Central Package Management. -->
     <PackageReference Include="Umbraco.Cms" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="SixLabors.ImageSharp" VersionOverride="$(SixLaborsImageSharpPackageVersion)" ExcludeAssets="build" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" VersionOverride="$(SixLaborsImageSharpWebPackageVersion)" ExcludeAssets="build" />
     <PackageReference Include="Articulate" VersionOverride="$(ArticulatePackageVersion)" />
     <PackageReference Include="Articulate.Theme.Sample" VersionOverride="$(ArticulatePackageVersion)" />
   </ItemGroup>

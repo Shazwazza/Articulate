@@ -40,7 +40,7 @@ jobs:
     # Both lanes write identical values, so the collapsed matrix output is safe.
     outputs:
       handoff: ${{ steps.handoff.outcome }}
-      publish: ${{ !env.ACT && env.ARTICULATE_TESTING_AUDIT_EXCEPTION != 'true' }}
+      publish: ${{ !env.ACT }}
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -51,12 +51,6 @@ jobs:
       # Lingering MSBuild nodes/build server inherit redirected pipes and stall output capture.
       MSBUILDDISABLENODEREUSE: 1
       DOTNET_CLI_USE_MSBUILD_SERVER: 0
-      # Temporary ImageSharp risk acceptance for this fork's test branch only.
-      ARTICULATE_TESTING_AUDIT_EXCEPTION: >-
-        ${{ github.repository == 'gavinfaux/Articulate' &&
-            (github.ref == 'refs/heads/explore/e2e-first-testing' ||
-             (github.head_ref == 'explore/e2e-first-testing' &&
-              github.event.pull_request.head.repo.full_name == 'gavinfaux/Articulate')) }}
 
     steps:
       - name: Checkout
@@ -81,9 +75,6 @@ jobs:
           echo "Version: ${NBGV_SemVer2}"
           echo "Commit: ${NBGV_GitCommitIdShort}"
           echo "Date: ${NBGV_GitCommitDate}"
-          if [ "${ARTICULATE_TESTING_AUDIT_EXCEPTION}" = "true" ]; then
-            echo "::warning::Testing only: three ImageSharp advisories are temporarily exempt. ImageSharp 3.1.12 remains affected; package upload is disabled."
-          fi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10

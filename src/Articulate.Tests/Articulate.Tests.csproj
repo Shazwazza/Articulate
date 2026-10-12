@@ -18,6 +18,8 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Umbraco.Cms" />
+    <PackageReference Include="SixLabors.ImageSharp" ExcludeAssets="build" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" ExcludeAssets="build" />
   </ItemGroup>
 
   <ItemGroup>
