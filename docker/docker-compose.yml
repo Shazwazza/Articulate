@@ -12,6 +12,8 @@ services:
         # UMBRACO_CMS_VERSION and TinyMCE versions come from Directory.Packages.props
         # via run.cs ConfigureLane. Set them in the shell for direct `docker compose` use.
         UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:?UMBRACO_CMS_VERSION is required (see run.cs ConfigureLane)}
+        SIXLABORS_IMAGESHARP_VERSION: ${SIXLABORS_IMAGESHARP_VERSION:?SIXLABORS_IMAGESHARP_VERSION is required (see run.cs ConfigureLane)}
+        SIXLABORS_IMAGESHARP_WEB_VERSION: ${SIXLABORS_IMAGESHARP_WEB_VERSION:?SIXLABORS_IMAGESHARP_WEB_VERSION is required (see run.cs ConfigureLane)}
         PACKAGE_SOURCE: ${PACKAGE_SOURCE:-build/Release/v17}
         USE_TINYMCE_UMBRACO: ${USE_TINYMCE_UMBRACO:-false}
         # Dockerfile validates this when USE_TINYMCE_UMBRACO=true; empty is valid when it is off.
