@@ -63,8 +63,8 @@ static async Task<int> RunE2e(Options options)
     if (candidateProject is not null && candidatePort is not null)
     {
         var lane = lanes[0];
-        if (!Regex.IsMatch(candidateProject, $@"^art_e2e_candidate_{lane}_[a-f0-9]{{32}}$", RegexOptions.CultureInvariant))
-            throw new ArgumentException("--candidate-project must be the generated project name for the selected lane.");
+        if (!Regex.IsMatch(candidateProject, $@"^(?:art_e2e_candidate|art_e2e_native)_{lane}_[a-f0-9]{{32}}$", RegexOptions.CultureInvariant))
+            throw new ArgumentException("--candidate-project must be a generated candidate project name for the selected lane.");
         if (!int.TryParse(candidatePort, out var parsedPort) || parsedPort is < 1024 or > 65535 || IsProtectedPort(parsedPort))
             throw new ArgumentException("--candidate-port must be a non-protected localhost port.");
         await VerifyCandidate(root, candidateProject, parsedPort);
