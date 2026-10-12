@@ -87,6 +87,12 @@ async Task<int> BuildAsync(Opts o)
     var packageVersion = await ResolvePackageVersion(lane);
     props.Add("-p:ArticulatePackageVersion=" + packageVersion);
 
+    // Refuse a lane switch before deleting anything.
+    var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
+    var activeVersion = File.Exists(activeVersionPath) ? File.ReadAllText(activeVersionPath).Trim() : null;
+    if (defaults.Client && !clean && activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException($"Client assets belong to {activeLane}; rerun with --clean before building {lane}.");
+
     Console.WriteLine($"Build: {lane}, {cfg}, package {packageVersion}{(clean ? " (Clean Build)" : "")}");
     DeleteExistingPackages(releaseDir);
 
@@ -99,10 +105,6 @@ async Task<int> BuildAsync(Opts o)
 
     if (defaults.Client)
     {
-        var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
-        var activeVersion = File.Exists(activeVersionPath) ? File.ReadAllText(activeVersionPath).Trim() : null;
-        if (!clean && activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException($"Client assets belong to {activeLane}; rerun with --clean before building {lane}.");
         if (clean || activeLane is null || !string.Equals(activeVersion, packageVersion, StringComparison.Ordinal))
         {
             DeleteDir(backofficeDir);
