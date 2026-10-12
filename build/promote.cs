@@ -97,11 +97,18 @@ async Task<int> PatchAsync(Opts o)
             throw new InvalidOperationException($"{profile} target checks failed.");
         }
 
+        var nativeE2ETested = false;
         if (!o.Flag("skip-build"))
         {
             await RunDockerUtilityCompileCheck(worktree);
             await RunTargetBuild(worktree);
             await RunPackageSmoke(worktree);
+            if (File.Exists(Path.Combine(worktree, "build", "test.cs")))
+            {
+                Console.WriteLine("Running fresh packaged-site native E2E tests");
+                await RunAt(worktree, "dotnet", "run", "--file", "build/test.cs", "--", "fresh");
+                nativeE2ETested = true;
+            }
             if (o.Flag("docker"))
                 await RunDockerTest(worktree);
         }
@@ -121,7 +128,8 @@ async Task<int> PatchAsync(Opts o)
             TreeSha: treeSha,
             Worktree: worktree,
             BuildSkipped: o.Flag("skip-build"),
-            DockerTested: o.Flag("docker"));
+            DockerTested: o.Flag("docker"),
+            NativeE2ETested: nativeE2ETested);
 
         var manifestPath = o.String("manifest");
         if (manifestPath is not null)
@@ -298,7 +306,8 @@ sealed record PromotionManifest(
     string TreeSha,
     string Worktree,
     bool BuildSkipped,
-    bool DockerTested);
+    bool DockerTested,
+    bool NativeE2ETested);
 
 static class Env
 {

@@ -29,9 +29,11 @@ dotnet run --file build/promote.cs -- patch \
 | `--worktree` | no | Candidate worktree. Defaults to a temporary directory. |
 | `--manifest` | no | Path for the JSON evidence manifest, relative to the repository root. |
 | `--docker` | no | Also run the target worktree's `docker-test`. Requires Docker; cannot be combined with `--skip-build`. |
-| `--skip-build` | no | Run Git/reference checks only. Cannot be combined with `--docker`. Use only while preparing or debugging a target branch. |
+| `--skip-build` | no | Run Git/reference checks only; skip builds and all runtime tests. Cannot be combined with `--docker`. Use only while preparing or debugging a target branch. |
 
-The command resolves refs to SHAs, verifies that every selected commit belongs to the source ref, creates an isolated worktree from the target base, cherry-picks the commits, checks for forbidden platform references, and runs the target branch's clean build, tests and package smoke checks.
+The command resolves refs to SHAs, verifies that every selected commit belongs to the source ref, creates an isolated worktree from the target base, cherry-picks the commits, checks for forbidden platform references, and runs the target branch's clean build, unit tests and package smoke checks.
+
+When the candidate contains `build/test.cs`, promotion also runs its `fresh` command against the built packages. A failed native E2E run stops promotion before the manifest is written. The manifest's `NativeE2ETested` field records whether that check passed. Older candidates without the runner retain the existing build checks; `--skip-build` also skips native E2E.
 
 A cherry-pick conflict stops the promotion. The command does not resolve conflicts or mutate an upstream branch. Review the candidate worktree, port the change manually when required, and rerun with the resulting commit.
 
