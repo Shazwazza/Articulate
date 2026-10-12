@@ -30,8 +30,13 @@ const string ReplyMutation = """
     }
     """;
 const string ListQuery = """
-    query($o:String!,$n:String!){
-      repository(owner:$o, name:$n){ discussions(first:100){ nodes{ title } } }
+    query($o:String!,$n:String!,$c:ID!,$after:String){
+      repository(owner:$o, name:$n){
+        discussions(first:100, after:$after, categoryId:$c){
+          nodes{ id title comments{ totalCount } }
+          pageInfo{ hasNextPage endCursor }
+        }
+      }
     }
     """;
 
@@ -140,15 +145,25 @@ if (site is not null)
     Console.WriteLine($"url map: {urlMap.Count} published routes.\n");
 }
 
-// --- resume support: skip posts whose discussion already exists ---
-var existingTitles = new HashSet<string>(StringComparer.Ordinal);
+// --- resume support: skip finished discussions, continue partly-replied ones ---
+var existing = new Dictionary<string, (string Id, int Replies)>(StringComparer.Ordinal);
 if (go && repo is not null)
 {
     var parts = repo.Split('/');
-    var listed = await GhGraphQL(ListQuery, new Dictionary<string, string> { ["o"] = parts[0], ["n"] = parts[1] }, "listing existing discussions", typed: false, pace: 0);
-    foreach (var node in listed.GetProperty("data").GetProperty("repository").GetProperty("discussions").GetProperty("nodes").EnumerateArray())
-        existingTitles.Add(node.GetProperty("title").GetString() ?? "");
-    if (existingTitles.Count > 0) Console.WriteLine($"resuming: {existingTitles.Count} discussions already exist, they will be skipped.\n");
+    string? cursor = null;
+    while (true)
+    {
+        var listVars = new Dictionary<string, string> { ["o"] = parts[0], ["n"] = parts[1], ["c"] = categoryId! };
+        if (cursor is not null) listVars["after"] = cursor;
+        var listed = await GhGraphQL(ListQuery, listVars, "listing existing discussions", typed: false, pace: 0);
+        var page = listed.GetProperty("data").GetProperty("repository").GetProperty("discussions");
+        foreach (var node in page.GetProperty("nodes").EnumerateArray())
+            existing[node.GetProperty("title").GetString() ?? ""] = (node.GetProperty("id").GetString()!, node.GetProperty("comments").GetProperty("totalCount").GetInt32());
+        var pageInfo = page.GetProperty("pageInfo");
+        if (!pageInfo.GetProperty("hasNextPage").GetBoolean()) break;
+        cursor = pageInfo.GetProperty("endCursor").GetString();
+    }
+    if (existing.Count > 0) Console.WriteLine($"resuming: {existing.Count} discussions already exist; finished ones are skipped, partial ones continue.\n");
 }
 
 // --- migrate ---
@@ -162,7 +177,8 @@ foreach (var post in posts)
     }
 
     var discussionTitle = mapping == "pathname" ? path! : post.Title + titleSuffix;
-    if (existingTitles.Contains(discussionTitle)) { Console.WriteLine($"• skip (exists): {post.Title}"); continue; }
+    var found = existing.TryGetValue(discussionTitle, out var prior);
+    if (found && prior.Replies >= post.Comments.Count) { Console.WriteLine($"• skip (exists): {post.Title}"); continue; }
 
     var body = $"Migrated comments for: **{post.Title}** ({post.Comments.Count} comment{(post.Comments.Count == 1 ? "" : "s")})";
     if (path is not null) body += $"\n\nURL: {site}{path}";
@@ -173,18 +189,30 @@ foreach (var post in posts)
 
     if (!go) continue;
 
-    var createVars = new Dictionary<string, string> { ["r"] = repoId!, ["c"] = categoryId!, ["t"] = discussionTitle, ["b"] = body };
-    var created = await GhGraphQL(CreateMutation, createVars, $"creating discussion \"{discussionTitle}\"", typed: false, pace: 0);
-    var number = created.GetProperty("data").GetProperty("createDiscussion").GetProperty("discussion").GetProperty("number").GetInt32();
+    string? discussionId;
+    var skipReplies = 0;
+    if (found)
+    {
+        // shortcut: assumes earlier replies were posted in order and none were deleted, upgrade if edited discussions must resume
+        discussionId = prior.Id;
+        skipReplies = prior.Replies;
+        Console.WriteLine($"    resuming discussion with {skipReplies} replies already posted");
+    }
+    else
+    {
+        var createVars = new Dictionary<string, string> { ["r"] = repoId!, ["c"] = categoryId!, ["t"] = discussionTitle, ["b"] = body };
+        var created = await GhGraphQL(CreateMutation, createVars, $"creating discussion \"{discussionTitle}\"", typed: false, pace: 0);
+        var number = created.GetProperty("data").GetProperty("createDiscussion").GetProperty("discussion").GetProperty("number").GetInt32();
 
-    // GitHub's createDiscussion can return a stale node id; re-query by number for the truth.
-    var parts = repo!.Split('/');
-    var nodeVars = new Dictionary<string, string> { ["o"] = parts[0], ["n"] = parts[1], ["num"] = number.ToString() };
-    var nodeDoc = await GhGraphQL(NodeQuery, nodeVars, $"resolving node id for \"{discussionTitle}\"", typed: true, pace: 0);
-    var discussionId = nodeDoc.GetProperty("data").GetProperty("repository").GetProperty("discussion").GetProperty("id").GetString();
-    Console.WriteLine($"    created discussion #{number}");
+        // GitHub's createDiscussion can return a stale node id; re-query by number for the truth.
+        var parts = repo!.Split('/');
+        var nodeVars = new Dictionary<string, string> { ["o"] = parts[0], ["n"] = parts[1], ["num"] = number.ToString() };
+        var nodeDoc = await GhGraphQL(NodeQuery, nodeVars, $"resolving node id for \"{discussionTitle}\"", typed: true, pace: 0);
+        discussionId = nodeDoc.GetProperty("data").GetProperty("repository").GetProperty("discussion").GetProperty("id").GetString();
+        Console.WriteLine($"    created discussion #{number}");
+    }
 
-    foreach (var comment in post.Comments)
+    foreach (var comment in post.Comments.Skip(skipReplies))
     {
         var replyBody = $"_Originally by **{comment.Author}**, {comment.Date}_\n\n{comment.Body}";
         var replyVars = new Dictionary<string, string> { ["d"] = discussionId!, ["b"] = replyBody };
@@ -221,7 +249,7 @@ static void Help()
           - Dry run by default; nothing is created unless --go is passed.
           - Author emails in the export are never read or migrated.
           - Discussion comments are paced and retried to stay under GitHub's anti-spam limits;
-            the run is resumable (existing discussions are skipped).
+            the run is resumable (finished discussions are skipped, partial ones continue).
         """);
 }
 
@@ -276,7 +304,6 @@ static async Task<JsonElement> GhGraphQL(
                 var wait = waits[Math.Min(attempt, waits.Length - 1)];
                 Console.WriteLine($"    rate limited, waiting {wait / 1000}s…");
                 await Task.Delay(wait);
-                attempt--;
                 continue;
             }
 
