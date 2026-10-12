@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Services.OperationStatus;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Migrations;
 
@@ -195,6 +196,7 @@ namespace Articulate.Tests.Migrations
 
             contentTypeService = new Mock<IContentTypeService>();
             contentTypeService.Setup(x => x.Get(ArticulateConstants.ContentType.Articulate)).Returns(contentType.Object);
+            contentTypeService.Setup(x => x.UpdateAsync(It.IsAny<IContentType>(), It.IsAny<Guid>())).ReturnsAsync(Attempt.Succeed(ContentTypeOperationStatus.Success));
 
             var dataType = new Mock<IDataType>();
             dataType.SetupGet(x => x.Id).Returns(42);

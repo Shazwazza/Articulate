@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Services.OperationStatus;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Migrations;
 
@@ -101,7 +102,12 @@ public class AddGiscusPerBlogProperties(
         bool supportsPublishing = existing.FirstOrDefault()?.SupportsPublishing ?? true;
         blogGroup.PropertyTypes = new PropertyTypeCollection(supportsPublishing, existing.Concat(newProperties));
 
-        await contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+        Attempt<ContentTypeOperationStatus> update = await contentTypeService.UpdateAsync(contentType, Constants.Security.SuperUserKey);
+        if (!update.Success)
+        {
+            throw new InvalidOperationException($"Failed adding Giscus per-blog properties: {update.Result}");
+        }
+
         logger.LogInformation("Added {Count} Giscus per-blog properties to Articulate 'blog' tab.", newProperties.Count);
     }
 }
