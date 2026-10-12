@@ -230,7 +230,7 @@ async Task<string> ResolvePackageVersion(string lane)
     if (string.IsNullOrWhiteSpace(baseVersion))
         throw new InvalidOperationException($"{Path.GetFileName(baseVersionPath)} is empty.");
 
-    var commitMatch = Regex.Match(nbgv, @"[-.]g[a-f0-9]+$");
+    var commitMatch = Regex.Match(nbgv, @"[-.]g[a-f0-9]+$", RegexOptions.CultureInvariant);
     return baseVersion + commitMatch.Value;
 }
 

@@ -158,7 +158,7 @@ function checkMainPackage(file, entries, names, work) {
 		);
 		// Expect the modern staticwebassets/ root layout. Legacy content/
 		// and contentFiles/any/{tfm}/ were the dual-pack leak fixed in the
-		// v18 build pipeline — keep them out.
+		// v18 build pipeline - keep them out.
 		const hasStaticWebAssets = names.some((n) =>
 			n.startsWith("staticwebassets/"),
 		);
