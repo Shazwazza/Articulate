@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       myget:
-        description: Push Articulate packages to the MyGet feed
+        description: Push Articulate packages to the MyGet feed (requires approval)
         type: boolean
         default: false
 
@@ -260,23 +260,26 @@ jobs:
             packages/Articulate.[0-9]*.snupkg
 
   myget:
-    # Opt-in only: manual dispatch with the "myget" input, after the same gates as publish.
-    name: Push ${{ matrix.lane }} to MyGet
+    # Push builds (merges to develop/main/release, v* tags) and manual dispatches with the "myget" input.
+    # The protected "myget" environment requires reviewer approval before the push runs.
+    name: Push packages to MyGet
     needs: publish
-    if: ${{ !cancelled() && inputs.myget && needs.publish.result == 'success' }}
+    if: ${{ !cancelled() && needs.publish.result == 'success' && (github.event_name == 'push' || inputs.myget) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    strategy:
-      fail-fast: false
-      matrix:
-        lane: [v17, v18]
+    environment:
+      name: myget
+      url: https://www.myget.org/feed/shazwazza/package/nuget/Articulate
 
     steps:
-      - name: Download lane packages
+      # The final Articulate-<version> artefacts keep default retention, so a late approval still finds them;
+      # the one-day lane hand-off artefacts may already have expired.
+      - name: Download final packages
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: lane-packages-${{ matrix.lane }}
+          pattern: Articulate-*
           path: packages
+          merge-multiple: true
 
       - name: Push to MyGet
         shell: bash
@@ -287,7 +290,6 @@ jobs:
           set -euo pipefail
           [[ -n "$MYGET_API_KEY" ]] || { echo "::error::MYGET_API_KEY secret is not set."; exit 1; }
           shopt -s nullglob
-          # The sample theme supports the native/Docker test host, not release publication.
           # dotnet nuget push also pushes the matching .snupkg to the feed's symbol endpoint.
           packages=(packages/Articulate.[0-9]*.nupkg)
           (( ${#packages[@]} )) || { echo "::error::No Articulate package found."; exit 1; }

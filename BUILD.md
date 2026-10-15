@@ -35,7 +35,7 @@ Fresh-site HTTP E2E is off by default for routine CI. Enable it for both lanes w
 
 A separate publish job uploads the final `Articulate-<version>` artefacts after both builds pass and E2E passes or was not selected. A build or E2E failure in either lane blocks final uploads for both. Cancelled workflows do not publish.
 
-Pushing to the [MyGet feed](https://www.myget.org/F/shazwazza/api/v3/index.json) is opt-in. Select **Push Articulate packages to the MyGet feed** in **Run workflow** to push both lanes' `Articulate` packages and symbols after the publish job succeeds. The sample theme is not pushed. Existing versions are skipped. This requires the `MYGET_API_KEY` repository secret.
+Every push build (merges to `develop`, `main` or `release/**`, and `v*` tags) offers a push to the [MyGet feed](https://www.myget.org/F/shazwazza/api/v3/index.json). After the publish job succeeds, the `myget` job waits for approval in the protected `myget` environment; approve it from the run's **Review deployments** prompt or leave it to expire. For other branches, select **Push Articulate packages to the MyGet feed** in **Run workflow**; that also needs approval. The job pushes both lanes' `Articulate` packages and symbols from the final `Articulate-<version>` artefacts. The sample theme is not pushed. Existing versions are skipped. A newer `develop` merge cancels an older run that is still waiting for approval. This requires the `MYGET_API_KEY` secret.
 
 The testing audit exception disables final uploads. Local `act` runs skip E2E and all uploads.
 
