@@ -35,6 +35,8 @@ Fresh-site HTTP E2E is off by default for routine CI. Enable it for both lanes w
 
 A separate publish job uploads the final `Articulate-<version>` artefacts after both builds pass and E2E passes or was not selected. A build or E2E failure in either lane blocks final uploads for both. Cancelled workflows do not publish.
 
+Pushing to the [MyGet feed](https://www.myget.org/F/shazwazza/api/v3/index.json) is opt-in. Select **Push Articulate packages to the MyGet feed** in **Run workflow** to push both lanes' `Articulate` packages and symbols after the publish job succeeds. The sample theme is not pushed. Existing versions are skipped. This requires the `MYGET_API_KEY` repository secret.
+
 The testing audit exception disables final uploads. Local `act` runs skip E2E and all uploads.
 
 When the native E2E step fails, CI retains host logs for one day. Certificates, databases and Playwright traces are not uploaded.
