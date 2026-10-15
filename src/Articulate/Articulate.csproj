@@ -18,6 +18,9 @@
     <PackageReference Include="Markdig" />
     <PackageReference Include="WilderMinds.MetaWeblog" />
     <PackageReference Include="System.ServiceModel.Syndication" />
+    <!-- Security floor for vulnerable transitive versions; see Directory.Packages.props. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup>
