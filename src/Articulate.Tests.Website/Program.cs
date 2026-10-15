@@ -17,12 +17,7 @@ if (builder.Environment.IsProduction())
     // builder.WebHost.UseStaticWebAssets();
 }
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Limits.MaxRequestBodySize = 100000000;
-});
-
-// Increase upload limits, e.g. importing larger BlogML XML files; also ensure Umbraco:CMS:Runtime:MaxRequestLength is set
+// Allow 100 MiB uploads, e.g. larger BlogML XML files; also set Umbraco:CMS:Runtime:MaxRequestLength.
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 104857600; // 100MB
@@ -38,7 +33,9 @@ builder.Services.Configure<IISServerOptions>(options =>
     options.MaxRequestBodySize = 104857600; // 100MB
 });
 
-/* NOTE: For legacy IIS web.config settings to work, you also need to update the following:
+/* IIS/IIS Express only: request filtering runs before ASP.NET Core, so add these settings when hosting there.
+   maxRequestLength is in KB; maxAllowedContentLength is in bytes. Both allow 100 MiB.
+
 
 <configuration>
      <system.web>

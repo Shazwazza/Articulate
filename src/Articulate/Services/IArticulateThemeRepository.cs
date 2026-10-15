@@ -1,4 +1,5 @@
 #nullable enable
+using Microsoft.AspNetCore.Http;
 namespace Articulate.Services
 {
     /// <summary>
@@ -17,6 +18,17 @@ namespace Articulate.Services
         /// </summary>
         /// <returns>A collection of theme names, or null if none found.</returns>
         public Task<IEnumerable<string>?> GetAllThemesAsync();
+        /// <summary>
+        /// Resolves the request-absolute URL of a per-theme asset (e.g. <c>giscus.css</c>).
+        /// </summary>
+        /// <remarks>
+        /// Returns the Articulate <c>GiscusThemeController</c> endpoint, which proxies
+        /// the static-web-assets path with the CORS header giscus's cross-origin iframe needs.
+        /// </remarks>
+        /// <param name="themeName">Theme key (e.g. <c>"Material"</c>).</param>
+        /// <param name="request">The live request (LB-correct base URL is resolved from its scheme/host/path base).</param>
+        /// <returns>The absolute asset URL, or <c>null</c> when the theme has no matching asset.</returns>
+        public string? GetThemeAssetUrl(string themeName, HttpRequest request);
 
         /// <summary>
         /// Copies an existing embedded theme to the user themes directory.
@@ -25,5 +37,25 @@ namespace Articulate.Services
         /// <param name="newThemeName">The name for the copied theme.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         internal Task CopyThemeAsync(string themeName, string newThemeName);
+    }
+
+    public static class IArticulateThemeRepositoryExtensions
+    {
+        /// <summary>
+        /// Resolves the giscus <c>data-theme</c> using operator-first precedence:
+        /// <list type="number">
+        /// <item>An explicit, non-empty <paramref name="explicitTheme"/> (keyword or URL) applies first.</item>
+        /// <item>Otherwise, use the active theme's asset URL when non-null.</item>
+        /// <item>Otherwise, giscus uses its built-in palette.</item>
+        /// </list>
+        /// </summary>
+        public static string ResolveGiscusDataTheme(
+            this IArticulateThemeRepository repo,
+            string themeName,
+            HttpRequest request,
+            string explicitTheme)
+            => !string.IsNullOrEmpty(explicitTheme)
+                ? explicitTheme
+                : (repo.GetThemeAssetUrl(themeName, request) ?? "preferred_color_scheme");
     }
 }

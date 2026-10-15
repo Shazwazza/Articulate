@@ -92,7 +92,7 @@
 
     </footer>
 
-    @if (Model.EnableComments && Model.IsDisqusEnabled)
+    @if (Model.EnableComments && Model.IsCommentsEnabled)
     {
         @await Html.PartialAsync("CommentsDisqus", Model)
     }

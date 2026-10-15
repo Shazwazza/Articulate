@@ -1,42 +1,21 @@
+packages:
+  - "v17"
+  - "v18"
+
 minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 allowBuilds:
+  core-js: true
   esbuild: true
   unrs-resolver: true
 blockExoticSubdeps: true
 overrides:
-  diff@>=6.0.0 <8.0.3: ^8.0.3
-  dompurify@<3.4.0: ^3.4.0
-  esbuild@>=0.17.0 <0.28.1: ^0.28.1
-  handlebars@>=4.0.0 <4.7.9: ^4.7.9
+  brace-expansion@<1.1.21: ^1.1.21
+  brace-expansion@>=5.0.0 <5.0.12: ^5.0.12
+  dompurify@<3.4.16: ^3.4.16
+  js-yaml@<4.3.2: ^4.3.2
+  source-map-js@<1.2.2: ^1.2.2
 minimumReleaseAgeExclude:
-  - diff@8.0.3
-  - handlebars@4.7.9
-  - dompurify@3.4.0
-  - esbuild@0.28.1
-  - '@esbuild/aix-ppc64@0.28.1'
-  - '@esbuild/android-arm64@0.28.1'
-  - '@esbuild/android-arm@0.28.1'
-  - '@esbuild/android-x64@0.28.1'
-  - '@esbuild/darwin-arm64@0.28.1'
-  - '@esbuild/darwin-x64@0.28.1'
-  - '@esbuild/freebsd-arm64@0.28.1'
-  - '@esbuild/freebsd-x64@0.28.1'
-  - '@esbuild/linux-arm64@0.28.1'
-  - '@esbuild/linux-arm@0.28.1'
-  - '@esbuild/linux-ia32@0.28.1'
-  - '@esbuild/linux-loong64@0.28.1'
-  - '@esbuild/linux-mips64el@0.28.1'
-  - '@esbuild/linux-ppc64@0.28.1'
-  - '@esbuild/linux-riscv64@0.28.1'
-  - '@esbuild/linux-s390x@0.28.1'
-  - '@esbuild/linux-x64@0.28.1'
-  - '@esbuild/netbsd-arm64@0.28.1'
-  - '@esbuild/netbsd-x64@0.28.1'
-  - '@esbuild/openbsd-arm64@0.28.1'
-  - '@esbuild/openbsd-x64@0.28.1'
-  - '@esbuild/openharmony-arm64@0.28.1'
-  - '@esbuild/sunos-x64@0.28.1'
-  - '@esbuild/win32-arm64@0.28.1'
-  - '@esbuild/win32-ia32@0.28.1'
-  - '@esbuild/win32-x64@0.28.1'
+  - source-map-js@1.2.2
+  - '@umbraco-cms/backoffice@17.7.1'
+  - '@umbraco-cms/backoffice@18.2.1'

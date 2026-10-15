@@ -1,4 +1,5 @@
 #nullable enable
+using Articulate.Options;
 using Microsoft.AspNetCore.Html;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
@@ -9,7 +10,15 @@ namespace Articulate.Models
     public sealed class PostModel : MasterModel, IImageModel
     {
         public PostModel(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
-            : base(content, publishedValueFallback)
+            : this(content, publishedValueFallback, null)
+        {
+        }
+
+        public PostModel(
+            IPublishedContent content,
+            IPublishedValueFallback publishedValueFallback,
+            ArticulateCommentsOptions? commentsOptions)
+            : base(content, publishedValueFallback, commentsOptions)
         {
             PageTitle = Name + " - " + BlogTitle;
             PageDescription = Excerpt;

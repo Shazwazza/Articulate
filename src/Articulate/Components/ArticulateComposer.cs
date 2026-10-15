@@ -57,11 +57,18 @@ namespace Articulate.Components
                 options.ViewLocationExpanders.Add(new ArticulateViewLocationExpander());
             });
 
+#if UMBRACO_18_OR_GREATER
+            _ = builder.UrlProviders().InsertBefore<DefaultUrlProvider, DateFormattedUrlProvider>();
+            _ = builder.ContentFinders().InsertBefore<ContentFinderByUrl, DateFormattedPostContentFinder>();
+#else
             _ = builder.UrlProviders().InsertBefore<NewDefaultUrlProvider, DateFormattedUrlProvider>();
             _ = builder.ContentFinders().InsertBefore<ContentFinderByUrlNew, DateFormattedPostContentFinder>();
+#endif
 
             _ = services.AddOptions<ArticulateOptions>()
                 .BindConfiguration("Articulate");
+            _ = services.AddOptions<ArticulateCommentsOptions>()
+                .BindConfiguration("Articulate:Comments");
 
             _ = builder.AddNotificationHandler<ContentSavingNotification, ContentSavingHandler>();
             _ = builder.AddNotificationHandler<ContentPublishingNotification, ContentPublishingHandler>();

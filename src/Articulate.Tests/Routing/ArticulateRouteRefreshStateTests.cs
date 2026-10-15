@@ -16,17 +16,7 @@ namespace Articulate.Tests.Routing
         }
 
         [Test]
-        public void MarkDirty_increments_current_version()
-        {
-            ArticulateRouteRefreshState sut = new();
-
-            sut.MarkDirty();
-
-            Assert.That(sut.CurrentVersion, Is.EqualTo(2));
-        }
-
-        [Test]
-        public void MarkDirty_returns_updated_version()
+        public void MarkDirty_increments_and_returns_current_version()
         {
             ArticulateRouteRefreshState sut = new();
 

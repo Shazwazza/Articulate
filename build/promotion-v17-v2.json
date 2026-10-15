@@ -1,0 +1,33 @@
+{
+  "Tool": "build/promote.cs",
+  "Profile": "v17-lts",
+  "BaseRef": "cf6289da",
+  "BaseSha": "cf6289da8c6ca69a30bb9f1096be5ed0e423f9df",
+  "SourceRef": "scaff/v17",
+  "SourceSha": "109b530d70c512552421dc08cac3c915ec288477",
+  "Commits": [
+    "c5256ae60cf19133ab33b2a1629cab5ed93e5eed",
+    "6c9051ce561d0be04a6bd009ab67c59f58df43f6",
+    "b54ff572b47877769519c9ed0a0121431a2d7412",
+    "2ca4129b527fa250a758824982278b3fc516c7c5",
+    "1f2ddfb11388b672c97587f000c385f2c6f12974",
+    "23dbf9e8ea9361b2c73fbff0dae05dc601ab9f54",
+    "4acf92fba68674101adf59b73fc7668c40f93521",
+    "f187a17fe4489553bb971be2caaaeaf32f619ecc",
+    "16ff491dbade54c705f2bf7a12ebab74e7c0e141",
+    "c219a452b2f3a71ad61a4b3dc1275ecb08aaf43d",
+    "dc1e6f7f44811b05e85c69995e978c79c98e7443",
+    "6210e32bcd04873c415b251b2134eaefaf979700",
+    "b08c09b4c3064834a07b36fad8d639bc2d9a4d1c",
+    "27c7208c04786f3a5838195166c9bf371785bc2d",
+    "4772db49a3eea7510805d2acbf33a91640a89c6f",
+    "54a3645f9971a480efd2f25b73c9a935dedfb5aa",
+    "a52e43dc448ba523f03cc1991d7955aeb9c5d40e",
+    "109b530d70c512552421dc08cac3c915ec288477"
+  ],
+  "CandidateBranch": "test/promote-v17-lts-v2",
+  "CandidateSha": "6327c14962fda370ad9e271f520a7af541405e97",
+  "TreeSha": "95b6978464f06b74ac0f43a7a5fd7dd701c03c2d",
+  "Worktree": "C:\\Users\\gavin\\AppData\\Local\\Temp\\articulate-promote-022198a337d44fe0853dd8a6022d6ec9",
+  "BuildSkipped": false
+}

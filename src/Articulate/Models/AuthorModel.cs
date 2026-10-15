@@ -13,7 +13,7 @@ namespace Articulate.Models
         private readonly Lazy<DateTime?> _lastPostDate;
 
         public AuthorModel(
-            IPublishedContent? content,
+            IPublishedContent content,
             IEnumerable<IPublishedContent>? listItems,
             PagerModel? pager,
             int postCount,
@@ -21,6 +21,7 @@ namespace Articulate.Models
             IPublishedValueFallback publishedValueFallback)
             : base(content, pager, listItems, publishedValueFallback)
         {
+            ArgumentNullException.ThrowIfNull(content);
             PostCount = postCount;
             _image = new Lazy<MediaWithCrops?>(() => Unwrap().Value<MediaWithCrops>("authorImage"), true);
 
@@ -31,7 +32,7 @@ namespace Articulate.Models
         }
 
         public AuthorModel(
-            IPublishedContent? content,
+            IPublishedContent content,
             IEnumerable<IPublishedContent>? listItems,
             PagerModel? pager,
             int postCount,

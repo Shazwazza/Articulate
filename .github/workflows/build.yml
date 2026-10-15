@@ -1,39 +1,65 @@
 name: Articulate Build
 
 on:
+  # Feature branches are validated by their pull request; only shared and
+  # release refs need a separate push build.
   push:
+    branches:
+      - develop
+      - main
+      - "release/**"
+    tags:
+      - "v*"
   pull_request:
+    # labeled lets adding the "e2e" label start the fresh-site E2E job.
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
+    inputs:
+      e2e:
+        description: Run fresh-site HTTP E2E
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
-# Cancel in-flight PR runs when a new push lands; never cancel main.
+# Cancel superseded PR and develop integration runs; preserve release runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/develop' }}
 
 jobs:
   build:
+    name: Build and test ${{ matrix.lane }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [v17, v18]
+    # Both lanes write identical values, so the collapsed matrix output is safe.
+    outputs:
+      handoff: ${{ steps.handoff.outcome }}
+      publish: ${{ !env.ACT }}
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       RELEASE_FOLDER: build/Release
-      ENABLE_CLIENT_BUILD: false # <-- future PR pr/v18-client removes it
       # The actual test run is ~2s; 60s gives a 30x margin for testhost startup
       VSTEST_CONNECTION_TIMEOUT: 60
       DOTNET_SYSTEM_NET_DISABLEIPV6: 1
+      # Lingering MSBuild nodes/build server inherit redirected pipes and stall output capture.
+      MSBUILDDISABLENODEREUSE: 1
+      DOTNET_CLI_USE_MSBUILD_SERVER: 0
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.3.0
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: 10.0.x
           cache: true
@@ -51,105 +77,180 @@ jobs:
           echo "Date: ${NBGV_GitCommitDate}"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: src/Articulate.Web/Client/package.json
           run_install: false
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: "src/Articulate.Web/Client/.node-version"
           cache: "pnpm"
           cache-dependency-path: "src/Articulate.Web/Client/pnpm-lock.yaml"
 
-      - name: Resolve package versions
+      - name: Reset act client dependencies
+        if: ${{ env.ACT == 'true' }}
+        shell: bash
+        run: rm -rf src/Articulate.Web/Client/node_modules src/Articulate.Web/Client/v17/node_modules src/Articulate.Web/Client/v18/node_modules
+
+      - name: Relink act client dependencies
+        if: ${{ env.ACT == 'true' }}
+        working-directory: src/Articulate.Web/Client
+        run: pnpm install --frozen-lockfile --force
+
+      - name: Guard backoffice lane boundary
         shell: bash
         run: |
           set -euo pipefail
-
-          V17_VERSION="${NBGV_SemVer2}"
-          case "$V17_VERSION" in
-            6.*) ;;
-            *)
-              echo "Expected NBGV 6.x, got '$V17_VERSION'." >&2
-              exit 1
-              ;;
-          esac
-
-          V18_VERSION="$(tr -d '[:space:]' < build/v18-version.txt)"
-          case "$V18_VERSION" in
-            7.*) ;;
-            *)
-              echo "Invalid v18 base: '$V18_VERSION'" >&2
-              exit 1
-              ;;
-          esac
-
-          # Extract the ".g<short-hash>" suffix from v17's SemVer2. v17 and
-          # v18 share a commit, so the suffix alone is what we want
-          # v18-version.txt already carries the prerelease tag (e.g. "rc1").
-          if [[ "$V17_VERSION" =~ \.g[a-f0-9]+$ ]]; then
-            V18_VERSION="${V18_VERSION}${BASH_REMATCH[0]}"
+          CLIENT_ROOT="src/Articulate.Web/Client"
+          leaked="$(
+            git ls-files \
+              "${CLIENT_ROOT}/v17/src" \
+              "${CLIENT_ROOT}/v18/src" 2>/dev/null \
+              || true
+          )"
+          if [ -n "${leaked}" ]; then
+            echo "::error::Per-lane source under ${CLIENT_ROOT}/{v17,v18}/src/:"
+            echo "${leaked}"
+            echo "Move it to ${CLIENT_ROOT}/common/src/."
+            exit 1
           fi
-          echo "V17_VERSION=$V17_VERSION" >> "$GITHUB_ENV"
-          echo "V18_VERSION=$V18_VERSION" >> "$GITHUB_ENV"
-          echo "Articulate v17 lane: $V17_VERSION"
-          echo "Articulate v18 lane: $V18_VERSION"
+          echo "Lane boundary clean."
 
-      - name: Run build pipeline script
-        shell: bash
-        run: |
-          set -euo pipefail
+      - name: Build lane packages
+        # Each matrix job has its own checkout and shared build outputs.
+        run: dotnet run --file build/build.cs -- build --lane "${{ matrix.lane }}" --sample --clean
 
-          # --clean wipes src/**/bin|obj, build/ClientAssets, BackOffice
-          # static web assets. Without it, the v17 hashed JS asset (e.g.
-          # client.gen-XXXX.js) is referenced by Articulate's
-          # static web assets after v18 lane overwrites it (MSB4018).
-          ARTICULATE_PACKAGE_VERSION="${V17_VERSION}" \
-          dotnet run --file build/build.cs -- build --lane v17 --sample --clean
+      - name: Inspect lane packages
+        run: node build/smoke-package.mjs "build/Release/${{ matrix.lane }}"
 
-      # v18 lane is gated on the v18 client workspace existing. That
-      # workspace lands in the v18-client PR of the v18 stack; until
-      # then, running v18 here references non-existent files.
-      - name: Run v18 lane build
-        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          ARTICULATE_PACKAGE_VERSION="${V18_VERSION}" \
-          dotnet run --file build/build.cs -- build --lane v18 --sample --clean
-
-      - name: Smoke-test package contents
-        # Smoke covers both v17 + v18; skip until v18 client workspace lands
-        if: hashFiles('src/Articulate.Web/Client/v18/package.json') != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Verify each lane's .nupkg / .snupkg has the expected shape
-          # (manifest, backoffice bundles, themes, embedded resources,
-          # razor-compiled views, no lock files) before we publish them.
-          node build/smoke-package.mjs \
-            build/Release/v17 \
-            build/Release/v18
-
-      - name: Upload v17 packages
+      - name: Hand off lane packages
+        id: handoff
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Articulate-${{ env.V17_VERSION }}
-          # Articulate.Theme.Sample is built for the local Docker pipeline
-          # (see build/docker-site/ArticulateDockerSite.csproj) but never
-          # published, so don't upload it as a CI artifact.
+          # No run_attempt suffix: a re-run of only E2E or publish must find the original build's packages.
+          name: lane-packages-${{ matrix.lane }}
+          overwrite: true
           path: |
-            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.nupkg
-            ${{ env.RELEASE_FOLDER }}/v17/Articulate.[0-9]*.snupkg
+            ${{ env.RELEASE_FOLDER }}/${{ matrix.lane }}/*.nupkg
+            ${{ env.RELEASE_FOLDER }}/${{ matrix.lane }}/*.snupkg
+          retention-days: 1
+          if-no-files-found: error
 
-      - name: Upload v18 packages
-        if: ${{ !env.ACT && hashFiles('src/Articulate.Web/Client/v18/package.json') != '' }}
-        uses: actions/upload-artifact@v7.0.1
+  e2e:
+    # Toggles: PR label "e2e", repo variable E2E=true, manual dispatch input, or release refs.
+    name: Fresh E2E ${{ matrix.lane }}
+    needs: build
+    if: >-
+      ${{ needs.build.outputs.handoff == 'success' && (inputs.e2e || vars.E2E == 'true' || contains(github.event.pull_request.labels.*.name, 'e2e') ||
+          startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v') ||
+          startsWith(github.base_ref, 'release/')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [v17, v18]
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DOTNET_SYSTEM_NET_DISABLEIPV6: 1
+      MSBUILDDISABLENODEREUSE: 1
+      DOTNET_CLI_USE_MSBUILD_SERVER: 0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          name: Articulate-${{ env.V18_VERSION }}
+          # Full history keeps Nerdbank versioning valid when test.cs evaluates the web project.
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: "**/packages.*.lock.json"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          package_json_file: src/Articulate.Web/Client/package.json
+          run_install: false
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: "src/Articulate.Web/Client/.node-version"
+          cache: "pnpm"
+          cache-dependency-path: "src/Articulate.Web/Client/pnpm-lock.yaml"
+
+      - name: Install Playwright runner
+        working-directory: src/Articulate.Web/Client
+        run: pnpm install --frozen-lockfile
+
+      - name: Download lane packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: lane-packages-${{ matrix.lane }}
+          path: build/Release/${{ matrix.lane }}
+
+      - name: Run fresh native HTTP E2E
+        id: native_e2e
+        timeout-minutes: 7
+        run: dotnet run --file build/test.cs -- fresh --lane "${{ matrix.lane }}"
+
+      - name: Retain native host failure logs
+        if: ${{ failure() && steps.native_e2e.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: native-e2e-${{ matrix.lane }}-${{ github.run_attempt }}
           path: |
-            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.nupkg
-            ${{ env.RELEASE_FOLDER }}/v18/Articulate.[0-9]*.snupkg
+            .temp/art_e2e_native_${{ matrix.lane }}_*/native-host-*.log
+            src/Articulate.Web/Client/e2e-report-*/
+            src/Articulate.Web/Client/e2e-results-*/
+          include-hidden-files: true
+          retention-days: 1
+          if-no-files-found: warn
+
+  publish:
+    # Runs after E2E passes, or when E2E was not selected; a failed or cancelled E2E blocks upload.
+    name: Upload ${{ matrix.lane }} packages
+    needs: [build, e2e]
+    if: >-
+      ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.publish == 'true' &&
+          (needs.e2e.result == 'success' || needs.e2e.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        lane: [v17, v18]
+
+    steps:
+      - name: Download lane packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: lane-packages-${{ matrix.lane }}
+          path: packages
+
+      - name: Resolve generated package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="$(find packages -maxdepth 1 -type f -name 'Articulate.[0-9]*.nupkg' -print -quit)"
+          [[ -n "$package" ]] || { echo "No Articulate package found" >&2; exit 1; }
+          PACKAGE_VERSION="$(basename "$package" | sed -e 's/^Articulate\.//' -e 's/\.nupkg$//')"
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
+          echo "Generated ${{ matrix.lane }} package: $PACKAGE_VERSION"
+
+      - name: Upload lane packages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Articulate-${{ env.PACKAGE_VERSION }}
+          overwrite: true
+          # The sample theme supports the native/Docker test host, not release publication.
+          path: |
+            packages/Articulate.[0-9]*.nupkg
+            packages/Articulate.[0-9]*.snupkg

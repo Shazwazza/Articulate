@@ -22,6 +22,13 @@ namespace Articulate.Options
         public bool AutoGenerateExcerpt { get; set; } = true;
 
         /// <summary>
+        /// Enables the legacy MetaWeblog XML-RPC endpoint and Open Live Writer routes.
+        /// Restart the application after changing this setting.
+        /// Default: false.
+        /// </summary>
+        public bool EnableMetaWeblog { get; set; }
+
+        /// <summary>
         /// The default generator will truncate the post content with 200 chars
         /// </summary>
         public Func<string, string> GenerateExcerpt { get; set; }

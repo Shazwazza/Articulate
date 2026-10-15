@@ -2,25 +2,48 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
+		<TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
 		<!-- TODO: Enable after phased migration. https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies -->
 		<Nullable>warnings</Nullable>
 		<WarningsAsErrors>Nullable</WarningsAsErrors>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NuGetAuditMode>direct</NuGetAuditMode>
+		<NuGetAuditMode Condition="'$(CI)' == 'true'">all</NuGetAuditMode>
+		<WarningsAsErrors Condition="'$(CI)' == 'true'">$(WarningsAsErrors);NU1903;NU1904</WarningsAsErrors>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
+	<!-- ImageSharp 3.2.0 backports these fixes, but GitHub/NuGet affected ranges remain stale.
+	     Metadata corrections: https://github.com/github/advisory-database/pull/10267,
+	     /pull/10268, /pull/10269, /pull/10270 and /pull/10271. Remove each suppression
+	     when both feeds include the correction and an unsuppressed audited restore is clean. -->
+	<ItemGroup>
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
+	</ItemGroup>
 	<!-- Allow local developer overrides (e.g. ArticulatePackageLane) -->
 	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
 
-	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<!-- Lane gate: unknown values fail during evaluation so -getProperty callers do not silently fall back. -->
 	<PropertyGroup>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' != 'v18'">packages.v17.lock.json</NuGetLockFilePath>
+		<ArticulatePackageLane Condition="'$(ArticulatePackageLane)' == ''">v17</ArticulatePackageLane>
+		<_ValidatedArticulatePackageLane Condition="'$(ArticulatePackageLane)' == 'v17' or '$(ArticulatePackageLane)' == 'v18'">$(ArticulatePackageLane)</_ValidatedArticulatePackageLane>
+		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17 or v18 (got $(ArticulatePackageLane)).'))</_ArticulatePackageLaneValidationError>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(ArticulatePackageLane)' == 'v18' or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.'))">
-		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
+	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<PropertyGroup>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v17'">packages.v17.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<_ArticulateUmbracoMajor Condition="'$(UmbracoCmsPackageVersion)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(UmbracoCmsPackageVersion)', '\d+').Value)</_ArticulateUmbracoMajor>
+		<_ArticulateUmbracoMajor Condition="'$(_ArticulateUmbracoMajor)' == ''">$(ArticulatePackageLane.TrimStart('v'))</_ArticulateUmbracoMajor>
+		<DefineConstants Condition="$(_ArticulateUmbracoMajor) &gt;= 18">$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
 		<CompressionEnabled>false</CompressionEnabled>
@@ -59,10 +82,19 @@
 		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
 		<ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)'=='' and '$(ARTICULATE_PACKAGE_VERSION)'!=''">$(ARTICULATE_PACKAGE_VERSION)</ArticulatePackageVersion>
 	</PropertyGroup>
-	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;EnsureClientAssets;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
+	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
 		<PropertyGroup>
 			<Version>$(ArticulatePackageVersion)</Version>
 			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
+			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
+		</PropertyGroup>
+	</Target>
+	<Target Name="ApplyArticulatePackageVersionAfterNbgv" AfterTargets="GetUmbracoBuildVersion" Condition="'$(ArticulatePackageVersion)' != ''">
+		<PropertyGroup>
+			<Version>$(ArticulatePackageVersion)</Version>
+			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<NuGetPackageVersion>$(ArticulatePackageVersion)</NuGetPackageVersion>
 			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
 			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
 		</PropertyGroup>

@@ -41,9 +41,17 @@ namespace Articulate.ImportExport
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
         IHtmlSanitizer htmlSanitizer,
-        IOptions<ArticulateOptions> articulateOptions)
+        IOptions<ArticulateOptions> articulateOptions,
+        IOptions<ArticulateCommentsOptions> commentsOptions
+#if UMBRACO_18_OR_GREATER
+        ,
+        IIdKeyMap idKeyMap
+#endif
+    )
     {
         private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
+
+        private readonly ArticulateCommentsOptions _commentsOptions = commentsOptions.Value;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 
@@ -138,6 +146,21 @@ namespace Articulate.ImportExport
             IContent[] enumerable = imported as IContent[] ?? [.. imported];
             returnModel.PostCount = enumerable.Length;
 
+            // Warn when BlogML has comments but Giscus is configured and Disqus export isn't requested.
+            // Giscus has no import endpoint, so comments would be silently discarded otherwise.
+            if (!exportDisqusXml && _commentsOptions.Giscus.IsFullyConfigured())
+            {
+                int postsWithComments = document.Posts.Count(p => p.Comments.Count > 0);
+                int totalComments = document.Posts.Sum(p => p.Comments.Count);
+                if (totalComments > 0)
+                {
+                    logger.LogWarning(
+                        "BlogML import contains {CommentCount} comment(s) across {PostCount} post(s), but Giscus is configured and no Disqus XML export was requested. Giscus has no import endpoint; these comments will not be migrated. See https://github.com/Shazwazza/Articulate/wiki/Comments#caveats for migration options.",
+                        totalComments,
+                        postsWithComments);
+                }
+            }
+
             if (exportDisqusXml)
             {
                 XDocument xDisqusDoc = disqusXmlExporter.Export(enumerable, document);
@@ -197,7 +220,6 @@ namespace Articulate.ImportExport
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
                 MaxCharactersInDocument = _maxXmlCharacters,
-                MaxCharactersFromEntities = 1024,
             };
 
             return XmlReader.Create(stream, settings);
@@ -532,6 +554,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -569,6 +594,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -605,7 +633,7 @@ namespace Articulate.ImportExport
 
         private IContent[] GetExistingPosts(IContent archiveNode)
         {
-            IEnumerable<IContent> allPostNodes = contentService.GetPagedChildrenCompat(
+            IEnumerable<IContent> allPostNodes = contentService.EnumeratePagedChildren(
                 archiveNode.Id,
                 0,
                 int.MaxValue,

@@ -1,31 +1,35 @@
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Regular.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url("/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Light.woff2")
+		format("woff2");
 }
 
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Regular.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Regular.woff2")
+		format("woff2");
 }
 
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Regular.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Medium.woff2")
+		format("woff2");
 }
 
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Regular.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/App_Plugins/Articulate/MarkdownEditor/assets/fonts/roboto/Roboto-Bold.woff2")
+		format("woff2");
 }

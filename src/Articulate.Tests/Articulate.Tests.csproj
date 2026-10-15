@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <UseArticulateUsings>true</UseArticulateUsings>
     <TestTfmsInParallel>false</TestTfmsInParallel>
@@ -19,14 +18,15 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Umbraco.Cms" />
-    <PackageReference Include="Umbraco.Cms.Tests.Integration" />
+    <PackageReference Include="SixLabors.ImageSharp" ExcludeAssets="build" />
+    <PackageReference Include="SixLabors.ImageSharp.Web" ExcludeAssets="build" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <ItemGroup>
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
   </ItemGroup>
 
-  <!-- Umbraco.Code 3 allows Roslyn 5.x but NuGet otherwise selects Workspaces 5.0. Align it with Umbraco 18's compiler 5.3 packages. -->
+  <!-- Keep Roslyn Workspaces aligned with the version required by Umbraco 18's development backoffice. -->
   <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="All" />
   </ItemGroup>

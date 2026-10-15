@@ -30,12 +30,12 @@ namespace Articulate.Options
         public string? DisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets the client type to register with OpenIddict. Defaults to <see cref="OpenIddictConstants.ClientTypes.Public"/>.
+        /// Gets or sets the client type to register with OpenIddict. The browser editor requires <see cref="OpenIddictConstants.ClientTypes.Public"/>.
         /// </summary>
         public string ClientType { get; set; } = OpenIddictConstants.ClientTypes.Public;
 
         /// <summary>
-        /// Gets or sets the client secret used for confidential clients.
+        /// Gets or sets the client secret. Client secrets are not supported because the editor runs in the browser.
         /// </summary>
         public string? ClientSecret { get; set; }
 

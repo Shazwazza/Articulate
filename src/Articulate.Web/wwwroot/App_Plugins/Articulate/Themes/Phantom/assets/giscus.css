@@ -1,0 +1,59 @@
+/*!
+ * Articulate "Phantom" theme — Giscus custom theme.
+ *
+ * Served automatically: when Giscus:DataTheme is empty (the default), Articulate
+ * points giscus at this file's request-absolute URL so the comment box matches
+ * the active theme. Switching themes in the backoffice re-points on the next
+ * request. The URL must be absolute because giscus renders comments in a
+ * cross-origin iframe on giscus.app; Articulate resolves that for you.
+ *
+ * Palette lifted from Phantom's blue accent (#448aff).. *
+ * Accent is Phantom's link-hover blue (#448aff); muted text adapted from the
+ * theme's #9eabb3 meta colour and darkened for comment readability.
+ * Only the structural --color-* variables are overridden; code-highlight
+ * (--color-prettylights-syntax-*) inherits Giscus's built-in light defaults.
+ */
+main {
+  /* Page surfaces */
+  --color-canvas-default: #ffffff;
+  --color-canvas-overlay: #ffffff;
+  --color-canvas-inset: #f6f6f6;
+  --color-canvas-subtle: #efefef;
+
+  /* Text */
+  --color-fg-default: #3a4145;
+  --color-fg-muted: #5b6770;
+  --color-fg-subtle: #8b97a0;
+
+  /* Borders */
+  --color-border-default: #e3edf3;
+  --color-border-muted: #efefef;
+
+  /* Neutral overlay (hover/focus washes) */
+  --color-neutral-muted: rgba(0, 0, 0, 0.05);
+
+  /* Accent / links — Phantom link-hover blue */
+  --color-accent-fg: #448aff;
+  --color-accent-emphasis: #448aff;
+  --color-accent-muted: rgba(68, 138, 255, 0.4);
+  --color-accent-subtle: rgba(68, 138, 255, 0.1);
+
+  /* Secondary button */
+  --color-btn-text: #3a4145;
+  --color-btn-bg: #ffffff;
+  --color-btn-border: #e3edf3;
+  --color-btn-hover-bg: #f6f6f6;
+  --color-btn-hover-border: #9eabb3;
+
+  /* Primary button */
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #448aff;
+  --color-btn-primary-border: #448aff;
+  --color-btn-primary-hover-bg: #2979ff;
+  --color-btn-primary-hover-border: #2979ff;
+
+  /* Status hues (Giscus-standard light) */
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-danger-fg: #cf222e;
+}
