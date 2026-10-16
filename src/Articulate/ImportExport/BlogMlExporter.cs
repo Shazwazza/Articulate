@@ -274,12 +274,25 @@ namespace Articulate.ImportExport
                 Title = new BlogMLTextConstruct(child.Name),
                 ApprovalStatus = BlogMLApprovalStatus.Approved,
                 PostType = BlogMLPostType.Normal,
-                CreatedOn = child.CreateDate,
+                CreatedOn = GetPostDate(child),
                 LastModifiedOn = child.UpdateDate,
                 Content = new BlogMLTextConstruct(content, BlogMLContentType.Html),
                 Excerpt = new BlogMLTextConstruct(child.GetValue<string>("excerpt")),
                 Url = postUrl
             };
+        }
+
+        /// <summary>
+        /// Gets the post's publish date, falling back to the node's create date when it is not set.
+        /// </summary>
+        /// <remarks>
+        /// The importer writes BlogML <c>date-created</c> into <c>publishedDate</c>, so exporting the node's
+        /// create date would replace the post date with the import date on every export/import round trip.
+        /// </remarks>
+        internal static DateTime GetPostDate(IContent post)
+        {
+            DateTime publishedDate = post.GetValue<DateTime>("publishedDate");
+            return publishedDate == default ? post.CreateDate : publishedDate;
         }
 
         private static void AssignAuthorToPost(BlogMLPost blogMlPost, BlogMLDocument blogMlDoc, string? authorName)
