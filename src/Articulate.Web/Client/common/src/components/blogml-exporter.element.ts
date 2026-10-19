@@ -66,11 +66,11 @@ export default class BlogMlExporterElement extends UmbLitElement {
    */
   private _modalManagerContext?: UmbModalManagerContext;
   /**
-   * The UDI of the Articulate Archive document type.
+   * The key of the Articulate document type.
    * @private
    * @type {string | undefined}
    */
-  private _archiveDoctypeUdi: string | undefined = undefined;
+  private _articulateDoctypeKey: string | undefined = undefined;
 
   #setError(error: unknown, title: string) {
     this._formState = 'failed';
@@ -85,15 +85,15 @@ export default class BlogMlExporterElement extends UmbLitElement {
   }
 
   /**
-   * Fetches the Articulate Archive doctype UDI when the component connects.
+   * Fetches the Articulate document type key when the component connects.
    * @async
    */
   async connectedCallback() {
     super.connectedCallback();
-    this._archiveDoctypeUdi = await articulateDocumentTypeKey(this);
-    if (!this._archiveDoctypeUdi) {
+    this._articulateDoctypeKey = await articulateDocumentTypeKey(this);
+    if (!this._articulateDoctypeKey) {
       const error = new Error(
-        'Could not find the Articulate Archive document type. Please ensure Articulate is installed correctly.',
+        'Could not find the Articulate document type. Please ensure Articulate is installed correctly.',
       );
       error.name = 'Configuration Error';
       this.#setError(error, error.name);
@@ -120,10 +120,11 @@ export default class BlogMlExporterElement extends UmbLitElement {
    * @async
    */
   private async _openNodePicker() {
-    if (!this._archiveDoctypeUdi) return;
+    if (!this._articulateDoctypeKey) return;
 
     this._formError = null;
-    const udi = await openNodePicker(this._modalManagerContext!, this._archiveDoctypeUdi, this);
+    if (!this._modalManagerContext) return;
+    const udi = await openNodePicker(this._modalManagerContext, this._articulateDoctypeKey, this);
     if (udi) {
       const variant = await documentById(this, udi);
       if (!variant) {
