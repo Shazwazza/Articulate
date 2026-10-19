@@ -19,11 +19,12 @@ test('Giscus theme proxy serves packaged CSS with Articulate CORS and cache beha
   expect((await anonymous.text()).trim(), 'the anonymous response contains the packaged theme CSS').toContain('--color-canvas-default');
   expect(anonymous.headers()['cache-control'], 'Articulate caches the anonymous stylesheet for one hour').toBe('public, max-age=3600');
   expect(anonymous.headers()['access-control-allow-origin'], 'Articulate allows anonymous requests with a wildcard').toBe('*');
-  expect((anonymous.headers()['vary'] ?? '').split(',').map((token) => token.trim().toLowerCase()), 'Articulate does not vary anonymous responses by Origin').not.toContain('origin');
+  expect((anonymous.headers()['vary'] ?? '').split(',').map((token) => token.trim().toLowerCase()), 'Articulate varies anonymous responses by Origin to prevent cache reuse across CORS outcomes').toContain('origin');
 
   const disallowed = await request.get(path, { headers: { Origin: 'https://evil.example.com' } });
   expect(disallowed.status(), 'Articulate still serves the stylesheet to inspect its CORS response').toBe(200);
   expect(disallowed.headers()['access-control-allow-origin'], 'Articulate omits allow-origin for an untrusted origin').toBeUndefined();
+  expect((disallowed.headers()['vary'] ?? '').split(',').map((token) => token.trim().toLowerCase()), 'Articulate varies denied-origin responses to prevent cache reuse for allowed origins').toContain('origin');
 
   const missingTheme = await request.get('/articulate/giscus-theme/NotARealTheme');
   expect(missingTheme.status(), 'Articulate keeps a valid theme key without an asset usable by Giscus').toBe(200);
