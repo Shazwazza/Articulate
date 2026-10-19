@@ -29,11 +29,13 @@
 - When converting from TinyMCE, the upgrade applies Articulate's default TipTap settings.
   - Existing custom TipTap configuration is preserved.
 - Organizes the built-in post URL-alias and import-ID properties into SEO and System property groups during migration.
-
-  - Adds Giscus as an alternative comment provider. Configure it in
-    ppsettings.json under Articulate:Comments:Giscus, or per blog with four
-    giscus* properties. Themes can ship a giscus.css stylesheet that Articulate
-    serves to the giscus iframe.
+- Adds Giscus as an alternative comment provider. Configure it in
+  appsettings.json under Articulate:Comments:Giscus, or per blog with four
+  giscus* properties. Themes can ship a giscus.css stylesheet that Articulate
+  serves to the giscus iframe.
+- BlogML export records each post's archive, and import restores posts to the matching archive under the chosen blog root, creating it if needed. Files without the marker import as before.
+- BlogML re-import matches posts by import ID across all archives under the blog root, so existing posts are updated in place instead of duplicated.
+- BlogML import temp files are stored under the host's local temp path instead of the site folder.
 
 ## Version 6.0.0
 
