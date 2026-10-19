@@ -28,7 +28,7 @@ namespace Articulate.Services
         /// <param name="themeName">Theme key (e.g. <c>"Material"</c>).</param>
         /// <param name="request">The live request (LB-correct base URL is resolved from its scheme/host/path base).</param>
         /// <returns>The absolute asset URL, or <c>null</c> when the theme has no matching asset.</returns>
-        public string? GetThemeAssetUrl(string themeName, HttpRequest request);
+        public string? GetThemeAssetUrl(string themeName, HttpRequest request) => null;
 
         /// <summary>
         /// Copies an existing embedded theme to the user themes directory.
