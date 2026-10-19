@@ -398,7 +398,7 @@ namespace Articulate.ImportExport
             List<IContent> archives = [.. GetArchiveNodes(rootNode, archiveType)];
 
             var createdArchives = new Dictionary<string, IContent>(StringComparer.OrdinalIgnoreCase);
-            var existingPostsByArchive = new Dictionary<Guid, (Dictionary<string, IContent> BySlug, Dictionary<string, int> TakenSlugs)>();
+            var existingPostsByArchive = new Dictionary<Guid, (Dictionary<string, IContent> BySlug, Dictionary<string, IContent> ByImportId, Dictionary<string, int> TakenSlugs)>();
             var postsByImportId = new Dictionary<string, IContent>(StringComparer.Ordinal);
             string? urlNameCulture = await ContentExtensions.GetInvariantOrDefaultCultureAsync(
                 Constants.Conventions.Content.UrlName,
@@ -408,11 +408,12 @@ namespace Articulate.ImportExport
 
             (Dictionary<string, XElement> ById, Dictionary<string, XElement> ByName) postElements = BuildPostElementLookup(xDoc);
 
-            (Dictionary<string, IContent> BySlug, Dictionary<string, int> TakenSlugs) GetArchivePosts(IContent archive)
+            (Dictionary<string, IContent> BySlug, Dictionary<string, IContent> ByImportId, Dictionary<string, int> TakenSlugs) GetArchivePosts(IContent archive)
             {
-                if (!existingPostsByArchive.TryGetValue(archive.Key, out (Dictionary<string, IContent> BySlug, Dictionary<string, int> TakenSlugs) cached))
+                if (!existingPostsByArchive.TryGetValue(archive.Key, out (Dictionary<string, IContent> BySlug, Dictionary<string, IContent> ByImportId, Dictionary<string, int> TakenSlugs) cached))
                 {
                     var bySlug = new Dictionary<string, IContent>(StringComparer.OrdinalIgnoreCase);
+                    var byImportId = new Dictionary<string, IContent>(StringComparer.Ordinal);
                     var taken = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                     foreach (IContent existing in GetExistingPosts(archive))
                     {
@@ -425,18 +426,19 @@ namespace Articulate.ImportExport
                         TakeSlug(taken, slug);
                         if (existing.GetValue<string>("importId") is { Length: > 0 } importId)
                         {
+                            _ = byImportId.TryAdd(importId, existing);
                             _ = postsByImportId.TryAdd(importId, existing);
                         }
                     }
 
-                    cached = (bySlug, taken);
+                    cached = (bySlug, byImportId, taken);
                     existingPostsByArchive[archive.Key] = cached;
                 }
 
                 return cached;
             }
 
-            // importId is matched root-wide, so every archive is indexed up front
+            // Marked posts match importId root-wide, so every archive is indexed up front
             foreach (IContent archive in archives)
             {
                 _ = GetArchivePosts(archive);
@@ -458,8 +460,10 @@ namespace Articulate.ImportExport
                     }
                 }
 
-                (Dictionary<string, IContent> BySlug, Dictionary<string, int> TakenSlugs) archivePosts = GetArchivePosts(archiveNode);
-                IContent? postNode = FindExistingPost(postsByImportId, archivePosts.BySlug, post, shortStringHelper);
+                (Dictionary<string, IContent> BySlug, Dictionary<string, IContent> ByImportId, Dictionary<string, int> TakenSlugs) archivePosts = GetArchivePosts(archiveNode);
+
+                // Only Articulate exports (GUID ids) match root-wide; other sources may reuse small ids across blogs
+                IContent? postNode = FindExistingPost(archiveMarker is null ? archivePosts.ByImportId : postsByImportId, archivePosts.BySlug, post, shortStringHelper);
 
                 // An existing post stays in the archive it already lives in, whatever the marker says
                 if (postNode is not null && archives.FirstOrDefault(archive => archive.Id == postNode.ParentId) is { } owner && owner.Key != archiveNode.Key)
