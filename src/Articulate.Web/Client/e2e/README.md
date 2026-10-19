@@ -108,7 +108,7 @@ The site needs a published Articulate root, its Articles archive and the VAPOR t
 | Route collisions | A valid root publishes. A `categoriesUrlName`/`tagsUrlName` collision returns `CancelledByEvent`, leaves the invalid draft saved and keeps published routes unchanged. The original root is restored. |
 | Route refresh | Publishing `searchUrlName` changes a warmed route without a reload. |
 | Themes | Publishing a theme change serves the rendered CSS URL; original configuration restored. |
-| Giscus | Packaged CSS, one-hour cache, reflected allowed-origin CORS, anonymous wildcard CORS without `Vary: Origin`, and missing-theme fallback. |
+| Giscus | Packaged CSS, one-hour cache, reflected allowed-origin CORS, anonymous wildcard CORS, `Vary: Origin` on every response, and missing-theme fallback. |
 
 One helper test checks that VAPOR extraction returns only each preview's `h1.post-title` link, not read-more, excerpt or sidebar links. Search tests do not cover other themes or distinguish AND from OR queries. RSS tests do not check feed freshness after unpublish.
 
