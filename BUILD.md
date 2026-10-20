@@ -205,7 +205,8 @@ node build/smoke-package.mjs build/Release/v17 build/Release/v18
 
 What it checks for `Articulate.<ver>.nupkg`:
 
-- Root files: `LICENSE`, `README.md`, `icon.png`.
+- Root files: `LICENSE`, `README.md`, `icon.png`. The package `README.md` is packed from `umbraco-marketplace-readme.md`, the consumer-facing README shared with the Umbraco Marketplace. The repository `README.md` targets GitHub.
+- The package `README.md` has no relative links, which nuget.org cannot resolve.
 - `.nuspec` parses; `id=Articulate`; has the `net10.0` dependency group with `Umbraco.Cms.Web.Website` + `Umbraco.Cms.Api.Management`.
 - Ships only `staticwebassets/` for client assets (no legacy `content/` or `contentFiles/any/{tfm}/` paths).
 - Built-in theme assets include `src` and `vendor` files as well as generated `dist` bundles. The Sample RCL package is checked separately.
