@@ -333,7 +333,7 @@ jobs:
           (( ${#packages[@]} )) || { echo "::error::No Articulate package found."; exit 1; }
           # nuget.org versions are permanent; refuse non-public-release builds carrying a commit-hash suffix.
           for package in "${packages[@]}"; do
-            if [[ "$(basename "$package")" =~ \.g[0-9a-f]{7,}\.nupkg$ ]]; then
+            if [[ "$(basename "$package")" =~ [-.]g[0-9a-f]{7,}\.nupkg$ ]]; then
               echo "::error::$(basename "$package") is not a public release version; check publicReleaseRefSpec in version.json."
               exit 1
             fi
