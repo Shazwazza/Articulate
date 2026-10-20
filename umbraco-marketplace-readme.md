@@ -1,7 +1,5 @@
 # Articulate
 
-[![Articulate Build](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml/badge.svg)](https://github.com/Shazwazza/Articulate/actions/workflows/build.yml)
-
 ![Articulate](https://raw.githubusercontent.com/Shazwazza/Articulate/develop/assets/Logo.png?raw=true)
 
 > A wonderful Blog engine built on Umbraco
@@ -35,7 +33,12 @@ Features include:
 
 ## Installation
 
-Install the package version that matches your Umbraco installation. See the [Installation guide](https://github.com/Shazwazza/Articulate/wiki/Installation) for the compatibility matrix and version-specific commands.
+Install the package line that matches your Umbraco installation:
+
+- Umbraco 17.7.1 through 17.x: `dotnet add package Articulate --version 7.*`
+- Umbraco 18.2.1 through 18.x: `dotnet add package Articulate --version 8.*`
+
+See the [Installation guide](https://github.com/Shazwazza/Articulate/wiki/Installation) for the compatibility matrix and older versions.
 
 ## Upgrading
 

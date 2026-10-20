@@ -73,9 +73,10 @@
 			<Pack>true</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="$(MSBuildThisFileDirectory)README.md">
+		<!-- Consumer-facing README shared with the Umbraco Marketplace; the repo README.md targets GitHub. -->
+		<None Include="$(MSBuildThisFileDirectory)umbraco-marketplace-readme.md">
 			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
+			<PackagePath>README.md</PackagePath>
 		</None>
 	</ItemGroup>
 	<PropertyGroup>

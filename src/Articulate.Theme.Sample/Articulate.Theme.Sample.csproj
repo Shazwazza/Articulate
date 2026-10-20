@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="$(MSBuildProjectDirectory)\..\..\README.md" />
+    <None Remove="$(MSBuildProjectDirectory)\..\..\umbraco-marketplace-readme.md" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

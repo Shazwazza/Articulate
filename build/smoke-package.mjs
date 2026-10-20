@@ -121,6 +121,19 @@ function checkMainPackage(file, entries, names, work) {
 		expect("icon.png at package root", names.includes("icon.png"));
 	});
 
+	checkGroup("package readme", () => {
+		if (!names.includes("README.md")) return;
+		unzipExtract(file, ["README.md"], work);
+		const readme = readFileSync(join(work, "README.md"), "utf8");
+		// nuget.org cannot resolve repository-relative links or images.
+		const relative = [...readme.matchAll(/\]\((?!https?:|#|mailto:)([^)\s]+)\)/g)].map((m) => m[1]);
+		expect(
+			"README.md has no relative links",
+			relative.length === 0,
+			relative.length ? `(found: ${relative.join(", ")})` : "",
+		);
+	});
+
 	checkGroup("no fluff", () => {
 		const locks = namesMatching(entries, /packages\..*\.lock\.json$/);
 		expect(
