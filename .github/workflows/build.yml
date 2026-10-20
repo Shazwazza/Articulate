@@ -296,3 +296,63 @@ jobs:
           for package in "${packages[@]}"; do
             dotnet nuget push "$package" --source "$MYGET_SOURCE" --api-key "$MYGET_API_KEY" --skip-duplicate
           done
+
+  nuget:
+    # Public-release refs only (main, release/**, v* tags). The protected "nuget" environment requires
+    # reviewer approval and restricts deployments to those refs.
+    name: Push packages to NuGet
+    needs: publish
+    if: >-
+      ${{ !cancelled() && needs.publish.result == 'success' &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # NuGet Trusted Publishing exchanges the GitHub OIDC token for a short-lived API key.
+      id-token: write
+    environment:
+      name: nuget
+      url: https://www.nuget.org/packages/Articulate
+
+    steps:
+      # Same long-retention artefacts as the MyGet job, so a late approval still finds them.
+      - name: Download final packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: Articulate-*
+          path: packages
+          merge-multiple: true
+
+      - name: Check package versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          packages=(packages/Articulate.[0-9]*.nupkg)
+          (( ${#packages[@]} )) || { echo "::error::No Articulate package found."; exit 1; }
+          # nuget.org versions are permanent; refuse non-public-release builds carrying a commit-hash suffix.
+          for package in "${packages[@]}"; do
+            if [[ "$(basename "$package")" =~ [-.]g[0-9a-f]{7,}\.nupkg$ ]]; then
+              echo "::error::$(basename "$package") is not a public release version; check publicReleaseRefSpec in version.json."
+              exit 1
+            fi
+          done
+
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          # nuget.org account that owns the Trusted Publishing policy for the Articulate package.
+          user: shandem
+
+      - name: Push to NuGet
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          # dotnet nuget push also pushes the matching .snupkg to the nuget.org symbol server.
+          for package in packages/Articulate.[0-9]*.nupkg; do
+            dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+          done
