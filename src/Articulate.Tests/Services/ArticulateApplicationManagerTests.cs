@@ -211,6 +211,48 @@ namespace Articulate.Tests.Services
                 Does.Contain("Ignoring invalid redirect URI 'not a URI'"));
         }
 
+        [TestCase("https://example.com/a-new", "https://example.com/a-new/")]
+        [TestCase("https://example.com:443/a-new", "https://example.com/a-new/")]
+        [TestCase("http://example.com/a-new", "http://example.com/a-new/")]
+        [TestCase("http://example.com:80/a-new/", "http://example.com/a-new/")]
+        [TestCase("https://localhost:44300/a-new", "https://localhost:44300/a-new/")]
+        [TestCase("http://localhost:8080/a-new/", "http://localhost:8080/a-new/")]
+        public async Task HandleAsync_registers_uris_without_explicit_default_port(string configured, string expected)
+        {
+            var applicationManager = new Mock<IOpenIddictApplicationManager>();
+            OpenIddictApplicationDescriptor? descriptor = null;
+            applicationManager
+                .Setup(x => x.FindByClientIdAsync("articulate-editor", It.IsAny<CancellationToken>()))
+                .Returns(new ValueTask<object?>((object?)null));
+            applicationManager
+                .Setup(x => x.CreateAsync(
+                    It.IsAny<OpenIddictApplicationDescriptor>(),
+                    It.IsAny<CancellationToken>()))
+                .Callback<OpenIddictApplicationDescriptor, CancellationToken>((value, _) => descriptor = value)
+                .Returns(new ValueTask<object>(new object()));
+
+            using ServiceProvider serviceProvider = CreateServiceProvider(applicationManager.Object);
+            ArticulateApplicationManager sut = CreateSut(
+                new RecordingLogger<ArticulateApplicationManager>(),
+                scopeFactory: serviceProvider.GetRequiredService<IServiceScopeFactory>(),
+                openIdClientOptions: new ArticulateOpenIdClientOptions
+                {
+                    Enabled = true,
+                    ClientId = "articulate-editor",
+                    RedirectUris = [configured],
+                    PostLogoutRedirectUris = [configured]
+                });
+
+            await sut.HandleAsync(null!, CancellationToken.None);
+
+            // OpenIddict persists OriginalString and compares redirect URIs ordinally.
+            Assert.That(descriptor, Is.Not.Null);
+            Assert.That(descriptor!.RedirectUris.Select(x => x.OriginalString), Is.EqualTo(new[] { expected }));
+            Assert.That(
+                descriptor.PostLogoutRedirectUris.Select(x => x.OriginalString),
+                Is.EqualTo(new[] { expected }));
+        }
+
         private static ArticulateApplicationManager CreateSut(
             RecordingLogger<ArticulateApplicationManager> logger,
             IServiceScopeFactory? scopeFactory = null,
