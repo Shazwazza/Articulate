@@ -313,6 +313,39 @@ namespace Articulate.Tests.ImportExport
         }
 
         [Test]
+        public async Task Marked_post_that_moved_stays_in_its_archive_and_no_archive_is_created()
+        {
+            (Mock<IContentService> contentService, BlogMlImporter sut, _, _) = ImporterWithArchiveCreate();
+            (IContent root, _, _) = Archives();
+            var current = new Mock<IContent>();
+            current.SetupGet(x => x.Key).Returns(Guid.NewGuid());
+            current.SetupGet(x => x.Id).Returns(42);
+            IContent postNode = Mock.Of<IContent>(x => x.ParentId == 42);
+
+            IContent result = await sut.ResolveTargetArchiveAsync(
+                7, root, [current.Object], new Dictionary<string, IContent>(StringComparer.OrdinalIgnoreCase),
+                Marker(MissingArchiveMarker()), postNode, Post(), false, ArchiveType());
+
+            Assert.That(result, Is.SameAs(current.Object));
+            contentService.Verify(x => x.Create(It.IsAny<string>(), It.IsAny<IContent>(), It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+            contentService.Verify(x => x.Save(It.IsAny<IContent>(), It.IsAny<int?>(), It.IsAny<ContentScheduleCollection?>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Unmatched_marker_creates_the_archive()
+        {
+            (Mock<IContentService> contentService, BlogMlImporter sut, IContent root, IContent archive) = ImporterWithArchiveCreate();
+            contentService.Setup(x => x.Save(archive, 7, null)).Returns(OperationResult.Succeed(new EventMessages()));
+
+            IContent result = await sut.ResolveTargetArchiveAsync(
+                7, root, [], new Dictionary<string, IContent>(StringComparer.OrdinalIgnoreCase),
+                Marker(MissingArchiveMarker()), null, Post(), false, ArchiveType());
+
+            Assert.That(result, Is.SameAs(archive));
+            contentService.Verify(x => x.Save(archive, 7, null), Times.Once);
+        }
+
+        [Test]
         public void Skipped_existing_post_keeps_slug_taken_so_new_post_is_suffixed()
         {
             var helper = new DefaultShortStringHelper(new DefaultShortStringHelperConfig());
@@ -518,6 +551,11 @@ namespace Articulate.Tests.ImportExport
             var marker = new ArchiveSyndicationExtension();
             return byId.TryGetValue(postId, out XElement? post) && marker.Load(post.CreateNavigator()) ? marker : null;
         }
+
+        private static XDocument MissingArchiveMarker() =>
+            Document($"<archive xmlns=\"{ArchiveSyndicationExtension.Namespace}\" key=\"{Guid.NewGuid():D}\" name=\"Archive A\" />");
+
+        private static BlogMLPost Post() => new() { Id = "post-1", Title = new BlogMLTextConstruct("Hello") };
 
         private static IContentType ArchiveType() => Mock.Of<IContentType>(x => x.Alias == ArticulateConstants.ContentType.ArticulateArchive);
 

@@ -534,7 +534,7 @@ namespace Articulate.ImportExport
             return postElement is not null && marker.Load(postElement.CreateNavigator()) ? marker : null;
         }
 
-        private async Task<IContent> ResolveTargetArchiveAsync(
+        internal async Task<IContent> ResolveTargetArchiveAsync(
             int userId,
             IContent rootNode,
             List<IContent> archives,
