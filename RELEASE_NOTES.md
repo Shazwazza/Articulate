@@ -1,5 +1,10 @@
 # Articulate Release Notes
 
+## Unreleased (7.1.0 / 8.1.0)
+
+- The standalone Markdown editor now works on custom domains whose host differs from `Umbraco:CMS:WebRouting:UmbracoApplicationUrl`, such as Umbraco Cloud sites where that value is fixed to the `*.umbraco.io` host. When the editor is requested on the origin of a configured `Articulate:ManagementApi:OpenIddict:Client:RedirectUris` entry, its Management API, OAuth endpoint, and default post-logout URLs use that origin. Other request hosts are not trusted and still fall back to `UmbracoApplicationUrl`.
+  - To use the editor on a custom domain, add its editor URL (for example `https://example.com/a-new/`) to `RedirectUris`, and add a matching entry to `PostLogoutRedirectUris`. The post-logout URL on the same origin as the editor is preferred when several are configured.
+
 ## Version 8.0.0
 
 ### Breaking changes for v8.0.0

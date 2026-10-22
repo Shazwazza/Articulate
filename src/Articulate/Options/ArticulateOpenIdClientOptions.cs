@@ -43,6 +43,11 @@ namespace Articulate.Options
         /// Gets or sets the allowed callback URLs after a successful sign-in. When <see cref="Enabled"/> is
         /// <see langword="true"/>, at least one absolute URI must be provided.
         /// </summary>
+        /// <remarks>
+        /// The origins of these URIs are also trusted as Markdown editor hosts. When the editor is requested on one of
+        /// these origins, its Management API and OAuth endpoint URLs use that origin instead of
+        /// <c>Umbraco:CMS:WebRouting:UmbracoApplicationUrl</c>, so the editor works on custom domains.
+        /// </remarks>
         public List<string> RedirectUris { get; set; } = [];
 
         /// <summary>
