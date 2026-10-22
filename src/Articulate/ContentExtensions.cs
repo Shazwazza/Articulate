@@ -84,27 +84,35 @@ namespace Articulate
             ILanguageService languageService,
             ILogger? logger = null)
         {
+            string? culture = await GetInvariantOrDefaultCultureAsync(propertyTypeAlias, contentType, languageService, logger);
+            content.SetValue(propertyTypeAlias, value, culture);
+        }
+
+        internal static async Task<string?> GetInvariantOrDefaultCultureAsync(
+            string propertyTypeAlias,
+            IContentTypeComposition contentType,
+            ILanguageService languageService,
+            ILogger? logger = null)
+        {
             ArgumentNullException.ThrowIfNull(contentType);
 
-            var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
-
-            string? culture = null;
-            if (variesByCulture)
+            if (!VariesByCulture(propertyTypeAlias, contentType))
             {
-                try
-                {
-                    culture = await languageService.GetDefaultIsoCodeAsync();
-                }
-                catch (Exception ex)
-                {
-                    logger?.LogWarning(
-                        ex,
-                        "Failed to get default culture for property {PropertyAlias}, falling back to invariant.",
-                        propertyTypeAlias);
-                }
+                return null;
             }
 
-            content.SetValue(propertyTypeAlias, value, culture);
+            try
+            {
+                return await languageService.GetDefaultIsoCodeAsync();
+            }
+            catch (Exception ex)
+            {
+                logger?.LogWarning(
+                    ex,
+                    "Failed to get default culture for property {PropertyAlias}, falling back to invariant.",
+                    propertyTypeAlias);
+                return null;
+            }
         }
 
         internal static async Task AssignInvariantOrDefaultCultureTagsAsync(
@@ -122,25 +130,7 @@ namespace Articulate
             ILogger? logger = null,
             bool merge = false)
         {
-            ArgumentNullException.ThrowIfNull(contentType);
-
-            var variesByCulture = VariesByCulture(propertyTypeAlias, contentType);
-
-            string? culture = null;
-            if (variesByCulture)
-            {
-                try
-                {
-                    culture = await languageService.GetDefaultIsoCodeAsync();
-                }
-                catch (Exception ex)
-                {
-                    logger?.LogWarning(
-                        ex,
-                        "Failed to get default culture for tags property {PropertyAlias}, falling back to invariant.",
-                        propertyTypeAlias);
-                }
-            }
+            string? culture = await GetInvariantOrDefaultCultureAsync(propertyTypeAlias, contentType, languageService, logger);
 
 #if UMBRACO_18_OR_GREATER
             content.AssignTags(
