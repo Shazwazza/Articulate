@@ -44,7 +44,7 @@
     </None>
   </ItemGroup>
 
-  <!-- OperationId handler tests are lane-specific; the shared StubControllers live at Swagger/. -->
+  <!-- OperationId handler tests are lane-specific; the shared stub controllers live at Swagger/. -->
   <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
     <Compile Remove="Swagger/V17/**/*.cs" />
   </ItemGroup>
