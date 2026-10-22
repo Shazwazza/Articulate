@@ -149,7 +149,7 @@ namespace Articulate.Services
             {
                 if (Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri))
                 {
-                    target.Add(new UriBuilder(uri) { Path = uri.AbsolutePath.EnsureEndsWith('/') }.Uri);
+                    target.Add(NormalizeUri(uri));
                     added = true;
                 }
                 else
@@ -164,13 +164,21 @@ namespace Articulate.Services
             return added;
         }
 
+        // OpenIddict persists Uri.OriginalString and compares redirect URIs ordinally. UriBuilder.Uri makes
+        // default ports explicit (e.g. https://host:443/), which never matches the portless URI sent by browsers.
+        private static Uri NormalizeUri(Uri uri)
+        {
+            var builder = new UriBuilder(uri) { Path = uri.AbsolutePath.EnsureEndsWith('/') };
+            return new Uri(builder.Uri.AbsoluteUri);
+        }
+
         private void TryPopulateOptionalUris(ICollection<Uri> target, IEnumerable<string> sources, string clientId)
         {
             foreach (string candidate in sources)
             {
                 if (Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri))
                 {
-                    target.Add(new UriBuilder(uri) { Path = uri.AbsolutePath.EnsureEndsWith('/') }.Uri);
+                    target.Add(NormalizeUri(uri));
                 }
                 else
                 {

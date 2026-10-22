@@ -1,5 +1,9 @@
 # Articulate Release Notes
 
+## Version 8.0.1 / 7.0.1
+
+- Fixes the Markdown editor (`/a-new`) failing to sign in on sites served from the default HTTPS (443) or HTTP (80) port with OpenIddict error ID2043 ("The specified 'redirect_uri' is not valid for this client application"). Articulate registered the editor's redirect and post-logout URIs with an explicit default port (e.g. `https://example.com:443/a-new/`), which never matched the portless URI sent by the browser. Existing OpenIddict client registrations are corrected automatically on the next application startup.
+
 ## Version 8.0.0
 
 ### Breaking changes for v8.0.0
