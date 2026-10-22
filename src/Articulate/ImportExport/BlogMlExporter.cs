@@ -128,9 +128,11 @@ namespace Articulate.ImportExport
 
             while (true)
             {
-                IContent[] page = contentService
-                    .GetPagedDescendants(rootId, pageIndex++, pageSize, out _, filter, ordering)
-                    .ToArray();
+                IContent[] page =
+                [
+                    .. contentService
+                        .GetPagedDescendants(rootId, pageIndex++, pageSize, out _, filter, ordering)
+                ];
 
                 if (page.Length == 0)
                 {
@@ -195,12 +197,15 @@ namespace Articulate.ImportExport
             IContent[] posts;
             do
             {
-                posts = contentService.EnumeratePagedChildren(
-                    archiveNode.Id,
-                    pageIndex,
-                    pageSize,
-                    out _,
-                    ordering: Ordering.By("createDate")).ToArray();
+                posts =
+                [
+                    .. contentService.EnumeratePagedChildren(
+                        archiveNode.Id,
+                        pageIndex,
+                        pageSize,
+                        out _,
+                        ordering: Ordering.By("createDate"))
+                ];
 
                 foreach (IContent child in posts)
                 {
@@ -244,15 +249,11 @@ namespace Articulate.ImportExport
         {
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateRichText))
             {
-                // Export the stored rich-text HTML as-is. Block/grid expansion is editor-specific
-                // and should be added only when BlogML can represent those structures explicitly.
                 return child.GetValue<string>("richText") ?? string.Empty;
             }
 
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateMarkdown))
             {
-                // Markdown exports as sanitized HTML because BlogML content is HTML-oriented.
-                // MDX/component syntax is intentionally unsupported by the current Markdown converter.
                 var markdown = child.GetValue<string>("markdown");
                 return markdown is not null ? articulateMarkdownConverter.ToHtml(markdown) : string.Empty;
             }

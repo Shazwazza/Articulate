@@ -9,7 +9,6 @@ using Articulate.Options;
 using Articulate.Services;
 using Articulate.Syndication.BlogML;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Umbraco.Cms.Core.Events;
@@ -168,6 +167,21 @@ namespace Articulate.Tests.ImportExport
             BlogMlImporter.ReleaseSlug(taken, "hello");
             BlogMlImporter.ReleaseSlug(taken, "hello");
             Assert.That(BlogMlImporter.EnsureUniqueSlug("hello", taken, helper), Is.EqualTo("hello"));
+        }
+
+        [TestCase(null, null, null, "Hello")]
+        [TestCase(null, null, "Hello (1)", "Hello", "hello")]
+        [TestCase(null, "kept", null, "Hello", "hello")]
+        [TestCase("hello", "hello (1)", "hello (1)", "Hello")]
+        [TestCase("hello", "hello (2)", "hello (2)", "Hello", "hello")]
+        [TestCase("hello", "hello (1)", "hello", "Hello", "hello (1)")]
+        [TestCase("hello", "other", "hello", "Hello")]
+        public void ChoosePostSlug_dedupes_new_slugs_and_keeps_reimported_ones(string? source, string? current, string? expected, string nodeName, params string[] taken)
+        {
+            var helper = new DefaultShortStringHelper(new DefaultShortStringHelperConfig());
+            Dictionary<string, int> takenSlugs = taken.ToDictionary(slug => slug.ToUrlSegment(helper), _ => 1, StringComparer.OrdinalIgnoreCase);
+
+            Assert.That(BlogMlImporter.ChoosePostSlug(source, current, nodeName, takenSlugs, helper), Is.EqualTo(expected));
         }
 
         [Test]
