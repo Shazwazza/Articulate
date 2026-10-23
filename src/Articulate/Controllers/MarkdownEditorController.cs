@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Umbraco.Cms.Api.Management.Security;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Web;
@@ -25,7 +26,8 @@ namespace Articulate.Controllers
         IUmbracoContextAccessor umbracoContextAccessor,
         IApiDescriptionGroupCollectionProvider apiDescriptionProvider,
         IOptions<ArticulateOpenIdClientOptions> artClientOptions,
-        IOptions<WebRoutingSettings> webRoutingSettings)
+        IOptions<WebRoutingSettings> webRoutingSettings,
+        IBackOfficeExternalLoginProviders externalLoginProviders)
         : RenderController(logger, compositeViewEngine, umbracoContextAccessor)
     {
         /// <summary>
@@ -33,7 +35,7 @@ namespace Articulate.Controllers
         /// </summary>
         /// <returns>The action result yielding the editor view.</returns>
         [HttpGet]
-        public IActionResult NewPost()
+        public async Task<IActionResult> NewPost()
         {
             if (CurrentPage is null)
             {
@@ -91,12 +93,40 @@ namespace Articulate.Controllers
                 TokenUrl = oauthUrls.TokenUrl,
                 RevocationUrl = oauthUrls.RevocationUrl,
                 LoginLogoUrl = oauthUrls.LoginLogoUrl,
+                IdentityProvider = await ResolveIdentityProviderAsync(openIdClientOptions),
             };
 
             SetSecurityHeaders();
             return View("MarkdownEditor", vm);
 
             static string GetKey<T>(string actionName) => $"{typeof(T).Name}.{actionName}";
+        }
+
+        private async Task<string?> ResolveIdentityProviderAsync(ArticulateOpenIdClientOptions openIdClientOptions)
+        {
+            IEnumerable<BackOfficeExternaLoginProviderScheme> providers =
+                await externalLoginProviders.GetBackOfficeProvidersAsync();
+            string[] registered = providers
+                .Where(x => x.AuthenticationScheme is not null)
+                .Select(x => x.ExternalLoginProvider.AuthenticationType)
+                .ToArray();
+
+            string? identityProvider = MarkdownEditorIdentityProviderResolver.Resolve(
+                openIdClientOptions.IdentityProvider,
+                registered,
+                externalLoginProviders.HasDenyLocalLogin(),
+                out bool configuredProviderNotFound);
+
+            if (configuredProviderNotFound)
+            {
+                logger.LogWarning(
+                    "The configured Markdown editor identity provider '{IdentityProvider}' is not a registered back office " +
+                    "external login provider, so local login will be used. Registered providers: {RegisteredProviders}",
+                    openIdClientOptions.IdentityProvider,
+                    registered);
+            }
+
+            return identityProvider;
         }
 
         private Uri GetAndValidateBaseUrl(ArticulateOpenIdClientOptions openIdClientOptions)

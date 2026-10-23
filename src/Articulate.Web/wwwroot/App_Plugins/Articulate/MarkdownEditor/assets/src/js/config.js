@@ -40,6 +40,8 @@ const config = {
     articulateBlogNode: null,
     // Optional token revocation endpoint used by authService.logout() before sign-out.
     revokeUrl: '',
+    // Optional back office external login provider sent as identity_provider (e.g. Umbraco.UmbracoId).
+    identityProvider: '',
 
     // Static OAuth parameters
     oauth: {
@@ -72,6 +74,7 @@ function initConfig(dataset) {
         articulateBlogNode,
         oauthClientId,
         revocationUrl,
+        identityProvider,
     } = dataset;
 
     if (!authUrl || !editorPostUrl || !currentUserUrl || !tokenUrl || !authEndUrl || !articulateBlogNode) {
@@ -102,6 +105,8 @@ function initConfig(dataset) {
     if (typeof revocationUrl === "string") {
         config.revokeUrl = revocationUrl.trim();
     }
+
+    config.identityProvider = typeof identityProvider === "string" ? identityProvider.trim() : "";
 }
 
 export { config, initConfig };

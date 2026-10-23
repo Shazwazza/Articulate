@@ -36,7 +36,8 @@
     data-editor-post-url="@Html.Encode(Model.EditorPostUrl)"
     data-oauth-client-id="@Html.Encode(Model.BackOfficeClientId)"
     data-post-logout-redirect-url="@Html.Encode(Model.PostLogoutRedirectUrl)"
-    data-revocation-url="@Html.Encode(Model.RevocationUrl)">
+    data-revocation-url="@Html.Encode(Model.RevocationUrl)"
+    data-identity-provider="@Html.Encode(Model.IdentityProvider ?? string.Empty)">
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
         <header class="mdl-layout__header" x-cloak x-show="showHeader">
             <div class="mdl-layout__header-row md-editor__container">

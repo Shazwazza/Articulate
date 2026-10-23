@@ -56,6 +56,19 @@ namespace Articulate.Options
         public List<string> PostLogoutRedirectUris { get; set; } = [];
 
         /// <summary>
+        /// Gets or sets the back office external login provider the Markdown editor signs in with, for example
+        /// <c>Umbraco.UmbracoId</c> on Umbraco Cloud.
+        /// </summary>
+        /// <remarks>
+        /// The value is the provider's authentication scheme name and is sent as the <c>identity_provider</c>
+        /// parameter on the authorize request, so sign-in goes straight to that provider instead of the local back
+        /// office login screen. Set it to <c>Umbraco</c> to always use local login. When it isn't set, the only
+        /// registered external provider is used if local login is denied, or if it is Umbraco Cloud's Umbraco ID
+        /// provider; otherwise local login is used.
+        /// </remarks>
+        public string? IdentityProvider { get; set; }
+
+        /// <summary>
         /// Gets or sets the custom Authorization URL.
         /// </summary>
         public string? AuthorizeUrl { get; set; }
