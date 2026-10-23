@@ -15,8 +15,8 @@ Choose the package line that matches your Umbraco installation.
 
 ### Umbraco 17 and 18 (.NET 10)
 
-- Umbraco 17.7.1 through 17.x: `dotnet add package Articulate --version 7.0.1`
-- Umbraco 18.2.1 through 18.x: `dotnet add package Articulate --version 8.0.1`
+- Umbraco 17.7.1 through 17.x: `dotnet add package Articulate --version 7.0.2`
+- Umbraco 18.2.1 through 18.x: `dotnet add package Articulate --version 8.0.2`
 
 ### Umbraco 13 (.NET 8, maintenance)
 
