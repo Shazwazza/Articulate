@@ -162,6 +162,11 @@ async function redirectToLogin() {
     code_challenge_method: config.oauth.codeChallengeMethod,
   });
 
+  // Same as the Umbraco back office: go straight to an external provider instead of the local login screen.
+  if (config.identityProvider) {
+    params.set('identity_provider', config.identityProvider);
+  }
+
   window.location.href = `${config.authUrl}?${params.toString()}`;
 }
 
