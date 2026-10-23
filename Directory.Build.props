@@ -62,6 +62,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+	<!-- StyleCop settings that can't be expressed in .editorconfig (SA1402 top-level type kinds). -->
+	<ItemGroup>
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" Visible="false" />
+	</ItemGroup>
 	<ItemGroup Condition="'$(UseArticulateUsings)' == 'true'">
 		<Using Include="Umbraco.Cms.Core.DependencyInjection" />
 		<Using Include="Umbraco.Extensions" />
