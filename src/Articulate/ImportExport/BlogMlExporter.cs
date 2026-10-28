@@ -1,20 +1,25 @@
 #nullable enable
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Argotic.Common;
 using Argotic.Syndication.Specialized;
 using Articulate.Services;
 using Articulate.Syndication.BlogML;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
+using Umbraco.Cms.Core.Media;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Persistence.Querying;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Templates;
 using Umbraco.Cms.Infrastructure.Persistence;
 
 namespace Articulate.ImportExport
@@ -33,7 +38,9 @@ namespace Articulate.ImportExport
         IPublishedUrlProvider urlProvider,
         ISqlContext sqlContext,
         ILogger<BlogMlExporter> logger,
-        IArticulateMarkdownConverter articulateMarkdownConverter)
+        IArticulateMarkdownConverter articulateMarkdownConverter,
+        IJsonSerializer jsonSerializer,
+        IImageUrlTokenGenerator imageUrlTokenGenerator)
     {
         /// <summary>
         /// Exports the blog content from a root node to a BlogML file.
@@ -247,9 +254,14 @@ namespace Articulate.ImportExport
         {
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateRichText))
             {
-                // Export the stored rich-text HTML as-is. Block/grid expansion is editor-specific
+                // Block placeholders are dropped. Block expansion is editor-specific
                 // and should be added only when BlogML can represent those structures explicitly.
-                return child.GetValue<string>("richText") ?? string.Empty;
+                return GetRichTextHtml(
+                    child.GetValue<string>("richText"),
+                    jsonSerializer,
+                    urlProvider,
+                    imageUrlTokenGenerator,
+                    logger);
             }
 
             if (child.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateMarkdown))
@@ -261,6 +273,72 @@ namespace Articulate.ImportExport
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the markup of a stored rich text value with page, media and image links resolved to absolute URLs.
+        /// </summary>
+        /// <remarks>
+        /// The editor stores JSON (<c>{"markup", "blocks"}</c>) with links as <c>{localLink:guid}</c> and image paths
+        /// removed; legacy plain HTML parses as markup. URLs are absolute because relative links mean nothing outside this site,
+        /// and the editor-only attributes and block placeholders are removed.
+        /// </remarks>
+        internal static string GetRichTextHtml(
+            string? storedValue,
+            IJsonSerializer jsonSerializer,
+            IPublishedUrlProvider urlProvider,
+            IImageUrlTokenGenerator imageUrlTokenGenerator,
+            ILogger logger)
+        {
+            var markup = !string.IsNullOrWhiteSpace(storedValue)
+                && RichTextPropertyEditorHelper.TryParseRichTextEditorValue(storedValue, jsonSerializer, logger, out RichTextEditorValue? richText)
+                    ? richText.Markup
+                    : null;
+            if (string.IsNullOrWhiteSpace(markup))
+            {
+                return string.Empty;
+            }
+
+            markup = new HtmlLocalLinkParser(urlProvider).EnsureInternalLinks(markup, UrlMode.Absolute);
+            markup = new HtmlImageSourceParser(key => urlProvider.GetMediaUrl(key, UrlMode.Absolute), imageUrlTokenGenerator)
+                .EnsureImageSources(markup);
+            return RemoveEditorMarkup(markup);
+        }
+
+        // Same attributes RteBlockRenderingValueConverter removes (numeric img rel, data-udi on links and images),
+        // plus block placeholders, which hold keys of blocks that only exist on this site.
+        private static string RemoveEditorMarkup(string html)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            if (doc.ParseErrors.Any())
+            {
+                return html;
+            }
+
+            var modified = false;
+            foreach (HtmlNode img in doc.DocumentNode.SelectNodes("//img[@rel]") ?? Enumerable.Empty<HtmlNode>())
+            {
+                if (int.TryParse(img.GetAttributeValue("rel", string.Empty), NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                {
+                    img.Attributes.Remove("rel");
+                    modified = true;
+                }
+            }
+
+            foreach (HtmlNode node in doc.DocumentNode.SelectNodes("(//a|//img)[@data-udi]") ?? Enumerable.Empty<HtmlNode>())
+            {
+                node.Attributes.Remove("data-udi");
+                modified = true;
+            }
+
+            foreach (HtmlNode block in doc.DocumentNode.SelectNodes("//umb-rte-block|//umb-rte-block-inline") ?? Enumerable.Empty<HtmlNode>())
+            {
+                block.Remove();
+                modified = true;
+            }
+
+            return modified ? doc.DocumentNode.OuterHtml : html;
         }
 
         private static BlogMLPost CreateBlogMlPost(IContent child, string content, Uri postUrl)
