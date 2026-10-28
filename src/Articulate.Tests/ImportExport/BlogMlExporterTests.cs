@@ -289,5 +289,22 @@ namespace Articulate.Tests.ImportExport
             Assert.That(html, Does.Contain("<img src=\"https://example.com/media/abc/post1.jpg?width=500\" alt=\"Post1\">"));
             Assert.That(html, Does.Not.Contain("umb-rte-block"));
         }
+
+        [Test]
+        public void GetRichTextHtml_exports_plain_html_from_imported_posts()
+        {
+            // BlogMlImporter stores plain HTML, not the editor's JSON; it must not go through the serializer.
+            const string storedValue =
+                "<p>Imported post with a <a href=\"https://example.com/elsewhere/\">link</a> and an <img src=\"https://example.com/a.jpg\" alt=\"A\">.</p>";
+
+            var html = BlogMlExporter.GetRichTextHtml(
+                storedValue,
+                new Mock<IJsonSerializer>(MockBehavior.Strict).Object,
+                Mock.Of<IPublishedUrlProvider>(),
+                Mock.Of<IImageUrlTokenGenerator>(),
+                NullLogger.Instance);
+
+            Assert.That(html, Is.EqualTo(storedValue));
+        }
     }
 }
