@@ -81,4 +81,3 @@
 *.svg binary
 
 # Generated build outputs
-build/ClientAssets/** linguist-generated=true diff=nodiff

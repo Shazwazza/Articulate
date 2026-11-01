@@ -15,8 +15,9 @@ const { build: esbuildBuild } = require('esbuild');
 const lightningcss = require('lightningcss');
 const UI_ENTRY = path.resolve(UI_ROOT, '../common/src/main.ts');
 const WEB_ROOT = path.resolve(UI_ROOT, '../..');
-const UI_OUT = path.resolve(WEB_ROOT, 'wwwroot/App_Plugins/Articulate/BackOffice');
-const PACKAGE_ROOT = path.resolve(WEB_ROOT, 'wwwroot/App_Plugins/Articulate');
+// Per-lane output; Articulate.Web.csproj serves it as static web assets.
+const PACKAGE_ROOT = path.resolve(WEB_ROOT, 'obj', path.basename(UI_ROOT), 'ClientAssets/App_Plugins/Articulate');
+const UI_OUT = path.resolve(PACKAGE_ROOT, 'BackOffice');
 const PUBLIC_ROOT = path.resolve(UI_ROOT, '../common/public');
 
 // Static asset locations

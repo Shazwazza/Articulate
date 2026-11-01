@@ -60,10 +60,10 @@ Shows the lane's containers and verifies the packaged Backoffice files inside th
 ### docker-test
 
 ```text
-dotnet run --file docker/run.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke] [--reuse-packages]
+dotnet run --file docker/run.cs -- docker-test [--lane v17|v18|all] [--keep] [--skip-smoke] [--clean] [--reuse-packages]
 ```
 
-Each lane uses a unique Compose project, named volumes, image tag, and free loopback ports. It inspects the package, builds the image from that lane's package output, starts a fresh Development site, publishes and confirms its starter content, checks Production root and publication-indexing readiness, and runs the existing HTTP Playwright suite. It then removes only that candidate project's containers and volumes and its unique image tag. `--reuse-packages` uses the current `build/Release/<lane>` output. This command is optional deployment coverage using the same suite as native E2E. CI runs `build/test.cs -- fresh` instead. `--keep` leaves the candidate project and image for debugging. `--skip-smoke` retains the startup-only path and skips publish/confirm, Production, and E2E checks.
+Each lane uses a unique Compose project, named volumes, image tag, and free loopback ports. It inspects the package, builds the image from that lane's package output, starts a fresh Development site, publishes and confirms its starter content, checks Production root and publication-indexing readiness, and runs the existing HTTP Playwright suite. It then removes only that candidate project's containers and volumes and its unique image tag. Package builds are incremental; `--clean` rebuilds from clean outputs. `--reuse-packages` uses the current `build/Release/<lane>` output and cannot be combined with `--clean`. This command is optional deployment coverage using the same suite as native E2E. CI runs `build/test.cs -- fresh` instead. `--keep` leaves the candidate project and image for debugging. `--skip-smoke` retains the startup-only path and skips publish/confirm, Production, and E2E checks.
 
 Indexing readiness publishes one temporary post, waits until Umbraco's Examine query API returns its exact key from `ExternalIndex`, then deletes it and verifies removal. This uses the existing 300-second preparation budget; E2E assertions and timeouts do not change. The check runs only on disposable candidate projects.
 

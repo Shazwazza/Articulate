@@ -1,5 +1,6 @@
 #!/usr/bin/env -S dotnet --
 #:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
+#:property PublishAot=false
 #nullable enable
 // giscus-migrate.cs — migrate the Articulate Disqus XML comment export to GitHub Discussions (giscus).
 // Reads the wp:comment RSS shape produced by the BlogML importer's "Export Disqus Xml" option (and native

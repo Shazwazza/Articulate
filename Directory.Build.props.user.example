@@ -5,10 +5,9 @@
   This file is user-specific, gitignored, and imported automatically by MSBuild.
   CI/build scripts (__build.cs__ or __build.yml__) take precedence because
   they pass command-line properties (-p:...) to `dotnet` which override this file.
-  After changing this file run __Clean Solution__ so package changes are restored.
-  If you're working with the backoffice after a package lane change, run the client build
-  manually from `src/Articulate.Web/Client` using the pnpm filter command for the v17
-  or v18 backoffice package.
+  Each lane has its own bin/obj, so switching lanes needs no clean.
+  With EnableClientBuild=false, build the lane's Backoffice client once with
+  the build script's client command (see build/help.md).
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>

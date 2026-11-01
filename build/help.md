@@ -28,7 +28,7 @@ dotnet run --file build/build.cs -- build [options]
 | `--tests`         | `RUN_TESTS`, otherwise true in CI                   | Run `dotnet test` after building.                                                                                                                                                                                                                                                                                                   |
 | `--client`        | `ENABLE_CLIENT_BUILD`, otherwise true in Release/CI | Build the Backoffice client.                                                                                                                                                                                                                                                                                                        |
 | `--sample`        | `PACK_SAMPLE_THEME`, otherwise true locally         | Pack `Articulate.Theme.Sample`.                                                                                                                                                                                                                                                                                                     |
-| `--clean`         | `false`                                             | Clean source outputs, client assets, and packaged Backoffice assets first; required when switching lanes. It does not delete client dependencies or local test-site state. Use `site --reset` for an explicit site reset. Same-lane builds reuse client dependencies and, when tracked client inputs and build mode are unchanged, the incremental client stamp. |
+| `--clean`         | `false`                                             | Delete every `bin`/`obj` folder under `src/` first. Keeps client dependencies and local test-site state; use `site --reset` for the site. |
 | `--update-locks`  | `false`                                             | Regenerate both v17 and v18 NuGet lock files before building. Local-only; the command refuses to run in CI or act. |
 
 Packages land in `build/<Configuration>/<lane>/`.
@@ -57,6 +57,6 @@ This command remains attached to the running site until stopped.
 
 ## Conventions
 
-- Both lanes share project `bin`/`obj` and static-web-asset paths; full-solution lane builds run sequentially with `-m:1`.
+- Each lane has its own `bin/<lane>`/`obj/<lane>`; build one lane at a time.
 - `ARTICULATE_PACKAGE_VERSION` overrides calculated package versions.
 - `help` is the canonical build command and option reference.
