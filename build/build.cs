@@ -243,7 +243,6 @@ void DeleteClientBuildStamps(string lane)
 {
     var obj = Path.Combine(Env.Repo, "src", "Articulate.Web", "obj");
     if (!Directory.Exists(obj)) return;
-    // The production build rewrites the shared theme and Markdown Editor bundles, so every lane's dev stamp is stale.
     foreach (var dir in Directory.EnumerateDirectories(obj))
         foreach (var stamp in Directory.EnumerateFiles(dir, Path.GetFileName(dir) == lane ? "BackofficeClient_*.stamp" : "BackofficeClient_*_dev_*.stamp"))
             File.Delete(stamp);
