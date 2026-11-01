@@ -241,10 +241,12 @@ async Task<string> Capture(string file, IEnumerable<string> args, string cwd)
 void DeleteDir(string path) { if (Directory.Exists(path)) Directory.Delete(path, recursive: true); }
 void DeleteClientBuildStamps(string lane)
 {
-    var obj = Path.Combine(Env.Repo, "src", "Articulate.Web", "obj", lane);
+    var obj = Path.Combine(Env.Repo, "src", "Articulate.Web", "obj");
     if (!Directory.Exists(obj)) return;
-    foreach (var stamp in Directory.EnumerateFiles(obj, "BackofficeClient_*.stamp"))
-        File.Delete(stamp);
+    // The production build rewrites the shared theme and Markdown Editor bundles, so every lane's dev stamp is stale.
+    foreach (var dir in Directory.EnumerateDirectories(obj))
+        foreach (var stamp in Directory.EnumerateFiles(dir, Path.GetFileName(dir) == lane ? "BackofficeClient_*.stamp" : "BackofficeClient_*_dev_*.stamp"))
+            File.Delete(stamp);
 }
 
 void DeleteBuildOutputs(string root)

@@ -136,8 +136,14 @@
 
     <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientWorkspaceDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
 
+    <PropertyGroup>
+      <_OtherClientBuildMode>dev</_OtherClientBuildMode>
+      <_OtherClientBuildMode Condition="'$(ClientBuildMode)' == 'dev'">prod</_OtherClientBuildMode>
+    </PropertyGroup>
     <ItemGroup>
       <_StaleClientBuildStamp Include="$(BaseIntermediateOutputPath)BackofficeClient_*.stamp" />
+      <!-- Both lanes share the theme and Markdown Editor bundles, so every lane's stamp for the other mode is stale. -->
+      <_StaleClientBuildStamp Include="obj\*\BackofficeClient_*_$(_OtherClientBuildMode)_*.stamp" />
     </ItemGroup>
     <Delete Files="@(_StaleClientBuildStamp)" />
     <WriteLinesToFile File="$(ClientBuildStamp)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
