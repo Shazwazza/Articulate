@@ -1,6 +1,7 @@
 #nullable enable
 using Articulate.Options;
 using Articulate.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core;
@@ -11,6 +12,7 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Articulate.Components
 {
@@ -27,6 +29,22 @@ namespace Articulate.Components
         : INotificationHandler<ContentSavingNotification>
     {
         private readonly ArticulateOptions _articulateOptions = articulateOptions.Value;
+
+        [Obsolete("Use the constructor that takes an IJsonSerializer and a logger.")]
+        public ContentSavingHandler(
+            IContentTypeService contentTypeService,
+            IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
+            IOptions<ArticulateOptions> articulateOptions,
+            IArticulateMarkdownConverter articulateMarkdownConverter)
+            : this(
+                contentTypeService,
+                backOfficeSecurityAccessor,
+                articulateOptions,
+                articulateMarkdownConverter,
+                StaticServiceProvider.Instance.GetRequiredService<IJsonSerializer>(),
+                StaticServiceProvider.Instance.GetRequiredService<ILogger<ContentSavingHandler>>())
+        {
+        }
 
         /// <inheritdoc/>
         public void Handle(ContentSavingNotification notification)
