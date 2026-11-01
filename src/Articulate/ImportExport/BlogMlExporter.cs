@@ -8,6 +8,7 @@ using Argotic.Syndication.Specialized;
 using Articulate.Services;
 using Articulate.Syndication.BlogML;
 using HtmlAgilityPack;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
@@ -21,6 +22,7 @@ using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Templates;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Articulate.ImportExport
 {
@@ -42,6 +44,36 @@ namespace Articulate.ImportExport
         IJsonSerializer jsonSerializer,
         IImageUrlTokenGenerator imageUrlTokenGenerator)
     {
+        [Obsolete("Use the constructor that takes an IJsonSerializer and an IImageUrlTokenGenerator.")]
+        public BlogMlExporter(
+            IContentService contentService,
+            IMediaService mediaService,
+            IContentTypeService contentTypeService,
+            IDataTypeService dataTypeService,
+            ITagService tagService,
+            MediaFileManager mediaFileManager,
+            ArticulateTempFileSystem articulateTempFileSystem,
+            IPublishedUrlProvider urlProvider,
+            ISqlContext sqlContext,
+            ILogger<BlogMlExporter> logger,
+            IArticulateMarkdownConverter articulateMarkdownConverter)
+            : this(
+                contentService,
+                mediaService,
+                contentTypeService,
+                dataTypeService,
+                tagService,
+                mediaFileManager,
+                articulateTempFileSystem,
+                urlProvider,
+                sqlContext,
+                logger,
+                articulateMarkdownConverter,
+                StaticServiceProvider.Instance.GetRequiredService<IJsonSerializer>(),
+                StaticServiceProvider.Instance.GetRequiredService<IImageUrlTokenGenerator>())
+        {
+        }
+
         /// <summary>
         /// Exports the blog content from a root node to a BlogML file.
         /// </summary>
