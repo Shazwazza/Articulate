@@ -95,6 +95,15 @@ namespace Articulate.Controllers
             // create a blog model of the main page
             var rootPageModel = new MasterModel(CurrentPage, PublishedValueFallback);
 
+            if (!EnsurePhysicalViewExists("Tags"))
+            {
+                logger.LogInformation(
+                    "ArticulateTagsController: No Tags.cshtml view found for theme '{Theme}'. Returning 404 for the {TagGroup} index.",
+                    rootPageModel.Theme,
+                    tagGroup);
+                return NotFound();
+            }
+
             IEnumerable<PostsByTagModel> contentByTags = articulateTagService.GetContentByTags(
                 umbracoHelper,
                 tagQuery,
