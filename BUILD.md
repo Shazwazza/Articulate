@@ -84,8 +84,8 @@ Repository defaults in `.actrc` provide the runner image, 2 GiB container limit,
 
 | Lane  | Package line     | Umbraco support | Target framework | Output folder       |
 |-------|------------------|-----------------|------------------|---------------------|
-| `v17` | Articulate 7.0.x | Umbraco 17.7.1–17.x | `net10.0` | `build/Release/v17` |
-| `v18` | Articulate 8.0.x | Umbraco 18.2.1–18.x   | `net10.0` | `build/Release/v18` |
+| `v17` | Articulate 7.0.x | Umbraco 17.7.2–17.x | `net10.0` | `build/Release/v17` |
+| `v18` | Articulate 8.0.x | Umbraco 18.2.2–18.x   | `net10.0` | `build/Release/v18` |
 
 The lanes produce separate NuGet packages because their Umbraco extension points are not binary-compatible.
 
@@ -146,8 +146,8 @@ Current floors in `Directory.Packages.props`:
 
 | Lane | Package | Floor |
 |------|---------|-------|
-| `v17` | `Umbraco.Cms.*` | `[17.7.1,18.0.0)` |
-| `v18` | `Umbraco.Cms.*` | `[18.2.1,19.0.0)` |
+| `v17` | `Umbraco.Cms.*` | `[17.7.2,18.0.0)` |
+| `v18` | `Umbraco.Cms.*` | `[18.2.2,19.0.0)` |
 | `v17` | `TinyMCE.Umbraco` | `[17.5.0,18.0.0)` |
 | `v18` | `TinyMCE.Umbraco` | `[18.0.0,19.0.0)` |
 
@@ -157,8 +157,8 @@ The Back Office client package must target the same Umbraco major lane.
 
 | Lane | Client package floor |
 |------|----------------------|
-| `v17` | `@umbraco-cms/backoffice ^17.7.1` |
-| `v18` | `@umbraco-cms/backoffice ^18.2.1` |
+| `v17` | `@umbraco-cms/backoffice ^17.7.2` |
+| `v18` | `@umbraco-cms/backoffice ^18.2.2` |
 
 The client package is a development dependency. It is not included in the Articulate NuGet package. Umbraco supplies the Back Office runtime.
 

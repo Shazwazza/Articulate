@@ -19,10 +19,10 @@
     "test:e2e": "playwright test --config playwright.config.ts"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "^0.97.3",
+    "@hey-api/openapi-ts": "^0.99.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^24",
-    "@umbraco-cms/backoffice": "^17.7.1",
+    "@umbraco-cms/backoffice": "^17.7.2",
     "fast-xml-parser": "^5.11.2",
     "vite": "^8.3.1"
   }
