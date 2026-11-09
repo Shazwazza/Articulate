@@ -903,6 +903,56 @@ test('root theme changes serve the alternate packaged stylesheet and restore the
   settle('Theme', testFailure, recoveryErrors);
 });
 
+test('themes without a Tags view return 404 for tag and category indexes while single tag pages still render', async ({ request }) => {
+  const accessToken = await token(request);
+  const { id, document } = await rootDocument(request, accessToken);
+  const originalTheme = document.values.find(value => value.alias === 'theme')?.value;
+  if (typeof originalTheme !== 'string' || !originalTheme) throw new Error('The Articulate root theme is missing or not a string');
+  if (originalTheme.toLowerCase() === 'mini') throw new Error('The fixture root must start on a theme with a Tags view');
+  const routeValue = (alias: string) => {
+    const value = document.values.find(item => item.alias === alias)?.value;
+    if (typeof value !== 'string' || !value) throw new Error(`${alias} is missing or not a string`);
+    return value;
+  };
+  const tagsIndex = `/${routeValue('tagsUrlName')}/`;
+  const categoriesIndex = `/${routeValue('categoriesUrlName')}/`;
+
+  const updateTheme = async (theme: string) => {
+    const values = document.values.map(value => value.alias === 'theme' ? { ...value, value: theme } : value);
+    const update = await api(request, accessToken, `/document/${id}`, {
+      method: 'PUT', data: { values, variants: document.variants, template: document.template ?? null },
+    });
+    expect(update.ok(), `Management API saves the root theme ${theme}`).toBeTruthy();
+    await publish(request, accessToken, id);
+    await waitFor(request, '/', (status, body) =>
+      status === 200 && body.toLowerCase().includes(`/app_plugins/articulate/themes/${theme.toLowerCase()}/assets/dist/css/`));
+  };
+
+  const index = await request.get(tagsIndex);
+  expect(index.status(), `${originalTheme} renders the tag index`).toBe(200);
+  const tagUrl = required((await index.text()).match(/<a id="tag-[^"]*" href="([^"]+)"/)?.[1], 'a tag link on the tag index');
+
+  let mutationAttempted = false;
+  let testFailure: unknown;
+  const recoveryErrors: string[] = [];
+  try {
+    mutationAttempted = true;
+    await updateTheme('Mini');
+    for (const path of [tagsIndex, categoriesIndex]) {
+      expect((await request.get(path, { maxRedirects: 0 })).status(), `Mini has no Tags view, so ${path} is not found`).toBe(404);
+    }
+    expect((await request.get(tagUrl)).status(), `Mini still renders the single tag page ${tagUrl}`).toBe(200);
+  } catch (error) {
+    testFailure = error;
+  } finally {
+    if (mutationAttempted) {
+      await attempt(recoveryErrors, 'theme restore', () => updateTheme(originalTheme));
+      await attempt(recoveryErrors, 'tag index restore verification', () => waitFor(request, tagsIndex, status => status === 200));
+    }
+  }
+  settle('Missing Tags view', testFailure, recoveryErrors);
+});
+
 test('public search redirects page one canonically and reserved indexes cannot bypass published-content search', async ({ request, baseURL }) => {
   const accessToken = await token(request);
   const { id: rootId, document: root } = await rootDocument(request, accessToken);
