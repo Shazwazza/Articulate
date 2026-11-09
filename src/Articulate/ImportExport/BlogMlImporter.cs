@@ -251,13 +251,22 @@ namespace Articulate.ImportExport
 
             foreach (BlogMLAuthor author in authors)
             {
+                // The first usable definition of a repeated author ID wins; adding it again would throw.
+                if (result.ContainsKey(author.Id))
+                {
+                    continue;
+                }
+
                 var authorName = await ProcessSingleAuthorAsync(
                     userId,
                     author,
                     authorsNode,
                     authorType,
                     existingAuthorNodes);
-                result.Add(author.Id, authorName);
+                if (authorName is not null)
+                {
+                    result.Add(author.Id, authorName);
+                }
             }
 
             return result;
@@ -309,7 +318,7 @@ namespace Articulate.ImportExport
             return allAuthorNodes as IContent[] ?? [.. allAuthorNodes];
         }
 
-        private async Task<string> ProcessSingleAuthorAsync(
+        private async Task<string?> ProcessSingleAuthorAsync(
             int userId,
             BlogMLAuthor author,
             IContent authorsNode,
@@ -318,6 +327,12 @@ namespace Articulate.ImportExport
         {
             IUser? found = userService.GetByEmail(author.EmailAddress);
             var authorName = found?.Name ?? author.Title.Content;
+
+            // Umbraco cannot save a node with an empty name, so a nameless author is skipped.
+            if (string.IsNullOrWhiteSpace(authorName))
+            {
+                return null;
+            }
 
             IContent authorNode = existingAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(authorName)) ??
                                   await CreateAndPublishAuthorNodeAsync(userId, authorName, authorsNode, authorType);
@@ -770,10 +785,8 @@ namespace Articulate.ImportExport
                 return post.Name.Content;
             }
 
-            var slugArray = post.Url!.OriginalString.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
-            var fileNameAndQuery = slugArray[^1];
-            var fileNameAndQueryArray = fileNameAndQuery.Split(['?'], StringSplitOptions.RemoveEmptyEntries);
-            var fileName = fileNameAndQueryArray[0];
+            // A root-only URL such as "/" has no segment; an empty slug falls back to the node name.
+            var fileName = post.Url!.OriginalString.Split(['/'], StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Split(['?'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
             int lastDotIndex = fileName.LastIndexOf('.');
             return lastDotIndex > 0 ? fileName[..lastDotIndex] : fileName;
         }
