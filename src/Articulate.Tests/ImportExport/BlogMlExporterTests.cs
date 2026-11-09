@@ -165,7 +165,9 @@ namespace Articulate.Tests.ImportExport
                     UrlProvider.Object,
                     sql.Object,
                     NullLogger<BlogMlExporter>.Instance,
-                    Mock.Of<IArticulateMarkdownConverter>());
+                    Mock.Of<IArticulateMarkdownConverter>(),
+                    Mock.Of<IJsonSerializer>(),
+                    Mock.Of<IImageUrlTokenGenerator>());
             }
 
             public Mock<IContentService> ContentService { get; } = new();
