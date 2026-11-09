@@ -74,7 +74,7 @@ namespace Articulate.ImportExport
                 var blogMlDoc = new BlogMLDocument
                 {
                     RootUrl = new Uri(urlProvider.GetUrl(root.Id), UriKind.RelativeOrAbsolute),
-                    GeneratedOn = DateTime.Now,
+                    GeneratedOn = DateTime.UtcNow,
                     Title = new BlogMLTextConstruct(root.GetValue<string>("blogTitle")),
                     Subtitle = new BlogMLTextConstruct(root.GetValue<string>("blogDescription"))
                 };
@@ -92,7 +92,7 @@ namespace Articulate.ImportExport
                     AddBlogAuthors(authorsNode, blogMlDoc);
                 }
 
-                AddBlogCategories(blogMlDoc, categoryGroup);
+                var usedCategories = new Dictionary<int, ITag>();
 
                 IContentType archiveContentType =
                     contentTypeService.Get(ArticulateConstants.ContentType.ArticulateArchive)
@@ -104,8 +104,10 @@ namespace Articulate.ImportExport
                              sqlContext.Query<IContent>().Where(x => x.ContentTypeId == archiveContentType.Id),
                              Ordering.By("CreateDate", Direction.Descending)))
                 {
-                    AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64);
+                    AddBlogPosts(archiveNode, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64, usedCategories);
                 }
+
+                AddBlogCategories(blogMlDoc, usedCategories.Values);
 
                 WriteFile(blogMlDoc, exportFileName);
             }
@@ -151,16 +153,10 @@ namespace Articulate.ImportExport
             }
         }
 
-        private void AddBlogCategories(BlogMLDocument blogMlDoc, string? tagGroup)
+        private static void AddBlogCategories(BlogMLDocument blogMlDoc, IEnumerable<ITag> categories)
         {
-            IEnumerable<ITag> categories = tagService.GetAllContentTags(tagGroup);
             foreach (ITag category in categories)
             {
-                if (category.NodeCount == 0)
-                {
-                    continue;
-                }
-
                 var blogMlCategory = new BlogMLCategory
                 {
                     Id = category.Id.ToString(),
@@ -195,7 +191,8 @@ namespace Articulate.ImportExport
             BlogMLDocument blogMlDoc,
             string? categoryGroup,
             string? tagGroup,
-            bool exportImagesAsBase64)
+            bool exportImagesAsBase64,
+            Dictionary<int, ITag> usedCategories)
         {
             const int pageSize = 1000;
             var pageIndex = 0;
@@ -216,7 +213,7 @@ namespace Articulate.ImportExport
                         continue;
                     }
 
-                    ProcessSinglePost(child, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64);
+                    ProcessSinglePost(child, blogMlDoc, categoryGroup, tagGroup, exportImagesAsBase64, usedCategories);
                 }
 
                 pageIndex++;
@@ -229,7 +226,8 @@ namespace Articulate.ImportExport
             BlogMLDocument blogMlDoc,
             string? categoryGroup,
             string? tagGroup,
-            bool exportImagesAsBase64)
+            bool exportImagesAsBase64,
+            Dictionary<int, ITag> usedCategories)
         {
             var content = GetPostContent(child);
             var postUrl = new Uri(urlProvider.GetUrl(child.Id), UriKind.RelativeOrAbsolute);
@@ -238,7 +236,7 @@ namespace Articulate.ImportExport
             BlogMLPost blogMlPost = CreateBlogMlPost(child, content, postUrl);
 
             AssignAuthorToPost(blogMlPost, blogMlDoc, child.GetValue<string>("author"));
-            AssignCategoriesToPost(blogMlPost, child, categoryGroup);
+            AssignCategoriesToPost(blogMlPost, child, categoryGroup, usedCategories);
             AssignTagsToPost(blogMlPost, child, tagGroup);
             AttachPostImage(blogMlPost, child, postAbsoluteUrl, exportImagesAsBase64);
 
@@ -306,12 +304,17 @@ namespace Articulate.ImportExport
             }
         }
 
-        private void AssignCategoriesToPost(BlogMLPost blogMlPost, IContent child, string? categoryGroup)
+        private void AssignCategoriesToPost(
+            BlogMLPost blogMlPost,
+            IContent child,
+            string? categoryGroup,
+            Dictionary<int, ITag> usedCategories)
         {
             IEnumerable<ITag> categories = tagService.GetTagsForEntity(child.Id, categoryGroup);
             foreach (ITag category in categories)
             {
                 blogMlPost.Categories.Add(category.Id.ToString());
+                _ = usedCategories.TryAdd(category.Id, category);
             }
         }
 
