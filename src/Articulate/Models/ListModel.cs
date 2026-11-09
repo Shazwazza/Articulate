@@ -23,7 +23,7 @@ namespace Articulate.Models
         /// already be sorted.
         /// </remarks>
         public ListModel(
-            IPublishedContent? content,
+            IPublishedContent content,
             PagerModel? pager,
             IEnumerable<IPublishedContent>? listItems,
             IPublishedValueFallback publishedValueFallback)

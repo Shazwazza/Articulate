@@ -41,9 +41,17 @@ namespace Articulate.ImportExport
         ArticulateTempFileSystem articulateTempFileSystem,
         IArticulateImportMediaService service,
         IHtmlSanitizer htmlSanitizer,
-        IOptions<ArticulateOptions> articulateOptions)
+        IOptions<ArticulateOptions> articulateOptions,
+        IOptions<ArticulateCommentsOptions> commentsOptions
+#if UMBRACO_18_OR_GREATER
+        ,
+        IIdKeyMap idKeyMap
+#endif
+    )
     {
         private readonly long _maxXmlCharacters = articulateOptions.Value.BlogMlImportMaxXmlCharacters;
+
+        private readonly ArticulateCommentsOptions _commentsOptions = commentsOptions.Value;
 
         internal int GetPostCount(string fileName) => GetDocument(fileName).Posts.Count();
 
@@ -138,6 +146,21 @@ namespace Articulate.ImportExport
             IContent[] enumerable = imported as IContent[] ?? [.. imported];
             returnModel.PostCount = enumerable.Length;
 
+            // Warn when BlogML has comments but Giscus is configured and Disqus export isn't requested.
+            // Giscus has no import endpoint, so comments would be silently discarded otherwise.
+            if (!exportDisqusXml && _commentsOptions.Giscus.IsFullyConfigured())
+            {
+                int postsWithComments = document.Posts.Count(p => p.Comments.Count > 0);
+                int totalComments = document.Posts.Sum(p => p.Comments.Count);
+                if (totalComments > 0)
+                {
+                    logger.LogWarning(
+                        "BlogML import contains {CommentCount} comment(s) across {PostCount} post(s), but Giscus is configured and no Disqus XML export was requested. Giscus has no import endpoint; these comments will not be migrated. See https://github.com/Shazwazza/Articulate/wiki/Comments#caveats for migration options.",
+                        totalComments,
+                        postsWithComments);
+                }
+            }
+
             if (exportDisqusXml)
             {
                 XDocument xDisqusDoc = disqusXmlExporter.Export(enumerable, document);
@@ -197,7 +220,6 @@ namespace Articulate.ImportExport
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
                 MaxCharactersInDocument = _maxXmlCharacters,
-                MaxCharactersFromEntities = 1024,
             };
 
             return XmlReader.Create(stream, settings);
@@ -229,13 +251,22 @@ namespace Articulate.ImportExport
 
             foreach (BlogMLAuthor author in authors)
             {
+                // The first usable definition of a repeated author ID wins; adding it again would throw.
+                if (result.ContainsKey(author.Id))
+                {
+                    continue;
+                }
+
                 var authorName = await ProcessSingleAuthorAsync(
                     userId,
                     author,
                     authorsNode,
                     authorType,
                     existingAuthorNodes);
-                result.Add(author.Id, authorName);
+                if (authorName is not null)
+                {
+                    result.Add(author.Id, authorName);
+                }
             }
 
             return result;
@@ -287,7 +318,7 @@ namespace Articulate.ImportExport
             return allAuthorNodes as IContent[] ?? [.. allAuthorNodes];
         }
 
-        private async Task<string> ProcessSingleAuthorAsync(
+        private async Task<string?> ProcessSingleAuthorAsync(
             int userId,
             BlogMLAuthor author,
             IContent authorsNode,
@@ -296,6 +327,12 @@ namespace Articulate.ImportExport
         {
             IUser? found = userService.GetByEmail(author.EmailAddress);
             var authorName = found?.Name ?? author.Title.Content;
+
+            // Umbraco cannot save a node with an empty name, so a nameless author is skipped.
+            if (string.IsNullOrWhiteSpace(authorName))
+            {
+                return null;
+            }
 
             IContent authorNode = existingAuthorNodes.FirstOrDefault(x => x.Name.InvariantEquals(authorName)) ??
                                   await CreateAndPublishAuthorNodeAsync(userId, authorName, authorsNode, authorType);
@@ -532,6 +569,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -569,6 +609,9 @@ namespace Articulate.ImportExport
                 dataTypeService,
                 dataEditors,
                 jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                idKeyMap,
+#endif
                 logger);
         }
 
@@ -605,7 +648,7 @@ namespace Articulate.ImportExport
 
         private IContent[] GetExistingPosts(IContent archiveNode)
         {
-            IEnumerable<IContent> allPostNodes = contentService.GetPagedChildrenCompat(
+            IEnumerable<IContent> allPostNodes = contentService.EnumeratePagedChildren(
                 archiveNode.Id,
                 0,
                 int.MaxValue,
@@ -742,10 +785,8 @@ namespace Articulate.ImportExport
                 return post.Name.Content;
             }
 
-            var slugArray = post.Url!.OriginalString.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
-            var fileNameAndQuery = slugArray[^1];
-            var fileNameAndQueryArray = fileNameAndQuery.Split(['?'], StringSplitOptions.RemoveEmptyEntries);
-            var fileName = fileNameAndQueryArray[0];
+            // A root-only URL such as "/" has no segment; an empty slug falls back to the node name.
+            var fileName = post.Url!.OriginalString.Split(['/'], StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Split(['?'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
             int lastDotIndex = fileName.LastIndexOf('.');
             return lastDotIndex > 0 ? fileName[..lastDotIndex] : fileName;
         }
@@ -790,6 +831,4 @@ namespace Articulate.ImportExport
             }
         }
     }
-
-    internal sealed record BlogMlImportFileSummary(int PostCount, int ExternalImageCount, string[] ExternalHosts);
 }

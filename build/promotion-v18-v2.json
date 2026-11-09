@@ -1,0 +1,32 @@
+{
+  "Tool": "build/promote.cs",
+  "Profile": "v18-sts",
+  "BaseRef": "cf6289da",
+  "BaseSha": "cf6289da8c6ca69a30bb9f1096be5ed0e423f9df",
+  "SourceRef": "scaff/v18",
+  "SourceSha": "b5da56e9a54b49a4f01ee4b23274bb3d37fa641e",
+  "Commits": [
+    "c5256ae60cf19133ab33b2a1629cab5ed93e5eed",
+    "6c9051ce561d0be04a6bd009ab67c59f58df43f6",
+    "b54ff572b47877769519c9ed0a0121431a2d7412",
+    "2ca4129b527fa250a758824982278b3fc516c7c5",
+    "1f2ddfb11388b672c97587f000c385f2c6f12974",
+    "23dbf9e8ea9361b2c73fbff0dae05dc601ab9f54",
+    "4acf92fba68674101adf59b73fc7668c40f93521",
+    "f187a17fe4489553bb971be2caaaeaf32f619ecc",
+    "16ff491dbade54c705f2bf7a12ebab74e7c0e141",
+    "c219a452b2f3a71ad61a4b3dc1275ecb08aaf43d",
+    "dc1e6f7f44811b05e85c69995e978c79c98e7443",
+    "6210e32bcd04873c415b251b2134eaefaf979700",
+    "b08c09b4c3064834a07b36fad8d639bc2d9a4d1c",
+    "27c7208c04786f3a5838195166c9bf371785bc2d",
+    "4772db49a3eea7510805d2acbf33a91640a89c6f",
+    "55a385ee4ed689fbc0493abc493c64cb60ef9888",
+    "b5da56e9a54b49a4f01ee4b23274bb3d37fa641e"
+  ],
+  "CandidateBranch": "test/promote-v18-sts-v2",
+  "CandidateSha": "0c08324b80a166624f7938785082f4f6592622f8",
+  "TreeSha": "7c339662e2132c5fd1228dfb0e2f59eb897ae01f",
+  "Worktree": "C:\\Users\\gavin\\AppData\\Local\\Temp\\articulate-promote-4bee45c3221a481c899bc7384c7be777",
+  "BuildSkipped": false
+}

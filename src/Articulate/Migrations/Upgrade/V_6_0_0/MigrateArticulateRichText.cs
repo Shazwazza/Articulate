@@ -8,7 +8,7 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Articulate.Migrations.Upgrade.V_6_0_0
 {
     /// <summary>
-    /// Migration to update Articulate RichText data type configuration to use Tiptap editor.
+    /// Migration to update Articulate RichText data type configuration to use Tiptap editor without replacing existing Tiptap configuration.
     /// </summary>
     public class MigrateArticulateRichText(
         IMigrationContext context,
@@ -19,6 +19,7 @@ namespace Articulate.Migrations.Upgrade.V_6_0_0
     {
         private const string TinyMceAssemblyName = "TinyMCE.Umbraco";
         private const string TiptapEditorUiAlias = "Umb.PropertyEditorUi.Tiptap";
+        internal const string V6TiptapConfigurationJson = "{\"extensions\": [\"Umb.Tiptap.Embed\", \"Umb.Tiptap.Link\", \"Umb.Tiptap.Figure\", \"Umb.Tiptap.Image\", \"Umb.Tiptap.Subscript\", \"Umb.Tiptap.Superscript\", \"Umb.Tiptap.Table\", \"Umb.Tiptap.Underline\", \"Umb.Tiptap.TextAlign\", \"Umb.Tiptap.MediaUpload\"], \"maxImageSize\": 500, \"overlaySize\": \"medium\", \"toolbar\": [[[\"Umb.Tiptap.Toolbar.SourceEditor\"], [\"Umb.Tiptap.Toolbar.Bold\", \"Umb.Tiptap.Toolbar.Italic\", \"Umb.Tiptap.Toolbar.Underline\"], [\"Umb.Tiptap.Toolbar.TextAlignLeft\", \"Umb.Tiptap.Toolbar.TextAlignCenter\", \"Umb.Tiptap.Toolbar.TextAlignRight\"], [\"Umb.Tiptap.Toolbar.BulletList\", \"Umb.Tiptap.Toolbar.OrderedList\"], [\"Umb.Tiptap.Toolbar.Blockquote\", \"Umb.Tiptap.Toolbar.HorizontalRule\"], [\"Umb.Tiptap.Toolbar.Link\", \"Umb.Tiptap.Toolbar.Unlink\"], [\"Umb.Tiptap.Toolbar.MediaPicker\", \"Umb.Tiptap.Toolbar.EmbeddedMedia\"]]]}";
 
         /// <inheritdoc/>
         protected override async Task MigrateAsync()
@@ -39,7 +40,7 @@ namespace Articulate.Migrations.Upgrade.V_6_0_0
                 totalUpdated += await UpdateDataTypeAsync(
                     ArticulateConstants.DataType.ArticulateRichTextKey,
                     TiptapEditorUiAlias,
-                    "{\"extensions\": [\"Umb.Tiptap.Embed\", \"Umb.Tiptap.Link\", \"Umb.Tiptap.Figure\", \"Umb.Tiptap.Image\", \"Umb.Tiptap.Subscript\", \"Umb.Tiptap.Superscript\", \"Umb.Tiptap.Table\", \"Umb.Tiptap.Underline\", \"Umb.Tiptap.TextAlign\", \"Umb.Tiptap.MediaUpload\"], \"maxImageSize\": 500, \"overlaySize\": \"medium\", \"toolbar\": [[[\"Umb.Tiptap.Toolbar.SourceEditor\"], [\"Umb.Tiptap.Toolbar.Bold\", \"Umb.Tiptap.Toolbar.Italic\", \"Umb.Tiptap.Toolbar.Underline\"], [\"Umb.Tiptap.Toolbar.TextAlignLeft\", \"Umb.Tiptap.Toolbar.TextAlignCenter\", \"Umb.Tiptap.Toolbar.TextAlignRight\"], [\"Umb.Tiptap.Toolbar.BulletList\", \"Umb.Tiptap.Toolbar.OrderedList\"], [\"Umb.Tiptap.Toolbar.Blockquote\", \"Umb.Tiptap.Toolbar.HorizontalRule\"], [\"Umb.Tiptap.Toolbar.Link\", \"Umb.Tiptap.Toolbar.Unlink\"], [\"Umb.Tiptap.Toolbar.MediaPicker\", \"Umb.Tiptap.Toolbar.EmbeddedMedia\"]]]}");
+                    V6TiptapConfigurationJson);
 
                 logger.LogInformation("Updated {count} Articulate DataType records.", totalUpdated);
                 logger.LogInformation("Migration completed successfully.");

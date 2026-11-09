@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Website.Routing;
 
 namespace Articulate.Tests.Routing
@@ -224,7 +225,15 @@ namespace Articulate.Tests.Routing
         private static ArticulateRouter CreateSut() =>
             new(
                 Mock.Of<IControllerActionSearcher>(),
-                Mock.Of<Umbraco.Cms.Infrastructure.Scoping.IScopeProvider>(),
-                NullLogger<ArticulateRouter>.Instance);
+                Mock.Of<IScopeProvider>(),
+#if UMBRACO_18_OR_GREATER
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<Umbraco.Cms.Core.Services.IDocumentUrlService>(),
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
+#else
+                NullLogger<ArticulateRouter>.Instance,
+                Mock.Of<Microsoft.Extensions.Options.IOptions<Articulate.Options.ArticulateOptions>>()
+#endif
+            );
     }
 }

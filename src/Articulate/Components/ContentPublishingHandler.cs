@@ -148,15 +148,13 @@ namespace Articulate.Components
             return content;
         }
 
-        private List<IContent> GetChildren(int rootId)
-        {
-            return contentService.GetPagedChildrenCompat(
+        private List<IContent> GetChildren(int rootId) =>
+            contentService.EnumeratePagedChildren(
                     rootId,
                     0,
                     int.MaxValue,
                     out _)
                 .ToList();
-        }
 
         private static bool IsArticulateRoot(IContent content) =>
             content.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.Articulate);

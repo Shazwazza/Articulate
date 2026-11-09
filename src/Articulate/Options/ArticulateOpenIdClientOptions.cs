@@ -30,12 +30,12 @@ namespace Articulate.Options
         public string? DisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets the client type to register with OpenIddict. Defaults to <see cref="OpenIddictConstants.ClientTypes.Public"/>.
+        /// Gets or sets the client type to register with OpenIddict. The browser editor requires <see cref="OpenIddictConstants.ClientTypes.Public"/>.
         /// </summary>
         public string ClientType { get; set; } = OpenIddictConstants.ClientTypes.Public;
 
         /// <summary>
-        /// Gets or sets the client secret used for confidential clients.
+        /// Gets or sets the client secret. Client secrets are not supported because the editor runs in the browser.
         /// </summary>
         public string? ClientSecret { get; set; }
 
@@ -43,12 +43,30 @@ namespace Articulate.Options
         /// Gets or sets the allowed callback URLs after a successful sign-in. When <see cref="Enabled"/> is
         /// <see langword="true"/>, at least one absolute URI must be provided.
         /// </summary>
+        /// <remarks>
+        /// The origins of these URIs are also trusted as Markdown editor hosts. When the editor is requested on one of
+        /// these origins, its Management API and OAuth endpoint URLs use that origin instead of
+        /// <c>Umbraco:CMS:WebRouting:UmbracoApplicationUrl</c>, so the editor works on custom domains.
+        /// </remarks>
         public List<string> RedirectUris { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the allowed final destinations after sign-out completes.
         /// </summary>
         public List<string> PostLogoutRedirectUris { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets the back office external login provider the Markdown editor signs in with, for example
+        /// <c>Umbraco.UmbracoId</c> on Umbraco Cloud.
+        /// </summary>
+        /// <remarks>
+        /// The value is the provider's authentication scheme name and is sent as the <c>identity_provider</c>
+        /// parameter on the authorize request, so sign-in goes straight to that provider instead of the local back
+        /// office login screen. Set it to <c>Umbraco</c> to always use local login. When it isn't set, the only
+        /// registered external provider is used if local login is denied, or if it is Umbraco Cloud's Umbraco ID
+        /// provider; otherwise local login is used.
+        /// </remarks>
+        public string? IdentityProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the custom Authorization URL.

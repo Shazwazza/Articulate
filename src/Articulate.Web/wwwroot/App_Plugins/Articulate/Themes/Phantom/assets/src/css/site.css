@@ -3,7 +3,7 @@
 @font-face {
     /* license?  */
     font-family: 'phantom';
-    src: url("../fonts/phantom/phantom.woff") format("woff");
+    src: url("../../fonts/phantom/phantom.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }

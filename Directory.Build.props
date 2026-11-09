@@ -2,25 +2,37 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
+		<TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
 		<!-- TODO: Enable after phased migration. https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies -->
 		<Nullable>warnings</Nullable>
 		<WarningsAsErrors>Nullable</WarningsAsErrors>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NuGetAuditMode>direct</NuGetAuditMode>
+		<NuGetAuditMode Condition="'$(CI)' == 'true'">all</NuGetAuditMode>
+		<WarningsAsErrors Condition="'$(CI)' == 'true'">$(WarningsAsErrors);NU1903;NU1904</WarningsAsErrors>
 		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
 	<!-- Allow local developer overrides (e.g. ArticulatePackageLane) -->
 	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
 
-	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<!-- Lane gate: unknown values fail during evaluation so -getProperty callers do not silently fall back. -->
 	<PropertyGroup>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' != 'v18'">packages.v17.lock.json</NuGetLockFilePath>
+		<ArticulatePackageLane Condition="'$(ArticulatePackageLane)' == ''">v17</ArticulatePackageLane>
+		<_ValidatedArticulatePackageLane Condition="'$(ArticulatePackageLane)' == 'v17' or '$(ArticulatePackageLane)' == 'v18'">$(ArticulatePackageLane)</_ValidatedArticulatePackageLane>
+		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17 or v18 (got $(ArticulatePackageLane)).'))</_ArticulatePackageLaneValidationError>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(ArticulatePackageLane)' == 'v18' or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('18.')) or $([System.String]::Copy('$(UmbracoCmsPackageVersion)').StartsWith('[18.'))">
-		<DefineConstants>$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
+	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<PropertyGroup>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v17'">packages.v17.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<_ArticulateUmbracoMajor Condition="'$(UmbracoCmsPackageVersion)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(UmbracoCmsPackageVersion)', '\d+').Value)</_ArticulateUmbracoMajor>
+		<_ArticulateUmbracoMajor Condition="'$(_ArticulateUmbracoMajor)' == ''">$(ArticulatePackageLane.TrimStart('v'))</_ArticulateUmbracoMajor>
+		<DefineConstants Condition="$(_ArticulateUmbracoMajor) &gt;= 18">$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup>
 		<CompressionEnabled>false</CompressionEnabled>
@@ -39,6 +51,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+	<!-- StyleCop settings that can't be expressed in .editorconfig (SA1402 top-level type kinds). -->
+	<ItemGroup>
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" Visible="false" />
+	</ItemGroup>
 	<ItemGroup Condition="'$(UseArticulateUsings)' == 'true'">
 		<Using Include="Umbraco.Cms.Core.DependencyInjection" />
 		<Using Include="Umbraco.Extensions" />
@@ -50,19 +66,29 @@
 			<Pack>true</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="$(MSBuildThisFileDirectory)README.md">
+		<!-- Consumer-facing README shared with the Umbraco Marketplace; the repo README.md targets GitHub. -->
+		<None Include="$(MSBuildThisFileDirectory)umbraco-marketplace-readme.md">
 			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
+			<PackagePath>README.md</PackagePath>
 		</None>
 	</ItemGroup>
 	<PropertyGroup>
 		<GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
 		<ArticulatePackageVersion Condition="'$(ArticulatePackageVersion)'=='' and '$(ARTICULATE_PACKAGE_VERSION)'!=''">$(ARTICULATE_PACKAGE_VERSION)</ArticulatePackageVersion>
 	</PropertyGroup>
-	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;EnsureClientAssets;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
+	<Target Name="OverrideArticulatePackageVersion" BeforeTargets="BuildBackofficeClient;ResolveStaticWebAssetsInputs;GetPackageVersion;GenerateNuspec" Condition="'$(ArticulatePackageVersion)' != ''">
 		<PropertyGroup>
 			<Version>$(ArticulatePackageVersion)</Version>
 			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
+			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
+		</PropertyGroup>
+	</Target>
+	<Target Name="ApplyArticulatePackageVersionAfterNbgv" AfterTargets="GetUmbracoBuildVersion" Condition="'$(ArticulatePackageVersion)' != ''">
+		<PropertyGroup>
+			<Version>$(ArticulatePackageVersion)</Version>
+			<PackageVersion>$(ArticulatePackageVersion)</PackageVersion>
+			<NuGetPackageVersion>$(ArticulatePackageVersion)</NuGetPackageVersion>
 			<AssemblyInformationalVersion>$(ArticulatePackageVersion)</AssemblyInformationalVersion>
 			<NBGV_SemVer2>$(ArticulatePackageVersion)</NBGV_SemVer2>
 		</PropertyGroup>

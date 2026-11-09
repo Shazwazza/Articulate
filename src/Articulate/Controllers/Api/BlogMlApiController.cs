@@ -24,6 +24,8 @@ namespace Articulate.Controllers.Api
     [ManagementApi(ArticulateConstants.ManagementApi.BlogMl)]
     [ApiVersion("1.0")]
     [Authorize(Policy = AuthorizationPolicies.SectionAccessSettings)]
+    // The Management API security filter documents 401/403. Repeating those response
+    // attributes causes duplicate OpenAPI response keys and prevents schema generation.
     [ManagementApiRoute("blogml")]
     [MapToApi(ArticulateConstants.ManagementApi.Name)]
     public class BlogMlApiController(
@@ -46,6 +48,7 @@ namespace Articulate.Controllers.Api
         /// <response code="500">Upload failed due to a server error.</response>
         [HttpPost("import-file")]
         [ProducesResponseType<ImportFileResponse>(StatusCodes.Status200OK)]
+        [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status415UnsupportedMediaType)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
         [Consumes("multipart/form-data")]
@@ -78,9 +81,11 @@ namespace Articulate.Controllers.Api
             // Note: File size limits are enforced by server configuration (Kestrel, IIS, FormOptions).
             // The server will return 413 Payload Too Large if the file exceeds configured limits.
 
+            string? fileName = null;
+            bool keepFile = false;
             try
             {
-                var fileName = Path.GetRandomFileName();
+                fileName = Path.GetRandomFileName();
                 await using Stream sourceStream = importFile.OpenReadStream();
                 using var buffer = new MemoryStream();
 
@@ -104,6 +109,7 @@ namespace Articulate.Controllers.Api
                         isProductionMode) is not null)
                     .ToArray();
 
+                keepFile = true;
                 return Ok(new ImportFileResponse
                 {
                     TemporaryFileName = fileName,
@@ -122,6 +128,13 @@ namespace Articulate.Controllers.Api
                     title: "Internal Server Error",
                     detail: "An unexpected error occurred during file initialization for import.",
                     statusCode: StatusCodes.Status500InternalServerError);
+            }
+            finally
+            {
+                if (!keepFile && fileName is not null && articulateTempFileSystem.FileExists(fileName))
+                {
+                    articulateTempFileSystem.DeleteFile(fileName);
+                }
             }
         }
 
@@ -160,7 +173,7 @@ namespace Articulate.Controllers.Api
         /// <response code="500">Export failed due to a server error.</response>
         /// <response code="503">The service is unavailable or the blog node is invalid.</response>
         [HttpPost("export")]
-        [Produces("application/octet-stream", Type = typeof(FileContentResult))]
+        [Produces("application/octet-stream")]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> PostExportBlogMl(ExportModel model)
@@ -325,7 +338,7 @@ namespace Articulate.Controllers.Api
         /// <response code="200">Returns the Disqus comment XML file as a downloadable stream.</response>
         /// <response code="404">The Disqus XML export file could not be found.</response>
         [HttpGet("export/disqus")]
-        [Produces("application/octet-stream", Type = typeof(FileContentResult))]
+        [Produces("application/octet-stream")]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
         public IActionResult GetDisqusExport()
         {

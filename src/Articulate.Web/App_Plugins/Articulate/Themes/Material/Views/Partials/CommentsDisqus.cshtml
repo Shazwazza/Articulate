@@ -1,4 +1,5 @@
 @model PostModel
+@inject IArticulateThemeRepository ThemeRepository
 
 @if (Model.IsDisqusEnabled)
 {
@@ -22,5 +23,42 @@
         <a href="https://disqus.com" class="dsq-brlink" target="_blank" rel="noopener noreferrer">
             comments powered by <span class="logo-disqus">Disqus</span>
         </a>
+    </div>
+}
+else if (Model.IsGiscusEnabled)
+{
+    <div id="comments">
+        <script src="@Model.GiscusScriptSrc"
+                data-repo="@Model.GiscusRepo"
+                data-repo-id="@Model.GiscusRepoId"
+                data-category="@Model.GiscusCategory"
+                data-category-id="@Model.GiscusCategoryId"
+                data-mapping="@Model.GiscusMapping"
+                data-strict="@Model.GiscusStrict"
+                data-reactions-enabled="@Model.GiscusReactionsEnabled"
+                data-emit-metadata="@Model.GiscusEmitMetadata"
+                data-input-position="@Model.GiscusInputPosition"
+                data-theme="@ThemeRepository.ResolveGiscusDataTheme(Model.Theme, Context.Request, Model.GiscusTheme)"
+                data-lang="@Model.GiscusLang"
+                @if (!string.IsNullOrEmpty(Model.GiscusLoading))
+                {
+                    <text>data-loading="@Model.GiscusLoading"</text>
+                }
+                crossorigin="anonymous"
+                async>
+        </script>
+        <script>
+            (function () {
+                window.addEventListener('message', function (e) {
+                    if (e.origin !== 'https://giscus.app') return;
+                    var d = e.data; if (!d || !d.giscus || typeof d.giscus.resize === 'undefined') return;
+                    var f = document.querySelector('iframe.giscus-frame');
+                    if (f) f.style.height = d.giscus.resize + 'px';
+                });
+            })();
+        </script>
+        <noscript>
+            Please enable JavaScript to view the <a href="https://github.com/@Uri.EscapeDataString(Model.GiscusRepo).Replace("%2F", "/")/discussions" target="_blank" rel="noopener noreferrer">comments powered by Giscus.</a>
+        </noscript>
     </div>
 }

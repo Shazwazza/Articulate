@@ -66,5 +66,35 @@ namespace Articulate.Tests.Controllers
         {
             Assert.That(MetaWeblogController.IsValidXmlRpcEnvelope("not xml at all"), Is.False);
         }
+
+        [Test]
+        public void TryNormalizeMetaWeblogRequest_rejects_dtds()
+        {
+            const string content = """
+                <!DOCTYPE methodCall [<!ENTITY payload "expanded">]>
+                <methodCall>
+                  <methodName>&payload;</methodName>
+                </methodCall>
+                """;
+
+            Assert.That(
+                MetaWeblogController.TryNormalizeMetaWeblogRequest(content, 10_000, out _),
+                Is.False);
+        }
+
+        [Test]
+        public void TryNormalizeMetaWeblogRequest_rejects_documents_over_character_limit()
+        {
+            const string content = """
+                <methodCall>
+                  <methodName>blogger.getUsersBlogs</methodName>
+                  <params><param><value>key</value></param></params>
+                </methodCall>
+                """;
+
+            Assert.That(
+                MetaWeblogController.TryNormalizeMetaWeblogRequest(content, 32, out _),
+                Is.False);
+        }
     }
 }

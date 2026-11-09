@@ -1,0 +1,59 @@
+/*!
+ * Articulate "Sample" theme — Giscus custom theme.
+ *
+ * Served automatically: when Giscus:DataTheme is empty (the default), Articulate
+ * points giscus at this file's request-absolute URL so the comment box matches
+ * the active theme. Switching themes in the backoffice re-points on the next
+ * request. The URL must be absolute because giscus renders comments in a
+ * cross-origin iframe on giscus.app; Articulate resolves that for you.
+ *
+ * Palette lifted from Sample's :root custom properties
+ * (--text #1a1a1a, --muted #6b6560, --accent #2e2e2e, --surface-strong #ffffff,
+ *  --page-bg #efedea, --surface-alt #e7e5e0, --line rgba(0,0,0,.1)).
+ * Only the structural --color-* variables are overridden; code-highlight
+ * (--color-prettylights-syntax-*) inherits Giscus's built-in light defaults.
+ */
+main {
+	/* Page surfaces */
+	--color-canvas-default: #ffffff;
+	--color-canvas-overlay: #ffffff;
+	--color-canvas-inset: #e7e5e0;
+	--color-canvas-subtle: #efedea;
+
+	/* Text */
+	--color-fg-default: #1a1a1a;
+	--color-fg-muted: #6b6560;
+	--color-fg-subtle: #9a8f84;
+
+	/* Borders */
+	--color-border-default: #d8d4cf;
+	--color-border-muted: #e7e5e0;
+
+	/* Neutral overlay (hover/focus washes) */
+	--color-neutral-muted: rgba(0, 0, 0, 0.05);
+
+	/* Accent / links — Sample --accent (near-black) */
+	--color-accent-fg: #2e2e2e;
+	--color-accent-emphasis: #2e2e2e;
+	--color-accent-muted: rgba(46, 46, 46, 0.4);
+	--color-accent-subtle: rgba(46, 46, 46, 0.08);
+
+	/* Secondary button */
+	--color-btn-text: #1a1a1a;
+	--color-btn-bg: #ffffff;
+	--color-btn-border: #d8d4cf;
+	--color-btn-hover-bg: #efedea;
+	--color-btn-hover-border: #9a8f84;
+
+	/* Primary button */
+	--color-btn-primary-text: #ffffff;
+	--color-btn-primary-bg: #2e2e2e;
+	--color-btn-primary-border: #2e2e2e;
+	--color-btn-primary-hover-bg: #1a1a1a;
+	--color-btn-primary-hover-border: #1a1a1a;
+
+	/* Status hues (Giscus-standard light) */
+	--color-success-fg: #1a7f37;
+	--color-attention-fg: #9a6700;
+	--color-danger-fg: #cf222e;
+}

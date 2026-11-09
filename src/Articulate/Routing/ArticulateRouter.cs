@@ -1,11 +1,13 @@
 #nullable enable
 using System.Collections.Concurrent;
 using Articulate.Controllers;
+using Articulate.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Routing;
@@ -13,6 +15,9 @@ using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Website.Routing;
+#if UMBRACO_18_OR_GREATER
+using Umbraco.Cms.Core.Services;
+#endif
 
 namespace Articulate.Routing
 {
@@ -48,21 +53,44 @@ namespace Articulate.Routing
         private readonly IControllerActionSearcher _controllerActionSearcher;
         private readonly ILogger<ArticulateRouter> _logger;
         private readonly IScopeProvider _scopeProvider;
+        private readonly IOptions<ArticulateOptions> _articulateOptions;
+#if UMBRACO_18_OR_GREATER
+        private readonly IDocumentUrlService _documentUrlService;
+#endif
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="controllerActionSearcher"></param>
-        /// <param name="scopeProvider"></param>
-        /// <param name="logger"></param>
+#if UMBRACO_18_OR_GREATER
+        /// <summary>Constructor for Articulate router initialization.</summary>
+        /// <param name="controllerActionSearcher">Searches for controller actions.</param>
+        /// <param name="scopeProvider">Provides data access scope.</param>
+        /// <param name="logger">Logger instance.</param>
+        /// <param name="documentUrlService">Service for generating document URLs (Umbraco 18+).</param>
+        /// <param name="articulateOptions">Articulate configuration options.</param>
+#else
+        /// <summary>Constructor for Articulate router initialization.</summary>
+        /// <param name="controllerActionSearcher">Searches for controller actions.</param>
+        /// <param name="scopeProvider">Provides data access scope.</param>
+        /// <param name="logger">Logger instance.</param>
+        /// <param name="articulateOptions">Articulate configuration options.</param>
+#endif
         public ArticulateRouter(
             IControllerActionSearcher controllerActionSearcher,
             IScopeProvider scopeProvider,
-            ILogger<ArticulateRouter> logger)
+#if UMBRACO_18_OR_GREATER
+            ILogger<ArticulateRouter> logger,
+            IDocumentUrlService documentUrlService,
+            IOptions<ArticulateOptions> articulateOptions)
+#else
+            ILogger<ArticulateRouter> logger,
+            IOptions<ArticulateOptions> articulateOptions)
+#endif
         {
             _controllerActionSearcher = controllerActionSearcher;
             _logger = logger;
             _scopeProvider = scopeProvider;
+            _articulateOptions = articulateOptions;
+#if UMBRACO_18_OR_GREATER
+            _documentUrlService = documentUrlService;
+#endif
         }
 
         public bool TryMatch(PathString path, RouteValueDictionary routeValues, out ArticulateRootNodeCache? articulateRootNodeCache)
@@ -159,7 +187,11 @@ namespace Articulate.Routing
 
                         foreach (IPublishedContent articulateRootNode in groupedNodes)
                         {
+#if UMBRACO_18_OR_GREATER
+                            ArticulateRouteValidator.ValidateConfiguredRouteSegments(articulateRootNode, _documentUrlService);
+#else
                             ArticulateRouteValidator.ValidateConfiguredRouteSegments(articulateRootNode);
+#endif
 
                             MapRssRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
 
@@ -167,9 +199,12 @@ namespace Articulate.Routing
                             MapAuthorsRssRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
 
                             MapSearchRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
-                            MapMetaWeblogRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
-                            MapManifestRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
-                            MapRsdRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
+                            if (_articulateOptions.Value.EnableMetaWeblog)
+                            {
+                                MapMetaWeblogRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
+                                MapManifestRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
+                                MapRsdRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
+                            }
                             MapOpenSearchRoute(rebuiltRouteCache, httpContext, rootNodePath, articulateRootNode, domains);
 
                             // tags/cats routes are the least specific

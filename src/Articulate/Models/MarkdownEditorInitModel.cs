@@ -28,5 +28,11 @@ namespace Articulate.Models
 
         public required string PostLogoutRedirectUrl { get; init; }
 
+        /// <summary>
+        /// Gets the back office external login provider to send as <c>identity_provider</c>, or
+        /// <see langword="null"/> to use local back office login.
+        /// </summary>
+        public string? IdentityProvider { get; init; }
+
     }
 }

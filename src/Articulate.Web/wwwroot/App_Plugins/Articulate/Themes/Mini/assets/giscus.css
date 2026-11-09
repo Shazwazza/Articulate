@@ -1,0 +1,59 @@
+/*!
+ * Articulate "Mini" theme — Giscus custom theme.
+ *
+ * Served automatically: when Giscus:DataTheme is empty (the default), Articulate
+ * points giscus at this file's request-absolute URL so the comment box matches
+ * the active theme. Switching themes in the backoffice re-points on the next
+ * request. The URL must be absolute because giscus renders comments in a
+ * cross-origin iframe on giscus.app; Articulate resolves that for you.
+ *
+ * Palette lifted from Mini's monochrome palette (#444444).. *
+ * Mini is intentionally monochrome, so the accent/primary button is dark gray
+ * rather than a saturated colour — matching the theme's minimal aesthetic.
+ * Only the structural --color-* variables are overridden; code-highlight
+ * (--color-prettylights-syntax-*) inherits Giscus's built-in light defaults.
+ */
+main {
+	/* Page surfaces */
+	--color-canvas-default: #ffffff;
+	--color-canvas-overlay: #ffffff;
+	--color-canvas-inset: #f5f5fa;
+	--color-canvas-subtle: #f5f5fa;
+
+	/* Text */
+	--color-fg-default: #444444;
+	--color-fg-muted: #757575;
+	--color-fg-subtle: #888888;
+
+	/* Borders */
+	--color-border-default: #eeeeee;
+	--color-border-muted: #f5f5fa;
+
+	/* Neutral overlay (hover/focus washes) */
+	--color-neutral-muted: rgba(0, 0, 0, 0.04);
+
+	/* Accent / links — monochrome */
+	--color-accent-fg: #444444;
+	--color-accent-emphasis: #444444;
+	--color-accent-muted: rgba(68, 68, 68, 0.4);
+	--color-accent-subtle: rgba(68, 68, 68, 0.08);
+
+	/* Secondary button */
+	--color-btn-text: #444444;
+	--color-btn-bg: #ffffff;
+	--color-btn-border: #eeeeee;
+	--color-btn-hover-bg: #f5f5fa;
+	--color-btn-hover-border: #888888;
+
+	/* Primary button */
+	--color-btn-primary-text: #ffffff;
+	--color-btn-primary-bg: #444444;
+	--color-btn-primary-border: #444444;
+	--color-btn-primary-hover-bg: #222222;
+	--color-btn-primary-hover-border: #222222;
+
+	/* Status hues (Giscus-standard light) */
+	--color-success-fg: #1a7f37;
+	--color-attention-fg: #9a6700;
+	--color-danger-fg: #cf222e;
+}

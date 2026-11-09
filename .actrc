@@ -1,0 +1,13 @@
+# Local act (GitHub Actions local runner) overrides.
+# Local act settings shared by repository contributors.
+
+-P ubuntu-latest=ghcr.io/catthehacker/ubuntu:dotnet-24.04
+
+# Mark the workflow as running under act so steps can skip artifact uploads.
+--env ACT=true
+
+# Keep the two-lane build within Docker's memory budget and remove job
+# containers/volumes after each run.
+--container-options=--memory=2g
+--rm
+--concurrent-jobs=1

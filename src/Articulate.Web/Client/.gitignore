@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+e2e-report*/
+e2e-results*/
+.api-check
 dist
 dist-ssr
 *.local

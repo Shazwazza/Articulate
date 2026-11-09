@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <!-- PackageId differentiates this from Articulate.Web's PackageId=Articulate during restore -->
     <PackageId>Articulate.Core</PackageId>
     <UseArticulateUsings>true</UseArticulateUsings>
@@ -12,20 +11,19 @@
     <PackageReference Include="Umbraco.Cms.Web.Website" />
 
     <PackageReference Include="Umbraco.Cms.Api.Management" />
+    <PackageReference Include="OpenIddict.Abstractions" />
 
     <PackageReference Include="Argotic.Core" />
     <PackageReference Include="FileSignatures" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="WilderMinds.MetaWeblog" />
     <PackageReference Include="System.ServiceModel.Syndication" />
-  </ItemGroup>
-
-  <ItemGroup Label="Force minimum versions">
-    <PackageReference Include="System.Security.Cryptography.Xml" PrivateAssets="All" />
+    <!-- Security floor for vulnerable transitive versions; see Directory.Packages.props. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
   <ItemGroup>
-
     <InternalsVisibleTo Include="Articulate.Web" />
     <InternalsVisibleTo Include="Articulate.Tests" />
   </ItemGroup>

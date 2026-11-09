@@ -2,8 +2,12 @@
 using Articulate.Routing;
 using Moq;
 using NUnit.Framework;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
+#if UMBRACO_18_OR_GREATER
+using Umbraco.Cms.Core.Services;
+#endif
 
 namespace Articulate.Tests.Routing
 {
@@ -72,6 +76,42 @@ namespace Articulate.Tests.Routing
         {
             IPublishedContent left = CreateRoot(id: 1, name: "Blog A", path: "-1,1");
             IPublishedContent right = CreateRoot(id: 2, name: "Blog B", path: "-1,2");
+
+            List<Domain> domains =
+            [
+                new(10, "a.local", 1, string.Empty, false, 0),
+                new(11, "b.local", 2, string.Empty, false, 0)
+            ];
+
+            Assert.DoesNotThrow(() =>
+                ArticulateRouteValidator.ValidateRootPathMappings(
+                    "/blog/",
+                    [left, right],
+                    domains,
+                    new Uri("https://example.local/")));
+        }
+
+        [Test]
+        public void ValidateRootPathMappings_rejects_same_draft_path_without_domains()
+        {
+            IContent left = CreateDraftRoot(id: 1, name: "Blog A", path: "-1,1");
+            IContent right = CreateDraftRoot(id: 2, name: "Blog B", path: "-1,2");
+
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+                ArticulateRouteValidator.ValidateRootPathMappings(
+                    "/blog/",
+                    [left, right],
+                    [],
+                    new Uri("https://example.local/")))!;
+
+            Assert.That(ex.Message, Does.Contain("Ambiguous Articulate root routing"));
+        }
+
+        [Test]
+        public void ValidateRootPathMappings_allows_same_draft_path_with_distinct_domains()
+        {
+            IContent left = CreateDraftRoot(id: 1, name: "Blog A", path: "-1,1");
+            IContent right = CreateDraftRoot(id: 2, name: "Blog B", path: "-1,2");
 
             List<Domain> domains =
             [
@@ -167,15 +207,32 @@ namespace Articulate.Tests.Routing
         [Test]
         public void ValidateConfiguredRouteSegments_rejects_duplicate_child_route_segments()
         {
-            IPublishedContent root = CreateRoot(
-                children:
-                [
-                    CreateRoot(name: "Child A", urlSegment: "tags"),
-                    CreateRoot(name: "Child B", urlSegment: "Tags")
-                ]);
+            IPublishedContent root = CreateRoot();
+
+#if UMBRACO_18_OR_GREATER
+            IPublishedContent[] children = [
+                CreateRoot(name: "Child A", urlSegment: "tags"),
+                CreateRoot(name: "Child B", urlSegment: "Tags")
+            ];
+            Mock<IDocumentUrlService> documentUrlService = new();
+            documentUrlService.Setup(x => x.GetUrlSegment(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<bool>()))
+#pragma warning disable CS0618 // Type or member is obsolete
+                .Returns((Guid key, string culture, bool ignoreOverride) => children.First(c => c.Key == key).UrlSegment);
+#pragma warning restore CS0618 // Type or member is obsolete
+#endif
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
-                ArticulateRouteValidator.ValidateConfiguredRouteSegments(root))!;
+                ArticulateRouteValidator.ValidateConfiguredRouteSegments(
+                    root,
+#if UMBRACO_18_OR_GREATER
+                    documentUrlService.Object,
+                    children))!;
+#else
+                    [
+                        CreateRoot(name: "Child A", urlSegment: "tags"),
+                        CreateRoot(name: "Child B", urlSegment: "Tags")
+                    ]))!;
+#endif
 
             Assert.That(ex.Message, Does.Contain("child content 'Child A'"));
             Assert.That(ex.Message, Does.Contain("child content 'Child B'"));
@@ -213,12 +270,23 @@ namespace Articulate.Tests.Routing
                     new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)));
         }
 
+        private static IContent CreateDraftRoot(
+            int id = 1,
+            string name = "Blog",
+            string path = "-1,1")
+        {
+            Mock<IContent> root = new();
+            root.SetupGet(x => x.Id).Returns(id);
+            root.SetupGet(x => x.Name).Returns(name);
+            root.SetupGet(x => x.Path).Returns(path);
+            return root.Object;
+        }
+
         private static IPublishedContent CreateRoot(
             int id = 1,
             string name = "Blog",
             string path = "-1,1",
-            string urlSegment = "blog",
-            IEnumerable<IPublishedContent>? children = null)
+            string urlSegment = "blog")
         {
             Mock<IPublishedContentType> contentType = new();
             contentType.SetupGet(x => x.Alias).Returns(ArticulateConstants.ContentType.Articulate);
@@ -227,11 +295,24 @@ namespace Articulate.Tests.Routing
             root.SetupGet(x => x.Id).Returns(id);
             root.SetupGet(x => x.Name).Returns(name);
             root.SetupGet(x => x.Path).Returns(path);
+            root.SetupGet(x => x.Key).Returns(Guid.NewGuid());
+            root.SetupGet(x => x.Properties).Returns([]);
+            root.Setup(x => x.GetProperty(It.IsAny<string>())).Returns((IPublishedProperty?)null);
+            root.SetupGet(x => x.SortOrder).Returns(0);
+            root.SetupGet(x => x.CreatorId).Returns(0);
+            root.SetupGet(x => x.CreateDate).Returns(DateTime.UtcNow);
+            root.SetupGet(x => x.WriterId).Returns(0);
+            root.SetupGet(x => x.UpdateDate).Returns(DateTime.UtcNow);
+            root.SetupGet(x => x.Cultures).Returns(new Dictionary<string, PublishedCultureInfo>());
+            root.SetupGet(x => x.ItemType).Returns(PublishedItemType.Content);
+            root.Setup(x => x.IsDraft(It.IsAny<string?>())).Returns(false);
+            root.Setup(x => x.IsPublished(It.IsAny<string?>())).Returns(true);
+            root.SetupGet(x => x.Level).Returns(1);
+            root.SetupGet(x => x.TemplateId).Returns((int?)null);
+#pragma warning disable CS0618 // Type or member is obsolete
             root.SetupGet(x => x.UrlSegment).Returns(urlSegment);
+#pragma warning restore CS0618 // Type or member is obsolete
             root.SetupGet(x => x.ContentType).Returns(contentType.Object);
-#pragma warning disable CS0618 // Test double needs to supply the legacy Children property used by validation.
-            root.SetupGet(x => x.Children).Returns(children ?? []);
-#pragma warning restore CS0618
             return root.Object;
         }
     }

@@ -1,0 +1,59 @@
+/*!
+ * Articulate "VAPOR" theme — Giscus custom theme.
+ *
+ * Served automatically: when Giscus:DataTheme is empty (the default), Articulate
+ * points giscus at this file's request-absolute URL so the comment box matches
+ * the active theme. Switching themes in the backoffice re-points on the next
+ * request. The URL must be absolute because giscus renders comments in a
+ * cross-origin iframe on giscus.app; Articulate resolves that for you.
+ *
+ * Palette lifted from VAPOR's blue accent (#3498db).. *
+ * Palette lifted from VAPOR's :root custom properties
+ * (--primary-color #3498db, --text-color, --background-color, --border-color).
+ * Only the structural --color-* variables are overridden; code-highlight
+ * (--color-prettylights-syntax-*) inherits Giscus's built-in light defaults.
+ */
+main {
+  /* Page surfaces */
+  --color-canvas-default: #ffffff;
+  --color-canvas-overlay: #ffffff;
+  --color-canvas-inset: #ecf0f1;
+  --color-canvas-subtle: #f8f9fa;
+
+  /* Text */
+  --color-fg-default: #151515;
+  --color-fg-muted: #5d6d77;
+  --color-fg-subtle: #95a5a6;
+
+  /* Borders */
+  --color-border-default: #ecf0f1;
+  --color-border-muted: #f4f6f7;
+
+  /* Neutral overlay (hover/focus washes) */
+  --color-neutral-muted: rgba(0, 0, 0, 0.05);
+
+  /* Accent / links — VAPOR --primary-color */
+  --color-accent-fg: #3498db;
+  --color-accent-emphasis: #3498db;
+  --color-accent-muted: rgba(52, 152, 219, 0.4);
+  --color-accent-subtle: rgba(52, 152, 219, 0.1);
+
+  /* Secondary button */
+  --color-btn-text: #7f8c8d;
+  --color-btn-bg: #ffffff;
+  --color-btn-border: #ecf0f1;
+  --color-btn-hover-bg: #ecf0f1;
+  --color-btn-hover-border: #3498db;
+
+  /* Primary button */
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #3498db;
+  --color-btn-primary-border: #3498db;
+  --color-btn-primary-hover-bg: #2980b9;
+  --color-btn-primary-hover-border: #2980b9;
+
+  /* Status hues (Giscus-standard light) */
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-danger-fg: #cf222e;
+}

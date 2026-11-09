@@ -23,6 +23,19 @@ namespace Articulate.Tests.Services
     public class ArticulateImportMediaServiceTests
     {
         private const string OneByOnePngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=";
+        private IServiceProvider _originalServiceProvider = null!;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _originalServiceProvider = StaticServiceProvider.Instance;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            StaticServiceProvider.Instance = _originalServiceProvider;
+        }
 
         [Test]
         public async Task ValidateImageAsync_returns_failure_when_extension_is_blocked_by_upload_settings()
@@ -186,7 +199,8 @@ namespace Articulate.Tests.Services
             });
 
             using var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new ByteArrayContent(imageBytes);
+            response.Content = new StreamContent(new NonSeekableReadStream(imageBytes));
+            Assert.That(response.Content.Headers.ContentLength, Is.Null);
 
             var finalUri = new Uri("http://example.com/image.png");
 
@@ -194,6 +208,23 @@ namespace Articulate.Tests.Services
 
             Assert.That(result.IsValid, Is.False);
             Assert.That(result.ErrorMessage, Does.Contain("Image exceeded the configured limit of"));
+        }
+
+        [Test]
+        public async Task DownloadAndValidateImageAsync_rejects_unconfigured_host()
+        {
+            var httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
+            using var templateClient = new HttpClient();
+            httpClientFactory
+                .Setup(x => x.CreateClient(string.Empty))
+                .Returns(templateClient);
+            ArticulateImportMediaService sut = CreateSut(httpClientFactory: httpClientFactory.Object);
+
+            ImportMediaValidationResult result = await sut.DownloadAndValidateImageAsync(
+                new Uri("https://untrusted.example/image.png"));
+
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.ErrorMessage, Does.Contain("no allowed media hosts"));
         }
 
         [Test]
@@ -284,7 +315,8 @@ namespace Articulate.Tests.Services
 
         private static ArticulateImportMediaService CreateSut(
             ContentSettings? contentSettings = null,
-            ArticulateOptions? articulateOptions = null)
+            ArticulateOptions? articulateOptions = null,
+            IHttpClientFactory? httpClientFactory = null)
         {
             ContentSettings effectiveContentSettings = contentSettings ?? new ContentSettings
             {
@@ -317,7 +349,7 @@ namespace Articulate.Tests.Services
                 new MediaUrlGeneratorCollection(() => []),
                 Mock.Of<IContentTypeBaseServiceProvider>(),
                 Mock.Of<IAbsoluteUrlBuilder>(),
-                Mock.Of<IHttpClientFactory>(),
+                httpClientFactory ?? Mock.Of<IHttpClientFactory>(),
                 new FileFormatInspector([new Png(), new Jpeg()]),
                 CreateOptionsMonitor(effectiveContentSettings),
                 CreateOptionsMonitor(new RuntimeSettings { Mode = RuntimeMode.BackofficeDevelopment }),

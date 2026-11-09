@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.Routing;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Actions;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Membership;
@@ -43,7 +44,11 @@ namespace Articulate.Controllers.Api
         IDataTypeService dataTypeService,
         ILogger<MarkdownEditorApiController> logger,
         IAbsoluteUrlBuilder absoluteUrlBuilder,
-        IArticulateImportMediaService service)
+        IArticulateImportMediaService service
+#if UMBRACO_18_OR_GREATER
+        , IIdKeyMap idKeyMap
+#endif
+    )
         : ManagementApiControllerBase
     {
         /// <summary>
@@ -59,6 +64,7 @@ namespace Articulate.Controllers.Api
         [ProducesResponseType(typeof(CreatePostResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<ActionResult<CreatePostResponse>> CreatePost(
             [FromForm(Name = "json")] string jsonModel)
@@ -137,7 +143,7 @@ namespace Articulate.Controllers.Api
                     statusCode: StatusCodes.Status404NotFound);
             }
 
-            archive = contentService.GetPagedChildrenCompat(model.ArticulateBlogNode, 0, 1, out _)
+            archive = contentService.EnumeratePagedChildren(model.ArticulateBlogNode, 0, 1, out _)
                 .FirstOrDefault(x =>
                     x.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.ArticulateArchive));
 
@@ -423,6 +429,9 @@ namespace Articulate.Controllers.Api
                     dataTypeService,
                     propertyEditors,
                     jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                    idKeyMap,
+#endif
                     logger);
             }
 
@@ -438,13 +447,16 @@ namespace Articulate.Controllers.Api
                     dataTypeService,
                     propertyEditors,
                     jsonSerializer,
+#if UMBRACO_18_OR_GREATER
+                    idKeyMap,
+#endif
                     logger);
             }
 
             if (!model.Slug.IsNullOrWhiteSpace())
             {
                 await content.SetInvariantOrDefaultCultureValueAsync(
-                    Umbraco.Cms.Core.Constants.Conventions.Content.UrlName,
+                    Constants.Conventions.Content.UrlName,
                     model.Slug,
                     contentType,
                     languageService,
