@@ -7,20 +7,22 @@ namespace Articulate
     /// <summary>
     /// Extension methods for <see cref="string"/>.
     /// </summary>
-    public static class StringExtensions
+    public static partial class StringExtensions
     {
         /// <summary>
         /// Replaces newlines with spaces.
         /// </summary>
         public static string NewLinesToSpaces(this string input) =>
-            _newlineRegex.Replace(input, " ");
+            NewlineRegex().Replace(input, " ");
 
         /// <summary>
         /// Decodes HTML-encoded strings.
         /// </summary>
         public static string DecodeHtml(this string input) => HttpUtility.HtmlDecode(input);
 
-        private static readonly Regex _newlineRegex = new(@"[\r\n]+", RegexOptions.Compiled);
+        [GeneratedRegex(@"[\r\n]+", RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            matchTimeoutMilliseconds: 1000)]
+        private static partial Regex NewlineRegex();
 
         /// <summary>
         /// Truncates a string at a word boundary.
