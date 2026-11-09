@@ -262,9 +262,12 @@ jobs:
   myget:
     # Push builds (merges to develop/main/release, v* tags) and manual dispatches with the "myget" input.
     # The protected "myget" environment requires reviewer approval before the push runs.
+    # Upstream only: forks have neither the feed secret nor the environment, so they skip this job.
     name: Push packages to MyGet
     needs: publish
-    if: ${{ !cancelled() && needs.publish.result == 'success' && (github.event_name == 'push' || inputs.myget) }}
+    if: >-
+      ${{ github.repository == 'Shazwazza/Articulate' && !cancelled() && needs.publish.result == 'success' &&
+          (github.event_name == 'push' || inputs.myget) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment:
@@ -299,11 +302,11 @@ jobs:
 
   nuget:
     # Public-release refs only (main, release/**, v* tags). The protected "nuget" environment requires
-    # reviewer approval and restricts deployments to those refs.
+    # reviewer approval and restricts deployments to those refs. Upstream only, like the MyGet job.
     name: Push packages to NuGet
     needs: publish
     if: >-
-      ${{ !cancelled() && needs.publish.result == 'success' &&
+      ${{ github.repository == 'Shazwazza/Articulate' && !cancelled() && needs.publish.result == 'success' &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
