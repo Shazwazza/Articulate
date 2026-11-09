@@ -1,4 +1,5 @@
 #nullable enable
+using System.Text.RegularExpressions;
 
 namespace Articulate.Options
 {
@@ -11,7 +12,10 @@ namespace Articulate.Options
         public ArticulateOptions() =>
             GenerateExcerpt = val => val.DetectIsJson()
                 ? string.Empty
-                : val.StripHtml()
+
+                // A newline after each block keeps "</p><p>" from joining words; NewLinesToSpaces makes it one space.
+                : Regex.Replace(val, @"</(?:p|h[1-6]|li|blockquote|div|pre|td|th)>|<br\s*/?>", "$0\n", RegexOptions.IgnoreCase)
+                    .StripHtml()
                     .DecodeHtml()
                     .NewLinesToSpaces()
                     .TruncateAtWord(200, string.Empty);

@@ -1,12 +1,18 @@
 #nullable enable
 using Articulate.Options;
 using Articulate.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Articulate.Components
 {
@@ -17,10 +23,28 @@ namespace Articulate.Components
         IContentTypeService contentTypeService,
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         IOptions<ArticulateOptions> articulateOptions,
-        IArticulateMarkdownConverter articulateMarkdownConverter)
+        IArticulateMarkdownConverter articulateMarkdownConverter,
+        IJsonSerializer jsonSerializer,
+        ILogger<ContentSavingHandler> logger)
         : INotificationHandler<ContentSavingNotification>
     {
         private readonly ArticulateOptions _articulateOptions = articulateOptions.Value;
+
+        [Obsolete("Use the constructor that takes an IJsonSerializer and a logger.")]
+        public ContentSavingHandler(
+            IContentTypeService contentTypeService,
+            IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
+            IOptions<ArticulateOptions> articulateOptions,
+            IArticulateMarkdownConverter articulateMarkdownConverter)
+            : this(
+                contentTypeService,
+                backOfficeSecurityAccessor,
+                articulateOptions,
+                articulateMarkdownConverter,
+                StaticServiceProvider.Instance.GetRequiredService<IJsonSerializer>(),
+                StaticServiceProvider.Instance.GetRequiredService<ILogger<ContentSavingHandler>>())
+        {
+        }
 
         /// <inheritdoc/>
         public void Handle(ContentSavingNotification notification)
@@ -131,9 +155,14 @@ namespace Articulate.Components
                 var val = content.GetValue<string>(
                     "richText",
                     richTextProperty.VariesByCulture() ? culture?.Culture : null);
-                return string.IsNullOrWhiteSpace(val)
+
+                // The editor stores JSON ({"markup", "blocks"}); legacy plain HTML parses as markup.
+                var markup = RichTextPropertyEditorHelper.TryParseRichTextEditorValue(val, jsonSerializer, logger, out RichTextEditorValue? richText)
+                    ? richText.Markup
+                    : null;
+                return string.IsNullOrWhiteSpace(markup)
                     ? string.Empty
-                    : _articulateOptions.GenerateExcerpt(val);
+                    : _articulateOptions.GenerateExcerpt(markup);
             }
 
             if (content.HasProperty("markdown"))
