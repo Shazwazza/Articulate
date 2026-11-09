@@ -19,9 +19,13 @@ namespace Articulate.Routing
 
         public int GetContentId(Domain? currentDomain)
         {
+            // Hoist the type-test cast out of the inner Any() loop so it runs once per
+            // request instead of once per (root × domain) pair traversed.
+            Uri? currentUri = (currentDomain as DomainAndUri)?.Uri;
+
             KeyValuePair<int, IReadOnlyList<Domain>> found = _content.FirstOrDefault(x =>
                 (currentDomain is null && x.Value.Count == 0) ||
-                (currentDomain is not null && x.Value.Any(d => ArticulateDomainMatcher.Matches(d, currentDomain, (currentDomain as DomainAndUri)?.Uri))));
+                (currentDomain is not null && x.Value.Any(d => ArticulateDomainMatcher.Matches(d, currentDomain, currentUri))));
 
             return found.Key; // 0 if no match (default KeyValuePair<int,...>.Key)
         }
