@@ -94,6 +94,14 @@
     <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
     <!-- A package version change rebuilds the client. -->
     <ClientBuildStamp>$(BaseIntermediateOutputPath)BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode)_$(ArticulatePackageVersion).stamp</ClientBuildStamp>
+    <!-- Each lane has a Client/<lane> workspace pinning its @umbraco-cms/backoffice major. -->
+    <ClientWorkspaceDirectory>$(ClientProjectDirectory)/$(ArticulatePackageLane)</ClientWorkspaceDirectory>
+    <ArticulateClientWorkspaceError Condition="!Exists('$(ClientWorkspaceDirectory)/package.json')">$([System.Int32]::Parse("No Backoffice client workspace for ArticulatePackageLane '$(ArticulatePackageLane)' at $(ClientWorkspaceDirectory)."))</ArticulateClientWorkspaceError>
+    <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
+    <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
+    <ClientBuildMode>prod</ClientBuildMode>
+    <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
+    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_$(ArticulatePackageLane)_$(ClientBuildMode).stamp</ClientBuildStamp>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">

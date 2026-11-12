@@ -17,8 +17,8 @@
   <ItemGroup Condition="$(_ArticulateUmbracoMajor) &gt;= 17">
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
   </ItemGroup>
-  <!-- Keep Roslyn Workspaces aligned with the version required by Umbraco 18's development backoffice. -->
-  <ItemGroup Condition="'$(ArticulatePackageLane)' == 'v18'">
+  <!-- Keep Roslyn Workspaces aligned with the version required by Umbraco 18+'s development backoffice. -->
+  <ItemGroup Condition="'$(ArticulatePackageLane)' != 'v17'">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
