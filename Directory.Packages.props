@@ -41,6 +41,8 @@
 		<PackageVersion Include="MessagePack" Version="3.1.12" />
 		<PackageVersion Include="OpenIddict.Abstractions" Version="$(OpenIddictPackageVersion)" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" Condition="'$(ArticulatePackageLane)' != 'v17'" />
+		<!-- v19 temp: Umbraco 19.0.0-beta1 pulls WebUtilities 11.0.0-rc.3 (GHSA-x33c-w48q-qrgc); drop once the CMS floor brings 11.0.0. -->
+		<PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="11.0.0" Condition="'$(ArticulatePackageLane)' == 'v19'" />
 	    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
 		<PackageVersion Include="Moq" Version="4.20.72" />

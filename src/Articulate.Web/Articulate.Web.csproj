@@ -49,6 +49,7 @@
     <PackageReference Include="System.ServiceModel.Syndication" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
     <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Condition="'$(ArticulatePackageLane)' == 'v19'" />
   </ItemGroup>
 
   <!-- Build targets shipped with the package (copies XML docs for Swagger) -->

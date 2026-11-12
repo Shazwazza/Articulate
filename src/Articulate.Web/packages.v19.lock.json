@@ -45,6 +45,15 @@
           "Microsoft.NET.StringTools": "17.11.4"
         }
       },
+      "Microsoft.AspNetCore.WebUtilities": {
+        "type": "Direct",
+        "requested": "[11.0.0, )",
+        "resolved": "11.0.0",
+        "contentHash": "KDKLMtwYNLKx20HXhMMKeD1ge5BO+8vHSqr6iSNhLYdUHA3tHVGzVeLd1MfeCeXTSB6NgoX1LCFSqQ8EaerSPw==",
+        "dependencies": {
+          "Microsoft.Net.Http.Headers": "11.0.0"
+        }
+      },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
         "requested": "[3.10.91, )",
@@ -377,14 +386,6 @@
           "Microsoft.AspNetCore.WebUtilities": "11.0.0-rc.3.26522.148",
           "Microsoft.Extensions.Hosting": "11.0.0-rc.3.26522.148",
           "Microsoft.OpenApi": "[3.10.2, 4.0.0)"
-        }
-      },
-      "Microsoft.AspNetCore.WebUtilities": {
-        "type": "Transitive",
-        "resolved": "11.0.0-rc.3.26522.148",
-        "contentHash": "0mLv8Sv7zbXoMg5l0EdXulOvz+5gwHrNWfJxN8H1GXMaFa1NkAdnekx5nyydxCgkeUij++hIkHokSVO48i/LGg==",
-        "dependencies": {
-          "Microsoft.Net.Http.Headers": "11.0.0-rc.3.26522.148"
         }
       },
       "Microsoft.Bcl.Cryptography": {
@@ -784,8 +785,8 @@
       },
       "Microsoft.Net.Http.Headers": {
         "type": "Transitive",
-        "resolved": "11.0.0-rc.3.26522.148",
-        "contentHash": "rqIvA/JUN5V5Q+zlXeAbAVTQ+3svWQrDDrrYqsGZayoQf7BcwJEdG9/AQGWTDnxGyfE1KGrvRED5UkA6WaxX6g=="
+        "resolved": "11.0.0",
+        "contentHash": "iFKpGbnlORjL+gsfQhaFLnSyuztQgmj1WkbwgqbBmwunVtXLzam7QnzPonZA9fyCzRCmr4TFf8gtB1oYT2JBLQ=="
       },
       "Microsoft.NET.StringTools": {
         "type": "Transitive",
@@ -1465,6 +1466,7 @@
           "Argotic.Core": "[3001.0.0, )",
           "FileSignatures": "[7.2.1, )",
           "Markdig": "[1.4.2, 2.0.0)",
+          "Microsoft.AspNetCore.WebUtilities": "[11.0.0, )",
           "OpenIddict.Abstractions": "[7.7.2, )",
           "System.Security.Cryptography.Pkcs": "[11.0.0, 12.0.0)",
           "System.Security.Cryptography.Xml": "[11.0.0, 12.0.0)",
