@@ -40,8 +40,8 @@
     "normalize.css": "8.0.1",
     "tiny-markdown-editor": "0.2.32",
     "@eslint/compat": "^2.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
-    "@typescript-eslint/parser": "^8.65.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
     "@umbraco-cms/backoffice": "^17.7.2",
     "cross-env": "^10.1.0",
     "esbuild": "^0.28.0",
@@ -57,6 +57,6 @@
     "lightningcss": "^1.33.0",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
-    "vite": "^8.3.1"
+    "vite": "^8.3.6"
   }
 }

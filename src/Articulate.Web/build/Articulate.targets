@@ -1,5 +1,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- net11 SDK packs static web assets as a .targets it would import from a generated build/Articulate.targets;
+       this custom file replaces that, so import it here. net10 packages use generated .props instead. -->
+  <Import Project="Microsoft.AspNetCore.StaticWebAssets.targets" Condition="Exists('$(MSBuildThisFileDirectory)Microsoft.AspNetCore.StaticWebAssets.targets')" />
+
   <!--
     Articulate XML Documentation Copy Target
 

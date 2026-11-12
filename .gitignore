@@ -520,12 +520,14 @@ scratch/
 /src/Articulate.Tests.Website/Views/Articulate
 /src/Articulate.Tests.Website/Views/ArticulateThemes
 /src/Articulate.Tests.Website/appsettings-schema.Umbraco.Cms.json
+/src/Articulate.Tests.Website/appsettings-schema.Umbraco.Cms.Search.Examine.json
 /src/Articulate.Tests.Website/umbraco-package-schema.json
 /src/Articulate.Tests.Website/appsettings-schema.json
 /src/Articulate.Tests.Website/wwwroot/App_Plugins/Articulate/Themes
 
 /src/Articulate.Tests/umbraco-package-schema.json
 /src/Articulate.Tests/appsettings-schema.Umbraco.Cms.json
+/src/Articulate.Tests/appsettings-schema.Umbraco.Cms.Search.Examine.json
 src/Articulate.Tests/appsettings-schema.json
 
 /docker/src/appsettings-schema.Umbraco.Cms.json

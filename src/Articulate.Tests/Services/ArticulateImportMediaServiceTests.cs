@@ -338,7 +338,8 @@ namespace Articulate.Tests.Services
                 Mock.Of<IMediaPathScheme>(),
                 NullLogger<MediaFileManager>.Instance,
                 Mock.Of<IShortStringHelper>(),
-                serviceProvider.Object);
+                serviceProvider.Object,
+                coreScopeProvider);
 #pragma warning restore CS0618
 
             return new ArticulateImportMediaService(

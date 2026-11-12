@@ -1,6 +1,7 @@
 packages:
   - "v17"
   - "v18"
+  - "v19"
 
 minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
@@ -13,10 +14,13 @@ blockExoticSubdeps: true
 overrides:
   brace-expansion@<1.1.21: ^1.1.21
   brace-expansion@>=5.0.0 <5.0.12: ^5.0.12
-  dompurify@<3.4.16: ^3.4.16
+  '@tiptap/core@<3.30.5': ^3.30.5
+  dompurify@<3.4.17: ^3.4.17
   js-yaml@<4.3.2: ^4.3.2
+  prosemirror-view@<1.42.3: ^1.42.3
   source-map-js@<1.2.2: ^1.2.2
 minimumReleaseAgeExclude:
   - source-map-js@1.2.2
   - '@umbraco-cms/backoffice@17.7.2'
   - '@umbraco-cms/backoffice@18.2.2'
+  - '@umbraco-cms/backoffice@19.0.0-beta1'

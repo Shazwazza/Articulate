@@ -10,7 +10,7 @@ const UmbPropertyValueChangeEvent = (
   }
 ).UmbPropertyValueChangeEvent as new () => Event;
 
-declare const LANE: 'v17' | 'v18';
+declare const LANE: string;
 
 export const createThemePickerChangeEvent = (): Event =>
   LANE === 'v17' ? new UmbPropertyValueChangeEvent() : new UmbChangeEvent();
