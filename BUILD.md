@@ -31,9 +31,9 @@ The workflow runs on pull requests targeting any branch when they are opened, up
 
 Every lane builds, runs unit tests and inspects packages. Each build job uploads its packages as a one-day `lane-packages-<lane>` artefact.
 
-Fresh-site HTTP E2E is off by default for routine CI. Enable it for the v17 and v18 lanes with the **Run fresh-site HTTP E2E** manual input, the `e2e` PR label or the repository variable `E2E=true`. Runs on `release/**` branches, PRs targeting those branches and `v*` tags always run E2E.
+Fresh-site HTTP E2E is off by default for routine CI. Enable it for every lane with the **Run fresh-site HTTP E2E** manual input, the `e2e` PR label or the repository variable `E2E=true`. Runs on `release/**` branches, PRs targeting those branches and `v*` tags always run E2E.
 
-A separate publish job uploads the final v17 and v18 `Articulate-<version>` artefacts after every build passes and E2E passes or was not selected. A build or E2E failure in any lane blocks final uploads. v19 targets the Umbraco 19 beta, so it has no E2E or upload jobs until Umbraco 19 GA. Cancelled workflows do not publish.
+A separate publish job uploads the final v17 and v18 `Articulate-<version>` artefacts after every build passes and E2E passes or was not selected. A build or E2E failure in any lane blocks final uploads. v19 targets the Umbraco 19 beta, so until Umbraco 19 GA it has no upload job and its E2E failures are reported without blocking the other lanes. Cancelled workflows do not publish.
 
 Every push build (merges to `develop`, `main` or `release/**`, and `v*` tags) offers a push to the [MyGet feed](https://www.myget.org/F/shazwazza/api/v3/index.json). After the publish job succeeds, the `myget` job waits for approval in the protected `myget` environment; approve it from the run's **Review deployments** prompt or leave it to expire. For other branches, select **Push Articulate packages to the MyGet feed** in **Run workflow**; that also needs approval. The job pushes the uploaded `Articulate` packages and symbols from the final `Articulate-<version>` artefacts. The sample theme is not pushed. Existing versions are skipped. A newer `develop` merge cancels an older run that is still waiting for approval. This requires the `MYGET_API_KEY` secret.
 
