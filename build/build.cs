@@ -96,7 +96,7 @@ async Task<int> BuildAsync(Opts o)
 
     if (o.Flag("update-locks"))
     {
-        foreach (var lockLane in new[] { "v17", "v18" })
+        foreach (var lockLane in new[] { "v17", "v18", "v19" })
         {
             Console.WriteLine($"> dotnet restore lock files ({lockLane})");
             await Run("dotnet", new[]
@@ -173,6 +173,11 @@ async Task<int> SiteAsync(Opts o)
     var cfg = o.String("configuration", "Debug");
     ValidateConfiguration(cfg);
     var project = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "Articulate.Tests.Website.csproj");
+    // The site doesn't build the client, so it would serve the last built lane's Backoffice assets.
+    var activeLanePath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-lane.txt");
+    var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
+    if (activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException($"Client assets belong to {activeLane}; run build --lane {lane} --clean before site --lane {lane}.");
     if (o.Flag("reset")) DeleteDir(Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco"));
     await Run("dotnet", new[] { "run", "-c", cfg ?? "Debug", "--project", project, $"-p:ArticulatePackageLane={lane}" }, cwd: Env.Repo);
     return 0;
@@ -386,7 +391,8 @@ sealed class Opts
     {
         "v17" => "v17",
         "v18" => "v18",
-        var x => throw new ArgumentException($"--lane must be v17 or v18 (got '{x}').")
+        "v19" => "v19",
+        var x => throw new ArgumentException($"--lane must be v17, v18 or v19 (got '{x}').")
     };
 
     public string? String(string key, string? fallback = null) => _v.TryGetValue(key, out var v) ? v : fallback;
