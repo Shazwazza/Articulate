@@ -9,25 +9,26 @@ Build the selected Release packages first, including the sample theme, then run:
 ```sh
 dotnet run --file build/test.cs -- fresh --lane v17
 dotnet run --file build/test.cs -- fresh --lane v18
+dotnet run --file build/test.cs -- fresh --lane v19
 ```
 
-`--lane all` runs both sequentially. CI runs the suite in separate jobs after package builds. See [CI jobs and E2E](../../../../BUILD.md#ci-jobs-and-e2e) for workflow selection and uploads.
+`--lane all` runs v17 and v18 sequentially; the Umbraco 19 beta lane runs only when named, and only on fresh or `docker-test` candidates. CI runs the suite in separate jobs after package builds. See [CI jobs and E2E](../../../../BUILD.md#ci-jobs-and-e2e) for workflow selection and uploads.
 
 The runner reuses `docker/src/ArticulateDockerSite.csproj` as a normal .NET application outside the checkout. It inspects the exact packages and verifies their restored hashes. Each host has an owned temporary database, self-signed certificate, random secret and free loopback HTTPS port. No Docker client, browser installation or certificate-store change is required.
 
-Preparation publishes and confirms starter content, restarts the host in Production, then publishes one temporary post. It waits for that post's exact key in `ExternalIndex` through Umbraco's Examine query API, deletes it and verifies removal. Each native readiness wait uses a 180-second timeout. The runner stops its owned process and deletes its temporary directory on success or failure. Host logs remain in `.temp/art_e2e_native_<lane>_<id>/`; Playwright reports and test artefacts use the candidate name in `e2e-report-*` and `e2e-results-*`.
+Preparation publishes and confirms starter content, restarts the host in Production, then publishes one temporary post. It waits for that post's exact key in `ExternalIndex` through Umbraco's Examine query API (on v19, which has no `ExternalIndex`, until Articulate's search returns it), deletes it and verifies removal. Each native readiness wait uses a 180-second timeout. The runner stops its owned process and deletes its temporary directory on success or failure. Host logs remain in `.temp/art_e2e_native_<lane>_<id>/`; Playwright reports and test artefacts use the candidate name in `e2e-report-*` and `e2e-results-*`.
 
 `NODE_BIN` and `DOTNET_BIN` can select existing executables.
 
 ## Optional Docker deployment check
 
-`dotnet run --file docker/run.cs -- docker-test --lane all --reuse-packages` runs these same 11 tests on disposable containers behind Caddy. Omit `--reuse-packages` to build packages first. Each lane gets a unique Compose project, volumes, image tag and available loopback ports. Cleanup removes only those candidate resources. There are no separate theme or Giscus smoke assertions; publication, confirmation and startup readiness remain preparation.
+`dotnet run --file docker/run.cs -- docker-test --lane all --reuse-packages` runs the same suite on disposable containers behind Caddy. Omit `--reuse-packages` to build packages first. Each lane gets a unique Compose project, volumes, image tag and available loopback ports. Cleanup removes only those candidate resources. There are no separate theme or Giscus smoke assertions; publication, confirmation and startup readiness remain preparation.
 
-Do not point E2E at `art_v17`, `art_v18`, or any site other than an owned fresh candidate or the dedicated manual-test projects below.
+Do not point E2E at the `art_<lane>` sites or any site other than an owned fresh candidate or the dedicated manual-test projects below.
 
 ## Optional manual Docker sites
 
-Run from the repository root. Use only these test resources, not `art_v17` or `art_v18`:
+Run from the repository root. Use only these test resources, not the `art_<lane>` sites. v19 has no manual stack until Umbraco 19 GA:
 
 | Lane | Project and volume prefix | Image | HTTPS / HTTP ports |
 | --- | --- | --- | --- |
