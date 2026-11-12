@@ -25,7 +25,11 @@ namespace Articulate.Controllers
             ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
             IPublishedValueFallback publishedValueFallback)
-            : this(logger, compositeViewEngine, umbracoContextAccessor, publishedValueFallback,
+            : this(
+                logger,
+                compositeViewEngine,
+                umbracoContextAccessor,
+                publishedValueFallback,
                 StaticServiceProvider.Instance.GetRequiredService<IOptions<ArticulateCommentsOptions>>())
         {
         }
