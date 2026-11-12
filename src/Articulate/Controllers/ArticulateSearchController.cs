@@ -23,6 +23,20 @@ namespace Articulate.Controllers
         : ListControllerBase(logger, compositeViewEngine, umbracoContextAccessor, publishedUrlProvider,
             publishedValueFallback)
     {
+#if UMBRACO_19_OR_GREATER
+        /// <summary>
+        /// Used to render the search result listing (virtual node)
+        /// </summary>
+        /// <param name="term">
+        /// The search term
+        /// </param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Search(string? term, int? p = null)
+        {
+            // CMS 19 search always uses the published-content index; legacy index names no longer exist.
+            string? indexName = null;
+#else
         /// <summary>
         /// Used to render the search result listing (virtual node)
         /// </summary>
@@ -37,6 +51,7 @@ namespace Articulate.Controllers
         public IActionResult Search(string? term, string? indexName = null, int? p = null)
         {
             indexName = SanitizeIndexName(indexName);
+#endif
 
             if (CurrentPage is null)
             {
@@ -59,6 +74,13 @@ namespace Articulate.Controllers
 
             var pageNumber = p is > 0 ? p.Value : 1;
 
+#if UMBRACO_19_OR_GREATER
+            (IEnumerable<IPublishedContent>? searchResult, long totalPosts) = await articulateSearcher.SearchAsync(
+                term,
+                masterModel.BlogArchiveNode.Id,
+                masterModel.PageSize,
+                pageNumber - 1);
+#else
             IEnumerable<IPublishedContent>? searchResult = articulateSearcher.Search(
                 term,
                 indexName,
@@ -66,10 +88,12 @@ namespace Articulate.Controllers
                 masterModel.PageSize,
                 pageNumber - 1,
                 out var totalPosts);
+#endif
 
             return GetPagedListView(masterModel, currentPage, searchResult ?? [], totalPosts, pageNumber);
         }
 
+#if !UMBRACO_19_OR_GREATER
         private string? SanitizeIndexName(string? indexName)
         {
             if (string.IsNullOrWhiteSpace(indexName))
@@ -93,6 +117,7 @@ namespace Articulate.Controllers
 
             return Umbraco.Cms.Core.Constants.UmbracoIndexes.ExternalIndexName;
         }
+#endif
 
         private ListModel CreateEmptyListModel(IPublishedContent currentPage, MasterModel masterModel) =>
             new(

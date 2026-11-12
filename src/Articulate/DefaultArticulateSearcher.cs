@@ -1,4 +1,66 @@
 #nullable enable
+#if UMBRACO_19_OR_GREATER
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.PublishedCache;
+using Umbraco.Cms.Core.Search;
+using Umbraco.Cms.Core.Search.Querying.Filtering;
+
+namespace Articulate
+{
+    /// <summary>
+    /// Default implementation of <see cref="IArticulateSearcher"/>, using the CMS published-content search.
+    /// </summary>
+    public class DefaultArticulateSearcher(
+        ISearcherResolver searcherResolver,
+        IPublishedContentCache publishedContentCache,
+        IVariationContextAccessor variationContextAccessor)
+        : IArticulateSearcher
+    {
+        /// <inheritdoc/>
+        public async Task<(IEnumerable<IPublishedContent> Results, long TotalResults)> SearchAsync(
+            string term,
+            int blogArchiveNodeId,
+            int pageSize,
+            int pageIndex)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return ([], 0);
+            }
+
+            // DoS protection: limit query complexity
+            const int maxTermLength = 200;
+            const int maxTokenCount = 10;
+            IEnumerable<string> searchTerms = term[..Math.Min(term.Length, maxTermLength)]
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Take(maxTokenCount);
+
+            const string indexAlias = Umbraco.Cms.Core.Constants.Search.IndexAliases.PublishedContent;
+            ISearcher? searcher = searcherResolver.GetSearcher(indexAlias);
+            Guid? archiveKey = publishedContentCache.GetById(blogArchiveNodeId)?.Key;
+            if (searcher is null || archiveKey is null)
+            {
+                return ([], 0);
+            }
+
+            var culture = variationContextAccessor.VariationContext?.Culture;
+
+            // note: CMS all-term matching and default field relevance replace the legacy weighted Lucene query; add an IContentIndexer to tier post fields if ranking needs tuning.
+            Umbraco.Cms.Core.Search.Querying.SearchResult result = await searcher.SearchAsync(
+                indexAlias,
+                query: string.Join(' ', searchTerms),
+                filters: [new KeywordFilter(Umbraco.Cms.Core.Constants.Search.FieldNames.ParentId, [archiveKey.Value.ToString("D")], Negate: false)],
+                culture: string.IsNullOrWhiteSpace(culture) ? null : culture,
+                skip: pageIndex * pageSize,
+                take: pageSize);
+
+            return (result.Documents
+                .Select(document => publishedContentCache.GetById(document.Id))
+                .OfType<IPublishedContent>(), result.Total);
+        }
+    }
+}
+#else
 using System.Collections.Frozen;
 using System.Text;
 using Examine;
@@ -127,3 +189,4 @@ namespace Articulate
         }
     }
 }
+#endif

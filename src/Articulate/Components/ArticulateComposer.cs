@@ -65,6 +65,10 @@ namespace Articulate.Components
             _ = builder.ContentFinders().InsertBefore<ContentFinderByUrlNew, DateFormattedPostContentFinder>();
 #endif
 
+#if UMBRACO_19_OR_GREATER
+            _ = services.AddTransient<Umbraco.Cms.Core.Search.Indexing.IContentIndexer, ArticulatePostContentIndexer>();
+#endif
+
             _ = services.AddOptions<ArticulateOptions>()
                 .BindConfiguration("Articulate");
             _ = services.AddOptions<ArticulateCommentsOptions>()
