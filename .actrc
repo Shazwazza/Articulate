@@ -6,8 +6,6 @@
 # Mark the workflow as running under act so steps can skip artifact uploads.
 --env ACT=true
 
-# Keep the two-lane build within Docker's memory budget and remove job
-# containers/volumes after each run.
---container-options=--memory=2g
+# Run both build lanes in parallel and remove job containers/volumes after each run.
 --rm
---concurrent-jobs=1
+--concurrent-jobs=2

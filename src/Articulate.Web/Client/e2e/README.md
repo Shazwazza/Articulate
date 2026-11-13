@@ -35,14 +35,14 @@ Run from the repository root. Use only these test resources, not `art_v17` or `a
 | v18 | `art_e2e_v18` | `articulate-e2e:v18` | 19444 / 9081 |
 
 ```sh
-env COMPOSE_PROJECT_NAME=art_e2e_v17 COMPOSE_VOLUME_PREFIX=art_e2e_v17 IMAGE_TAG=articulate-e2e:v17 CADDY_HTTPS_PORT=19443 CADDY_HTTP_PORT=9080 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 pnpm@11.19.0 -- dotnet run --file docker/run.cs -- docker-dev --lane v17 --skip-smoke --clean
-env COMPOSE_PROJECT_NAME=art_e2e_v18 COMPOSE_VOLUME_PREFIX=art_e2e_v18 IMAGE_TAG=articulate-e2e:v18 CADDY_HTTPS_PORT=19444 CADDY_HTTP_PORT=9081 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 pnpm@11.19.0 -- dotnet run --file docker/run.cs -- docker-dev --lane v18 --skip-smoke --clean
+env COMPOSE_PROJECT_NAME=art_e2e_v17 COMPOSE_VOLUME_PREFIX=art_e2e_v17 IMAGE_TAG=articulate-e2e:v17 CADDY_HTTPS_PORT=19443 CADDY_HTTP_PORT=9080 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret dotnet run --file docker/run.cs -- docker-dev --lane v17 --skip-smoke --clean
+env COMPOSE_PROJECT_NAME=art_e2e_v18 COMPOSE_VOLUME_PREFIX=art_e2e_v18 IMAGE_TAG=articulate-e2e:v18 CADDY_HTTPS_PORT=19444 CADDY_HTTP_PORT=9081 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret dotnet run --file docker/run.cs -- docker-dev --lane v18 --skip-smoke --clean
 ```
 
-Build one lane at a time. `--clean` is required when switching lanes. For a fresh site, publish starter content once before testing:
+Build one lane at a time. For a fresh site, publish starter content once before testing:
 
 ```sh
-env UMBRACO_PUBLIC_URL=https://localhost:19443/ ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 pnpm@11.19.0 -- node docker/smoke.mjs publish
+env UMBRACO_PUBLIC_URL=https://localhost:19443/ ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret node docker/smoke.mjs publish
 ```
 
 For v18, use `https://localhost:19444/`. This setup reloads Umbraco's cache. Run it before tests, never during a test.
@@ -52,22 +52,22 @@ For v18, use `https://localhost:19444/`. This setup reloads Umbraco's cache. Run
 Install dependencies:
 
 ```sh
-mise exec node@24.18.1 pnpm@11.19.0 -- pnpm --dir src/Articulate.Web/Client install --frozen-lockfile
+pnpm --dir src/Articulate.Web/Client install --frozen-lockfile
 ```
 
 Run both lanes sequentially or select one:
 
 ```sh
-env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 -- dotnet run --file build/test.cs -- e2e --lane all
-env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 -- dotnet run --file build/test.cs -- e2e --lane v17
-env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 -- dotnet run --file build/test.cs -- e2e --lane v18
+env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret dotnet run --file build/test.cs -- e2e --lane all
+env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret dotnet run --file build/test.cs -- e2e --lane v17
+env ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret dotnet run --file build/test.cs -- e2e --lane v18
 ```
 
 To run Playwright directly, set the test URL and secret:
 
 ```sh
-env ARTICULATE_E2E_BASE_URL=https://localhost:19443 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 pnpm@11.19.0 -- pnpm --dir src/Articulate.Web/Client run test:e2e
-env ARTICULATE_E2E_BASE_URL=https://localhost:19444 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret mise exec node@24.18.1 pnpm@11.19.0 -- pnpm --dir src/Articulate.Web/Client run test:e2e
+env ARTICULATE_E2E_BASE_URL=https://localhost:19443 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret pnpm --dir src/Articulate.Web/Client run test:e2e
+env ARTICULATE_E2E_BASE_URL=https://localhost:19444 ARTICULATE_TEST_SITE_CLIENT_SECRET=articulate-test-site-secret pnpm --dir src/Articulate.Web/Client run test:e2e
 ```
 
 Reports are in `src/Articulate.Web/Client/e2e-report-<lane>`; test artefacts are in `e2e-results-<lane>`. Open a report with `dotnet run --file build/test.cs -- report --lane v17` or `--lane v18`. Playwright prints the local URL. Stop it with Ctrl+C.
@@ -77,7 +77,7 @@ The standalone config accepts HTTPS localhost ports 19443 and 19444. The integra
 Check the test types:
 
 ```sh
-mise exec node@24.18.1 pnpm@11.19.0 -- pnpm --dir src/Articulate.Web/Client/v17 exec tsc --ignoreConfig --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --types node ../e2e/publishing-rss.spec.ts ../e2e/giscus-theme.spec.ts
+pnpm --dir src/Articulate.Web/Client/v17 exec tsc --ignoreConfig --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --types node ../e2e/publishing-rss.spec.ts ../e2e/giscus-theme.spec.ts
 ```
 
 ## PowerShell setup
@@ -86,10 +86,10 @@ Set the same test resources before starting v17:
 
 ```powershell
 $env:COMPOSE_PROJECT_NAME = 'art_e2e_v17'; $env:COMPOSE_VOLUME_PREFIX = 'art_e2e_v17'; $env:IMAGE_TAG = 'articulate-e2e:v17'; $env:CADDY_HTTPS_PORT = '19443'; $env:CADDY_HTTP_PORT = '9080'; $env:ARTICULATE_TEST_SITE_CLIENT_SECRET = 'articulate-test-site-secret'
-mise exec node@24.18.1 pnpm@11.19.0 -- dotnet run --file docker/run.cs -- docker-dev --lane v17 --skip-smoke --clean
+dotnet run --file docker/run.cs -- docker-dev --lane v17 --skip-smoke --clean
 $env:UMBRACO_PUBLIC_URL = 'https://localhost:19443/'
-mise exec node@24.18.1 pnpm@11.19.0 -- node docker/smoke.mjs publish
-mise exec node@24.18.1 -- dotnet run --file build/test.cs -- e2e --lane v17
+node docker/smoke.mjs publish
+dotnet run --file build/test.cs -- e2e --lane v17
 ```
 
 For v18, use the table's v18 values, set `UMBRACO_PUBLIC_URL` to `https://localhost:19444/`, and change `--lane v17` to `--lane v18`.

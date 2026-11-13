@@ -123,7 +123,6 @@ jobs:
           echo "Lane boundary clean."
 
       - name: Build lane packages
-        # Each matrix job has its own checkout and shared build outputs.
         run: dotnet run --file build/build.cs -- build --lane "${{ matrix.lane }}" --sample --clean
 
       - name: Inspect lane packages

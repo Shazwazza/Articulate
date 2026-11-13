@@ -23,9 +23,13 @@
 
   <!-- Ship Articulate.dll alongside Articulate.Web.dll via BuildOutputInPackage. -->
   <Target Name="IncludeProjectReferenceDlls">
+    <MSBuild Projects="@(ProjectReference)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_ProjectReferenceTargetPath" />
+    </MSBuild>
     <ItemGroup>
-      <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.dll" />
-      <BuildOutputInPackage Include="..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml" Condition="Exists('..\Articulate\bin\$(Configuration)\$(TargetFramework)\Articulate.xml')" />
+      <_ProjectReferenceDocumentation Include="@(_ProjectReferenceTargetPath->'%(RootDir)%(Directory)%(Filename).xml')" />
+      <BuildOutputInPackage Include="@(_ProjectReferenceTargetPath)" />
+      <BuildOutputInPackage Include="@(_ProjectReferenceDocumentation)" Condition="Exists('%(_ProjectReferenceDocumentation.Identity)')" />
     </ItemGroup>
   </Target>
   <!--
@@ -84,11 +88,12 @@
     <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
     <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
-    <BackofficeOutputDir>$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/BackOffice</BackofficeOutputDir>
-    <ClientAssetsCacheDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../build/ClientAssets'))</ClientAssetsCacheDir>
+    <!-- Vite output; see Client/common/vite.config.ts. -->
+    <ClientAssetsDir>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)ClientAssets\</ClientAssetsDir>
     <ClientBuildMode>prod</ClientBuildMode>
     <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
-    <ClientBuildStamp>$(ClientAssetsCacheDir)/BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode).stamp</ClientBuildStamp>
+    <!-- A package version change rebuilds the client. -->
+    <ClientBuildStamp>$(BaseIntermediateOutputPath)BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode)_$(ArticulatePackageVersion).stamp</ClientBuildStamp>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">
@@ -108,19 +113,13 @@
     <ClientBuildInput Include="$(MSBuildProjectDirectory)/wwwroot/App_Plugins/Articulate/MarkdownEditor/assets/src/**/*" />
   </ItemGroup>
 
-  <!--
-    VS holds an exclusive lock on the BackOffice dir during build, so when
-    building inside VS we treat the assets as <None> (won't be packed); CLI
-    builds skip this and pick them up as Content.
-  -->
-  <ItemGroup Condition="'$(EnableClientBuild)'=='true' and '$(BuildingInsideVisualStudio)'=='true'">
-    <Content Remove="$(BackofficeOutputDir)\**" />
-    <None Include="$(BackofficeOutputDir)\**" />
+  <!-- Ignore wwwroot output left by builds before per-lane client assets. -->
+  <ItemGroup>
+    <Content Remove="wwwroot\App_Plugins\Articulate\BackOffice\**;wwwroot\App_Plugins\Articulate\umbraco-package.json" />
   </ItemGroup>
 
   <Target Name="BuildBackofficeClient" Condition="'$(EnableClientBuild)'=='true' and '$(NoBuild)'!='true'" BeforeTargets="ResolveProjectStaticWebAssets" Inputs="@(ClientBuildInput)" Outputs="$(ClientBuildStamp)">
     <Message Text="Building Articulate BackOffice Client (Incremental)..." Importance="High" />
-    <MakeDir Directories="$(ClientAssetsCacheDir)" />
     <PropertyGroup>
       <_ResolvedArticulateAppVersion Condition="'$(ArticulateAppVersion)'!=''">$(ArticulateAppVersion)</_ResolvedArticulateAppVersion>
       <_ResolvedArticulateAppVersion Condition="'$(_ResolvedArticulateAppVersion)'=='' and '$(NBGV_SemVer2)'!=''">$(NBGV_SemVer2)</_ResolvedArticulateAppVersion>
@@ -137,6 +136,16 @@
 
     <Exec Command="$(ClientBuildCommand)" WorkingDirectory="$(ClientWorkspaceDirectory)" EnvironmentVariables="ARTICULATE_APP_VERSION=$(_ResolvedArticulateAppVersion)" />
 
+    <PropertyGroup>
+      <_OtherClientBuildMode>dev</_OtherClientBuildMode>
+      <_OtherClientBuildMode Condition="'$(ClientBuildMode)' == 'dev'">prod</_OtherClientBuildMode>
+    </PropertyGroup>
+    <ItemGroup>
+      <_StaleClientBuildStamp Include="$(BaseIntermediateOutputPath)BackofficeClient_*.stamp" />
+      <!-- Both lanes share the theme and Markdown Editor bundles, so every lane's stamp for the other mode is stale. -->
+      <_StaleClientBuildStamp Include="obj\*\BackofficeClient_*_$(_OtherClientBuildMode)_*.stamp" />
+    </ItemGroup>
+    <Delete Files="@(_StaleClientBuildStamp)" />
     <WriteLinesToFile File="$(ClientBuildStamp)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
   </Target>
 
@@ -148,18 +157,48 @@
   <Target Name="RefreshBackofficeStaticWebAssetItems" AfterTargets="BuildBackofficeClient" BeforeTargets="ResolveProjectStaticWebAssets" Condition="'$(EnableClientBuild)'=='true' and '$(NoBuild)'!='true'">
     <Message Text="Refreshing BackOffice assets..." Importance="Low" />
     <ItemGroup>
-      <Content Remove="$(BackofficeOutputDir)\**" />
-      <Content Include="wwwroot\App_Plugins\Articulate\BackOffice\**" />
       <Content Remove="wwwroot\App_Plugins\Articulate\Themes\**\assets\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\Themes\**\assets\**" />
       <Content Include="wwwroot\App_Plugins\Articulate\MarkdownEditor\assets\dist\**" />
-      <Content Include="wwwroot\App_Plugins\Articulate\umbraco-package.json" />
     </ItemGroup>
   </Target>
 
+  <!-- Serve the lane's client assets from obj as static web assets. -->
+  <PropertyGroup>
+    <ResolveCoreStaticWebAssetsDependsOn>$(ResolveCoreStaticWebAssetsDependsOn);ResolveBackofficeStaticWebAssets</ResolveCoreStaticWebAssetsDependsOn>
+  </PropertyGroup>
+  <Target Name="ResolveBackofficeStaticWebAssets" Condition="'$(NoBuild)' != 'true'" DependsOnTargets="ResolveProjectStaticWebAssets">
+    <ItemGroup>
+      <_BackofficeStaticWebAssetCandidate Include="$(ClientAssetsDir)**">
+        <RelativePath>%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+      </_BackofficeStaticWebAssetCandidate>
+    </ItemGroup>
+    <DefineStaticWebAssets Condition="'@(_BackofficeStaticWebAssetCandidate)' != ''"
+      CandidateAssets="@(_BackofficeStaticWebAssetCandidate)"
+      FingerprintCandidates="$(StaticWebAssetsFingerprintContent)"
+      FingerprintPatterns="@(StaticWebAssetFingerprintPattern)"
+      SourceType="Computed"
+      SourceId="$(PackageId)"
+      ContentRoot="$(ClientAssetsDir)"
+      BasePath="$(StaticWebAssetBasePath)"
+      AssetMergeSource="$(StaticWebAssetMergeTarget)">
+      <Output TaskParameter="Assets" ItemName="StaticWebAsset" />
+      <Output TaskParameter="Assets" ItemName="_BackofficeStaticWebAsset" />
+    </DefineStaticWebAssets>
+    <DefineStaticWebAssetEndpoints Condition="'@(_BackofficeStaticWebAsset)' != ''"
+      CandidateAssets="@(_BackofficeStaticWebAsset)"
+      ExistingEndpoints="@(StaticWebAssetEndpoint)"
+      ContentTypeMappings="@(StaticWebAssetContentTypeMapping)">
+      <Output TaskParameter="Endpoints" ItemName="StaticWebAssetEndpoint" />
+    </DefineStaticWebAssetEndpoints>
+  </Target>
+
   <Target Name="CleanClientAssets" AfterTargets="Clean" Condition="'$(EnableClientBuild)'=='true'">
-    <Delete Condition="Exists('$(ClientBuildStamp)')" Files="$(ClientBuildStamp)" />
-    <RemoveDir Directories="$(BackofficeOutputDir)" />
+    <ItemGroup>
+      <_ClientBuildStamp Include="$(BaseIntermediateOutputPath)BackofficeClient_*.stamp" />
+    </ItemGroup>
+    <Delete Files="@(_ClientBuildStamp)" />
+    <RemoveDir Directories="$(ClientAssetsDir)" />
   </Target>
 
 

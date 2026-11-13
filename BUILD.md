@@ -19,9 +19,9 @@ The packable package is produced by `src/Articulate.Web/Articulate.Web.csproj` (
 
 Set `ARTICULATE_PACKAGE_VERSION` to override the calculated package version. The sample package supports the native and Docker test sites. It is included in the one-day `lane-packages-<lane>` CI hand-off artefacts, but not the final `Articulate-<version>` artefacts.
 
-Within one checkout, both lanes share project `bin`/`obj` directories and static-web-asset paths. Run full-solution lane builds sequentially and with `-m:1`; `build/build.cs` already does this. CI uses separate matrix jobs and checkouts, one per lane.
+Each lane has its own `bin/<lane>/` and `obj/<lane>/`, so lanes build back to back without `--clean`. Build one lane at a time. CI builds each lane in its own job.
 
-> **Switching lanes:** The Back Office output is shared between v17 and v18. After building one lane, pass `--clean` on the first build of the other lane. For example: `build --lane v18 --clean` after a v17 build. The Docker runner's `--clean` option passes this through to the package build. Cleaning leaves the local test site unchanged; use `site --reset` explicitly when needed.
+`--clean` deletes every `bin`/`obj` folder under `src/`; the Docker runner's `--clean` passes it through. It leaves the local test site unchanged; use `site --reset` for that.
 
 ## CI trigger policy
 
@@ -65,7 +65,7 @@ dotnet run --file build/build.cs -- build --lane v18 --sample
 CI / release build for both lanes:
 
 ```sh
-# Run once per lane; each run cleans shared outputs first.
+# Run once per lane.
 dotnet run --file build/build.cs -- build --lane v17 --clean --client true --tests --sample
 dotnet run --file build/build.cs -- build --lane v18 --clean --client true --tests --sample
 ```
@@ -78,7 +78,7 @@ Run the GitHub Actions build job locally with `act`:
 act -W ./.github/workflows/build.yml -j build
 ```
 
-Repository defaults in `.actrc` provide the runner image, 2 GiB container limit, serial execution, cleanup, and `ACT=true`. `-j build` selects this workflow job; omit it only when intentionally running every workflow job.
+Repository defaults in `.actrc` provide the runner image, parallel lane jobs, cleanup, and `ACT=true`. `-j build` selects this workflow job; omit it only when intentionally running every workflow job.
 
 ## Package lanes
 
@@ -97,7 +97,7 @@ The lanes produce separate NuGet packages because their Umbraco extension points
 
 `version.json` defines the Articulate 7.0 version through NBGV. `version-v18.txt` defines the Articulate 8.0 base version. The build runner appends NBGV commit metadata when present: a v18 base of `8.0.0` produces `8.0.0.gabcdef`. Change the text file to advance the v18 release; callers normally use these version sources.
 
-Both lanes share `wwwroot/App_Plugins/Articulate/BackOffice/`. The build runner tracks the active lane in an ignored marker; same-lane builds use the per-lane Vite stamp, while `--clean` is required before switching lanes.
+Vite writes each lane's Back Office bundle and `umbraco-package.json` to `src/Articulate.Web/obj/<lane>/ClientAssets/`, served under `/App_Plugins/Articulate/`. The client rebuilds when its inputs, build mode or package version change.
 
 ### Client API generation
 

@@ -16,7 +16,6 @@
 **/bin
 **/obj
 **/node_modules
-build/ClientAssets
 
 # Documentation and misc
 *.md

@@ -126,7 +126,7 @@ The unattended backoffice administrator (the human sign-in) is configured separa
 
 ## Package and container diagnostics
 
-Package inputs come from `build/Release/<lane>` and must include Articulate and the sample theme. Docker installs those `.nupkg` files. Docker commands invoke the package runner by default; `docker-dev --reuse-packages` skips it and reuses the existing lane output. Same-lane builds are incremental and `--clean` is required when switching lanes.
+Package inputs come from `build/Release/<lane>` and must include Articulate and the sample theme. Docker installs those `.nupkg` files. Docker commands invoke the package runner by default; `docker-dev --reuse-packages` skips it and reuses the existing lane output.
 
 The Docker runner resolves `UmbracoCmsPackageVersion` and `TinyMceUmbracoPackageVersion` from `Directory.Packages.props` via `dotnet msbuild -getProperty`, so the site uses the same dependency floors.
 

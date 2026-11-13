@@ -1,5 +1,6 @@
 #!/usr/bin/env -S dotnet --
 #:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
+#:property PublishAot=false
 
 # nullable enable
 
@@ -25,7 +26,7 @@ try
         "docker-prod"   => await DockerProd(opts.Validate(command, "lane", "skip-smoke")),
         "docker-down"   => await DockerDown(opts.Validate(command, "lane", "volumes", "purge")),
         "docker-status" => await DockerStatus(opts.Validate(command, "lane")),
-        "docker-test"   => await DockerTest(opts.Validate(command, "lane", "keep", "skip-smoke", "reuse-packages")),
+        "docker-test"   => await DockerTest(opts.Validate(command, "lane", "keep", "skip-smoke", "clean", "reuse-packages")),
         "docker-ca"     => await DockerCa(opts.Validate(command, "lane")),
         _ => throw new ArgumentException($"Unknown command '{command}'. Run with --help.")
     };
@@ -149,10 +150,13 @@ async Task<int> DockerTest(Opts o)
     if (requested is not ("v17" or "v18" or "all"))
         throw new ArgumentException("--lane must be v17, v18, or all.");
 
+    if (o.Flag("reuse-packages") && o.Flag("clean"))
+        throw new ArgumentException("--clean cannot be used with --reuse-packages.");
+
     var lanes = requested == "all" ? new[] { "v17", "v18" } : new[] { requested };
     foreach (var lane in lanes)
     {
-        if (!o.Flag("reuse-packages")) await EnsurePackages(lane, clean: true);
+        if (!o.Flag("reuse-packages")) await EnsurePackages(lane, o.Flag("clean"));
         var configuration = Env.Get("BUILD_CONFIGURATION", "Release") ?? "Release";
         var packageDirectory = Path.Combine(Env.Repo, "build", configuration, lane);
         var nonce = Guid.NewGuid().ToString("N");

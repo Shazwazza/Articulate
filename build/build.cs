@@ -1,5 +1,6 @@
 #!/usr/bin/env -S dotnet --
 #:property NoWarn=SA1400,SA1503,SA1519,SA1116,SA1117,SA1122,SA1649,IDE0008,IDE0011,IDE0040,SA1500
+#:property PublishAot=false
 
 # nullable enable
 
@@ -7,8 +8,7 @@
 //
 // Conventions:
 //   - Restore + build + test + pack, one lane at a time.
-//   - Shared src/*/bin and obj means lanes build sequentially with -m:1.
-//   - Use --clean when switching package lanes in the same checkout.
+//   - Each lane has its own bin/<lane> and obj/<lane>; switching lanes needs no --clean.
 //   - Packages land in build/<Configuration>/<lane>/.
 
 using System.Diagnostics;
@@ -74,11 +74,6 @@ async Task<int> BuildAsync(Opts o)
     var releaseDir = Path.Combine(Env.Repo, "build", cfg ?? "Release", lane);
     Directory.CreateDirectory(releaseDir);
 
-    var clientAssetsDir = Path.Combine(Env.Repo, "build", "ClientAssets");
-    var backofficeDir = Path.Combine(Env.Repo, "src", "Articulate.Web", "wwwroot", "App_Plugins", "Articulate", "BackOffice");
-    var activeLanePath = Path.Combine(clientAssetsDir, "active-lane.txt");
-    var activeVersionPath = Path.Combine(clientAssetsDir, "active-version.txt");
-
     var props = new List<string>
     {
         "-p:EnableClientBuild=" + defaults.Client.ToString().ToLowerInvariant(),
@@ -87,12 +82,6 @@ async Task<int> BuildAsync(Opts o)
     var packageVersion = await ResolvePackageVersion(lane);
     props.Add("-p:ArticulatePackageVersion=" + packageVersion);
 
-    // Refuse a lane switch before deleting anything.
-    var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
-    var activeVersion = File.Exists(activeVersionPath) ? File.ReadAllText(activeVersionPath).Trim() : null;
-    if (defaults.Client && !clean && activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
-        throw new InvalidOperationException($"Client assets belong to {activeLane}; rerun with --clean before building {lane}.");
-
     Console.WriteLine($"Build: {lane}, {cfg}, package {packageVersion}{(clean ? " (Clean Build)" : "")}");
     DeleteExistingPackages(releaseDir);
 
@@ -100,29 +89,10 @@ async Task<int> BuildAsync(Opts o)
     {
         await Run("dotnet", new[] { "build-server", "shutdown" }, cwd: Env.Repo, allowFailure: true);
         DeleteBuildOutputs(Path.Combine(Env.Repo, "src"));
-        DeleteDir(clientAssetsDir);
-    }
-
-    if (defaults.Client)
-    {
-        if (clean || activeLane is null || !string.Equals(activeVersion, packageVersion, StringComparison.Ordinal))
-        {
-            DeleteDir(backofficeDir);
-            DeleteClientBuildStamps(clientAssetsDir, lane);
-        }
-        DeleteFile(activeLanePath);
-        DeleteFile(activeVersionPath);
-    }
-    else
-    {
-        DeleteDir(backofficeDir);
-        DeleteClientBuildStamps(clientAssetsDir, lane);
-        DeleteFile(activeLanePath);
-        DeleteFile(activeVersionPath);
     }
 
     var cfgName = cfg ?? "Release";
-    var common = new[] { "-c", cfgName, "-m:1", "-p:BuildInParallel=false" };
+    var common = new[] { "-c", cfgName };
 
     if (o.Flag("update-locks"))
     {
@@ -145,8 +115,7 @@ async Task<int> BuildAsync(Opts o)
         .Concat(inCi ? new string[] { "--locked-mode" } : Array.Empty<string>())
         .Concat(props).ToArray();
     await Run("dotnet", restoreArgs);
-    await Run("dotnet", new[] { "build", Env.Solution, "--no-restore", "-v", "minimal",
-        "-p:UseSharedCompilation=false" }
+    await Run("dotnet", new[] { "build", Env.Solution, "--no-restore", "-v", "minimal" }
         .Concat(common).Concat(props).ToArray());
     if (defaults.Tests)
         await Run("dotnet", new[] { "test", Env.Solution, "--no-restore", "--no-build",
@@ -161,12 +130,6 @@ async Task<int> BuildAsync(Opts o)
             .Concat(common).Concat(props).ToArray());
 
     VerifyPackages(releaseDir, packageVersion, defaults.Sample);
-    if (defaults.Client)
-    {
-        Directory.CreateDirectory(Path.GetDirectoryName(activeLanePath)!);
-        File.WriteAllText(activeLanePath, lane + Environment.NewLine);
-        File.WriteAllText(activeVersionPath, packageVersion + Environment.NewLine);
-    }
 
     Console.WriteLine($"Completed in {sw.Elapsed.TotalSeconds:N1}s: {releaseDir}");
     return 0;
@@ -176,7 +139,8 @@ async Task<int> ClientAsync(Opts o)
 {
     var workspace = Path.Combine(Env.Repo, "src", "Articulate.Web", "Client");
     var laneDir = Path.Combine(workspace, o.Lane());
-    DeleteDir(Path.Combine(Env.Repo, "build", "ClientAssets"));
+    // Vite runs outside MSBuild here, so force MSBuild's next client build.
+    DeleteClientBuildStamps(o.Lane());
     var requiredNodeVersion = File.ReadAllText(Path.Combine(workspace, ".node-version")).Trim();
     var requiredNodeMajor = requiredNodeVersion.Split('.')[0];
     if (string.IsNullOrWhiteSpace(requiredNodeMajor))
@@ -275,13 +239,13 @@ async Task<string> Capture(string file, IEnumerable<string> args, string cwd)
 }
 
 void DeleteDir(string path) { if (Directory.Exists(path)) Directory.Delete(path, recursive: true); }
-void DeleteFile(string path) { if (File.Exists(path)) File.Delete(path); }
-void DeleteClientBuildStamps(string clientAssetsDir, string lane)
+void DeleteClientBuildStamps(string lane)
 {
-    if (!Directory.Exists(clientAssetsDir)) return;
-    var laneSuffix = lane[1..];
-    foreach (var stamp in Directory.EnumerateFiles(clientAssetsDir, $"BackofficeClient_v{laneSuffix}*.stamp"))
-        DeleteFile(stamp);
+    var obj = Path.Combine(Env.Repo, "src", "Articulate.Web", "obj");
+    if (!Directory.Exists(obj)) return;
+    foreach (var dir in Directory.EnumerateDirectories(obj))
+        foreach (var stamp in Directory.EnumerateFiles(dir, Path.GetFileName(dir) == lane ? "BackofficeClient_*.stamp" : "BackofficeClient_*_dev_*.stamp"))
+            File.Delete(stamp);
 }
 
 void DeleteBuildOutputs(string root)
