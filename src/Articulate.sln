@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{7396E5F1
 		..\umbraco-marketplace.json = ..\umbraco-marketplace.json
 		..\version-v18.txt = ..\version-v18.txt
 		..\version.json = ..\version.json
+		..\version-v19.txt = ..\version-v19.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FAADEFD-E6A9-4165-AA2D-E4A66BFF6679}"

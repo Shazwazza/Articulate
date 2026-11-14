@@ -96,7 +96,7 @@ async Task<int> BuildAsync(Opts o)
 
     if (o.Flag("update-locks"))
     {
-        foreach (var lockLane in new[] { "v17", "v18" })
+        foreach (var lockLane in new[] { "v17", "v18", "v19" })
         {
             Console.WriteLine($"> dotnet restore lock files ({lockLane})");
             await Run("dotnet", new[]
@@ -386,7 +386,8 @@ sealed class Opts
     {
         "v17" => "v17",
         "v18" => "v18",
-        var x => throw new ArgumentException($"--lane must be v17 or v18 (got '{x}').")
+        "v19" => "v19",
+        var x => throw new ArgumentException($"--lane must be v17, v18 or v19 (got '{x}').")
     };
 
     public string? String(string key, string? fallback = null) => _v.TryGetValue(key, out var v) ? v : fallback;

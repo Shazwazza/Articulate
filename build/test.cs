@@ -53,9 +53,11 @@ static async Task<int> RunE2e(Options options)
     {
         "v17" => new[] { "v17" },
         "v18" => new[] { "v18" },
+        // v19 temp: candidate hosts only (fresh or docker-test) until Umbraco 19 GA.
+        "v19" when candidateProject is not null => new[] { "v19" },
         "all" when candidateProject is null => new[] { "v17", "v18" },
         "all" => throw new ArgumentException("Candidate E2E requires one lane."),
-        var lane => throw new ArgumentException($"--lane must be v17, v18 or all (got '{lane}').")
+        var lane => throw new ArgumentException($"--lane must be v17, v18, v19 or all (got '{lane}').")
     };
 
     var root = FindRepositoryRoot();
@@ -109,8 +111,8 @@ static async Task<int> RunFresh(Options options)
     options.Validate("fresh", "lane");
     var lanes = options.Get("lane", "all") switch
     {
-        "v17" => new[] { "v17" }, "v18" => new[] { "v18" }, "all" => new[] { "v17", "v18" },
-        var lane => throw new ArgumentException($"--lane must be v17, v18 or all (got '{lane}').")
+        "v17" => new[] { "v17" }, "v18" => new[] { "v18" }, "v19" => new[] { "v19" }, "all" => new[] { "v17", "v18" }, // v19 temp: joins "all" at GA
+        var lane => throw new ArgumentException($"--lane must be v17, v18, v19 or all (got '{lane}').")
     };
     var root = FindRepositoryRoot();
     var dotnet = Environment.GetEnvironmentVariable("DOTNET_BIN") ?? "dotnet";
@@ -263,7 +265,7 @@ static async Task<int> RunFresh(Options options)
                 await StopHost(preparedHost);
             }
             var hash = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(main[0])));
-            Console.WriteLine($"Native candidate receipt: lane={lane} package={Path.GetFileName(main[0])} sha256={hash} cms={cms} candidate={candidate} pid={host!.Value.Process.Id} url={url} package-restore=exact-archives indexing=owned-external-key");
+            Console.WriteLine($"Native candidate receipt: lane={lane} package={Path.GetFileName(main[0])} sha256={hash} cms={cms} candidate={candidate} pid={host!.Value.Process.Id} url={url} package-restore=exact-archives indexing=owned");
             var exit = await RunPlaywright(root, lane, port.ToString(), candidate, environment);
             if (exit != 0)
             {
@@ -374,8 +376,8 @@ static async Task<string> Capture(string file, IEnumerable<string> args, string 
 static async Task<int> ShowReport(Options options)
 {
     options.Validate("report", "lane");
-    var lane = options.Get("lane") ?? throw new ArgumentException("report requires --lane v17 or v18.");
-    if (lane is not ("v17" or "v18")) throw new ArgumentException("--lane must be v17 or v18.");
+    var lane = options.Get("lane") ?? throw new ArgumentException("report requires --lane v17, v18 or v19.");
+    if (lane is not ("v17" or "v18" or "v19")) throw new ArgumentException("--lane must be v17, v18 or v19.");
     var root = FindRepositoryRoot();
     var client = Path.Combine(root, "src", "Articulate.Web", "Client");
     var report = Path.Combine(client, $"e2e-report-{lane}");
@@ -401,7 +403,7 @@ static async Task<int> ShowReport(Options options)
     return process.ExitCode;
 }
 
-static bool IsProtectedPort(int port) => port is 18443 or 18444 or 19443 or 19444;
+static bool IsProtectedPort(int port) => port is 18443 or 18444 or 18445 or 19443 or 19444;
 
 static int FindFreePort()
 {

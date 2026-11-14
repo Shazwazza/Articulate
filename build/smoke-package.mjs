@@ -88,12 +88,15 @@ function checkGroup(name, fn) {
 }
 
 let currentPackage = "";
+let tfm = "";
 
 function checkPackage(file) {
 	currentPackage = basename(file);
 	const isSymbols = extname(file) === ".snupkg";
 	const entries = parseUnzipList(unzipList(file));
 	const names = entries.map((e) => e.name);
+	// Single-target packages; a missing lib/ folder fails every lib/<tfm> check below.
+	tfm = names.find((n) => n.startsWith("lib/"))?.split("/")[1] ?? "(no lib folder)";
 
 	// We need a temp dir to extract DLLs/etc. for resource inspection.
 	const work = mkdtempSync(join(tmpdir(), "smoke-pkg-"));
@@ -158,8 +161,8 @@ function checkMainPackage(file, entries, names, work) {
 		const nuspec = readFileSync(join(work, nuspecName), "utf8");
 		expect("id=Articulate", /<id>Articulate<\/id>/.test(nuspec));
 		expect(
-			"has net10.0 dependency group",
-			/targetFramework="net10\.0"/.test(nuspec),
+			`has ${tfm} dependency group`,
+			nuspec.includes(`targetFramework="${tfm}"`),
 		);
 		expect(
 			"depends on Umbraco.Cms.Web.Website",
@@ -202,22 +205,22 @@ function checkMainPackage(file, entries, names, work) {
 		);
 	});
 
-	checkGroup("lib/net10.0", () => {
+	checkGroup(`lib/${tfm}`, () => {
 		expect(
 			"Articulate.Web.dll present",
-			names.includes("lib/net10.0/Articulate.Web.dll"),
+			names.includes(`lib/${tfm}/Articulate.Web.dll`),
 		);
 		expect(
 			"Articulate.Web.xml present",
-			names.includes("lib/net10.0/Articulate.Web.xml"),
+			names.includes(`lib/${tfm}/Articulate.Web.xml`),
 		);
 		expect(
 			"Articulate.dll present (from IncludeProjectReferenceDlls)",
-			names.includes("lib/net10.0/Articulate.dll"),
+			names.includes(`lib/${tfm}/Articulate.dll`),
 		);
 		expect(
 			"Articulate.xml present",
-			names.includes("lib/net10.0/Articulate.xml"),
+			names.includes(`lib/${tfm}/Articulate.xml`),
 		);
 	});
 
@@ -226,12 +229,27 @@ function checkMainPackage(file, entries, names, work) {
 			"Articulate.targets present",
 			names.includes("build/Articulate.targets"),
 		);
+		if (tfm === "net10.0") {
+			expect(
+				"Articulate.props present",
+				names.includes("build/Articulate.props"),
+			);
+		} else {
+			// net11 SDK: manifest + targets, which only load if Articulate.targets imports them.
+			expect(
+				"Articulate.PackageAssets.json present",
+				names.includes("build/Articulate.PackageAssets.json"),
+			);
+			unzipExtract(file, ["build/Articulate.targets"], work);
+			expect(
+				"Articulate.targets imports StaticWebAssets targets",
+				readFileSync(join(work, "build/Articulate.targets"), "utf8").includes(
+					'Import Project="Microsoft.AspNetCore.StaticWebAssets.targets"',
+				),
+			);
+		}
 		expect(
-			"Articulate.props present",
-			names.includes("build/Articulate.props"),
-		);
-		expect(
-			"StaticWebAssets props present",
+			"StaticWebAssets props/targets present",
 			hasAny(entries, (e) =>
 				/^build\/Microsoft\.AspNetCore\.StaticWebAssets/.test(e.name),
 			),
@@ -368,7 +386,7 @@ function checkMainPackage(file, entries, names, work) {
 
 
 	checkGroup("embedded resources in Articulate.dll", () => {
-		const dllPath = "lib/net10.0/Articulate.dll";
+		const dllPath = `lib/${tfm}/Articulate.dll`;
 		if (!names.includes(dllPath)) {
 			expect("Articulate.dll extractable", false);
 			return;
@@ -393,7 +411,7 @@ function checkMainPackage(file, entries, names, work) {
 	});
 
 	checkGroup("embedded theme + razor in Articulate.Web.dll", () => {
-		const dllPath = "lib/net10.0/Articulate.Web.dll";
+		const dllPath = `lib/${tfm}/Articulate.Web.dll`;
 		if (!names.includes(dllPath)) {
 			expect("Articulate.Web.dll extractable", false);
 			return;
@@ -445,10 +463,10 @@ function checkSamplePackage(file, entries, names, work) {
 		expect("depends on Articulate", /<dependency id="Articulate"/.test(nuspec));
 	});
 
-	checkGroup("lib/net10.0", () => {
+	checkGroup(`lib/${tfm}`, () => {
 		expect(
 			"Articulate.Theme.Sample.dll present",
-			names.includes("lib/net10.0/Articulate.Theme.Sample.dll"),
+			names.includes(`lib/${tfm}/Articulate.Theme.Sample.dll`),
 		);
 	});
 
@@ -472,10 +490,10 @@ function checkSymbols(_file, entries, names, _work) {
 	checkGroup("symbols package", () => {
 		expect(
 			"Articulate.Web.pdb present",
-			names.includes("lib/net10.0/Articulate.Web.pdb"),
+			names.includes(`lib/${tfm}/Articulate.Web.pdb`),
 		);
 		const pdb = entries.find(
-			(e) => e.name === "lib/net10.0/Articulate.Web.pdb",
+			(e) => e.name === `lib/${tfm}/Articulate.Web.pdb`,
 		);
 		if (pdb) {
 			expect(

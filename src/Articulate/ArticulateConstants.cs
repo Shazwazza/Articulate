@@ -43,6 +43,9 @@ namespace Articulate
             public const string ArticulateThemePicker = "ArticulateThemePicker";
 
             public static readonly Guid ArticulateRichTextKey = new("DBCB0707-021D-4CD4-BA8B-5CC891516C28");
+            public static readonly Guid ArticulateImagePickerKey = new("9448ABD4-D071-4075-9E25-3198A71C935F");
+            public static readonly Guid ArticulateTagsKey = new("F8404FDC-7667-4184-95C3-125B1D81314D");
+            public static readonly Guid ArticulateCategoriesKey = new("A72AEB12-5B28-4A47-B99A-FDE14D49C1AC");
         }
 
         /// <summary>

@@ -112,7 +112,7 @@ async Task<int> DockerDown(Opts o)
             ? new[] { "down", "--volumes" }
             : new[] { "down" };
     var lanes = string.Equals(o.String("lane"), "all", StringComparison.OrdinalIgnoreCase)
-        ? new[] { "v17", "v18" }
+        ? new[] { "v17", "v18", "v19" }
         : new[] { o.Lane() };
     foreach (var lane in lanes)
     {
@@ -147,12 +147,13 @@ async Task<int> DockerStatus(Opts o)
 async Task<int> DockerTest(Opts o)
 {
     var requested = (o.String("lane", "all") ?? "all").ToLowerInvariant();
-    if (requested is not ("v17" or "v18" or "all"))
-        throw new ArgumentException("--lane must be v17, v18, or all.");
+    if (requested is not ("v17" or "v18" or "v19" or "all"))
+        throw new ArgumentException("--lane must be v17, v18, v19, or all.");
 
     if (o.Flag("reuse-packages") && o.Flag("clean"))
         throw new ArgumentException("--clean cannot be used with --reuse-packages.");
 
+    // v19 temp: beta lane runs only when named; joins "all" at Umbraco 19 GA.
     var lanes = requested == "all" ? new[] { "v17", "v18" } : new[] { requested };
     foreach (var lane in lanes)
     {
@@ -247,8 +248,8 @@ async Task<int> DockerTest(Opts o)
 void ConfigureCandidate(string lane, string project, string image, int? httpsPort, int? httpPort)
 {
     ConfigureLane(lane);
-    var https = httpsPort?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? (lane == "v18" ? "18444" : "18443");
-    var http = httpPort?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? (lane == "v18" ? "8081" : "8080");
+    var https = httpsPort?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? LanePort(lane, "18443", "18444", "18445");
+    var http = httpPort?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? LanePort(lane, "8080", "8081", "8082");
     foreach (var (key, value) in new Dictionary<string, string>
     {
         ["COMPOSE_PROJECT_NAME"] = project,
@@ -316,8 +317,8 @@ async Task<int> DockerCa(Opts o)
 
 string ConfigureLane(string lane)
 {
-    var https = Env.HostValue("CADDY_HTTPS_PORT", lane == "v18" ? "18444" : "18443");
-    var http = Env.HostValue("CADDY_HTTP_PORT", lane == "v18" ? "8081" : "8080");
+    var https = Env.HostValue("CADDY_HTTPS_PORT", LanePort(lane, "18443", "18444", "18445"));
+    var http = Env.HostValue("CADDY_HTTP_PORT", LanePort(lane, "8080", "8081", "8082"));
     var configuration = Env.Get("BUILD_CONFIGURATION")?.Trim();
     if (string.IsNullOrWhiteSpace(configuration)) configuration = "Release";
     foreach (var (key, value) in new Dictionary<string, string>
@@ -327,10 +328,14 @@ string ConfigureLane(string lane)
         ["COMPOSE_VOLUME_PREFIX"] = $"art_{lane}",
         ["IMAGE_TAG"] = $"articulate-local:{lane}",
         ["PACKAGE_SOURCE"] = $"build/{configuration}/{lane}",
+        ["TARGET_FRAMEWORK"] = Env.MsbuildProperty("TargetFramework", lane),
+        ["DOTNET_SDK_IMAGE"] = lane == "v19" ? "mcr.microsoft.com/dotnet/sdk:11.0" : "mcr.microsoft.com/dotnet/sdk:10.0",
+        ["DOTNET_ASPNET_IMAGE"] = lane == "v19" ? "mcr.microsoft.com/dotnet/aspnet:11.0-resolute" : "mcr.microsoft.com/dotnet/aspnet:10.0-noble",
         ["UMBRACO_CMS_VERSION"] = Env.MsbuildProperty("UmbracoCmsPackageVersion", lane),
         ["SIXLABORS_IMAGESHARP_VERSION"] = Env.MsbuildProperty("SixLaborsImageSharpPackageVersion", lane),
         ["SIXLABORS_IMAGESHARP_WEB_VERSION"] = Env.MsbuildProperty("SixLaborsImageSharpWebPackageVersion", lane),
-        ["TINYMCE_UMBRACO_PACKAGE_VERSION"] = Env.MsbuildProperty("TinyMceUmbracoPackageVersion", lane),
+        // v19 temp: no TinyMCE.Umbraco 19 yet; empty is valid while USE_TINYMCE_UMBRACO is off.
+        ["TINYMCE_UMBRACO_PACKAGE_VERSION"] = lane == "v19" ? "" : Env.MsbuildProperty("TinyMceUmbracoPackageVersion", lane),
         ["Umbraco__CMS__Security__AuthCookieName"] = $"UMB_UCONTEXT-{lane}",
         ["Umbraco__CMS__Security__BackOfficeTokenCookie__SiteName"] = $"-{lane}",
         ["CADDY_HTTPS_PORT"] = https,
@@ -348,6 +353,8 @@ string ConfigureLane(string lane)
     Env.SetHostValue("CADDY_TLS_HOST", separator >= 0 ? host[..separator] : host);
     return lane;
 }
+
+string LanePort(string lane, string v17, string v18, string v19) => lane switch { "v18" => v18, "v19" => v19, _ => v17 };
 
 Task EnsurePackages(string lane, bool clean = false)
 {
@@ -546,7 +553,8 @@ sealed class Opts
     {
         "v17" => "v17",
         "v18" => "v18",
-        var lane => throw new ArgumentException($"--lane must be v17 or v18 (got '{lane}').")
+        "v19" => "v19",
+        var lane => throw new ArgumentException($"--lane must be v17, v18 or v19 (got '{lane}').")
     };
 
     public string? String(string key, string? fallback = null) => _values.TryGetValue(key, out var value) ? value : fallback;

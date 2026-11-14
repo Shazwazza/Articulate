@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1
 
-# Parameterized build - supports Umbraco 17 and 18 on net10.0
+# Parameterized build for each Articulate lane (net10.0, or net11.0 for v19)
 # Targets: chiseled (for docker-compose), final (alternate)
 #
 # Examples:
 #   docker build --target chiseled --build-arg TARGET_FRAMEWORK=net10.0 ...
 
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0
+# Distro-qualified so the ICU source and chiseled runtime share an OS (.NET 10: noble, .NET 11: resolute).
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-noble
 
 # Build stage
 FROM ${DOTNET_SDK_IMAGE} AS build
@@ -50,12 +51,12 @@ RUN set -eux; \
       ARTICULATE_PKG_VERSION=0.0.0; \
     fi; \
     if [ -z "${UMBRACO_CMS_VERSION}" ]; then \
-      echo 'ERROR: UMBRACO_CMS_VERSION build-arg is required. Pass --build-arg UMBRACO_CMS_VERSION=<range>, e.g. [17.7.2,18.0.0) for v17 or [18.2.2,19.0.0) for v18. run.cs reads the floor from Directory.Packages.props.'; \
+      echo 'ERROR: UMBRACO_CMS_VERSION build-arg is required. Pass --build-arg UMBRACO_CMS_VERSION=<range>, e.g. [17.7.2,18.0.0) for v17. run.cs reads the lane floor from Directory.Packages.props.'; \
       exit 1; \
     fi; \
     if [ "${USE_TINYMCE_UMBRACO}" = "true" ]; then \
       if [ -z "${TINYMCE_UMBRACO_PACKAGE_VERSION}" ]; then \
-        echo 'ERROR: TINYMCE_UMBRACO_PACKAGE_VERSION build-arg is required when USE_TINYMCE_UMBRACO=true. build.cs reads the floor from Directory.Packages.props (per lane: [17.5.0,18.0.0) for v17, [18.0.0,19.0.0) for v18).'; \
+        echo 'ERROR: TINYMCE_UMBRACO_PACKAGE_VERSION build-arg is required when USE_TINYMCE_UMBRACO=true. run.cs reads the lane floor from Directory.Packages.props.'; \
         exit 1; \
       fi; \
     fi; \
@@ -100,7 +101,7 @@ RUN set -eux; \
     cp "${ICU_PATH}"/libicu* /staging/
 
 # Chiseled runtime (used by docker-compose.yml)
-FROM ${DOTNET_ASPNET_IMAGE}-noble-chiseled AS chiseled
+FROM ${DOTNET_ASPNET_IMAGE}-chiseled AS chiseled
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://+:8080 \
