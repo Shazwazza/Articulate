@@ -149,7 +149,7 @@ Current floors in `Directory.Packages.props`:
 |------|---------|-------|
 | `v17` | `Umbraco.Cms.*` | `[17.7.2,18.0.0)` |
 | `v18` | `Umbraco.Cms.*` | `[18.2.2,19.0.0)` |
-| `v19` | `Umbraco.Cms.*` | `[19.0.0-beta1,20.0.0)` |
+| `v19` | `Umbraco.Cms.*` | `[19.0.0-rc1,20.0.0)` |
 | `v17` | `TinyMCE.Umbraco` | `[17.5.0,18.0.0)` |
 | `v18` | `TinyMCE.Umbraco` | `[18.0.0,19.0.0)` |
 | `v19` | `TinyMCE.Umbraco` | none yet; no Umbraco 19 release |
@@ -162,7 +162,7 @@ The Back Office client package must target the same Umbraco major lane.
 |------|----------------------|
 | `v17` | `@umbraco-cms/backoffice ^17.7.2` |
 | `v18` | `@umbraco-cms/backoffice ^18.2.2` |
-| `v19` | `@umbraco-cms/backoffice 19.0.0-beta1` |
+| `v19` | `@umbraco-cms/backoffice 19.0.0-rc1` |
 
 The client package is a development dependency. It is not included in the Articulate NuGet package. Umbraco supplies the Back Office runtime.
 

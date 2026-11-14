@@ -225,8 +225,8 @@ importers:
         specifier: ^8.72.1
         version: 8.72.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
       '@umbraco-cms/backoffice':
-        specifier: 19.0.0-beta1
-        version: 19.0.0-beta1(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.99.0(typescript@6.0.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/extension-image@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-subscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-superscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-table@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-text-align@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-text-style@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extensions@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)(@tiptap/starter-kit@3.29.2)(@types/diff@7.0.2)(@umbraco-ui/uui@2.1.1)(diff@9.0.0)(dompurify@3.4.17)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.7)(monaco-editor@0.56.0)(rxjs@7.8.2)(uuid@14.0.1)
+        specifier: 19.0.0-rc1
+        version: 19.0.0-rc1(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.99.0(typescript@6.0.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/extension-image@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-subscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-superscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-table@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-text-align@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-text-style@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extensions@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)(@tiptap/starter-kit@3.29.2)(@types/diff@7.0.2)(@umbraco-ui/uui@2.2.0)(diff@9.0.0)(dompurify@3.4.17)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.7)(monaco-editor@0.56.0)(rxjs@7.8.2)(uuid@14.0.1)
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -1004,8 +1004,8 @@ packages:
       rxjs: ^7.8.2
       uuid: ^14.0.0
 
-  '@umbraco-cms/backoffice@19.0.0-beta1':
-    resolution: {integrity: sha512-avv7QQEAVoLCRGDd6z0jQU1pwrrcYd8+GcQNJKLLR2tFKIvTw/oeSOB9B854GsZpVDCe8r1JxixPhodxJ2yECQ==}
+  '@umbraco-cms/backoffice@19.0.0-rc1':
+    resolution: {integrity: sha512-Nq+KOSdCwnFdGyJQlWZeFzoAok9BXPTHSkgWVPHeMIP0Hq9ZQYACFfR08KR8zWI//sohPQiwmVBpSzlPnTJPmg==}
     engines: {node: '>=24.13', npm: '>=11'}
     peerDependencies:
       '@heximal/expressions': '>=0.1.5 <1.0.0'
@@ -1022,7 +1022,7 @@ packages:
       '@tiptap/pm': ^3.29.2
       '@tiptap/starter-kit': ^3.29.2
       '@types/diff': ^7.0.2
-      '@umbraco-ui/uui': ^2.1.1
+      '@umbraco-ui/uui': ^2.2.0
       diff: ^9.0.0
       dompurify: ^3.4.17
       element-internals-polyfill: ^3.0.2
@@ -1035,6 +1035,10 @@ packages:
 
   '@umbraco-ui/uui@2.1.1':
     resolution: {integrity: sha512-MhecRxjGS+IIPAPdV4nyiXs2yzv0B27jFUep3BIYDSSmN0nLwTy8eMkwzHNIWuQv+WHzf2XvOeWAmBnL+O/KJg==}
+    engines: {node: '>=24.13', npm: '>=11'}
+
+  '@umbraco-ui/uui@2.2.0':
+    resolution: {integrity: sha512-hhi64mMyr3wyuylRm18zqtykzvu9wA+ykyS6drt/l5uD/GspAJHNNJgzQoBrDfwTwzvuVJiFOmf8wWZaX8FsGw==}
     engines: {node: '>=24.13', npm: '>=11'}
 
   '@unrs/resolver-binding-android-arm-eabi@1.12.2':
@@ -2285,9 +2289,6 @@ packages:
   prosemirror-keymap@1.2.3:
     resolution: {integrity: sha512-4HucRlpiLd1IPQQXNqeo81BGtkY8Ai5smHhKW9jjPKRc2wQIxksg7Hl1tTI2IfT2B/LgX6bfYvXxEpJl7aKYKw==}
 
-  prosemirror-model@1.25.11:
-    resolution: {integrity: sha512-QWg9RhnpLlogAmp3p96uEFrE5txQpFynd4vhBAELkwgOCWQs/X0yCzB3/hrHqiPwf91RG5KyWq6553zs9JqIOQ==}
-
   prosemirror-model@1.25.12:
     resolution: {integrity: sha512-Ue2gTmXMa7EhpLNhC7J+h4+ykD8ha12K6rrZFFKKJHBForfIStw5gJ6Zrf1mqqAa9NmpmEB4wp9bKmA4eUVjWg==}
 
@@ -3113,7 +3114,7 @@ snapshots:
       prosemirror-history: 1.5.0
       prosemirror-inputrules: 1.5.1
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-schema-list: 1.5.1
       prosemirror-state: 1.4.4
       prosemirror-tables: 1.8.5
@@ -3315,7 +3316,7 @@ snapshots:
       rxjs: 7.8.2
       uuid: 14.0.1
 
-  '@umbraco-cms/backoffice@19.0.0-beta1(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.99.0(typescript@6.0.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/extension-image@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-subscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-superscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-table@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-text-align@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-text-style@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extensions@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)(@tiptap/starter-kit@3.29.2)(@types/diff@7.0.2)(@umbraco-ui/uui@2.1.1)(diff@9.0.0)(dompurify@3.4.17)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.7)(monaco-editor@0.56.0)(rxjs@7.8.2)(uuid@14.0.1)':
+  '@umbraco-cms/backoffice@19.0.0-rc1(@heximal/expressions@0.1.5)(@hey-api/openapi-ts@0.99.0(typescript@6.0.3))(@microsoft/signalr@10.0.0)(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/extension-image@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-subscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-superscript@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-table@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/extension-text-align@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extension-text-style@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2)))(@tiptap/extensions@3.29.2(@tiptap/core@3.32.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)(@tiptap/starter-kit@3.29.2)(@types/diff@7.0.2)(@umbraco-ui/uui@2.2.0)(diff@9.0.0)(dompurify@3.4.17)(element-internals-polyfill@3.0.2)(lit@3.3.3)(luxon@3.7.2)(marked@18.0.7)(monaco-editor@0.56.0)(rxjs@7.8.2)(uuid@14.0.1)':
     dependencies:
       '@heximal/expressions': 0.1.5
       '@hey-api/openapi-ts': 0.99.0(typescript@6.0.3)
@@ -3331,7 +3332,7 @@ snapshots:
       '@tiptap/pm': 3.29.2
       '@tiptap/starter-kit': 3.29.2
       '@types/diff': 7.0.2
-      '@umbraco-ui/uui': 2.1.1
+      '@umbraco-ui/uui': 2.2.0
       diff: 9.0.0
       dompurify: 3.4.17
       element-internals-polyfill: 3.0.2
@@ -3343,6 +3344,11 @@ snapshots:
       uuid: 14.0.1
 
   '@umbraco-ui/uui@2.1.1':
+    dependencies:
+      culori: 4.0.2
+      lit: 3.3.3
+
+  '@umbraco-ui/uui@2.2.0':
     dependencies:
       culori: 4.0.2
       lit: 3.3.3
@@ -4614,7 +4620,7 @@ snapshots:
 
   prosemirror-commands@1.7.1:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.0
 
@@ -4627,7 +4633,7 @@ snapshots:
   prosemirror-gapcursor@1.4.1:
     dependencies:
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-view: 1.42.9
 
@@ -4648,37 +4654,33 @@ snapshots:
       prosemirror-state: 1.4.4
       w3c-keyname: 2.2.8
 
-  prosemirror-model@1.25.11:
-    dependencies:
-      orderedmap: 2.1.1
-
   prosemirror-model@1.25.12:
     dependencies:
       orderedmap: 2.1.1
 
   prosemirror-schema-list@1.5.1:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.0
 
   prosemirror-state@1.4.4:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-transform: 1.12.0
       prosemirror-view: 1.42.9
 
   prosemirror-tables@1.8.5:
     dependencies:
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.0
       prosemirror-view: 1.42.9
 
   prosemirror-transform@1.12.0:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
 
   prosemirror-view@1.42.9:
     dependencies:

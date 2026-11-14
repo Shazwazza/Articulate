@@ -23,4 +23,5 @@ minimumReleaseAgeExclude:
   - source-map-js@1.2.2
   - '@umbraco-cms/backoffice@17.7.2'
   - '@umbraco-cms/backoffice@18.2.2'
-  - '@umbraco-cms/backoffice@19.0.0-beta1'
+  - '@umbraco-cms/backoffice@19.0.0-rc1'
+  - '@umbraco-ui/uui@2.2.0'
