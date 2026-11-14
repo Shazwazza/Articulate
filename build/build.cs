@@ -173,11 +173,6 @@ async Task<int> SiteAsync(Opts o)
     var cfg = o.String("configuration", "Debug");
     ValidateConfiguration(cfg);
     var project = Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "Articulate.Tests.Website.csproj");
-    // The site doesn't build the client, so it would serve the last built lane's Backoffice assets.
-    var activeLanePath = Path.Combine(Env.Repo, "build", "ClientAssets", "active-lane.txt");
-    var activeLane = File.Exists(activeLanePath) ? File.ReadAllText(activeLanePath).Trim() : null;
-    if (activeLane is not null && !string.Equals(activeLane, lane, StringComparison.OrdinalIgnoreCase))
-        throw new InvalidOperationException($"Client assets belong to {activeLane}; run build --lane {lane} --clean before site --lane {lane}.");
     if (o.Flag("reset")) DeleteDir(Path.Combine(Env.Repo, "src", "Articulate.Tests.Website", "umbraco"));
     await Run("dotnet", new[] { "run", "-c", cfg ?? "Debug", "--project", project, $"-p:ArticulatePackageLane={lane}" }, cwd: Env.Repo);
     return 0;
