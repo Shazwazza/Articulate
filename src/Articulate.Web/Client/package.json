@@ -22,7 +22,7 @@
     "@hey-api/openapi-ts": "^0.99.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^24",
-    "@umbraco-cms/backoffice": "^17.7.2",
+    "@umbraco-cms/backoffice": "^17.8.1",
     "fast-xml-parser": "^5.12.0",
     "vite": "^8.3.1"
   }
