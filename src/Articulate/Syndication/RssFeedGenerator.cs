@@ -13,6 +13,10 @@ namespace Articulate.Syndication
     public class RssFeedGenerator(ILogger<RssFeedGenerator> logger, IHostingEnvironment hostingEnvironment)
         : IRssFeedGenerator
     {
+        // ApplicationVirtualPath is constant for app lifetime; cache the normalized form once.
+        private readonly Lazy<string> _normalizedAppPath = new(
+            () => hostingEnvironment.ApplicationVirtualPath.EnsureStartsWith('/').TrimEnd('/'));
+
         /// <inheritdoc/>
         public SyndicationFeed GetFeed(IMasterModel rootPageModel, IEnumerable<PostModel> posts)
         {
@@ -50,9 +54,8 @@ namespace Articulate.Syndication
                 return null;
             }
 
-            var appPath = hostingEnvironment.ApplicationVirtualPath;
             var rootUri = new Uri(rootUrl);
-            var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + appPath.EnsureStartsWith('/').TrimEnd('/');
+            var mediaRoot = rootUri.GetLeftPart(UriPartial.Authority) + _normalizedAppPath.Value;
 
             var contentHtml = GetPostContent(post);
             var rootUrlTrimmed = rootUrl.TrimEnd('/');
