@@ -23,6 +23,7 @@ namespace Articulate.Components
         /// <inheritdoc/>
         public async Task HandleAsync(ContentSavedNotification notification, CancellationToken cancellationToken)
         {
+            string? defaultLang = null;
             foreach (IContent c in notification.SavedEntities)
             {
                 if (!c.WasPropertyDirty("Id") ||
@@ -31,7 +32,7 @@ namespace Articulate.Components
                     continue;
                 }
 
-                var defaultLang = await languageService.GetDefaultIsoCodeAsync();
+                defaultLang ??= await languageService.GetDefaultIsoCodeAsync();
                 cancellationToken.ThrowIfCancellationRequested();
 
                 using IScope scope = scopeProvider.CreateScope(autoComplete: true);
@@ -39,7 +40,7 @@ namespace Articulate.Components
                     c,
                     ArticulateConstants.ContentType.ArticulateArchive,
                     ArticulateConstants.Convention.ArticlesDocument,
-                    defaultLang,
+                    defaultLang!,
                     cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -48,7 +49,7 @@ namespace Articulate.Components
                     c,
                     ArticulateConstants.ContentType.ArticulateAuthors,
                     ArticulateConstants.Convention.AuthorsDocument,
-                    defaultLang,
+                    defaultLang!,
                     cancellationToken);
             }
         }
@@ -56,6 +57,7 @@ namespace Articulate.Components
         /// <inheritdoc/>
         public async Task HandleAsync(ContentPublishedNotification notification, CancellationToken cancellationToken)
         {
+            string? defaultLang = null;
             foreach (IContent root in notification.PublishedEntities)
             {
                 if (!root.ContentType.Alias.InvariantEquals(ArticulateConstants.ContentType.Articulate))
@@ -63,7 +65,7 @@ namespace Articulate.Components
                     continue;
                 }
 
-                var defaultLang = await languageService.GetDefaultIsoCodeAsync();
+                defaultLang ??= await languageService.GetDefaultIsoCodeAsync();
                 cancellationToken.ThrowIfCancellationRequested();
 
                 using IScope scope = scopeProvider.CreateScope(autoComplete: true);
@@ -72,7 +74,7 @@ namespace Articulate.Components
                         root,
                         ArticulateConstants.ContentType.ArticulateArchive,
                         ArticulateConstants.Convention.ArticlesDocument,
-                        defaultLang,
+                        defaultLang!,
                         cancellationToken),
                     cancellationToken);
 
@@ -83,7 +85,7 @@ namespace Articulate.Components
                         root,
                         ArticulateConstants.ContentType.ArticulateAuthors,
                         ArticulateConstants.Convention.AuthorsDocument,
-                        defaultLang,
+                        defaultLang!,
                         cancellationToken),
                     cancellationToken);
             }
