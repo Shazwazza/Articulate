@@ -204,10 +204,11 @@ async Task RunDockerTest(string worktree)
 
 async Task<List<string>> FindForbiddenReferences(string worktree, string profile)
 {
+    const string V19References = "UMBRACO_19_OR_GREATER|version-v19|packages[.]v19|[\\\\/]v19([\\\\/]|[.]|$)|[\\\\/]V19([\\\\/]|[.]|$)|articulate-backoffice-v19|--lane v19";
     var pattern = profile switch
     {
-        "v17-lts" => "UMBRACO_18_OR_GREATER|version-v18|packages[.]v18|[\\\\/]v18([\\\\/]|[.]|$)|[\\\\/]V18([\\\\/]|[.]|$)|ArticulatePackageLane|articulate-backoffice-v18|--lane v18",
-        "v18-sts" => "UMBRACO_17_OR_GREATER|version-v17|packages[.]v17|[\\\\/]v17([\\\\/]|[.]|$)|[\\\\/]V17([\\\\/]|[.]|$)|articulate-backoffice-v17|--lane v17",
+        "v17-lts" => "UMBRACO_18_OR_GREATER|version-v18|packages[.]v18|[\\\\/]v18([\\\\/]|[.]|$)|[\\\\/]V18([\\\\/]|[.]|$)|ArticulatePackageLane|articulate-backoffice-v18|--lane v18|" + V19References,
+        "v18-sts" => "UMBRACO_17_OR_GREATER|version-v17|packages[.]v17|[\\\\/]v17([\\\\/]|[.]|$)|[\\\\/]V17([\\\\/]|[.]|$)|articulate-backoffice-v17|--lane v17|" + V19References,
         _ => throw new ArgumentException($"Unknown promotion profile '{profile}'.")
     };
 

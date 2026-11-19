@@ -1,17 +1,17 @@
 # Articulate E2E tests
 
-Run from the repository root with .NET 10, Node 24 and [Client dependencies installed](../src/Articulate.Web/Client/e2e/README.md#install-and-run):
+Run from the repository root with .NET 10 (.NET 11 for v19), Node 24 and [Client dependencies installed](../src/Articulate.Web/Client/e2e/README.md#install-and-run):
 
 ```text
-dotnet run --file build/test.cs -- fresh [--lane v17|v18|all]
+dotnet run --file build/test.cs -- fresh [--lane v17|v18|v19|all]
 dotnet run --file build/test.cs -- e2e [--lane v17|v18|all]
-dotnet run --file build/test.cs -- report --lane v17|v18
+dotnet run --file build/test.cs -- report --lane v17|v18|v19
 dotnet run --file build/test.cs -- help
 ```
 
-`fresh` defaults to `all`. Build the selected lane's Release packages with `--sample` first. The runner inspects those archives, restores a copy of the existing packaged-site project outside the checkout, verifies the restored package hashes, and starts it directly with .NET. Each lane has its own temporary database, self-signed certificate, random secret and free loopback HTTPS port. No Docker or browser installation is required.
+`fresh` defaults to `all`, which is v17 and v18; the v19 beta lane runs only when named. Build the selected lane's Release packages with `--sample` first. The runner inspects those archives, restores a copy of the existing packaged-site project outside the checkout, verifies the restored package hashes, and starts it directly with .NET. Each lane has its own temporary database, self-signed certificate, random secret and free loopback HTTPS port. No Docker or browser installation is required.
 
-Preparation publishes and confirms starter content, restarts the host in Production, then verifies that a temporary post appears in `ExternalIndex` and is removed before testing. The shared 11-test suite runs with no retries. The runner stops its own process and deletes its own temporary directory on success or failure. Host logs remain under `.temp/art_e2e_native_<lane>_<id>/`; Playwright reports and test artefacts use the same candidate name under `src/Articulate.Web/Client/e2e-report-*` and `e2e-results-*`. Neither certificate trust stores nor existing sites are changed.
+Preparation publishes and confirms starter content, restarts the host in Production, then verifies that a temporary post appears in `ExternalIndex` (v19: in Articulate's public search, as Umbraco 19 has no `ExternalIndex`) and is removed before testing. The shared suite runs with no retries. The runner stops its own process and deletes its own temporary directory on success or failure. Host logs remain under `.temp/art_e2e_native_<lane>_<id>/`; Playwright reports and test artefacts use the same candidate name under `src/Articulate.Web/Client/e2e-report-*` and `e2e-results-*`. Neither certificate trust stores nor existing sites are changed.
 
 See [CI jobs and E2E](../BUILD.md#ci-jobs-and-e2e) for workflow selection and uploads.
 

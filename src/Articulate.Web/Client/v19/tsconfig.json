@@ -1,0 +1,31 @@
+{
+  "extends": "../common/tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@api/*": ["../common/src/api/*"],
+      "@lane": ["../common/src/lane-adapter.ts"],
+      "@umbraco-cms/backoffice/auth": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/auth/index"],
+      "@umbraco-cms/backoffice/controller-api": ["./node_modules/@umbraco-cms/backoffice/dist-cms/libs/controller-api/index"],
+      "@umbraco-cms/backoffice/document": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/documents/documents/index"],
+      "@umbraco-cms/backoffice/element-api": ["./node_modules/@umbraco-cms/backoffice/dist-cms/libs/element-api/index"],
+      "@umbraco-cms/backoffice/event": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/event/index"],
+      "@umbraco-cms/backoffice/extension-api": ["./node_modules/@umbraco-cms/backoffice/dist-cms/libs/extension-api/index"],
+      "@umbraco-cms/backoffice/external/backend-api": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/backend-api/index"],
+      "@umbraco-cms/backoffice/external/lit": ["./node_modules/@umbraco-cms/backoffice/dist-cms/external/lit/index"],
+      "@umbraco-cms/backoffice/external/uui": ["./node_modules/@umbraco-cms/backoffice/dist-cms/external/uui/index"],
+      "@umbraco-cms/backoffice/lit-element": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/lit-element/index"],
+      "@umbraco-cms/backoffice/markdown-editor": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/markdown-editor/index"],
+      "@umbraco-cms/backoffice/modal": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/modal/index"],
+      "@umbraco-cms/backoffice/notification": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/notification/index"],
+      "@umbraco-cms/backoffice/property": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/property/index"],
+      "@umbraco-cms/backoffice/property-editor": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/property-editor/index"],
+      "@umbraco-cms/backoffice/resources": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/resources/index"],
+      "@umbraco-cms/backoffice/router": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/router/index"],
+      "@umbraco-cms/backoffice/style": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/style/index"],
+      "@umbraco-cms/backoffice/validation": ["./node_modules/@umbraco-cms/backoffice/dist-cms/packages/core/validation/index"],
+      "lit-html": ["./node_modules/lit-html/lit-html"],
+      "lit-html/*": ["./node_modules/lit-html/*"]
+    }
+  },
+  "include": ["../common/src/**/*.ts", "ambient.d.ts"]
+}

@@ -25,5 +25,8 @@ public sealed class ArticulatePlan : MigrationPlan
             .To<V_7_0_0.AddGiscusPerBlogProperties>(new Guid("7A4F3C2B-8E9D-4F1A-B2C5-6D7E8F9A0B1C"))
             .To<V_7_0_0.MigrateArticulateRichTextTiptapConfiguration>(new Guid("F1782FD1-52DE-4A41-99E8-99974BB274FE"))
             .To<V_7_0_0.OrganizeArticulatePostProperties>(new Guid("D2B0C0A4-5F7A-4E1C-9A8B-6D4F2A1E7C93"));
+#if UMBRACO_19_OR_GREATER
+        _ = To<V_9_0_0.MoveArticulateImagePickerToSingleMediaPicker>(new Guid("1DC56C8E-8DB5-40F7-A022-139CC922810C"));
+#endif
     }
 }

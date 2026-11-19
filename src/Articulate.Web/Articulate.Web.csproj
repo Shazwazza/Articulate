@@ -10,6 +10,8 @@
     <UseArticulateUsings>true</UseArticulateUsings>
     <!-- ENABLE Modern Web Assets (Replaces the need for targets files) -->
     <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
+    <!-- note: net11 packs a build/Articulate.targets stub that only imports Microsoft.AspNetCore.StaticWebAssets.targets; build/Articulate.targets already imports it. -->
+    <NoWarn Condition="'$(ArticulatePackageLane)' == 'v19'">$(NoWarn);NU5118</NoWarn>
     <!-- Allow Hybrid Mode (Serve as StaticContent, Embed as Resource) -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <TargetsForTfmSpecificBuildOutput>
@@ -79,21 +81,15 @@
   </ItemGroup>
   <PropertyGroup>
     <ClientProjectDirectory>$(MSBuildProjectDirectory)/Client</ClientProjectDirectory>
-    <ExpectedUmbracoClientVersion Condition="'$(ArticulatePackageLane)' == 'v17'">17</ExpectedUmbracoClientVersion>
-    <ExpectedUmbracoClientVersion Condition="'$(ArticulatePackageLane)' == 'v18'">18</ExpectedUmbracoClientVersion>
-    <!-- Derive UmbracoClientVersion from ArticulatePackageLane unless the caller set it explicitly. -->
-    <UmbracoClientVersion Condition="'$(UmbracoClientVersion)' == ''">$(ExpectedUmbracoClientVersion)</UmbracoClientVersion>
-    <ArticulateClientVersionValidationError Condition="'$(UmbracoClientVersion)' != '17' and '$(UmbracoClientVersion)' != '18'">$([System.Int32]::Parse("UmbracoClientVersion must be '17' or '18' (got '$(UmbracoClientVersion)')."))</ArticulateClientVersionValidationError>
-    <ArticulateClientLaneConsistencyError Condition="'$(ExpectedUmbracoClientVersion)' != '' and '$(UmbracoClientVersion)' != '$(ExpectedUmbracoClientVersion)'">$([System.Int32]::Parse("UmbracoClientVersion '$(UmbracoClientVersion)' is inconsistent with ArticulatePackageLane '$(ArticulatePackageLane)'. Expected '$(ExpectedUmbracoClientVersion)'."))</ArticulateClientLaneConsistencyError>
-    <ClientWorkspaceDirectory>$(ClientProjectDirectory)</ClientWorkspaceDirectory>
-    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '17'">$(ClientProjectDirectory)/v17</ClientWorkspaceDirectory>
-    <ClientWorkspaceDirectory Condition="'$(UmbracoClientVersion)' == '18'">$(ClientProjectDirectory)/v18</ClientWorkspaceDirectory>
     <!-- Vite output; see Client/common/vite.config.ts. -->
     <ClientAssetsDir>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)ClientAssets\</ClientAssetsDir>
     <ClientBuildMode>prod</ClientBuildMode>
     <ClientBuildMode Condition="$([System.String]::Copy('$(ClientBuildCommand)').Contains('build:dev'))">dev</ClientBuildMode>
     <!-- A package version change rebuilds the client. -->
-    <ClientBuildStamp>$(BaseIntermediateOutputPath)BackofficeClient_v$(UmbracoClientVersion)_$(ClientBuildMode)_$(ArticulatePackageVersion).stamp</ClientBuildStamp>
+    <ClientBuildStamp>$(BaseIntermediateOutputPath)BackofficeClient_$(ArticulatePackageLane)_$(ClientBuildMode)_$(ArticulatePackageVersion).stamp</ClientBuildStamp>
+    <!-- Each lane has a Client/<lane> workspace pinning its @umbraco-cms/backoffice major. -->
+    <ClientWorkspaceDirectory>$(ClientProjectDirectory)/$(ArticulatePackageLane)</ClientWorkspaceDirectory>
+    <ArticulateClientWorkspaceError Condition="!Exists('$(ClientWorkspaceDirectory)/package.json')">$([System.Int32]::Parse("No Backoffice client workspace for ArticulatePackageLane '$(ArticulatePackageLane)' at $(ClientWorkspaceDirectory)."))</ArticulateClientWorkspaceError>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableClientBuild)'=='true'">

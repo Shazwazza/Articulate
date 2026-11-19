@@ -8,7 +8,7 @@ services:
         BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
         TARGET_FRAMEWORK: ${TARGET_FRAMEWORK:-net10.0}
         DOTNET_SDK_IMAGE: ${DOTNET_SDK_IMAGE:-mcr.microsoft.com/dotnet/sdk:10.0}
-        DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0}
+        DOTNET_ASPNET_IMAGE: ${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0-noble}
         # UMBRACO_CMS_VERSION and TinyMCE versions come from Directory.Packages.props
         # via run.cs ConfigureLane. Set them in the shell for direct `docker compose` use.
         UMBRACO_CMS_VERSION: ${UMBRACO_CMS_VERSION:?UMBRACO_CMS_VERSION is required (see run.cs ConfigureLane)}

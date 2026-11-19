@@ -40,8 +40,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lane: [v17, v18]
-    # Both lanes write identical values, so the collapsed matrix output is safe.
+        lane: [v17, v18, v19]
+        include:
+          - lane: v19
+            dotnet: 11.0.x
+    # All lanes write identical values, so the collapsed matrix output is safe.
     outputs:
       handoff: ${{ steps.handoff.outcome }}
       publish: ${{ !env.ACT }}
@@ -65,7 +68,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: ${{ matrix.dotnet || '10.0.x' }}
           cache: true
           cache-dependency-path: "**/packages.*.lock.json"
 
@@ -96,7 +99,7 @@ jobs:
       - name: Reset act client dependencies
         if: ${{ env.ACT == 'true' }}
         shell: bash
-        run: rm -rf src/Articulate.Web/Client/node_modules src/Articulate.Web/Client/v17/node_modules src/Articulate.Web/Client/v18/node_modules
+        run: rm -rf src/Articulate.Web/Client/node_modules src/Articulate.Web/Client/v*/node_modules
 
       - name: Relink act client dependencies
         if: ${{ env.ACT == 'true' }}
@@ -108,14 +111,9 @@ jobs:
         run: |
           set -euo pipefail
           CLIENT_ROOT="src/Articulate.Web/Client"
-          leaked="$(
-            git ls-files \
-              "${CLIENT_ROOT}/v17/src" \
-              "${CLIENT_ROOT}/v18/src" 2>/dev/null \
-              || true
-          )"
+          leaked="$(git ls-files "${CLIENT_ROOT}/v*/src/*" 2>/dev/null || true)"
           if [ -n "${leaked}" ]; then
-            echo "::error::Per-lane source under ${CLIENT_ROOT}/{v17,v18}/src/:"
+            echo "::error::Per-lane source under ${CLIENT_ROOT}/v*/src/:"
             echo "${leaked}"
             echo "Move it to ${CLIENT_ROOT}/common/src/."
             exit 1
@@ -152,10 +150,15 @@ jobs:
           startsWith(github.base_ref, 'release/')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # v19 temp: a beta CMS failure must not block v17/v18 uploads; drop at Umbraco 19 GA.
+    continue-on-error: ${{ matrix.lane == 'v19' }}
     strategy:
       fail-fast: false
       matrix:
-        lane: [v17, v18]
+        lane: [v17, v18, v19]
+        include:
+          - lane: v19
+            dotnet: 11.0.x
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -173,7 +176,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: ${{ matrix.dotnet || '10.0.x' }}
           cache: true
           cache-dependency-path: "**/packages.*.lock.json"
 
@@ -229,6 +232,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
+        # v19 temp: never upload beta-CMS packages; add v19 here at Umbraco 19 GA.
         lane: [v17, v18]
 
     steps:

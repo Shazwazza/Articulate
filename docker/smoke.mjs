@@ -234,7 +234,7 @@ async function confirmChildren(base, token, parentId, indent = '') {
   return unpublished;
 }
 
-async function waitForIndexing(base, token, rootId, timeoutSec) {
+async function waitForIndexing(base, token, rootId, timeoutSec, lane) {
   const deadline = now() + timeoutSec;
   const api = `${base}/umbraco/management/api/v1`;
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json' };
@@ -270,15 +270,20 @@ async function waitForIndexing(base, token, rootId, timeoutSec) {
     await jsonPut(`${api}/document/${id}/publish`, token, { publishSchedules: [{ culture: null, schedule: null }] });
     const query = encodeURIComponent(`__Key:"${id}"`);
     // Articulate searches ExternalIndex; the CMS document-search helper checks InternalIndex.
-    let hits = 0, indexed = false;
+    let indexed = false;
     while (!indexed && now() < deadline) {
-      const result = await jsonGet(`${api}/searcher/ExternalIndex/query?term=${query}`, token);
-      hits = result.items?.length ?? 0;
-      indexed = result.items?.some(item => item.fields?.some(field => field.name === '__Key' && field.values?.includes(id))) ?? false;
+      if (lane === 'v19') {
+        // CMS 19 has no ExternalIndex; wait until Articulate's own public search returns the post.
+        const result = await request(`${base}/search?term=${marker}`, { headers: { Accept: 'text/html' } });
+        indexed = result.status === 200 && result.body.includes(`/${marker}/`);
+      } else {
+        const result = await jsonGet(`${api}/searcher/ExternalIndex/query?term=${query}`, token);
+        indexed = result.items?.some(item => item.fields?.some(field => field.name === '__Key' && field.values?.includes(id))) ?? false;
+      }
       if (!indexed) await sleep(2000);
     }
-    if (!indexed) throw new Error(`Timed out waiting for publication indexing before E2E (last search returned ${hits} items, none with __Key ${id}).`);
-    console.log('Index readiness passed: CMS ExternalIndex contains the owned publication.');
+    if (!indexed) throw new Error(`Timed out waiting for publication ${id} to be searchable before E2E.`);
+    console.log(`Index readiness passed: ${lane === 'v19' ? 'Articulate search' : 'CMS ExternalIndex'} returns the owned publication.`);
   } catch (err) { original = err; }
 
   try {
@@ -310,12 +315,14 @@ async function main() {
     die('TIMEOUT_SECONDS must be a positive integer.');
   }
 
+  let lane;
   if (mode === 'index-ready') {
     const project = env('ARTICULATE_E2E_CANDIDATE_PROJECT', env('COMPOSE_PROJECT_NAME', ''));
     const target = new URL(base);
-    if (!/^art_e2e_(?:candidate|native)_(v17|v18)_[a-f0-9]{32}$/.test(project)
+    lane = /^art_e2e_(?:candidate|native)_(v\d+)_[a-f0-9]{32}$/.exec(project)?.[1];
+    if (!lane
       || target.protocol !== 'https:' || target.hostname !== 'localhost'
-      || !target.port || ['18443', '18444', '19443', '19444'].includes(target.port))
+      || !target.port || ['18443', '18444', '18445', '19443', '19444'].includes(target.port))
       throw new Error('Index readiness is restricted to disposable localhost E2E candidates.');
   }
 
@@ -339,7 +346,7 @@ async function main() {
   console.log(`Root id: ${rootId}`);
 
   if (mode === 'index-ready') {
-    await waitForIndexing(base, token, rootId, timeoutSec);
+    await waitForIndexing(base, token, rootId, timeoutSec, lane);
     return;
   }
 

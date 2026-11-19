@@ -11,7 +11,7 @@
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!-- Default package lane for local builds: choose v17 or v18 -->
+    <!-- Default package lane for local builds: choose v17, v18 or v19 -->
     <ArticulatePackageLane>v17</ArticulatePackageLane>
 
     <!-- Disable the TypeScript client build for faster local iteration in the IDE.

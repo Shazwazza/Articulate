@@ -1,7 +1,13 @@
 # Dev Container for Articulate
-# Provides: .NET 10 SDK, Node 24, pnpm, nbgv, sqlite, GitHub CLI, Copilot CLI.
+# Provides: .NET 10 and 11 SDKs, Node 24, pnpm, nbgv, sqlite, GitHub CLI, Copilot CLI.
 
 FROM mcr.microsoft.com/devcontainers/dotnet:dev-10.0
+
+# The v19 lane targets net11.0.
+RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && bash /tmp/dotnet-install.sh --channel 11.0 --install-dir "$(dirname "$(readlink -f "$(command -v dotnet)")")" \
+    && rm /tmp/dotnet-install.sh \
+    && dotnet --list-sdks
 
 # Install Node.js 24 and the pinned pnpm release.
 ARG NODE_VERSION=24

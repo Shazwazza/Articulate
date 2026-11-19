@@ -2,7 +2,6 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
-		<TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
 		<!-- TODO: Enable after phased migration. https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies -->
 		<Nullable>warnings</Nullable>
 		<WarningsAsErrors>Nullable</WarningsAsErrors>
@@ -19,8 +18,8 @@
 	<!-- Lane gate: unknown values fail during evaluation so -getProperty callers do not silently fall back. -->
 	<PropertyGroup>
 		<ArticulatePackageLane Condition="'$(ArticulatePackageLane)' == ''">v17</ArticulatePackageLane>
-		<_ValidatedArticulatePackageLane Condition="'$(ArticulatePackageLane)' == 'v17' or '$(ArticulatePackageLane)' == 'v18'">$(ArticulatePackageLane)</_ValidatedArticulatePackageLane>
-		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17 or v18 (got $(ArticulatePackageLane)).'))</_ArticulatePackageLaneValidationError>
+		<_ValidatedArticulatePackageLane Condition="'$(ArticulatePackageLane)' == 'v17' or '$(ArticulatePackageLane)' == 'v18' or '$(ArticulatePackageLane)' == 'v19'">$(ArticulatePackageLane)</_ValidatedArticulatePackageLane>
+		<_ArticulatePackageLaneValidationError Condition="'$(_ValidatedArticulatePackageLane)' == ''">$([System.Int32]::Parse('ArticulatePackageLane must be v17, v18 or v19 (got $(ArticulatePackageLane)).'))</_ArticulatePackageLaneValidationError>
 		<!-- Per-lane bin/obj; must be set before Microsoft.Common.props. -->
 		<BaseIntermediateOutputPath>obj\$(ArticulatePackageLane)\</BaseIntermediateOutputPath>
 		<BaseOutputPath>bin\$(ArticulatePackageLane)\</BaseOutputPath>
@@ -28,16 +27,19 @@
 		<DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
 	</PropertyGroup>
 
-	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so v17 and v18 builds pin different Umbraco major versions. Set after the user import so local lane overrides pick the right file. -->
+	<!-- Lock files are opt-in per-project; only packable projects (Articulate.Web, Articulate.Theme.Sample) enable them. The path is lane-aware so each lane pins its own Umbraco major. Set after the user import so local lane overrides pick the right file. -->
 	<PropertyGroup>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v17'">packages.v17.lock.json</NuGetLockFilePath>
-		<NuGetLockFilePath Condition="'$(ArticulatePackageLane)' == 'v18'">packages.v18.lock.json</NuGetLockFilePath>
+		<NuGetLockFilePath>packages.$(ArticulatePackageLane).lock.json</NuGetLockFilePath>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<_ArticulateUmbracoMajor Condition="'$(UmbracoCmsPackageVersion)' != ''">$([System.Text.RegularExpressions.Regex]::Match('$(UmbracoCmsPackageVersion)', '\d+').Value)</_ArticulateUmbracoMajor>
 		<_ArticulateUmbracoMajor Condition="'$(_ArticulateUmbracoMajor)' == ''">$(ArticulatePackageLane.TrimStart('v'))</_ArticulateUmbracoMajor>
 		<DefineConstants Condition="$(_ArticulateUmbracoMajor) &gt;= 18">$(DefineConstants);UMBRACO_18_OR_GREATER</DefineConstants>
+		<DefineConstants Condition="$(_ArticulateUmbracoMajor) &gt;= 19">$(DefineConstants);UMBRACO_19_OR_GREATER</DefineConstants>
+		<!-- Umbraco 19 targets .NET 11; set after the lane is known so the user props override applies. -->
+		<TargetFramework Condition="'$(TargetFramework)' == '' and $(_ArticulateUmbracoMajor) &gt;= 19">net11.0</TargetFramework>
+		<TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
 	</PropertyGroup>
 	<PropertyGroup>
 		<CompressionEnabled>false</CompressionEnabled>
