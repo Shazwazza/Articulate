@@ -33,6 +33,20 @@ namespace Articulate.Components
         /// </remarks>
         public void Handle(ContentCacheRefresherNotification notification)
         {
+            try
+            {
+                HandleNotification(notification);
+            }
+            catch (Exception ex)
+            {
+                // On replicas this runs in Umbraco's cache sync, which skips the rest of the instruction if it throws.
+                logger.LogError(ex, "Failed to check whether a content cache refresh affects Articulate routes; rebuilding them.");
+                routeRefreshState.MarkDirty();
+            }
+        }
+
+        private void HandleNotification(ContentCacheRefresherNotification notification)
+        {
             switch (notification.MessageType)
             {
                 case MessageType.RefreshByPayload:

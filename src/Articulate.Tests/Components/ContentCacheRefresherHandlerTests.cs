@@ -97,6 +97,21 @@ namespace Articulate.Tests.Components
         }
 
         [Test]
+        public void Handle_marks_routes_dirty_without_throwing_when_the_check_fails()
+        {
+            Mock<IPublishedContentCache> publishedContentCache = new();
+            publishedContentCache.Setup(x => x.GetById(false, 100)).Throws(new InvalidOperationException("cache unavailable"));
+
+            ContentCacheRefresherHandler sut = CreateSut(
+                [],
+                out Mock<IArticulateRouteRefreshState> routeRefreshState,
+                publishedContentCache.Object);
+
+            Assert.DoesNotThrow(() => sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById)));
+            routeRefreshState.Verify(x => x.MarkDirty(), Times.Once);
+        }
+
+        [Test]
         public void Handle_does_not_refresh_routes_for_refresh_by_id_when_content_does_not_affect_routes()
         {
             IPublishedContent articulateRoot = CreatePublishedContent(
