@@ -89,10 +89,25 @@ namespace Articulate.Tests.Components
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateContentCache(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById));
 
+            routeRefreshState.Verify(x => x.MarkDirty(), Times.Once);
+        }
+
+        [Test]
+        public void Handle_marks_routes_dirty_without_throwing_when_the_check_fails()
+        {
+            Mock<IPublishedContentCache> publishedContentCache = new();
+            publishedContentCache.Setup(x => x.GetById(false, 100)).Throws(new InvalidOperationException("cache unavailable"));
+
+            ContentCacheRefresherHandler sut = CreateSut(
+                [],
+                out Mock<IArticulateRouteRefreshState> routeRefreshState,
+                publishedContentCache.Object);
+
+            Assert.DoesNotThrow(() => sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById)));
             routeRefreshState.Verify(x => x.MarkDirty(), Times.Once);
         }
 
@@ -116,7 +131,7 @@ namespace Articulate.Tests.Components
             ContentCacheRefresherHandler sut = CreateSut(
                 [articulateRoot],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateContentCache(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(999, MessageType.RefreshById));
 
@@ -136,7 +151,7 @@ namespace Articulate.Tests.Components
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateContentCache(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(
                 new[] { new ContentCacheRefresher.JsonPayload { Id = 100, ChangeTypes = TreeChangeTypes.RefreshNode } },
@@ -158,7 +173,7 @@ namespace Articulate.Tests.Components
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(liveContent: changedContent));
+                CreateContentCache(changedContent));
 
             sut.Handle(new ContentCacheRefresherNotification(
                 new[] { new ContentCacheRefresher.JsonPayload { Id = 100, ChangeTypes = TreeChangeTypes.None } },
@@ -171,36 +186,17 @@ namespace Articulate.Tests.Components
         public void Handle_remove_by_id_refreshes_routes_when_content_cannot_be_resolved()
         {
             Mock<IPublishedContentCache> publishedContentCache = new();
-            publishedContentCache.Setup(x => x.GetById(100)).Returns((IPublishedContent?)null);
+            publishedContentCache.Setup(x => x.GetById(false, 100)).Returns((IPublishedContent?)null);
             publishedContentCache.Setup(x => x.GetById(true, 100)).Returns((IPublishedContent?)null);
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(publishedContentCache: publishedContentCache.Object));
+                publishedContentCache.Object);
 
             sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RemoveById));
 
             routeRefreshState.Verify(x => x.MarkDirty(), Times.Once);
-        }
-
-        [Test]
-        public void Handle_refresh_by_id_returns_when_umbraco_context_is_unavailable()
-        {
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContextAccessor> umbracoContextAccessor = new();
-            Umbraco.Cms.Core.Web.IUmbracoContext? context = null;
-            umbracoContextAccessor
-                .Setup(x => x.TryGetUmbracoContext(out context))
-                .Returns(false);
-
-            ContentCacheRefresherHandler sut = CreateSut(
-                [],
-                out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                umbracoContextAccessor.Object);
-
-            sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById));
-
-            routeRefreshState.Verify(x => x.MarkDirty(), Times.Never);
         }
 
         [Test]
@@ -214,18 +210,43 @@ namespace Articulate.Tests.Components
                 alias: ArticulateConstants.ContentType.Articulate);
 
             Mock<IPublishedContentCache> publishedContentCache = new();
-            publishedContentCache.Setup(x => x.GetById(100)).Returns((IPublishedContent?)null);
+            publishedContentCache.Setup(x => x.GetById(false, 100)).Returns((IPublishedContent?)null);
             publishedContentCache.Setup(x => x.GetById(true, 100)).Returns(changedContent);
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(publishedContentCache: publishedContentCache.Object));
+                publishedContentCache.Object);
 
             sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById));
 
             routeRefreshState.Verify(x => x.MarkDirty(), Times.Never);
             publishedContentCache.Verify(x => x.GetById(true, 100), Times.Once);
+        }
+
+        [Test]
+        public void Handle_refresh_by_id_reads_published_content_even_when_the_request_is_in_preview()
+        {
+            IPublishedContent draft = CreatePublishedContent(
+                id: 100,
+                path: "-1,100",
+                level: 1,
+                sortOrder: 0,
+                alias: ArticulateConstants.ContentType.Articulate);
+
+            // The preview cookie makes the flagless lookup return the draft; only explicitly published content counts.
+            Mock<IPublishedContentCache> publishedContentCache = new();
+            publishedContentCache.Setup(x => x.GetById(100)).Returns(draft);
+            publishedContentCache.Setup(x => x.GetById(true, 100)).Returns(draft);
+
+            ContentCacheRefresherHandler sut = CreateSut(
+                [],
+                out Mock<IArticulateRouteRefreshState> routeRefreshState,
+                publishedContentCache.Object);
+
+            sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RefreshById));
+
+            routeRefreshState.Verify(x => x.MarkDirty(), Times.Never);
         }
 
         [Test]
@@ -239,13 +260,13 @@ namespace Articulate.Tests.Components
                 alias: ArticulateConstants.ContentType.Articulate);
 
             Mock<IPublishedContentCache> publishedContentCache = new();
-            publishedContentCache.Setup(x => x.GetById(100)).Returns((IPublishedContent?)null);
+            publishedContentCache.Setup(x => x.GetById(false, 100)).Returns((IPublishedContent?)null);
             publishedContentCache.Setup(x => x.GetById(true, 100)).Returns(changedContent);
 
             ContentCacheRefresherHandler sut = CreateSut(
                 [],
                 out Mock<IArticulateRouteRefreshState> routeRefreshState,
-                CreateUmbracoContextAccessor(publishedContentCache: publishedContentCache.Object));
+                publishedContentCache.Object);
 
             sut.Handle(new ContentCacheRefresherNotification(100, MessageType.RemoveById));
 
@@ -299,7 +320,7 @@ namespace Articulate.Tests.Components
         private static ContentCacheRefresherHandler CreateSut(
             IEnumerable<IPublishedContent> articulateRoots,
             out Mock<IArticulateRouteRefreshState> routeRefreshState,
-            Umbraco.Cms.Core.Web.IUmbracoContextAccessor? umbracoContextAccessor = null,
+            IPublishedContentCache? publishedContentCache = null,
             Umbraco.Cms.Infrastructure.Scoping.IScopeProvider? scopeProvider = null)
         {
             routeRefreshState = new Mock<IArticulateRouteRefreshState>();
@@ -315,7 +336,7 @@ namespace Articulate.Tests.Components
                 .Returns(articulateRoots);
 
             return new ContentCacheRefresherHandler(
-                umbracoContextAccessor ?? Mock.Of<Umbraco.Cms.Core.Web.IUmbracoContextAccessor>(),
+                publishedContentCache ?? Mock.Of<IPublishedContentCache>(),
                 routeRefreshState.Object,
                 contentTypeCache.Object,
                 documentCacheService.Object,
@@ -332,39 +353,8 @@ namespace Articulate.Tests.Components
             return scopeProvider.Object;
         }
 
-        private static Umbraco.Cms.Core.Web.IUmbracoContextAccessor CreateUmbracoContextAccessor(
-            IPublishedContent? liveContent = null,
-            IPublishedContent? previewContent = null,
-            IPublishedContentCache? publishedContentCache = null)
-        {
-            Mock<IPublishedContentCache> contentCache = publishedContentCache is null
-                ? new Mock<IPublishedContentCache>()
-                : Mock.Get(publishedContentCache);
-
-            if (publishedContentCache is null)
-            {
-                if (liveContent is not null)
-                {
-                    contentCache.Setup(x => x.GetById(liveContent.Id)).Returns(liveContent);
-                }
-
-                if (previewContent is not null)
-                {
-                    contentCache.Setup(x => x.GetById(true, previewContent.Id)).Returns(previewContent);
-                }
-            }
-
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContext> umbracoContext = new();
-            umbracoContext.SetupGet(x => x.Content).Returns(contentCache.Object);
-
-            Mock<Umbraco.Cms.Core.Web.IUmbracoContextAccessor> umbracoContextAccessor = new();
-            Umbraco.Cms.Core.Web.IUmbracoContext? context = umbracoContext.Object;
-            umbracoContextAccessor
-                .Setup(x => x.TryGetUmbracoContext(out context))
-                .Returns(true);
-
-            return umbracoContextAccessor.Object;
-        }
+        private static IPublishedContentCache CreateContentCache(IPublishedContent liveContent) =>
+            Mock.Of<IPublishedContentCache>(x => x.GetById(false, liveContent.Id) == liveContent);
 
         private static IContent CreateContent(string path, int level, int sortOrder, string alias, bool published = true)
         {
