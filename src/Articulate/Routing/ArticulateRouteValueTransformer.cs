@@ -26,7 +26,8 @@ namespace Articulate.Routing
         ILogger<ArticulateRouteValueTransformer> logger,
         UmbracoRouteValueTransformer umbracoRouteValueTransformer,
         IPublishedContentTypeCache publishedContentTypeCache,
-        IDocumentCacheService documentCacheService)
+        IDocumentCacheService documentCacheService,
+        IPublicAccessRequestHandler publicAccessRequestHandler)
         : DynamicRouteValueTransformer, IDisposable
     {
         private readonly ReaderWriterLockSlim _lock = new();
@@ -211,15 +212,20 @@ namespace Articulate.Routing
                 publishedRequest,
                 dynamicRouteValues.ControllerActionDescriptor);
 
+            // Umbraco only checks public access for content it routes itself.
+            umbracoRouteValues = await publicAccessRequestHandler.RewriteForPublishedContentAccessAsync(
+                httpContext,
+                umbracoRouteValues) ?? umbracoRouteValues;
+
             // Store the route values as a httpcontext feature
             httpContext.Features.Set(umbracoRouteValues);
 
-            umbracoContext.PublishedRequest = publishedRequest;
+            umbracoContext.PublishedRequest = umbracoRouteValues.PublishedRequest;
 
-            values[ControllerToken] = dynamicRouteValues.ControllerActionDescriptor.ControllerName;
-            if (!string.IsNullOrWhiteSpace(dynamicRouteValues.ControllerActionDescriptor.ActionName))
+            values[ControllerToken] = umbracoRouteValues.ControllerName;
+            if (!string.IsNullOrWhiteSpace(umbracoRouteValues.ActionName))
             {
-                values[ActionToken] = dynamicRouteValues.ControllerActionDescriptor.ActionName;
+                values[ActionToken] = umbracoRouteValues.ActionName;
             }
         }
 
