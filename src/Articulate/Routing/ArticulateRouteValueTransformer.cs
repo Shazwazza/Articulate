@@ -141,26 +141,18 @@ namespace Articulate.Routing
             HttpContext httpContext,
             RouteValueDictionary values)
         {
+            ArticulateRootNodeCache dynamicRouteValues;
+
+            // Released before awaiting: the lock is thread-bound and the request can resume on another thread.
             _lock.EnterReadLock();
             try
             {
-                if (_hasCache)
+                if (!_hasCache || !articulateRouteBuilder.TryMatch(
+                        httpContext.Request.Path,
+                        values,
+                        out dynamicRouteValues))
                 {
-                    if (!articulateRouteBuilder.TryMatch(
-                            httpContext.Request.Path,
-                            values,
-                            out ArticulateRootNodeCache dynamicRouteValues))
-                    {
-                        return false;
-                    }
-
-                    await WriteRouteValuesAsync(
-                        umbracoContext,
-                        httpContext,
-                        dynamicRouteValues,
-                        umbracoRouteValues,
-                        values);
-                    return true;
+                    return false;
                 }
             }
             finally
@@ -168,7 +160,13 @@ namespace Articulate.Routing
                 _lock.ExitReadLock();
             }
 
-            return false;
+            await WriteRouteValuesAsync(
+                umbracoContext,
+                httpContext,
+                dynamicRouteValues,
+                umbracoRouteValues,
+                values);
+            return true;
         }
 
         private async Task WriteRouteValuesAsync(

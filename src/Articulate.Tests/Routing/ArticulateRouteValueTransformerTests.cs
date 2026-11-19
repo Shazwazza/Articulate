@@ -129,6 +129,31 @@ namespace Articulate.Tests.Routing
         }
 
         [Test]
+        public async Task TransformAsync_routes_when_the_access_check_completes_asynchronously()
+        {
+            IPublishedContent root = CreateRoot(100);
+            Mock<IPublicAccessRequestHandler> publicAccess = new();
+            publicAccess
+                .Setup(x => x.RewriteForPublishedContentAccessAsync(It.IsAny<HttpContext>(), It.IsAny<UmbracoRouteValues>()))
+                .Returns(async (HttpContext _, UmbracoRouteValues routeValues) =>
+                {
+                    await Task.Yield();
+                    return routeValues;
+                });
+            (ArticulateRouteValueTransformer sut, _, ArticulateRouteRefreshState refreshState) = CreateSut([root], publicAccess.Object);
+
+            RouteValueDictionary values = await sut.TransformAsync(CreateHttpContext("/blog/rss"), new RouteValueDictionary());
+            refreshState.MarkDirty();
+            RouteValueDictionary rebuilt = await sut.TransformAsync(CreateHttpContext("/blog/rss"), new RouteValueDictionary());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(values["controller"], Is.EqualTo("ArticulateRss"));
+                Assert.That(rebuilt["controller"], Is.EqualTo("ArticulateRss"));
+            });
+        }
+
+        [Test]
         public async Task TransformAsync_reuses_route_cache_when_refresh_version_is_unchanged()
         {
             IPublishedContent root = CreateRoot(100);
