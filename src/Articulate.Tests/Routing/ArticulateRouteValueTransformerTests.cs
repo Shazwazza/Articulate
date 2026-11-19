@@ -103,6 +103,57 @@ namespace Articulate.Tests.Routing
         }
 
         [Test]
+        public async Task TransformAsync_reroutes_a_protected_root_to_the_public_access_page()
+        {
+            IPublishedContent root = CreateRoot(100);
+            UmbracoRouteValues loginPage = new(
+                Mock.Of<IPublishedRequest>(),
+                new ControllerActionDescriptor { ControllerName = "Render", ActionName = "Index" });
+            Mock<IPublicAccessRequestHandler> publicAccess = new();
+            publicAccess
+                .Setup(x => x.RewriteForPublishedContentAccessAsync(
+                    It.IsAny<HttpContext>(),
+                    It.Is<UmbracoRouteValues>(v => v.PublishedRequest.PublishedContent == root)))
+                .ReturnsAsync(loginPage);
+            (ArticulateRouteValueTransformer sut, _, _) = CreateSut([root], publicAccess.Object);
+            DefaultHttpContext context = CreateHttpContext("/blog/rss");
+
+            RouteValueDictionary values = await sut.TransformAsync(context, new RouteValueDictionary());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(values["controller"], Is.EqualTo("Render"));
+                Assert.That(values["action"], Is.EqualTo("Index"));
+                Assert.That(context.Features.Get<UmbracoRouteValues>(), Is.SameAs(loginPage));
+            });
+        }
+
+        [Test]
+        public async Task TransformAsync_routes_when_the_access_check_completes_asynchronously()
+        {
+            IPublishedContent root = CreateRoot(100);
+            Mock<IPublicAccessRequestHandler> publicAccess = new();
+            publicAccess
+                .Setup(x => x.RewriteForPublishedContentAccessAsync(It.IsAny<HttpContext>(), It.IsAny<UmbracoRouteValues>()))
+                .Returns(async (HttpContext _, UmbracoRouteValues routeValues) =>
+                {
+                    await Task.Yield();
+                    return routeValues;
+                });
+            (ArticulateRouteValueTransformer sut, _, ArticulateRouteRefreshState refreshState) = CreateSut([root], publicAccess.Object);
+
+            RouteValueDictionary values = await sut.TransformAsync(CreateHttpContext("/blog/rss"), new RouteValueDictionary());
+            refreshState.MarkDirty();
+            RouteValueDictionary rebuilt = await sut.TransformAsync(CreateHttpContext("/blog/rss"), new RouteValueDictionary());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(values["controller"], Is.EqualTo("ArticulateRss"));
+                Assert.That(rebuilt["controller"], Is.EqualTo("ArticulateRss"));
+            });
+        }
+
+        [Test]
         public async Task TransformAsync_reuses_route_cache_when_refresh_version_is_unchanged()
         {
             IPublishedContent root = CreateRoot(100);
@@ -154,7 +205,8 @@ namespace Articulate.Tests.Routing
             ArticulateRouteValueTransformer Transformer,
             ArticulateRouter Router,
             ArticulateRouteRefreshState RefreshState) CreateSut(
-            IEnumerable<IPublishedContent> articulateRoots)
+            IEnumerable<IPublishedContent> articulateRoots,
+            IPublicAccessRequestHandler? publicAccessRequestHandler = null)
         {
             Mock<IScopeProvider> scopeProvider = new();
             scopeProvider
@@ -252,9 +304,19 @@ namespace Articulate.Tests.Routing
                 NullLogger<ArticulateRouteValueTransformer>.Instance,
                 umbracoTransformer,
                 publishedContentTypeCache.Object,
-                documentCacheService.Object);
+                documentCacheService.Object,
+                publicAccessRequestHandler ?? AllowAll());
 
             return (transformer, router, refreshState);
+        }
+
+        private static IPublicAccessRequestHandler AllowAll()
+        {
+            Mock<IPublicAccessRequestHandler> handler = new();
+            handler
+                .Setup(x => x.RewriteForPublishedContentAccessAsync(It.IsAny<HttpContext>(), It.IsAny<UmbracoRouteValues>()))
+                .ReturnsAsync((HttpContext _, UmbracoRouteValues routeValues) => routeValues);
+            return handler.Object;
         }
 
         private static DefaultHttpContext CreateHttpContext(string path)
