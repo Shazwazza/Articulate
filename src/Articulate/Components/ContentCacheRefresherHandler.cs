@@ -8,7 +8,6 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Services.Changes;
 using Umbraco.Cms.Core.Sync;
-using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Articulate.Routing;
 
@@ -18,7 +17,7 @@ namespace Articulate.Components
     /// Notification handler to refresh Articulate routes when the content cache is updated.
     /// </summary>
     public sealed class ContentCacheRefresherHandler(
-        IUmbracoContextAccessor umbracoContextAccessor,
+        IPublishedContentCache publishedContentCache,
         IArticulateRouteRefreshState routeRefreshState,
         IPublishedContentTypeCache publishedContentTypeCache,
         IDocumentCacheService documentCacheService,
@@ -99,20 +98,15 @@ namespace Articulate.Components
 
         private void RefreshById(int id, bool allowUnpublishedRefresh)
         {
-            if (!umbracoContextAccessor.TryGetUmbracoContext(out IUmbracoContext? umbracoContext))
-            {
-                return;
-            }
-
             using (scopeProvider.CreateScope(autoComplete: true))
             {
-                IPublishedContent? item = umbracoContext.Content.GetById(id);
+                IPublishedContent? item = publishedContentCache.GetById(false, id);
 
                 // We need to handle cases where the state of siblings at a lower sort order directly affect an Articulate node's routing.
                 // This will happen on copy, move, sort, unpublish, delete
                 if (item is null)
                 {
-                    item = umbracoContext.Content.GetById(true, id);
+                    item = publishedContentCache.GetById(true, id);
 
                     // Deleted items are no longer in the published or preview cache. When the
                     // deleted item cannot be inspected, the existing routing code falls back to
