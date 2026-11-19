@@ -17,6 +17,6 @@ overrides:
   js-yaml@<4.3.2: ^4.3.2
   source-map-js@<1.2.2: ^1.2.2
 minimumReleaseAgeExclude:
+  - "@umbraco-cms/backoffice@17.8.2"
+  - "@umbraco-cms/backoffice@18.3.2"
   - source-map-js@1.2.2
-  - '@umbraco-cms/backoffice@17.7.2'
-  - '@umbraco-cms/backoffice@18.2.2'
